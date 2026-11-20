@@ -1,0 +1,20 @@
+{
+  "name": "@platform/shared-types",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'Shared types verified'",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

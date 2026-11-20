@@ -1,0 +1,34 @@
+{
+  "name": "accounting-platform-monorepo",
+  "private": true,
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @platform/shared-types build && pnpm --filter @platform/accounting-core build && pnpm --filter @platform/gst-rules build && pnpm --filter @platform/ui build && pnpm --filter @platform/api build && pnpm --filter @platform/web build",
+    "dev:web": "pnpm --filter @platform/web dev",
+    "dev:api": "pnpm --filter @platform/api dev",
+    "dev:worker": "pnpm --filter @platform/worker dev",
+    "lint": "pnpm --filter @platform/web lint",
+    "test": "pnpm --filter @platform/accounting-core test && pnpm --filter @platform/gst-rules test && pnpm --filter @platform/api test",
+    "test:cov": "pnpm --filter @platform/accounting-core test:cov && pnpm --filter @platform/gst-rules test:cov",
+    "typecheck": "pnpm --filter @platform/accounting-core typecheck && pnpm --filter @platform/gst-rules typecheck && pnpm --filter @platform/ui typecheck && pnpm --filter @platform/api typecheck && pnpm --filter @platform/web typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "clean": "rm -rf node_modules apps/*/dist apps/*/.next packages/*/dist"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^22.8.7",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "next": "^14.2.16",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "turbo": "^2.1.3",
+    "typescript": "^5.6.3"
+  }
+}

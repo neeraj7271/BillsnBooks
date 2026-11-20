@@ -1,0 +1,9 @@
+short_id,name,trade_name,party_type,registration_type,pan,gstin,address_line1,city,state_code,pincode,phone,email
+CUST-REG-01,Apex Infotech Solutions Pvt Ltd,,CUSTOMER,REGULAR,AAECR4512D,27AAECR4512D1ZQ,402 Business Point Andheri East,Mumbai,27,400069,+91 98200 55101,accounts@apexinfotech.test
+CUST-REG-02,Bengaluru Cloudworks Pvt Ltd,,CUSTOMER,REGULAR,AABCA1234F,29AABCA1234F1Z5,12 Residency Road MG Road,Bengaluru,29,560025,+91 98450 55202,billing@blrcloud.test
+VEND-REG-01,Capital Network Equipment Pvt Ltd,,VENDOR,REGULAR,AACCS6677G,07AACCS6677G1Z1,Plot 18 Okhla Industrial Phase III,New Delhi,07,110020,+91 98110 55303,orders@capitalnet.test
+CUST-SEZ-01,GIFT Global FinTech SEZ Unit,,CUSTOMER,SEZ_UNIT,AAGCS9911H,24AAGCS9911H1Z8,Tower 1A GIFT SEZ,Gandhinagar,24,382355,+91 98790 55404,tax@giftglobal.test
+CUST-COMP-01,Jaipur Handicrafts & Textiles,,CUSTOMER,COMPOSITION,AAHCP1122J,08AAHCP1122J1ZK,14 Johari Bazaar,Jaipur,08,302003,+91 94140 55505,sales@jaipurcrafts.test
+CUST-UNREG-01,Suresh Kumar Sharma,,CUSTOMER,UNREGISTERED,OVQPS2080P,,Flat 301 Sunrise Heights Malviya Nagar,Jaipur,08,302017,+91 94140 55606,suresh.sharma@example.com
+CUST-OVS-01,Pacific Cloud Strategies LLC,,CUSTOMER,OVERSEAS,,,500 Howard Street Suite 400,San Francisco,96,94105,+1 555 019 2834,ap@pacificcloud.test
+

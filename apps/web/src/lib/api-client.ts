@@ -1,0 +1,1354 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+export const DEFAULT_COMPANY_ID = 'c0000000-0000-4000-8000-000000000001';
+export const DEFAULT_TENANT_ID = 'a0000000-0000-4000-8000-000000000001';
+
+export function getActiveTenantId(): string {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('antigravity_tenant_id');
+    if (stored) return stored;
+  }
+  return DEFAULT_TENANT_ID;
+}
+
+export function getActiveUserId(): string {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('antigravity_user_id');
+    if (stored) return stored;
+  }
+  return 'b0000000-0000-4000-8000-000000000001';
+}
+
+export function getActiveCompanyId(): string {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('antigravity_active_company_id');
+    if (stored) return stored;
+  }
+  return DEFAULT_COMPANY_ID;
+}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const url = `${API_BASE_URL}${path}`;
+  const headers = new Headers(options.headers || {});
+
+  const tenantId = getActiveTenantId();
+  if (tenantId && !headers.has('x-tenant-id')) {
+    headers.set('x-tenant-id', tenantId);
+  }
+
+  const userId = getActiveUserId();
+  if (userId && !headers.has('x-user-id')) {
+    headers.set('x-user-id', userId);
+  }
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('antigravity_access_token');
+    if (token && !headers.has('authorization')) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+  }
+
+  // Only set Content-Type to JSON if not uploading FormData
+  if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    let errorMsg: any =
+      json?.error?.message ||
+      json?.message ||
+      json?.error ||
+      `API Error: ${response.status} ${response.statusText}`;
+
+    if (typeof errorMsg === 'object' && errorMsg !== null) {
+      errorMsg = errorMsg.message || JSON.stringify(errorMsg);
+    }
+
+    const finalMsg = Array.isArray(errorMsg) ? errorMsg.join(', ') : String(errorMsg);
+    throw new Error(finalMsg);
+  }
+
+  return json?.data ?? json;
+}
+
+export const apiClient = {
+  // Authentication & Tenant Registration
+  async register(dto: {
+    tenantName?: string;
+    tenantSlug?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    accountType?: string;
+  }) {
+    return request<any>('/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async login(dto: { email: string; password: string }) {
+    return request<any>('/v1/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  // System Health
+  async getHealth() {
+    return request<{ status: string; database: string }>('/v1/health');
+  },
+
+  // Tally Connector & Masters
+  async getTallyConnector(companyId: string = getActiveCompanyId()) {
+    return request<any>(`/v1/companies/${companyId}/tally/connector`);
+  },
+
+  async getTallyMasters(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/tally/masters`);
+  },
+
+  async recordTallyHeartbeat(companyId: string = getActiveCompanyId(), machineName: string = 'ACC-PROD-MUM-01') {
+    return request<any>(`/v1/companies/${companyId}/tally/heartbeat`, {
+      method: 'POST',
+      body: JSON.stringify({ machineName, tallyPort: 9000, tallyVersion: 'TallyPrime 4.1' }),
+    });
+  },
+
+  async previewTallyXml(companyId: string = getActiveCompanyId(), voucherData?: any) {
+    return request<{ xml: string }>(`/v1/companies/${companyId}/tally/preview-envelope`, {
+      method: 'POST',
+      body: JSON.stringify(voucherData || {}),
+    });
+  },
+
+  // Bulk Import Batches & Staging
+  async listImportBatches(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/imports`);
+  },
+
+  async uploadImportFile(companyId: string = getActiveCompanyId(), file: File, importType: string = 'SALES_REGISTER') {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('importType', importType);
+
+    return request<{
+      batch: any;
+      detectedHeaders: string[];
+      sampleRows: Record<string, any>[];
+      recommendedMapping: Record<string, string>;
+    }>(`/v1/companies/${companyId}/imports/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  async applyMapping(companyId: string = getActiveCompanyId(), batchId: string, mapping: Record<string, string>) {
+    return request<any>(`/v1/companies/${companyId}/imports/${batchId}/map`, {
+      method: 'POST',
+      body: JSON.stringify(mapping),
+    });
+  },
+
+  async getImportBatch(companyId: string = getActiveCompanyId(), batchId: string) {
+    return request<any>(`/v1/companies/${companyId}/imports/${batchId}`);
+  },
+
+  async getImportRows(
+    companyId: string = getActiveCompanyId(),
+    batchId: string,
+    status?: string,
+    page: number = 1,
+    limit: number = 50,
+  ) {
+    const params = new URLSearchParams();
+    if (status && status !== 'ALL') params.append('status', status);
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+
+    return request<{ rows: any[]; total: number; page: number; limit: number }>(
+      `/v1/companies/${companyId}/imports/${batchId}/rows?${params.toString()}`,
+    );
+  },
+
+  async bulkFixRows(companyId: string = getActiveCompanyId(), batchId: string, payload: {
+    rowIds?: string[];
+    targetField: string;
+    fixValue?: string;
+  }) {
+    return request<any>(`/v1/companies/${companyId}/imports/${batchId}/rows/bulk-fix`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async approveBatch(companyId: string = getActiveCompanyId(), batchId: string) {
+    return request<any>(`/v1/companies/${companyId}/imports/${batchId}/approve`, {
+      method: 'POST',
+    });
+  },
+
+  async scanImportMasters(companyId: string = getActiveCompanyId(), batchId: string) {
+    return request<{
+      hasMissingMasters: boolean;
+      missingParties: any[];
+      missingItems: any[];
+      unmappedUnits: any[];
+      existingPartiesCount: number;
+      existingItemsCount: number;
+    }>(`/v1/companies/${companyId}/imports/${batchId}/masters/scan`);
+  },
+
+  async resolveImportMasters(companyId: string = getActiveCompanyId(), batchId: string, payload: any) {
+    return request<{
+      created: { createdParties: number; createdItems: number };
+      batch: any;
+    }>(`/v1/companies/${companyId}/imports/${batchId}/masters/resolve`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async autoFixImportGst(companyId: string = getActiveCompanyId(), batchId: string) {
+    return request<{
+      fixedCount: number;
+      batch: any;
+    }>(`/v1/companies/${companyId}/imports/${batchId}/auto-fix-gst`, {
+      method: 'POST',
+    });
+  },
+
+  async downloadImportTemplate(type: string, companyId: string = getActiveCompanyId()) {
+    const url = `${API_BASE_URL}/v1/companies/${companyId}/imports/templates/${type}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to download template: ${res.statusText}`);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${type}-template.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  },
+
+  async postBatchToLedger(companyId: string = getActiveCompanyId(), batchId: string) {
+    return request<{ batch: any; postedCount: number }>(`/v1/companies/${companyId}/imports/${batchId}/post`, {
+      method: 'POST',
+    });
+  },
+
+  // Banking & BRS
+  async listBankAccounts(companyId?: string) {
+    const q = companyId ? `?companyId=${companyId}` : '';
+    return request<any[]>(`/v1/banking/accounts${q}`);
+  },
+
+  async createBankAccount(data: {
+    companyId: string;
+    branchId?: string;
+    bankName: string;
+    accountNumber: string;
+    ifscCode: string;
+    accountType?: string;
+    ledgerId?: string;
+    openingBalance?: number;
+  }) {
+    return request<any>('/v1/banking/accounts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async uploadBankStatement(bankAccountId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request<{
+      statementId: string;
+      totalTransactions: number;
+      openingBalance: number;
+      closingBalance: number;
+      isContinuityValid: boolean;
+      unbilledCreditsDiscovered: number;
+    }>(`/v1/banking/accounts/${bankAccountId}/statement`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  async getBRSSummary(bankAccountId: string) {
+    return request<any>(`/v1/banking/accounts/${bankAccountId}/brs`);
+  },
+
+  async listBankTransactions(bankAccountId: string, status?: string) {
+    const q = status ? `?status=${status}` : '';
+    return request<any[]>(`/v1/banking/accounts/${bankAccountId}/transactions${q}`);
+  },
+
+  async getMatchSuggestions(transactionId: string) {
+    return request<any[]>(`/v1/banking/transactions/${transactionId}/suggestions`);
+  },
+
+  async matchTransaction(transactionId: string, voucherId: string) {
+    return request<any>(`/v1/banking/transactions/${transactionId}/match`, {
+      method: 'POST',
+      body: JSON.stringify({ voucherId }),
+    });
+  },
+
+  async unmatchTransaction(transactionId: string) {
+    return request<any>(`/v1/banking/transactions/${transactionId}/unmatch`, {
+      method: 'POST',
+    });
+  },
+
+  // Sales Discovery
+  async listDiscoveryTickets(status?: string) {
+    const q = status ? `?status=${status}` : '';
+    return request<any[]>(`/v1/banking/discovery/tickets${q}`);
+  },
+
+  async scanDiscoveryTickets(bankAccountId?: string) {
+    return request<{ createdCount: number }>('/v1/banking/discovery/tickets/scan', {
+      method: 'POST',
+      body: JSON.stringify({ bankAccountId }),
+    });
+  },
+
+  async convertDiscoveryTicket(
+    ticketId: string,
+    payload: {
+      targetType: 'ADVANCE_RECEIPT' | 'SALES_INVOICE';
+      partyLedgerId: string;
+      salesLedgerId?: string;
+      narration?: string;
+    },
+  ) {
+    return request<{ voucherId: string; voucherNumber: string }>(
+      `/v1/banking/discovery/tickets/${ticketId}/convert`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+    );
+  },
+
+  // Companies & Branches
+  async listCompanies() {
+    return request<any[]>('/v1/companies');
+  },
+
+  async getCompany(companyId: string) {
+    return request<any>(`/v1/companies/${companyId}`);
+  },
+
+  async createCompany(data: {
+    legalName: string;
+    tradeName?: string;
+    pan?: string;
+    gstin?: string;
+    stateCode?: string;
+    defaultCurrency?: string;
+  }) {
+    return request<any>('/v1/companies', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateCompany(companyId: string, data: {
+    legalName?: string;
+    tradeName?: string;
+    pan?: string;
+    gstin?: string;
+    stateCode?: string;
+    defaultCurrency?: string;
+    addressLine1?: string;
+    pincode?: string;
+  }) {
+    return request<any>(`/v1/companies/${companyId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async listBranches(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/branches`);
+  },
+
+  async addBranch(companyId: string = getActiveCompanyId(), data: {
+    branchName: string;
+    gstin?: string;
+    stateCode: string;
+    addressLine1?: string;
+    pincode?: string;
+    isHeadOffice?: boolean;
+  }) {
+    return request<any>(`/v1/companies/${companyId}/branches`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Ledgers & Chart of Accounts
+  async listLedgers(companyId: string = getActiveCompanyId(), groupId?: string) {
+    const q = groupId ? `?groupId=${groupId}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/ledgers${q}`);
+  },
+
+  async getLedgerTree(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/ledgers/tree`);
+  },
+
+  async createLedger(companyId: string = getActiveCompanyId(), data: {
+    groupId: string;
+    code?: string;
+    name: string;
+    openingBalance?: number;
+    isBankOrCash?: boolean;
+    scheduleIiiMapping?: string;
+    tallyLedgerName?: string;
+    gstTaxType?: string;
+    gstRate?: number;
+  }) {
+    return request<any>(`/v1/companies/${companyId}/ledgers`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateLedger(companyId: string = getActiveCompanyId(), ledgerId: string, data: any) {
+    return request<any>(`/v1/companies/${companyId}/ledgers/${ledgerId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteLedger(companyId: string = getActiveCompanyId(), ledgerId: string) {
+    return request<any>(`/v1/companies/${companyId}/ledgers/${ledgerId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async listLedgerGroups(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/ledgers/groups`);
+  },
+
+  async createLedgerGroup(companyId: string = getActiveCompanyId(), data: {
+    parentGroupId?: string;
+    code?: string;
+    name: string;
+    nature?: string;
+    tallyGroupName?: string;
+    scheduleIiiMapping?: string;
+  }) {
+    return request<any>(`/v1/companies/${companyId}/ledgers/groups`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateLedgerGroup(companyId: string = getActiveCompanyId(), groupId: string, data: any) {
+    return request<any>(`/v1/companies/${companyId}/ledgers/groups/${groupId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteLedgerGroup(companyId: string = getActiveCompanyId(), groupId: string) {
+    return request<any>(`/v1/companies/${companyId}/ledgers/groups/${groupId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async seedLedgers(companyId: string = getActiveCompanyId(), template: string = 'TRADER') {
+    return request<any>(`/v1/companies/${companyId}/ledgers/seed`, {
+      method: 'POST',
+      body: JSON.stringify({ template }),
+    });
+  },
+
+  // Vouchers
+  async listVouchers(companyId: string = getActiveCompanyId(), params?: {
+    voucherType?: string;
+    status?: string;
+    fromDate?: string;
+    toDate?: string;
+    limit?: number;
+  }) {
+    const q = new URLSearchParams();
+    if (params?.voucherType) q.append('voucherType', params.voucherType);
+    if (params?.status) q.append('status', params.status);
+    if (params?.fromDate) q.append('fromDate', params.fromDate);
+    if (params?.toDate) q.append('toDate', params.toDate);
+    if (params?.limit) q.append('limit', params.limit.toString());
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/vouchers${queryStr}`);
+  },
+
+  async getVoucher(companyId: string = getActiveCompanyId(), voucherId: string) {
+    return request<any>(`/v1/companies/${companyId}/vouchers/${voucherId}`);
+  },
+
+  async reverseVoucher(companyId: string = getActiveCompanyId(), voucherId: string) {
+    return request<any>(`/v1/companies/${companyId}/vouchers/${voucherId}/reverse`, {
+      method: 'POST',
+    });
+  },
+
+  async createVoucher(companyId: string = getActiveCompanyId(), data: any) {
+    return request<any>(`/v1/companies/${companyId}/vouchers`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Central Numbering Series Configuration
+  async listNumberingSeries(
+    companyId: string = getActiveCompanyId(),
+    docType?: string,
+    branchId?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (docType) q.append('docType', docType);
+    if (branchId) q.append('branchId', branchId);
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/numbering-series${queryStr}`);
+  },
+
+  async configureActiveNumberingSeries(
+    companyId: string = getActiveCompanyId(),
+    data: {
+      docType: string;
+      branchId?: string | null;
+      prefix?: string;
+      suffix?: string;
+      startSeq: number;
+      seqPadding?: number;
+      isManual?: boolean;
+    },
+  ) {
+    return request<any>(`/v1/companies/${companyId}/numbering-series/configure`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async createNumberingSeries(companyId: string = getActiveCompanyId(), data: any) {
+    return request<any>(`/v1/companies/${companyId}/numbering-series`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateNumberingSeries(
+    companyId: string = getActiveCompanyId(),
+    seriesId: string,
+    data: any,
+  ) {
+    return request<any>(`/v1/companies/${companyId}/numbering-series/${seriesId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Accounting Periods
+  async listPeriods(companyId: string = getActiveCompanyId(), financialYearId?: string) {
+    const q = financialYearId ? `?financialYearId=${financialYearId}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/periods${q}`);
+  },
+
+  async lockPeriod(companyId: string = getActiveCompanyId(), periodId: string) {
+    return request<any>(`/v1/companies/${companyId}/periods/${periodId}/lock`, {
+      method: 'POST',
+    });
+  },
+
+  async unlockPeriod(companyId: string = getActiveCompanyId(), periodId: string) {
+    return request<any>(`/v1/companies/${companyId}/periods/${periodId}/unlock`, {
+      method: 'POST',
+    });
+  },
+
+  // Financial Reports
+  async getTrialBalance(companyId: string = getActiveCompanyId(), asOfDate?: string, fromDate?: string) {
+    const q = new URLSearchParams();
+    if (asOfDate) q.append('asOfDate', asOfDate);
+    if (fromDate) q.append('fromDate', fromDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/trial-balance${qs}`);
+  },
+
+  async getGeneralLedger(companyId: string = getActiveCompanyId(), ledgerId: string, fromDate?: string, toDate?: string) {
+    const q = new URLSearchParams();
+    q.append('ledgerId', ledgerId);
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    return request<any>(`/v1/companies/${companyId}/reports/general-ledger?${q.toString()}`);
+  },
+
+  async getProfitAndLoss(companyId: string = getActiveCompanyId(), fromDate?: string, toDate?: string) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/profit-and-loss${qs}`);
+  },
+
+  async getBalanceSheet(companyId: string = getActiveCompanyId(), asOfDate?: string) {
+    const q = asOfDate ? `?asOfDate=${asOfDate}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/balance-sheet${q}`);
+  },
+
+  // Parties (Customers & Vendors)
+  async listParties(companyId: string = getActiveCompanyId(), partyType?: string) {
+    const q = partyType ? `?partyType=${partyType}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/parties${q}`);
+  },
+
+  async getParty(companyId: string = getActiveCompanyId(), partyId: string) {
+    return request<any>(`/v1/companies/${companyId}/parties/${partyId}`);
+  },
+
+  async createParty(companyId: string = getActiveCompanyId(), data: any) {
+    return request<any>(`/v1/companies/${companyId}/parties`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateParty(companyId: string = getActiveCompanyId(), partyId: string, data: any) {
+    return request<any>(`/v1/companies/${companyId}/parties/${partyId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteParty(companyId: string = getActiveCompanyId(), partyId: string) {
+    return request<any>(`/v1/companies/${companyId}/parties/${partyId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Items & Services
+  async listItems(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/items`);
+  },
+
+  async getItem(companyId: string = getActiveCompanyId(), itemId: string) {
+    return request<any>(`/v1/companies/${companyId}/items/${itemId}`);
+  },
+
+  async createItem(companyId: string = getActiveCompanyId(), data: any) {
+    return request<any>(`/v1/companies/${companyId}/items`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateItem(companyId: string = getActiveCompanyId(), itemId: string, data: any) {
+    return request<any>(`/v1/companies/${companyId}/items/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteItem(companyId: string = getActiveCompanyId(), itemId: string) {
+    return request<any>(`/v1/companies/${companyId}/items/${itemId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Units of Measurement (UOM Master)
+  async listUnits(companyId: string = getActiveCompanyId()) {
+    return request<{ standard: any[]; custom: any[] }>(`/v1/companies/${companyId}/items/units`);
+  },
+
+  async createCustomUnit(companyId: string = getActiveCompanyId(), data: { code: string; name: string; description?: string }) {
+    return request<any>(`/v1/companies/${companyId}/items/units`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateCustomUnit(companyId: string = getActiveCompanyId(), code: string, data: { name: string; description?: string }) {
+    return request<any>(`/v1/companies/${companyId}/items/units/${encodeURIComponent(code)}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteCustomUnit(companyId: string = getActiveCompanyId(), code: string) {
+    return request<any>(`/v1/companies/${companyId}/items/units/${code}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Invoices
+  async listInvoices(companyId: string = getActiveCompanyId(), params?: {
+    status?: string;
+    partyId?: string;
+    fromDate?: string;
+    toDate?: string;
+    limit?: number;
+  }) {
+    const q = new URLSearchParams();
+    if (params?.status) q.append('status', params.status);
+    if (params?.partyId) q.append('partyId', params.partyId);
+    if (params?.fromDate) q.append('fromDate', params.fromDate);
+    if (params?.toDate) q.append('toDate', params.toDate);
+    if (params?.limit) q.append('limit', params.limit.toString());
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/invoices${queryStr}`);
+  },
+
+  async getNextInvoiceNumber(
+    companyId: string = getActiveCompanyId(),
+    documentType: string = 'TAX_INVOICE',
+    branchId?: string,
+    invoiceDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (documentType) q.append('documentType', documentType);
+    if (branchId) q.append('branchId', branchId);
+    if (invoiceDate) q.append('invoiceDate', invoiceDate);
+    const queryStr = q.toString() ? `?${q.toString()}` : '';
+    return request<{ invoiceNumber: string; isAuto: boolean; seriesPattern?: string }>(
+      `/v1/companies/${companyId}/invoices/next-number${queryStr}`
+    );
+  },
+
+  async getInvoice(companyId: string = getActiveCompanyId(), invoiceId: string) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}`);
+  },
+
+  async createInvoice(companyId: string = getActiveCompanyId(), data: any) {
+    return request<any>(`/v1/companies/${companyId}/invoices`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateInvoice(companyId: string = getActiveCompanyId(), invoiceId: string, data: any) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async approveInvoice(companyId: string = getActiveCompanyId(), invoiceId: string, comments?: string) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ comments }),
+    });
+  },
+
+  async rejectInvoice(companyId: string = getActiveCompanyId(), invoiceId: string, reason: string) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  async convertToTaxInvoice(companyId: string = getActiveCompanyId(), invoiceId: string) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/convert-to-tax-invoice`, {
+      method: 'POST',
+    });
+  },
+
+  async cancelInvoice(
+    companyId: string = getActiveCompanyId(),
+    invoiceId: string,
+    reason: string,
+  ) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  async setPromiseToPay(
+    companyId: string = getActiveCompanyId(),
+    invoiceId: string,
+    data: { promiseToPayDate?: string; promiseToPayNotes?: string },
+  ) {
+    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/promise-to-pay`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Approvals Inbox
+  async listApprovals(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/approvals`);
+  },
+
+  async approveRequest(companyId: string = getActiveCompanyId(), requestId: string, comments?: string) {
+    return request<any>(`/v1/companies/${companyId}/approvals/${requestId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ comments }),
+    });
+  },
+
+  async rejectRequest(companyId: string = getActiveCompanyId(), requestId: string, reason: string) {
+    return request<any>(`/v1/companies/${companyId}/approvals/${requestId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  },
+
+  // Notifications
+  async listNotifications(limit: number = 20) {
+    return request<any[]>(`/v1/notifications?limit=${limit}`);
+  },
+
+  async markNotificationRead(notificationId: string) {
+    return request<any>(`/v1/notifications/${notificationId}/read`, {
+      method: 'POST',
+    });
+  },
+
+  async markAllNotificationsRead() {
+    return request<any>('/v1/notifications/read-all', {
+      method: 'POST',
+    });
+  },
+
+  // Phase 5: Practice Management & Client Portal
+  async listPracticeClients() {
+    return request<any[]>('/v1/practice/clients');
+  },
+
+  async createPracticeClient(dto: {
+    companyId: string;
+    clientCode: string;
+    primaryContactName: string;
+    primaryContactEmail: string;
+    primaryContactPhone?: string;
+    engagementType?: string;
+    serviceTier?: string;
+  }) {
+    return request<any>('/v1/practice/clients', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async listPracticeTasks(filters?: { clientId?: string; status?: string; category?: string }) {
+    const q = new URLSearchParams();
+    if (filters?.clientId) q.append('clientId', filters.clientId);
+    if (filters?.status) q.append('status', filters.status);
+    if (filters?.category) q.append('category', filters.category);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/practice/tasks${qs}`);
+  },
+
+  async createPracticeTask(dto: {
+    clientId: string;
+    title: string;
+    description?: string;
+    category: string;
+    statutoryPeriod: string;
+    dueDate: string;
+    priority?: string;
+    assignedToUserId?: string;
+  }) {
+    return request<any>('/v1/practice/tasks', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async updatePracticeTaskStatus(id: string, status: string, filingAcknowledgmentNumber?: string) {
+    return request<any>(`/v1/practice/tasks/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, filingAcknowledgmentNumber }),
+    });
+  },
+
+  async addPracticeTaskComment(id: string, comment: string, isInternalOnly: boolean = false) {
+    return request<any>(`/v1/practice/tasks/${id}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ comment, isInternalOnly }),
+    });
+  },
+
+  async listPracticeDocuments(clientId?: string) {
+    const q = clientId ? `?clientId=${clientId}` : '';
+    return request<any[]>(`/v1/practice/documents${q}`);
+  },
+
+  async createPracticeDocumentRequest(dto: {
+    clientId: string;
+    title: string;
+    description?: string;
+    documentType: string;
+    period: string;
+    dueDate?: string;
+  }) {
+    return request<any>('/v1/practice/documents', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async uploadClientDocument(id: string, payload: { fileName: string; fileSizeBytes: number; fileUrl: string }) {
+    return request<any>(`/v1/practice/documents/${id}/upload`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async reviewClientDocument(id: string, status: 'ACCEPTED' | 'REJECTED', rejectionReason?: string) {
+    return request<any>(`/v1/practice/documents/${id}/review`, {
+      method: 'POST',
+      body: JSON.stringify({ status, rejectionReason }),
+    });
+  },
+
+  async getPracticeCalendar(month?: string) {
+    const q = month ? `?month=${month}` : '';
+    return request<any>(`/v1/practice/calendar${q}`);
+  },
+
+  // Collections & Ageing (Phase 6)
+  async getArAgeingSummary(companyId: string = getActiveCompanyId(), asOfDate?: string) {
+    const q = asOfDate ? `?asOfDate=${asOfDate}` : '';
+    return request<any>(`/v1/companies/${companyId}/collections/ageing/summary${q}`);
+  },
+
+  async getPartyAgeing(companyId: string = getActiveCompanyId(), asOfDate?: string) {
+    const q = asOfDate ? `?asOfDate=${asOfDate}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/collections/ageing/parties${q}`);
+  },
+
+  async getInvoicesAgeing(companyId: string = getActiveCompanyId(), asOfDate?: string) {
+    const q = asOfDate ? `?asOfDate=${asOfDate}` : '';
+    return request<any[]>(`/v1/companies/${companyId}/collections/ageing/invoices${q}`);
+  },
+
+  async setCollectionsPromiseToPay(
+    companyId: string = getActiveCompanyId(),
+    invoiceId: string,
+    promiseToPayDate?: string,
+    promiseToPayNotes?: string,
+  ) {
+    return request<any>(`/v1/companies/${companyId}/collections/ageing/invoices/${invoiceId}/promise-to-pay`, {
+      method: 'POST',
+      body: JSON.stringify({ promiseToPayDate, promiseToPayNotes }),
+    });
+  },
+
+  async listRecurringSchedules(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/collections/recurring`);
+  },
+
+  async createRecurringSchedule(companyId: string = getActiveCompanyId(), dto: any) {
+    return request<any>(`/v1/companies/${companyId}/collections/recurring`, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async updateRecurringScheduleStatus(companyId: string = getActiveCompanyId(), scheduleId: string, status: string) {
+    return request<any>(`/v1/companies/${companyId}/collections/recurring/${scheduleId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  async triggerRecurringRun(companyId: string = getActiveCompanyId(), scheduleId: string) {
+    return request<any>(`/v1/companies/${companyId}/collections/recurring/${scheduleId}/run`, {
+      method: 'POST',
+    });
+  },
+
+  async listPaymentLinks(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/collections/payment-links`);
+  },
+
+  async createPaymentLink(companyId: string = getActiveCompanyId(), dto: any) {
+    return request<any>(`/v1/companies/${companyId}/collections/payment-links`, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async simulatePaymentCallback(companyId: string = getActiveCompanyId(), linkId: string) {
+    return request<any>(`/v1/companies/${companyId}/collections/payment-links/${linkId}/callback`, {
+      method: 'POST',
+    });
+  },
+
+  async listGatewaySettlements(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/collections/settlements`);
+  },
+
+  async reconcileGatewaySettlement(companyId: string = getActiveCompanyId(), dto: any) {
+    return request<any>(`/v1/companies/${companyId}/collections/settlements/reconcile`, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  async listReminders(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/collections/reminders`);
+  },
+
+  async sendCollectionReminder(companyId: string = getActiveCompanyId(), dto: any) {
+    return request<any>(`/v1/companies/${companyId}/collections/reminders`, {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  },
+
+  // Settings & Configuration
+  async getCompanySettings(companyId: string = getActiveCompanyId(), branchId?: string, docType?: string) {
+    const params = new URLSearchParams();
+    if (branchId) params.append('branchId', branchId);
+    if (docType) params.append('docType', docType);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await request<any>(`/v1/companies/${companyId}/settings${qs}`);
+    if (Array.isArray(res)) {
+      const map: Record<string, any> = {};
+      for (const item of res) {
+        if (item && item.key) {
+          map[item.key] = item.value;
+        }
+      }
+      return map;
+    }
+    return res || {};
+  },
+
+  async listResolvedSettings(companyId: string = getActiveCompanyId(), branchId?: string, docType?: string) {
+    const params = new URLSearchParams();
+    if (branchId) params.append('branchId', branchId);
+    if (docType) params.append('docType', docType);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await request<any[]>(`/v1/companies/${companyId}/settings${qs}`);
+    return Array.isArray(res) ? res : [];
+  },
+
+  async updateCompanySetting(
+    companyId: string = getActiveCompanyId(),
+    key: string,
+    value: any,
+    scope: string = 'COMPANY',
+    scopeId?: string | null,
+    reason?: string,
+  ) {
+    return request<any>(`/v1/companies/${companyId}/settings`, {
+      method: 'POST',
+      body: JSON.stringify({ key, value, scope, scopeId, reason }),
+    });
+  },
+
+  async setCompanySetting(
+    companyId: string = getActiveCompanyId(),
+    key: string,
+    value: any,
+    scope: string = 'COMPANY',
+    scopeId?: string | null,
+    reason?: string,
+  ) {
+    return this.updateCompanySetting(companyId, key, value, scope, scopeId, reason);
+  },
+
+  // --- Enterprise Reports & Analytics ---
+  async getReportsCatalog(companyId: string = getActiveCompanyId()) {
+    return request<any[]>(`/v1/companies/${companyId}/reports/catalog`);
+  },
+
+  async toggleFavoriteReport(companyId: string = getActiveCompanyId(), reportKey: string) {
+    return request<any>(`/v1/companies/${companyId}/reports/favorites/${reportKey}/toggle`, {
+      method: 'POST',
+    });
+  },
+
+  async getCustomerSalesReport(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/customer-sales${qs}`);
+  },
+
+  async getCustomerSales(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    return this.getCustomerSalesReport(companyId, fromDate, toDate);
+  },
+
+  async getItemSalesReport(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/item-sales${qs}`);
+  },
+
+  async getItemSales(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    return this.getItemSalesReport(companyId, fromDate, toDate);
+  },
+
+  async getExpensesMonthly(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/expenses/monthly${qs}`);
+  },
+
+  async getExpensesVendor(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/expenses/vendor${qs}`);
+  },
+
+  async getExpensesCategory(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/expenses/category${qs}`);
+  },
+
+  async getExpensesRegister(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+    voucherType?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    if (voucherType) q.append('voucherType', voucherType);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/expenses/register${qs}`);
+  },
+
+  async getPurchasesItems(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/purchases/items${qs}`);
+  },
+
+  async getCashBankAudit(
+    companyId: string = getActiveCompanyId(),
+    auditType: string = 'cash-negative',
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    q.append('auditType', auditType);
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    return request<any>(`/v1/companies/${companyId}/reports/cash-bank-audit?${q.toString()}`);
+  },
+
+  async getPayablesSummary(
+    companyId: string = getActiveCompanyId(),
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/payables/summary${qs}`);
+  },
+
+  async getPayablesAgeing(
+    companyId: string = getActiveCompanyId(),
+    method: string = 'tally',
+    asOfDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    if (method) q.append('method', method);
+    if (asOfDate) q.append('asOfDate', asOfDate);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any>(`/v1/companies/${companyId}/reports/payables/ageing${qs}`);
+  },
+
+  async getLedgerHygiene(
+    companyId: string = getActiveCompanyId(),
+    hygieneType: string = 'squared-off',
+  ) {
+    return request<any>(`/v1/companies/${companyId}/reports/ledger-hygiene?hygieneType=${hygieneType}`);
+  },
+
+  async downloadReportExport(
+    companyId: string = getActiveCompanyId(),
+    reportKey: string,
+    format: 'xlsx' | 'pdf',
+    fromDate?: string,
+    toDate?: string,
+  ) {
+    const q = new URLSearchParams();
+    q.append('format', format);
+    if (fromDate) q.append('fromDate', fromDate);
+    if (toDate) q.append('toDate', toDate);
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('antigravity_access_token') : null;
+    const tenantId = getActiveTenantId();
+    const userId = getActiveUserId();
+    if (tenantId) q.append('tenantId', tenantId);
+    if (userId) q.append('userId', userId);
+    const url = `${API_BASE_URL}/v1/companies/${companyId}/reports/${reportKey}/export?${q.toString()}`;
+
+    if (format === 'pdf') {
+      // In PDF mode, open popup synchronously to satisfy browser user gesture & Playwright listeners, then stream HTML
+      const printWin = typeof window !== 'undefined' ? window.open('about:blank', '_blank') : null;
+      try {
+        const res = await fetch(url, {
+          headers: {
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+            'x-tenant-id': tenantId,
+            'x-user-id': userId,
+          },
+        });
+
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(`Export preview failed: ${err}`);
+        }
+
+        const html = await res.text();
+        if (printWin && !printWin.closed) {
+          printWin.document.open();
+          printWin.document.write(html);
+          printWin.document.close();
+        } else if (typeof window !== 'undefined') {
+          const blob = new Blob([html], { type: 'text/html' });
+          const blobUrl = window.URL.createObjectURL(blob);
+          window.open(blobUrl, '_blank');
+        }
+      } catch (e) {
+        if (printWin && !printWin.closed) printWin.close();
+        throw e;
+      }
+      return;
+    }
+
+    const res = await fetch(url, {
+      headers: {
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        'x-tenant-id': tenantId,
+        'x-user-id': userId,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Export failed: ${err}`);
+    }
+
+    const blob = await res.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const disposition = res.headers.get('content-disposition');
+    let filename = `${reportKey.toLowerCase()}_report_${Date.now()}.${format}`;
+    if (disposition && disposition.includes('filename=')) {
+      const match = disposition.match(/filename="?([^";]+)"?/);
+      if (match && match[1]) filename = match[1];
+    }
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  },
+
+  async shareReport(
+    companyId: string = getActiveCompanyId(),
+    reportKey: string,
+    payload: {
+      channel: 'EMAIL' | 'WHATSAPP' | 'DIRECT_LINK';
+      recipientEmail?: string;
+      recipientPhone?: string;
+      expiresInHours?: number;
+      filters?: any;
+      remarks?: string;
+    },
+  ) {
+    return request<any>(`/v1/companies/${companyId}/reports/${reportKey}/share`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getSharedReport(token: string) {
+    return request<any>(`/v1/reports/shared/${token}`);
+  },
+
+  // --- Notification Architecture & Settings ---
+  async getNotificationSettings(companyId: string = getActiveCompanyId()) {
+    return request<any>(`/v1/companies/${companyId}/notifications/settings`);
+  },
+
+  async updateNotificationSettings(companyId: string = getActiveCompanyId(), payload: any) {
+    return request<any>(`/v1/companies/${companyId}/notifications/settings`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async sendTestNotification(companyId: string = getActiveCompanyId(), channel: string = 'IN_APP') {
+    return request<any>(`/v1/companies/${companyId}/notifications/test`, {
+      method: 'POST',
+      body: JSON.stringify({ channel }),
+    });
+  },
+
+  async triggerNotificationScan(companyId: string = getActiveCompanyId(), simulatedDate?: string) {
+    return request<any>(`/v1/companies/${companyId}/notifications/trigger-scan`, {
+      method: 'POST',
+      body: JSON.stringify({ simulatedDate }),
+    });
+  },
+};
+

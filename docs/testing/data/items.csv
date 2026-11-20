@@ -1,0 +1,7 @@
+short_id,item_code,name,hsn_sac_code,item_type,uom,unit_price,gst_rate_percent,sales_ledger_code
+ITM-SRV-18,SRV-CLOUD-01,Enterprise Cloud SaaS Subscription,998315,SERVICES,MONTH,25000.00,18.00,3100
+ITM-SRV-18B,SRV-CONSULT-01,Architecture Consulting Services,998311,SERVICES,HOURS,5000.00,18.00,3100
+ITM-GDS-18,HW-ROUTER-01,Enterprise Dual-WAN Core Router,851762,GOODS,NOS,42000.00,18.00,3100
+ITM-GDS-05,FAB-COTTON-01,Organic Cotton Twill Fabric (Roll),5208,GOODS,METERS,450.00,5.00,3100
+ITM-NIL-00,BK-HANDBOOK-01,Indian Statutory Accounts Compendium,4901,GOODS,NOS,1200.00,0.00,3110
+

@@ -1,0 +1,239 @@
+export enum VoucherType {
+  SALES = 'SALES',
+  PURCHASE = 'PURCHASE',
+  PAYMENT = 'PAYMENT',
+  RECEIPT = 'RECEIPT',
+  CONTRA = 'CONTRA',
+  JOURNAL = 'JOURNAL',
+  CREDIT_NOTE = 'CREDIT_NOTE',
+  DEBIT_NOTE = 'DEBIT_NOTE',
+}
+
+export enum VoucherStatus {
+  DRAFT = 'DRAFT',
+  POSTED = 'POSTED',
+  REVERSED = 'REVERSED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum EntryType {
+  DEBIT = 'DEBIT',
+  CREDIT = 'CREDIT',
+}
+
+export enum AccountNature {
+  ASSET = 'ASSET',
+  LIABILITY = 'LIABILITY',
+  EQUITY = 'EQUITY',
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE',
+}
+
+export enum ReportType {
+  BALANCE_SHEET = 'BALANCE_SHEET',
+  PROFIT_AND_LOSS = 'PROFIT_AND_LOSS',
+  TRADING_ACCOUNT = 'TRADING_ACCOUNT',
+}
+
+export enum NormalBalance {
+  DEBIT = 'DEBIT',
+  CREDIT = 'CREDIT',
+}
+
+export enum CoaSource {
+  SEED = 'SEED',
+  USER = 'USER',
+  TALLY_IMPORT = 'TALLY_IMPORT',
+}
+
+export enum BusinessTemplate {
+  TRADER = 'TRADER',
+  MANUFACTURER = 'MANUFACTURER',
+  SERVICE = 'SERVICE',
+  MINIMAL = 'MINIMAL',
+}
+
+export enum GstTaxType {
+  CGST = 'CGST',
+  SGST = 'SGST',
+  IGST = 'IGST',
+  UTGST = 'UTGST',
+  CESS = 'CESS',
+}
+
+export enum RiskApprovalState {
+  GREEN = 'GREEN',       // Validated, safe to post
+  YELLOW = 'YELLOW',     // Clarification required (ambiguous/low confidence)
+  RED = 'RED',           // Blocked (mandatory rule failed)
+  BLUE = 'BLUE',         // Needs maker-checker approval
+}
+
+export enum OutboxStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  PUBLISHED = 'PUBLISHED',
+  FAILED = 'FAILED',
+}
+
+export enum OutboxEventType {
+  VOUCHER_CREATED = 'VOUCHER_CREATED',
+  VOUCHER_POSTED = 'VOUCHER_POSTED',
+  VOUCHER_REVERSED = 'VOUCHER_REVERSED',
+  PERIOD_LOCKED = 'PERIOD_LOCKED',
+  AUDIT_LOG_RECORDED = 'AUDIT_LOG_RECORDED',
+}
+
+export enum UserRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  FIRM_PARTNER = 'FIRM_PARTNER',
+  STAFF_ACCOUNTANT = 'STAFF_ACCOUNTANT',
+  CLIENT_APPROVER = 'CLIENT_APPROVER',
+  CLIENT_VIEWER = 'CLIENT_VIEWER',
+}
+
+export enum PartyType {
+  CUSTOMER = 'CUSTOMER',
+  VENDOR = 'VENDOR',
+  BOTH = 'BOTH',
+}
+
+export enum PartyRegistrationType {
+  REGULAR = 'REGULAR',
+  COMPOSITION = 'COMPOSITION',
+  UNREGISTERED = 'UNREGISTERED',
+  SEZ_UNIT = 'SEZ_UNIT',
+  SEZ_DEVELOPER = 'SEZ_DEVELOPER',
+  DEEMED_EXPORT = 'DEEMED_EXPORT',
+  OVERSEAS = 'OVERSEAS',
+  UIN_HOLDER = 'UIN_HOLDER',
+}
+
+export enum RegistrationStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum AddressType {
+  BILLING = 'BILLING',
+  SHIPPING = 'SHIPPING',
+}
+
+export enum PartyLedgerLinkType {
+  RECEIVABLE_DEBTOR = 'RECEIVABLE_DEBTOR',
+  PAYABLE_CREDITOR = 'PAYABLE_CREDITOR',
+}
+
+export enum VerificationStatus {
+  VERIFIED = 'VERIFIED',
+  UNVERIFIED = 'UNVERIFIED',
+  FAILED = 'FAILED',
+  PROVIDER_DOWN = 'PROVIDER_DOWN',
+}
+
+export enum ItemType {
+  GOODS = 'GOODS',
+  SERVICES = 'SERVICES',
+}
+
+export enum InvoiceStatus {
+  DRAFT = 'DRAFT',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  ISSUED = 'ISSUED',
+  PAID = 'PAID',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum DocumentType {
+  TAX_INVOICE = 'TAX_INVOICE',
+  PROFORMA_INVOICE = 'PROFORMA_INVOICE',
+  DELIVERY_CHALLAN = 'DELIVERY_CHALLAN',
+}
+
+export enum TaxClassification {
+  TAXABLE = 'TAXABLE',
+  NIL_RATED = 'NIL_RATED',
+  EXEMPT = 'EXEMPT',
+  NON_GST = 'NON_GST',
+}
+
+export enum ApprovalStatus {
+  NONE = 'NONE',
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum ApprovalRequestType {
+  HIGH_VALUE_INVOICE = 'HIGH_VALUE_INVOICE',
+  VOUCHER_POSTING = 'VOUCHER_POSTING',
+  PERIOD_REOPEN = 'PERIOD_REOPEN',
+}
+
+export enum NotificationType {
+  INVOICE_ISSUED = 'INVOICE_ISSUED',
+  INVOICE_DUE_UPCOMING = 'INVOICE_DUE_UPCOMING',
+  INVOICE_DUE_TODAY = 'INVOICE_DUE_TODAY',
+  INVOICE_OVERDUE = 'INVOICE_OVERDUE',
+  COMPLIANCE_TASK_UPCOMING = 'COMPLIANCE_TASK_UPCOMING',
+  COMPLIANCE_TASK_OVERDUE = 'COMPLIANCE_TASK_OVERDUE',
+  APPROVAL_REQUIRED = 'APPROVAL_REQUIRED',
+  APPROVAL_RESOLVED = 'APPROVAL_RESOLVED',
+  PAYMENT_RECEIVED = 'PAYMENT_RECEIVED',
+  PERIOD_LOCKED = 'PERIOD_LOCKED',
+  PERIOD_LOCK_APPROACHING = 'PERIOD_LOCK_APPROACHING',
+  TEST_NOTIFICATION = 'TEST_NOTIFICATION',
+}
+
+export enum RecurringFrequency {
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  ANNUAL = 'ANNUAL',
+}
+
+export enum RecurringScheduleStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum PaymentLinkProvider {
+  RAZORPAY = 'RAZORPAY',
+  CASHFREE = 'CASHFREE',
+}
+
+export enum PaymentLinkStatus {
+  CREATED = 'CREATED',
+  PAID = 'PAID',
+  EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum GatewaySettlementStatus {
+  PENDING = 'PENDING',
+  RECONCILED = 'RECONCILED',
+  DISCREPANCY = 'DISCREPANCY',
+}
+
+export enum ReminderChannel {
+  WHATSAPP = 'WHATSAPP',
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+}
+
+export enum ReminderCadence {
+  UPCOMING_3_DAYS = 'UPCOMING_3_DAYS',
+  DUE_DATE = 'DUE_DATE',
+  OVERDUE_7_DAYS = 'OVERDUE_7_DAYS',
+  OVERDUE_15_DAYS = 'OVERDUE_15_DAYS',
+  CUSTOM = 'CUSTOM',
+}
+
+export enum ReminderStatus {
+  QUEUED = 'QUEUED',
+  SENT = 'SENT',
+  FAILED = 'FAILED',
+}
+

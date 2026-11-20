@@ -1,0 +1,63 @@
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'express';
+import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters/domain-exception.filter';
+
+async function bootstrap() {
+  const logger = new Logger('ApiBootstrap');
+  const app = await NestFactory.create(AppModule);
+
+  // Support high-resolution company logos, signatures, and document payloads (up to 25MB)
+  app.use(json({ limit: '25mb' }));
+  app.use(urlencoded({ extended: true, limit: '25mb' }));
+
+  const cookieMiddleware = typeof cookieParser === 'function' ? cookieParser : (cookieParser as any).default;
+  if (typeof cookieMiddleware === 'function') {
+    app.use(cookieMiddleware());
+  }
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, process.env.CORS_ORIGIN ? origin === process.env.CORS_ORIGIN : false);
+      }
+    },
+    credentials: true,
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Swagger OpenAPI Setup
+  const config = new DocumentBuilder()
+    .setTitle('End-to-End Accounting Platform API')
+    .setDescription('Authoritative Double-Entry Accounting, GST Compliance & Tally Integration API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('v1/docs', app, document);
+
+  const port = process.env.PORT || 4000;
+  await app.listen(port);
+  logger.log(`Accounting API running on http://localhost:${port}`);
+  logger.log(`OpenAPI documentation available on http://localhost:${port}/v1/docs`);
+}
+
+bootstrap().catch((err) => {
+  console.error('Failed to start API:', err);
+  process.exit(1);
+});
+

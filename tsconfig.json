@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@platform/accounting-core": ["packages/accounting-core/src"],
+      "@platform/gst-rules": ["packages/gst-rules/src"],
+      "@platform/shared-types": ["packages/shared-types/src"],
+      "@platform/ui": ["packages/ui/src"]
+    }
+  },
+  "references": [
+    { "path": "./packages/shared-types" },
+    { "path": "./packages/accounting-core" },
+    { "path": "./packages/gst-rules" },
+    { "path": "./packages/ui" },
+    { "path": "./apps/api" },
+    { "path": "./apps/web" },
+    { "path": "./apps/worker" }
+  ],
+  "files": []
+}
+

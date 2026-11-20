@@ -1,0 +1,275 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 248 250 252;
+    --foreground: 15 23 42;
+
+    /* Semantic Tokens (Light Mode) */
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+    --color-surface-raised: #ffffff;
+    --color-surface-sunken: #f1f5f9;
+    --color-surface-overlay: rgba(15, 23, 42, 0.45);
+
+    --color-border: #e2e8f0;
+    --color-border-subtle: #f1f5f9;
+    --color-border-strong: #cbd5e1;
+    --color-border-focus: #3b82f6;
+
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #64748b;
+    --color-text-inverse: #ffffff;
+
+    --color-brand: #2563eb;
+    --color-brand-hover: #1d4ed8;
+    --color-brand-subtle: #eff6ff;
+    --color-brand-text: #1d4ed8;
+
+    --color-success: #059669;
+    --color-success-subtle: #ecfdf5;
+    --color-success-text: #047857;
+
+    --color-warning: #d97706;
+    --color-warning-subtle: #fffbeb;
+    --color-warning-text: #b45309;
+
+    --color-danger: #dc2626;
+    --color-danger-subtle: #fef2f2;
+    --color-danger-text: #b91c1c;
+
+    --color-info: #0284c7;
+    --color-info-subtle: #f0f9ff;
+    --color-info-text: #0369a1;
+  }
+
+  .dark {
+    --background: 2 6 23;
+    --foreground: 248 250 252;
+
+    /* Semantic Tokens (Dark Mode) */
+    --color-bg: #020617;
+    --color-surface: #0b1329;
+    --color-surface-raised: #0f172a;
+    --color-surface-sunken: #020617;
+    --color-surface-overlay: rgba(0, 0, 0, 0.75);
+
+    --color-border: #1e293b;
+    --color-border-subtle: #0f172a;
+    --color-border-strong: #334155;
+    --color-border-focus: #60a5fa;
+
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #94a3b8;
+    --color-text-inverse: #020617;
+
+    --color-brand: #3b82f6;
+    --color-brand-hover: #60a5fa;
+    --color-brand-subtle: rgba(37, 99, 235, 0.15);
+    --color-brand-text: #93c5fd;
+
+    --color-success: #10b981;
+    --color-success-subtle: rgba(16, 185, 129, 0.15);
+    --color-success-text: #6ee7b7;
+
+    --color-warning: #f59e0b;
+    --color-warning-subtle: rgba(245, 158, 11, 0.15);
+    --color-warning-text: #fcd34d;
+
+    --color-danger: #ef4444;
+    --color-danger-subtle: rgba(239, 68, 68, 0.15);
+    --color-danger-text: #fca5a5;
+
+    --color-info: #38bdf8;
+    --color-info-subtle: rgba(56, 189, 248, 0.15);
+    --color-info-text: #7dd3fc;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    letter-spacing: -0.011em;
+  }
+
+  /* Global removal of number input up/down spin buttons */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+  input[type="number"] {
+    -webkit-appearance: none !important;
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+  }
+
+  /* Thin elegant scrollbar for finance dashboards */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, 0.45);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.6);
+  }
+}
+
+/* =========================================================================
+   Statutory Invoice & Document Print Stylesheet
+   ========================================================================= */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  /* Force hide all app chrome, navigation, headers, sidebars, buttons, tooltips */
+  aside,
+  header,
+  nav,
+  .print\:hidden,
+  [data-sidebar],
+  [role="navigation"],
+  button,
+  .no-print {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Pure white background with crisp black text for physical printing */
+  html,
+  body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #020617 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Override dark mode variables during print */
+  :root,
+  .dark {
+    --background: 255 255 255 !important;
+    --foreground: 2 6 23 !important;
+    --color-bg: #ffffff !important;
+    --color-surface: #ffffff !important;
+    --color-surface-raised: #ffffff !important;
+    --color-surface-sunken: #f8fafc !important;
+    --color-border: #e2e8f0 !important;
+    --color-border-subtle: #f1f5f9 !important;
+    --color-border-strong: #94a3b8 !important;
+    --color-text-primary: #020617 !important;
+    --color-text-secondary: #334155 !important;
+    --color-text-muted: #64748b !important;
+  }
+
+  /* Expand main layout to 100% full-width */
+  main,
+  [role="main"],
+  .max-w-7xl,
+  .max-w-5xl,
+  .max-w-4xl,
+  .preview-stage-mat {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* The printable invoice sheet with built-in statutory margins (suppresses browser URL/date header) */
+  #printable-invoice,
+  .printable-document {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 10mm 12mm !important;
+    box-sizing: border-box !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #020617 !important;
+  }
+
+  /* Force all dates, numbers, text, and labels inside printable documents to be crisp high-contrast black */
+  #printable-invoice time,
+  .printable-document time,
+  #printable-invoice .font-mono,
+  .printable-document .font-mono,
+  #printable-invoice .font-bold,
+  .printable-document .font-bold,
+  #printable-invoice .font-black,
+  .printable-document .font-black {
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-invoice .text-slate-400,
+  #printable-invoice .text-slate-500,
+  #printable-invoice .text-slate-600,
+  #printable-invoice .dark\:text-slate-300,
+  #printable-invoice .dark\:text-slate-400,
+  #printable-invoice .dark\:text-slate-500,
+  .printable-document .text-slate-400,
+  .printable-document .text-slate-500,
+  .printable-document .text-slate-600,
+  .printable-document .dark\:text-slate-300,
+  .printable-document .dark\:text-slate-400,
+  .printable-document .dark\:text-slate-500 {
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent pagination breaks inside key invoice tables and sections */
+  .printable-document,
+  .print-avoid-break,
+  table,
+  tr,
+  td,
+  th {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+}
