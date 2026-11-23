@@ -7,8 +7,10 @@ import {
   Body,
   Query,
   Request,
+  Headers,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
+import { requireContext } from '../../common/http/request-context';
 import {
   RecurringScheduleStatus,
   CreateRecurringScheduleDto,
@@ -22,16 +24,7 @@ export class CollectionsController {
   constructor(private readonly collectionsService: CollectionsService) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   // 1. AR Ageing
@@ -157,10 +150,16 @@ export class CollectionsController {
   async simulatePaymentCallback(
     @Param('companyId') companyId: string,
     @Param('linkId') linkId: string,
+    @Body() body: { signature?: string; amountPaid?: string | number; providerRef?: string },
+    @Headers('x-webhook-signature') signatureHeader: string,
     @Request() req: any,
   ) {
     const { tenantId } = this.getContext(req);
-    return await this.collectionsService.simulatePaymentCallback(tenantId, companyId, linkId);
+    return await this.collectionsService.simulatePaymentCallback(tenantId, companyId, linkId, {
+      signature: body?.signature || signatureHeader,
+      amountPaid: body?.amountPaid,
+      providerRef: body?.providerRef,
+    });
   }
 
   // 4. Gateway Settlements

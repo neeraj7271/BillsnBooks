@@ -15,6 +15,7 @@ import { PartyOrmEntity } from '../../infrastructure/persistence/entities/party.
 import { ItemOrmEntity } from '../../infrastructure/persistence/entities/item.orm-entity';
 import { BranchOrmEntity } from '../../infrastructure/persistence/entities/branch.orm-entity';
 import { LedgerOrmEntity } from '../../infrastructure/persistence/entities/ledger.orm-entity';
+import { LedgerGroupOrmEntity } from '../../infrastructure/persistence/entities/ledger-group.orm-entity';
 import { ApprovalRequestOrmEntity } from '../../infrastructure/persistence/entities/approval-request.orm-entity';
 import { NotificationOrmEntity } from '../../infrastructure/persistence/entities/notification.orm-entity';
 import {
@@ -183,7 +184,11 @@ export class InvoiceService {
       throw new BadRequestException('An invoice must contain at least one line item.');
     }
 
-    return this.uow.executeInTransaction(async (qr) => {
+    const maxInvoiceNumberAttempts = 5;
+    const autoNumber = !(dto.customInvoiceNumber || dto.invoiceNumber)?.trim();
+    for (let attempt = 1; attempt <= maxInvoiceNumberAttempts; attempt++) {
+      try {
+        return await this.uow.executeInTransaction(async (qr) => {
       // 1. Verify party
       const party = await qr.manager.findOne(PartyOrmEntity, {
         where: { id: dto.partyId, tenantId, companyId },
@@ -524,6 +529,20 @@ export class InvoiceService {
 
       return this.toDto(savedInvoice);
     });
+      } catch (err: any) {
+        const code = err?.code || err?.driverError?.code;
+        const text = `${err?.detail || ''} ${err?.message || ''}`;
+        const isDuplicateInvoiceNumber = code === '23505' && /invoice_number/i.test(text);
+        if (autoNumber && isDuplicateInvoiceNumber && attempt < maxInvoiceNumberAttempts) {
+          // Concurrent creation grabbed the same auto-generated number; recompute and retry.
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw new ConflictException(
+      'Unable to allocate a unique invoice number after multiple attempts. Please retry.',
+    );
   }
 
   async updateInvoice(
@@ -952,7 +971,32 @@ export class InvoiceService {
     invoice: InvoiceOrmEntity,
     party: PartyOrmEntity,
   ) {
-    // 1. Resolve Customer Ledger (Debtor)
+    // Resolve the company's ledgers once; prefer stable systemKey / gstTaxType
+    // over fuzzy name matching so we never (e.g.) credit Input CGST instead of
+    // Output CGST.
+    const allLedgers: LedgerOrmEntity[] = await qr.manager
+      .createQueryBuilder(LedgerOrmEntity, 'ledger')
+      .where('ledger.tenant_id = :tenantId', { tenantId })
+      .andWhere('ledger.company_id = :companyId', { companyId })
+      .getMany();
+
+    const bySystemKey = (key: string): LedgerOrmEntity | undefined =>
+      allLedgers.find((l) => l.systemKey === key);
+
+    // OUTPUT tax ledgers only - must never resolve to an Input/ITC ledger.
+    const byOutputGst = (taxType: string): LedgerOrmEntity | undefined =>
+      allLedgers.find((l) => {
+        const nameU = l.name.toUpperCase();
+        const isOutput =
+          (l.systemKey || '').toUpperCase().includes('OUTPUT') ||
+          nameU.startsWith('OUTPUT') ||
+          nameU.includes('OUTPUT');
+        if (!isOutput) return false;
+        if (l.gstTaxType && String(l.gstTaxType).toUpperCase() === taxType) return true;
+        return nameU.includes(taxType);
+      });
+
+    // 1. Customer (Sundry Debtor) ledger
     let customerLedgerId = party.ledgerId;
     if (!customerLedgerId) {
       const defaultDebtor = await qr.manager
@@ -962,109 +1006,112 @@ export class InvoiceService {
         .andWhere('ledger.company_id = :companyId', { companyId })
         .andWhere('grp.name ILIKE :grp', { grp: '%Debtor%' })
         .getOne();
-
       if (!defaultDebtor) {
         throw new BadRequestException('No Sundry Debtors ledger configured for invoicing.');
       }
       customerLedgerId = defaultDebtor.id;
     }
 
-    // 2. Resolve Sales Ledger
-    const salesLedger = await qr.manager
-      .createQueryBuilder(LedgerOrmEntity, 'ledger')
-      .where('ledger.tenant_id = :tenantId', { tenantId })
-      .andWhere('ledger.company_id = :companyId', { companyId })
-      .andWhere('ledger.name ILIKE :name', { name: '%Sales%' })
-      .getOne();
-
+    // 2. Sales ledger (prefer the seeded taxable-sales system ledger)
+    const salesLedger =
+      bySystemKey('LED_SALES_GST_DOMESTIC') ||
+      (await qr.manager
+        .createQueryBuilder(LedgerOrmEntity, 'ledger')
+        .where('ledger.tenant_id = :tenantId', { tenantId })
+        .andWhere('ledger.company_id = :companyId', { companyId })
+        .andWhere('ledger.name ILIKE :name', { name: '%Sales%' })
+        .getOne());
     if (!salesLedger) {
       throw new BadRequestException('No Sales ledger account found for company.');
     }
 
-    // 3. Resolve Tax Ledgers (CGST, SGST, IGST)
-    const ledgers = await qr.manager
-      .createQueryBuilder(LedgerOrmEntity, 'ledger')
-      .where('ledger.tenant_id = :tenantId', { tenantId })
-      .andWhere('ledger.company_id = :companyId', { companyId })
-      .getMany();
+    // 3. OUTPUT tax ledgers
+    const cgstLedger = bySystemKey('LED_CGST_OUTPUT') || byOutputGst('CGST');
+    const sgstLedger = bySystemKey('LED_SGST_OUTPUT') || byOutputGst('SGST');
+    const igstLedger = bySystemKey('LED_IGST_OUTPUT') || byOutputGst('IGST');
 
-    const cgstLedger = ledgers.find((l: LedgerOrmEntity) => l.name.toUpperCase().includes('CGST'));
-    const sgstLedger = ledgers.find((l: LedgerOrmEntity) => l.name.toUpperCase().includes('SGST'));
-    const igstLedger = ledgers.find((l: LedgerOrmEntity) => l.name.toUpperCase().includes('IGST'));
+    const subtotal = new Decimal(invoice.subtotalAmount || 0);
+    const cgst = new Decimal(invoice.cgstAmount || 0);
+    const sgst = new Decimal(invoice.sgstAmount || 0);
+    const igst = new Decimal(invoice.igstAmount || 0);
+    const cess = new Decimal(invoice.cessAmount || 0);
+    const roundedTotal = new Decimal(invoice.totalAmount || 0);
+    const isRcm = Boolean(invoice.isRcm);
 
-    if (!customerLedgerId) {
-      throw new BadRequestException('No Sundry Debtors ledger configured for invoicing.');
-    }
-
-    const totalAmountDec = new Decimal(invoice.totalAmount || 0);
-    const subtotalAmountDec = new Decimal(invoice.subtotalAmount || 0);
-    const cgstAmountDec = new Decimal(invoice.cgstAmount || 0);
-    const sgstAmountDec = new Decimal(invoice.sgstAmount || 0);
-    const igstAmountDec = new Decimal(invoice.igstAmount || 0);
-    const cessAmountDec = new Decimal(invoice.cessAmount || 0);
+    const custLedgerId: string = customerLedgerId as string;
 
     const entries: { ledgerId: string; entryType: EntryType; amount: string }[] = [];
 
-    // Debit: Customer (Total Amount)
-    entries.push({
-      ledgerId: customerLedgerId,
-      entryType: EntryType.DEBIT,
-      amount: totalAmountDec.toFixed(4),
-    });
+    if (isRcm) {
+      // Reverse charge: supplier does not collect output GST (the recipient
+      // discharges it directly), so only the taxable sale is booked.
+      entries.push({ ledgerId: custLedgerId, entryType: EntryType.DEBIT, amount: subtotal.toFixed(4) });
+      entries.push({ ledgerId: salesLedger.id, entryType: EntryType.CREDIT, amount: subtotal.toFixed(4) });
+    } else {
+      // Debit customer with the rounded invoice total; credit taxable sale and
+      // each applicable OUTPUT tax; Round Off absorbs the rounding difference so
+      // the voucher balances WITHOUT misstating Sales revenue.
+      entries.push({ ledgerId: custLedgerId, entryType: EntryType.DEBIT, amount: roundedTotal.toFixed(4) });
+      entries.push({ ledgerId: salesLedger.id, entryType: EntryType.CREDIT, amount: subtotal.toFixed(4) });
 
-    // Credit: Sales Account (Subtotal Taxable Amount)
-    entries.push({
-      ledgerId: salesLedger.id,
-      entryType: EntryType.CREDIT,
-      amount: subtotalAmountDec.toFixed(4),
-    });
+      if (cgst.greaterThan(0)) {
+        if (!cgstLedger) throw new BadRequestException('No Output CGST ledger configured for company.');
+        entries.push({ ledgerId: cgstLedger.id, entryType: EntryType.CREDIT, amount: cgst.toFixed(4) });
+      }
+      if (sgst.greaterThan(0)) {
+        if (!sgstLedger) throw new BadRequestException('No Output SGST ledger configured for company.');
+        entries.push({ ledgerId: sgstLedger.id, entryType: EntryType.CREDIT, amount: sgst.toFixed(4) });
+      }
+      if (igst.greaterThan(0)) {
+        if (!igstLedger) throw new BadRequestException('No Output IGST ledger configured for company.');
+        entries.push({ ledgerId: igstLedger.id, entryType: EntryType.CREDIT, amount: igst.toFixed(4) });
+      }
 
-    // Credit: CGST (if intra-state)
-    if (cgstAmountDec.greaterThan(0) && cgstLedger) {
-      entries.push({
-        ledgerId: cgstLedger.id,
-        entryType: EntryType.CREDIT,
-        amount: cgstAmountDec.toFixed(4),
-      });
+      // Cess -> dedicated Output Cess liability ledger (never folded into Sales).
+      if (cess.greaterThan(0)) {
+        const cessLedgerId = await this.resolveOrCreateOutputCessLedger(
+          qr, tenantId, companyId, allLedgers,
+        );
+        entries.push({ ledgerId: cessLedgerId, entryType: EntryType.CREDIT, amount: cess.toFixed(4) });
+      }
+
+      // Round Off: balance the rounded customer debit against exact credits.
+      const exactCredits = subtotal.plus(cgst).plus(sgst).plus(igst).plus(cess);
+      const roundOff = roundedTotal.minus(exactCredits); // >0 => need extra credit
+      if (!roundOff.isZero()) {
+        const roundOffLedger =
+          bySystemKey('LED_ROUND_OFF') ||
+          allLedgers.find((l) => {
+            const n = l.name.toUpperCase();
+            return n.includes('ROUND OFF') || n.includes('ROUND-OFF') || n.includes('ROUNDING');
+          });
+        if (roundOffLedger) {
+          entries.push({
+            ledgerId: roundOffLedger.id,
+            entryType: roundOff.greaterThan(0) ? EntryType.CREDIT : EntryType.DEBIT,
+            amount: roundOff.abs().toFixed(4),
+          });
+        } else {
+          // No Round Off ledger configured: bill the exact amount so the voucher
+          // balances without touching Sales or tax lines. entries[0] = customer.
+          entries[0]!.amount = exactCredits.toFixed(4);
+        }
+      }
     }
 
-    // Credit: SGST (if intra-state)
-    if (sgstAmountDec.greaterThan(0) && sgstLedger) {
-      entries.push({
-        ledgerId: sgstLedger.id,
-        entryType: EntryType.CREDIT,
-        amount: sgstAmountDec.toFixed(4),
-      });
-    }
-
-    // Credit: IGST (if inter-state)
-    if (igstAmountDec.greaterThan(0) && igstLedger) {
-      entries.push({
-        ledgerId: igstLedger.id,
-        entryType: EntryType.CREDIT,
-        amount: igstAmountDec.toFixed(4),
-      });
-    }
-
-    // Invariant check: Sum(Debits) === Sum(Credits)
+    // Hard invariant: Sum(Debits) === Sum(Credits). We no longer silently plug
+    // any residual into the Sales line.
     let debits = new Decimal(0);
     let credits = new Decimal(0);
-    for (const entry of entries) {
-      if (entry.entryType === EntryType.DEBIT) {
-        debits = debits.plus(new Decimal(entry.amount));
-      } else {
-        credits = credits.plus(new Decimal(entry.amount));
-      }
+    for (const e of entries) {
+      if (e.entryType === EntryType.DEBIT) debits = debits.plus(new Decimal(e.amount));
+      else credits = credits.plus(new Decimal(e.amount));
     }
-
-    const variance = debits.minus(credits);
-    if (!variance.isZero()) {
-      // Adjust into sales credit line so double-entry invariant is perfectly satisfied (variance = 0.0000)
-      const salesIdx = entries.findIndex((e) => e.ledgerId === salesLedger.id);
-      if (salesIdx >= 0) {
-        const adjustedSales = new Decimal(entries[salesIdx]!.amount).plus(variance);
-        entries[salesIdx]!.amount = adjustedSales.toFixed(4);
-      }
+    if (!debits.minus(credits).isZero()) {
+      throw new BadRequestException(
+        `Sales voucher for invoice ${invoice.invoiceNumber} does not balance ` +
+          `(Dr ${debits.toFixed(2)} vs Cr ${credits.toFixed(2)}). Check GST/Round Off ledger configuration.`,
+      );
     }
 
     return await this.voucherService.createAndPostVoucher(
@@ -1081,6 +1128,59 @@ export class InvoiceService {
       },
       `invoice-voucher-${invoice.id}`,
     );
+  }
+
+  /**
+   * Returns the id of the company's Output Cess liability ledger, provisioning a
+   * locked system ledger under "Duties & Taxes" if none exists. GST compensation
+   * cess must be booked as a liability, never folded into Sales revenue.
+   */
+  private async resolveOrCreateOutputCessLedger(
+    qr: any,
+    tenantId: string,
+    companyId: string,
+    allLedgers: LedgerOrmEntity[],
+  ): Promise<string> {
+    const existing = allLedgers.find((l) => {
+      const n = l.name.toUpperCase();
+      return (
+        l.systemKey === 'LED_CESS_OUTPUT' ||
+        (l.gstTaxType && String(l.gstTaxType).toUpperCase() === 'CESS' && n.includes('OUTPUT')) ||
+        (n.includes('OUTPUT') && n.includes('CESS'))
+      );
+    });
+    if (existing) return existing.id;
+
+    const dutiesGroup = await qr.manager
+      .createQueryBuilder(LedgerGroupOrmEntity, 'grp')
+      .where('grp.tenant_id = :tenantId', { tenantId })
+      .andWhere('grp.company_id = :companyId', { companyId })
+      .andWhere('(grp.system_key = :sk OR grp.name ILIKE :nm)', {
+        sk: 'GRP_DUTIES_AND_TAXES',
+        nm: '%Duties%Tax%',
+      })
+      .getOne();
+    if (!dutiesGroup) {
+      throw new BadRequestException(
+        'Cannot book GST cess: no "Duties & Taxes" ledger group is configured.',
+      );
+    }
+
+    const cessLedger = qr.manager.create(LedgerOrmEntity, {
+      tenantId,
+      companyId,
+      groupId: dutiesGroup.id,
+      code: '2119',
+      name: 'Output Cess',
+      systemKey: 'LED_CESS_OUTPUT',
+      isLocked: true,
+      isSystem: true,
+      gstTaxType: 'CESS' as any,
+      isActive: true,
+    });
+    const saved = await qr.manager.save(LedgerOrmEntity, cessLedger);
+    allLedgers.push(saved);
+    return saved.id;
   }
 
   private toDto(inv: InvoiceOrmEntity): InvoiceDto {

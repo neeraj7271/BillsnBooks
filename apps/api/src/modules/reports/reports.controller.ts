@@ -10,6 +10,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { Public } from '../../common/decorators/public.decorator';
+import { requireContext } from '../../common/http/request-context';
 import { ReportsService } from './reports.service';
 import { ReportExportService } from './report-export.service';
 import { ReportShareService } from './report-share.service';
@@ -24,17 +26,7 @@ export class ReportsController {
   ) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.query?.tenantId ||
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.query?.userId ||
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   // --- Catalog & Favorites ---
@@ -637,6 +629,7 @@ export class ReportsController {
     );
   }
 
+  @Public()
   @Get('reports/shared/:token')
   async getSharedReport(@Param('token') token: string) {
     const share = await this.shareService.resolveSharedReport(token);

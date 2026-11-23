@@ -26,8 +26,56 @@ export function getActiveCompanyId(): string {
   return DEFAULT_COMPANY_ID;
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE_URL}${path}`;
+// De-duplicates concurrent refreshes: all 401s share one in-flight refresh call.
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+  const refreshToken = localStorage.getItem('antigravity_refresh_token');
+  if (!refreshToken) return null;
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/v1/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        });
+        if (!res.ok) return null;
+        const json = await res.json().catch(() => null);
+        const tokens = json?.data?.tokens ?? json?.tokens;
+        if (tokens?.accessToken) {
+          localStorage.setItem('antigravity_access_token', tokens.accessToken);
+          if (tokens.refreshToken) {
+            localStorage.setItem('antigravity_refresh_token', tokens.refreshToken);
+          }
+          return tokens.accessToken as string;
+        }
+        return null;
+      } catch {
+        return null;
+      } finally {
+        // Cleared on next tick so concurrent callers reuse this result first.
+        setTimeout(() => {
+          refreshPromise = null;
+        }, 0);
+      }
+    })();
+  }
+  return refreshPromise;
+}
+
+function clearSessionAndRedirect() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('antigravity_access_token');
+  localStorage.removeItem('antigravity_refresh_token');
+  if (!window.location.pathname.startsWith('/auth')) {
+    window.location.href = '/auth/login';
+  }
+}
+
+function buildHeaders(options: RequestInit, accessTokenOverride?: string): Headers {
   const headers = new Headers(options.headers || {});
 
   const tenantId = getActiveTenantId();
@@ -35,27 +83,38 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers.set('x-tenant-id', tenantId);
   }
 
-  const userId = getActiveUserId();
-  if (userId && !headers.has('x-user-id')) {
-    headers.set('x-user-id', userId);
-  }
-
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('antigravity_access_token');
-    if (token && !headers.has('authorization')) {
+    const token = accessTokenOverride || localStorage.getItem('antigravity_access_token');
+    if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
   }
 
-  // Only set Content-Type to JSON if not uploading FormData
   if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
+  return headers;
+}
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const url = `${API_BASE_URL}${path}`;
+  const isAuthEndpoint = path.startsWith('/v1/auth/');
+
+  let response = await fetch(url, { ...options, headers: buildHeaders(options) });
+
+  // Transparently refresh an expired access token once, then retry.
+  if (response.status === 401 && !isAuthEndpoint && typeof window !== 'undefined') {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      response = await fetch(url, {
+        ...options,
+        headers: buildHeaders(options, newToken),
+      });
+    }
+    if (response.status === 401) {
+      clearSessionAndRedirect();
+    }
+  }
 
   const json = await response.json().catch(() => null);
 
@@ -99,6 +158,14 @@ export const apiClient = {
       method: 'POST',
       body: JSON.stringify(dto),
     });
+  },
+
+  async logout() {
+    try {
+      await request<any>('/v1/auth/logout', { method: 'POST' });
+    } catch {
+      // Best-effort server-side revocation; local tokens are cleared by caller.
+    }
   },
 
   // System Health

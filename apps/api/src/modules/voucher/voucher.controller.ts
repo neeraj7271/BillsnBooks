@@ -9,6 +9,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
+import { requireContext } from '../../common/http/request-context';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 
 @Controller('v1/companies/:companyId/vouchers')
@@ -16,16 +17,7 @@ export class VoucherController {
   constructor(private readonly voucherService: VoucherService) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   @Get()

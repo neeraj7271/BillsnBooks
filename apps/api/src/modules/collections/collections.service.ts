@@ -653,10 +653,33 @@ export class CollectionsService {
     });
   }
 
+
+  private toPaymentLinkDto(link: PaymentLinkOrmEntity): PaymentLinkDto {
+    return {
+      id: link.id,
+      tenantId: link.tenantId,
+      companyId: link.companyId,
+      invoiceId: link.invoiceId,
+      partyId: link.partyId,
+      partyName: link.party?.name,
+      invoiceNumber: link.invoice?.invoiceNumber,
+      provider: link.provider,
+      linkId: link.linkId,
+      shortUrl: link.shortUrl,
+      amount: link.amount,
+      currency: link.currency,
+      status: link.status,
+      paidAt: link.paidAt ? link.paidAt.toISOString() : undefined,
+      expiresAt: link.expiresAt?.toISOString(),
+      createdAt: link.createdAt.toISOString(),
+    } as PaymentLinkDto;
+  }
+
   async simulatePaymentCallback(
     tenantId: string,
     companyId: string,
     linkId: string,
+    callback?: { signature?: string; amountPaid?: string | number; providerRef?: string },
   ): Promise<PaymentLinkDto> {
     return this.uow.executeInTransaction(async (qr) => {
       const link = await qr.manager.findOne(PaymentLinkOrmEntity, {
@@ -665,6 +688,36 @@ export class CollectionsService {
       });
       if (!link) {
         throw new NotFoundException(`Payment link '${linkId}' not found.`);
+      }
+
+      // SECURITY: when a gateway webhook secret is configured, require and verify
+      // an HMAC-SHA256 signature over "<linkId>|<amountPaid>". This prevents a
+      // caller from spoofing a "paid" callback. (Without a configured secret the
+      // endpoint remains an authenticated internal simulation for testing.)
+      const webhookSecret = process.env.PAYMENT_WEBHOOK_SECRET;
+      if (webhookSecret) {
+        const expected = crypto
+          .createHmac('sha256', webhookSecret)
+          .update(`${linkId}|${callback?.amountPaid ?? ''}`)
+          .digest('hex');
+        const provided = callback?.signature || '';
+        const ok =
+          provided.length === expected.length &&
+          crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+        if (!ok) {
+          throw new BadRequestException('Invalid payment callback signature.');
+        }
+      }
+
+      // Expiry guard.
+      if (link.expiresAt && new Date() > new Date(link.expiresAt)) {
+        throw new BadRequestException('Payment link has expired.');
+      }
+
+      // Idempotency: a link already marked PAID is returned unchanged so repeated
+      // webhook deliveries do not double-settle.
+      if (link.status === PaymentLinkStatus.PAID) {
+        return this.toPaymentLinkDto(link);
       }
 
       link.status = PaymentLinkStatus.PAID;

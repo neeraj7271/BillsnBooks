@@ -5,9 +5,14 @@ import * as cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/domain-exception.filter';
+import { assertSecretsConfigured } from './common/config/secrets';
 
 async function bootstrap() {
   const logger = new Logger('ApiBootstrap');
+
+  // Fail fast if security-critical secrets are missing or weak.
+  assertSecretsConfigured();
+
   const app = await NestFactory.create(AppModule);
 
   // Support high-resolution company logos, signatures, and document payloads (up to 25MB)
@@ -18,13 +23,28 @@ async function bootstrap() {
   if (typeof cookieMiddleware === 'function') {
     app.use(cookieMiddleware());
   }
+  const isProduction = process.env.NODE_ENV === 'production';
+  const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      // Non-browser clients (curl, server-to-server) send no Origin header.
+      if (!origin) {
         callback(null, true);
-      } else {
-        callback(null, process.env.CORS_ORIGIN ? origin === process.env.CORS_ORIGIN : false);
+        return;
       }
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      // Localhost is permitted only outside production, for local development.
+      if (!isProduction && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
     },
     credentials: true,
   });

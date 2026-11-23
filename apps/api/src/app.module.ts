@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
+import { TenantContextInterceptor } from './common/interceptors/tenant-context.interceptor';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './infrastructure/persistence/data-source';
 import { PersistenceModule } from './infrastructure/persistence/persistence.module';
@@ -50,5 +54,10 @@ import { HealthController } from './modules/health/health.controller';
     NumberingModule,
   ],
   controllers: [HealthController],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Decimal } from 'decimal.js';
 import { QueryRunner, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { UnitOfWorkService } from '../../infrastructure/persistence/unit-of-work/unit-of-work.service';
 import { LedgerOrmEntity } from '../../infrastructure/persistence/entities/ledger.orm-entity';
@@ -78,21 +79,26 @@ export class ReportsService {
     qr: QueryRunner,
     tenantId: string,
     companyId: string,
-  ): Promise<{ company: CompanyOrmEntity | null; actualTenantId: string }> {
-    let company = await qr.manager.findOne(CompanyOrmEntity, {
-      where: [{ id: companyId, tenantId }, { id: companyId }],
+  ): Promise<{ company: CompanyOrmEntity; actualTenantId: string }> {
+    // SECURITY: resolve the company strictly within the caller's tenant. We must
+    // never match a company by id alone, nor rebind the RLS tenant context to a
+    // company's own tenant - doing so was a cross-tenant IDOR allowing any user
+    // to read another tenant's books by passing their companyId.
+    const company = await qr.manager.findOne(CompanyOrmEntity, {
+      where: { id: companyId, tenantId },
     });
-    const actualTenantId = company?.tenantId || tenantId;
-
-    if (actualTenantId) {
-      try {
-        await qr.query(`SELECT set_config('app.tenant_id', $1, true)`, [actualTenantId]);
-      } catch (e) {
-        // ignore if not supported
-      }
+    if (!company) {
+      throw new NotFoundException(`Company '${companyId}' not found for this tenant.`);
     }
 
-    return { company, actualTenantId };
+    // Reassert the RLS context with the AUTHENTICATED tenant (never the company's).
+    try {
+      await qr.query(`SELECT set_config('app.tenant_id', $1, true)`, [tenantId]);
+    } catch {
+      // ignore if RLS/set_config not available in this environment
+    }
+
+    return { company, actualTenantId: tenantId };
   }
 
   async getTrialBalance(
@@ -393,32 +399,32 @@ export class ReportsService {
   ): Promise<any> {
     const tb = await this.getTrialBalance(tenantId, companyId, toDate, fromDate);
 
-    let totalRevenue = 0;
-    let totalDirectExpenses = 0;
-    let totalIndirectExpenses = 0;
+    let revenueDec = new Decimal(0);
+    let directExpDec = new Decimal(0);
+    let indirectExpDec = new Decimal(0);
 
     const incomeRows = tb.rows.filter((r) => r.nature === 'INCOME');
     const expenseRows = tb.rows.filter((r) => r.nature === 'EXPENSE');
 
     for (const r of incomeRows) {
-      totalRevenue += r.periodCredit - r.periodDebit;
+      revenueDec = revenueDec.plus(r.periodCredit).minus(r.periodDebit);
     }
 
     for (const r of expenseRows) {
-      const expAmount = r.periodDebit - r.periodCredit;
+      const expAmount = new Decimal(r.periodDebit).minus(r.periodCredit);
       if (r.groupName.toLowerCase().includes('direct') || r.ledgerName.toLowerCase().includes('cost')) {
-        totalDirectExpenses += expAmount;
+        directExpDec = directExpDec.plus(expAmount);
       } else {
-        totalIndirectExpenses += expAmount;
+        indirectExpDec = indirectExpDec.plus(expAmount);
       }
     }
 
-    totalRevenue = Math.round(totalRevenue * 100) / 100;
-    totalDirectExpenses = Math.round(totalDirectExpenses * 100) / 100;
-    totalIndirectExpenses = Math.round(totalIndirectExpenses * 100) / 100;
+    const totalRevenue = revenueDec.toDecimalPlaces(2).toNumber();
+    const totalDirectExpenses = directExpDec.toDecimalPlaces(2).toNumber();
+    const totalIndirectExpenses = indirectExpDec.toDecimalPlaces(2).toNumber();
 
-    const grossProfit = Math.round((totalRevenue - totalDirectExpenses) * 100) / 100;
-    const netProfit = Math.round((grossProfit - totalIndirectExpenses) * 100) / 100;
+    const grossProfit = revenueDec.minus(directExpDec).toDecimalPlaces(2).toNumber();
+    const netProfit = revenueDec.minus(directExpDec).minus(indirectExpDec).toDecimalPlaces(2).toNumber();
 
     return {
       fromDate,
@@ -440,43 +446,62 @@ export class ReportsService {
   ): Promise<any> {
     const tb = await this.getTrialBalance(tenantId, companyId, asOfDate);
 
-    // Calculate current period net profit to dynamically include in equity
-    const pnl = await this.getProfitAndLoss(tenantId, companyId, '2024-04-01', asOfDate);
-    const netProfit = pnl.netProfit;
+    // Current-year P&L is computed from the financial year that CONTAINS asOfDate
+    // (Indian FY starts 1 April) - never a hard-coded date.
+    const fyStart = this.deriveFinancialYearStart(asOfDate);
+    const pnl = await this.getProfitAndLoss(tenantId, companyId, fyStart, asOfDate);
+    const netProfit = new Decimal(pnl.netProfit || 0);
 
     const assetRows = tb.rows.filter((r) => r.nature === 'ASSET');
     const liabilityRows = tb.rows.filter((r) => r.nature === 'LIABILITY');
+    const equityRows = tb.rows.filter((r) => r.nature === 'EQUITY');
 
-    let totalAssets = 0;
-    let totalLiabilities = 0;
+    let totalAssets = new Decimal(0);
+    let totalLiabilities = new Decimal(0);
+    let totalEquity = new Decimal(0);
 
     for (const r of assetRows) {
-      totalAssets += r.closingDebit - r.closingCredit;
+      totalAssets = totalAssets.plus(r.closingDebit).minus(r.closingCredit);
     }
-
     for (const r of liabilityRows) {
-      totalLiabilities += r.closingCredit - r.closingDebit;
+      totalLiabilities = totalLiabilities.plus(r.closingCredit).minus(r.closingDebit);
+    }
+    // Equity (capital, reserves) carries a credit balance and belongs on the
+    // liabilities-and-equity side - previously these rows were dropped entirely.
+    for (const r of equityRows) {
+      totalEquity = totalEquity.plus(r.closingCredit).minus(r.closingDebit);
     }
 
-    totalAssets = Math.round(totalAssets * 100) / 100;
-    totalLiabilities = Math.round(totalLiabilities * 100) / 100;
-
-    // Total liabilities and equity
-    const totalLiabilitiesAndEquity = Math.round((totalLiabilities + netProfit) * 100) / 100;
-    const variance = Math.round(Math.abs(totalAssets - totalLiabilitiesAndEquity) * 100) / 100;
-    const isBalanced = variance < 0.05;
+    const totalLiabilitiesAndEquity = totalLiabilities.plus(totalEquity).plus(netProfit);
+    const variance = totalAssets.minus(totalLiabilitiesAndEquity).abs();
+    const isBalanced = variance.lessThanOrEqualTo(new Decimal('0.05'));
 
     return {
       asOfDate,
-      totalAssets,
-      totalLiabilities,
-      netProfitCurrentYear: netProfit,
-      totalLiabilitiesAndEquity,
-      variance,
+      financialYearStart: fyStart,
+      totalAssets: totalAssets.toDecimalPlaces(2).toNumber(),
+      totalLiabilities: totalLiabilities.toDecimalPlaces(2).toNumber(),
+      totalEquity: totalEquity.toDecimalPlaces(2).toNumber(),
+      netProfitCurrentYear: netProfit.toDecimalPlaces(2).toNumber(),
+      totalLiabilitiesAndEquity: totalLiabilitiesAndEquity.toDecimalPlaces(2).toNumber(),
+      variance: variance.toDecimalPlaces(2).toNumber(),
       isBalanced,
       assetRows,
       liabilityRows,
+      equityRows,
     };
+  }
+
+  /**
+   * Returns the ISO start date (YYYY-MM-DD) of the Indian financial year that
+   * contains the given date. FY runs 1 April -> 31 March.
+   */
+  private deriveFinancialYearStart(asOfDate: string): string {
+    const d = new Date(asOfDate);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth(); // 0 = Jan
+    const startYear = month >= 3 ? year : year - 1; // Apr (index 3) onwards
+    return `${startYear}-04-01`;
   }
 
   // ==========================================

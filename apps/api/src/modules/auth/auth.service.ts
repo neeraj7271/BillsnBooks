@@ -1,4 +1,10 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { DataSource } from 'typeorm';
 import * as argon2 from 'argon2';
@@ -6,6 +12,10 @@ import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { TenantOrmEntity } from '../../infrastructure/persistence/entities/tenant.orm-entity';
 import { UserOrmEntity } from '../../infrastructure/persistence/entities/user.orm-entity';
 import { UserRole } from '@platform/shared-types';
+import {
+  getRequiredJwtSecret,
+  getRequiredJwtRefreshSecret,
+} from '../../common/config/secrets';
 
 export interface AuthTokens {
   accessToken: string;
@@ -14,6 +24,48 @@ export interface AuthTokens {
 
 @Injectable()
 export class AuthService {
+  /**
+   * Best-effort in-memory brute-force throttle for login. Keyed by lowercased
+   * email. This mitigates credential-stuffing against a single process; a
+   * production deployment behind multiple instances should back this with a
+   * shared store (Redis) or an edge rate limiter.
+   */
+  private static readonly loginAttempts = new Map<
+    string,
+    { count: number; firstAt: number; lockedUntil?: number }
+  >();
+  private static readonly MAX_LOGIN_ATTEMPTS = 5;
+  private static readonly LOGIN_WINDOW_MS = 15 * 60 * 1000;
+  private static readonly LOGIN_LOCK_MS = 15 * 60 * 1000;
+
+  private assertLoginAllowed(email: string): void {
+    const rec = AuthService.loginAttempts.get(email);
+    if (rec?.lockedUntil && rec.lockedUntil > Date.now()) {
+      const secs = Math.ceil((rec.lockedUntil - Date.now()) / 1000);
+      throw new HttpException(
+        `Too many failed login attempts. Try again in ${secs} seconds.`,
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+  }
+
+  private recordLoginFailure(email: string): void {
+    const now = Date.now();
+    const rec = AuthService.loginAttempts.get(email);
+    if (!rec || now - rec.firstAt > AuthService.LOGIN_WINDOW_MS) {
+      AuthService.loginAttempts.set(email, { count: 1, firstAt: now });
+      return;
+    }
+    rec.count += 1;
+    if (rec.count >= AuthService.MAX_LOGIN_ATTEMPTS) {
+      rec.lockedUntil = now + AuthService.LOGIN_LOCK_MS;
+    }
+  }
+
+  private clearLoginFailures(email: string): void {
+    AuthService.loginAttempts.delete(email);
+  }
+
   constructor(
     private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
@@ -106,19 +158,26 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<{ user: Partial<UserOrmEntity>; tokens: AuthTokens }> {
+    const email = dto.email.toLowerCase();
+    this.assertLoginAllowed(email);
+
     const userRepo = this.dataSource.getRepository(UserOrmEntity);
     const user = await userRepo.findOne({
-      where: { email: dto.email.toLowerCase() },
+      where: { email },
     });
 
     if (!user || !user.isActive) {
+      this.recordLoginFailure(email);
       throw new UnauthorizedException('Invalid credentials or account inactive');
     }
 
     const isMatch = await argon2.verify(user.passwordHash, dto.password);
     if (!isMatch) {
+      this.recordLoginFailure(email);
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    this.clearLoginFailures(email);
 
     const tokens = await this.generateTokens(user);
     user.refreshTokenHash = await argon2.hash(tokens.refreshToken);
@@ -157,6 +216,26 @@ export class AuthService {
     return tokens;
   }
 
+  async refreshFromToken(refreshToken: string): Promise<AuthTokens> {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+    let payload: { sub: string };
+    try {
+      payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: getRequiredJwtRefreshSecret(),
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+    return this.refreshTokens(payload.sub, refreshToken);
+  }
+
+  async logout(userId: string): Promise<void> {
+    const userRepo = this.dataSource.getRepository(UserOrmEntity);
+    await userRepo.update({ id: userId }, { refreshTokenHash: null });
+  }
+
   private async generateTokens(user: UserOrmEntity): Promise<AuthTokens> {
     const payload = {
       sub: user.id,
@@ -166,12 +245,12 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET || 'jwt-accounting-secret-key-32b',
+      secret: getRequiredJwtSecret(),
       expiresIn: '15m',
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_REFRESH_SECRET || 'jwt-refresh-secret-key-32b',
+      secret: getRequiredJwtRefreshSecret(),
       expiresIn: '7d',
     });
 

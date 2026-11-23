@@ -9,6 +9,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { NumberingService } from './numbering.service';
+import { requireContext } from '../../common/http/request-context';
 import { ResetFrequency } from '@platform/shared-types';
 
 @Controller('v1/companies/:companyId/numbering-series')
@@ -16,16 +17,7 @@ export class NumberingController {
   constructor(private readonly numberingService: NumberingService) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   @Get()

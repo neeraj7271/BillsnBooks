@@ -11,6 +11,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { requireContext } from '../../common/http/request-context';
 import { BankingService, CreateBankAccountDto } from './banking.service';
 import { ReconciliationService } from './reconciliation.service';
 import { SalesDiscoveryService, ConvertTicketDto } from './sales-discovery.service';
@@ -24,16 +25,7 @@ export class BankingController {
   ) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   // --- Bank Accounts ---

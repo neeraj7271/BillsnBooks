@@ -48,7 +48,13 @@ describe('Party Master, GST Registration, and Snapshot Integrity', () => {
           andWhere: jest.fn().mockReturnThis(),
           orderBy: jest.fn().mockReturnThis(),
           getOne: jest.fn().mockResolvedValue({ id: 'ledger-debtors-1' }),
-          getMany: jest.fn().mockResolvedValue([]),
+          getMany: jest.fn().mockResolvedValue([
+            { id: 'led-sales', name: 'Domestic Sales - Taxable', systemKey: 'LED_SALES_GST_DOMESTIC' },
+            { id: 'led-ocgst', name: 'Output CGST', systemKey: 'LED_CGST_OUTPUT', gstTaxType: 'CGST' },
+            { id: 'led-osgst', name: 'Output SGST', systemKey: 'LED_SGST_OUTPUT', gstTaxType: 'SGST' },
+            { id: 'led-oigst', name: 'Output IGST', systemKey: 'LED_IGST_OUTPUT', gstTaxType: 'IGST' },
+            { id: 'led-roundoff', name: 'Round Off A/c', systemKey: 'LED_ROUND_OFF' },
+          ]),
         }),
       },
     };

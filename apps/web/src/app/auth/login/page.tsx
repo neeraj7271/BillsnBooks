@@ -40,6 +40,9 @@ export default function LoginPage() {
         if (res.tokens?.accessToken) {
           localStorage.setItem('antigravity_access_token', res.tokens.accessToken);
         }
+        if (res.tokens?.refreshToken) {
+          localStorage.setItem('antigravity_refresh_token', res.tokens.refreshToken);
+        }
       }
 
       window.location.href = '/settings/companies';

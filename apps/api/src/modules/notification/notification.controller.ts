@@ -7,14 +7,15 @@ import {
   Param,
   Query,
   Request,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
+import { requireContext } from '../../common/http/request-context';
 import { NotificationService } from './notification.service';
 import { NotificationSettingsService } from './notification-settings.service';
 import { NotificationSchedulerService } from './notification-scheduler.service';
 import { UnitOfWorkService } from '../../infrastructure/persistence/unit-of-work/unit-of-work.service';
 import { CompanyOrmEntity } from '../../infrastructure/persistence/entities/company.orm-entity';
-import { TenantOrmEntity } from '../../infrastructure/persistence/entities/tenant.orm-entity';
-import { UserOrmEntity } from '../../infrastructure/persistence/entities/user.orm-entity';
 
 @Controller('v1')
 export class NotificationController {
@@ -26,55 +27,29 @@ export class NotificationController {
   ) {}
 
   private async getContext(req: any, companyIdParam?: string) {
-    let tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'];
-    let userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-    let companyId =
-      companyIdParam ||
-      req.headers['x-company-id'] ||
-      req.query?.companyId;
-
-    if (companyId && companyId !== 'c0000000-0000-4000-8000-000000000001') {
+    const { tenantId, userId } = requireContext(req);
+    const companyId =
+      companyIdParam || (req.query?.companyId as string | undefined);
+    if (companyId) {
       const company = await this.uow.executeInTransaction(async (qr) =>
-        qr.manager.findOne(CompanyOrmEntity, { where: { id: companyId } }),
+        qr.manager.findOne(CompanyOrmEntity, { where: { id: companyId, tenantId } }),
       );
-      if (company) {
-        tenantId = company.tenantId;
+      if (!company) {
+        throw new NotFoundException(
+          `Company '${companyId}' not found for this tenant`,
+        );
       }
     }
-
-    if (!tenantId || tenantId === 'a0000000-0000-4000-8000-000000000001') {
-      const firstTenant = await this.uow.executeInTransaction(async (qr) =>
-        qr.manager.findOne(TenantOrmEntity, { where: {} }),
-      );
-      if (firstTenant) {
-        tenantId = firstTenant.id;
-      }
-    }
-
-    if (!companyId || companyId === 'c0000000-0000-4000-8000-000000000001') {
-      const firstCompany = await this.uow.executeInTransaction(async (qr) =>
-        qr.manager.findOne(CompanyOrmEntity, { where: { tenantId } }),
-      );
-      if (firstCompany) {
-        companyId = firstCompany.id;
-      }
-    }
-
-    if (!userId || userId === 'b0000000-0000-4000-8000-000000000001') {
-      const firstUser = await this.uow.executeInTransaction(async (qr) =>
-        qr.manager.findOne(UserOrmEntity, { where: { tenantId } }),
-      );
-      if (firstUser) {
-        userId = firstUser.id;
-      }
-    }
-
     return { tenantId, userId, companyId };
+  }
+
+  private requireCompany(companyId?: string): string {
+    if (!companyId) {
+      throw new BadRequestException(
+        'A companyId is required for this operation. Provide it in the path or request body.',
+      );
+    }
+    return companyId;
   }
 
   // --- In-App Notifications ---
@@ -123,7 +98,7 @@ export class NotificationController {
   @Get('notifications/settings')
   async getSettingsRoot(@Request() req: any) {
     const { tenantId, companyId } = await this.getContext(req);
-    return await this.settingsService.getCompanySettings(tenantId, companyId);
+    return await this.settingsService.getCompanySettings(tenantId, this.requireCompany(companyId));
   }
 
   @Put('companies/:companyId/notifications/settings')
@@ -142,7 +117,7 @@ export class NotificationController {
     @Request() req: any,
   ) {
     const { tenantId, companyId } = await this.getContext(req, body.companyId);
-    return await this.settingsService.updateCompanySettings(tenantId, companyId, body);
+    return await this.settingsService.updateCompanySettings(tenantId, this.requireCompany(companyId), body);
   }
 
   // --- Trigger Scheduler Scan ---
@@ -169,7 +144,7 @@ export class NotificationController {
     const { tenantId, companyId } = await this.getContext(req, body?.companyId);
     return await this.schedulerService.scanAndDispatchScheduledNotifications(
       tenantId,
-      companyId,
+      this.requireCompany(companyId),
       body?.simulatedDate,
     );
   }
@@ -199,7 +174,7 @@ export class NotificationController {
     const { tenantId, userId, companyId } = await this.getContext(req, body?.companyId);
     return await this.settingsService.sendTestNotification(
       tenantId,
-      companyId,
+      this.requireCompany(companyId),
       userId,
       body?.channel || 'IN_APP',
     );

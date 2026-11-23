@@ -17,17 +17,14 @@ import {
   UpdateLedgerGroupDto,
 } from './ledger.service';
 import { BusinessTemplate } from '@platform/shared-types';
+import { requireContext } from '../../common/http/request-context';
 
 @Controller('v1/companies/:companyId/ledgers')
 export class LedgerController {
   constructor(private readonly ledgerService: LedgerService) {}
 
   private getTenantId(req: any): string {
-    return (
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001'
-    );
+    return requireContext(req).tenantId;
   }
 
   @Get('tree')

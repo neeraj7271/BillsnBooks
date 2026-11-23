@@ -7,22 +7,16 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApprovalService } from './approval.service';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@platform/shared-types';
+import { requireContext } from '../../common/http/request-context';
 
 @Controller('v1/companies/:companyId/approvals')
 export class ApprovalController {
   constructor(private readonly approvalService: ApprovalService) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   @Get()
@@ -34,6 +28,7 @@ export class ApprovalController {
     return await this.approvalService.listPendingApprovals(tenantId, companyId);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
   @Post(':id/approve')
   async approve(
     @Param('companyId') companyId: string,
@@ -45,6 +40,7 @@ export class ApprovalController {
     return await this.approvalService.approve(tenantId, companyId, userId, id, body?.comments);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
   @Post(':id/reject')
   async reject(
     @Param('companyId') companyId: string,

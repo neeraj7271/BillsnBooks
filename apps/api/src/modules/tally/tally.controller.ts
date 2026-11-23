@@ -7,17 +7,14 @@ import {
   Request,
 } from '@nestjs/common';
 import { TallyGatewayService } from './tally-gateway.service';
+import { requireContext } from '../../common/http/request-context';
 
 @Controller('v1/companies/:companyId/tally')
 export class TallyController {
   constructor(private readonly tallyService: TallyGatewayService) {}
 
   private getContext(req: any, companyId: string) {
-    const tenantId =
-      req?.user?.tenantId ||
-      req?.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    return { tenantId, companyId };
+    return { tenantId: requireContext(req).tenantId, companyId };
   }
 
   @Get('connector')

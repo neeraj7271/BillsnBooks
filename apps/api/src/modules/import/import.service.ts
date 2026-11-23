@@ -410,7 +410,12 @@ export class ImportService {
     companyId: string,
     userId: string,
     batchId: string,
-  ): Promise<{ batch: ImportBatchOrmEntity; postedCount: number }> {
+  ): Promise<{
+    batch: ImportBatchOrmEntity;
+    postedCount: number;
+    failedCount: number;
+    failures: { rowId: string; error: string }[];
+  }> {
     const batch = await this.getBatch(tenantId, companyId, batchId);
 
     // Fetch default financial year
@@ -425,18 +430,39 @@ export class ImportService {
       throw new BadRequestException('No active financial year found for company.');
     }
 
-    // Fetch default Sales ledger & Tax ledgers
-    const [salesLedger, cgstLedger, sgstLedger, igstLedger] = await this.uow.executeInTransaction(
+    // Resolve posting ledgers by stable systemKey / OUTPUT tax type - never by a
+    // loose name match (which previously matched Input CGST before Output CGST)
+    // and never with a "ledgers[0]" fallback that could post to a random account.
+    const { salesLedger, cgstLedger, sgstLedger, igstLedger } = await this.uow.executeInTransaction(
       async (qr) => {
         const ledgers = await qr.manager.find(LedgerOrmEntity, { where: { tenantId, companyId } });
-        return [
-          ledgers.find((l) => l.name.toLowerCase().includes('sales')) || ledgers[0],
-          ledgers.find((l) => l.name.toLowerCase().includes('cgst')) || ledgers[0],
-          ledgers.find((l) => l.name.toLowerCase().includes('sgst')) || ledgers[0],
-          ledgers.find((l) => l.name.toLowerCase().includes('igst')) || ledgers[0],
-        ];
+        const bySys = (k: string) => ledgers.find((l) => l.systemKey === k);
+        const output = (t: string) =>
+          ledgers.find((l) => {
+            const n = l.name.toUpperCase();
+            const isOut = (l.systemKey || '').toUpperCase().includes('OUTPUT') || n.includes('OUTPUT');
+            if (!isOut) return false;
+            if (l.gstTaxType && String(l.gstTaxType).toUpperCase() === t) return true;
+            return n.includes(t);
+          });
+        const sales =
+          bySys('LED_SALES_GST_DOMESTIC') ||
+          ledgers.find(
+            (l) =>
+              l.name.toLowerCase().includes('sales') &&
+              !l.name.toLowerCase().includes('purchase'),
+          );
+        return {
+          salesLedger: sales || null,
+          cgstLedger: bySys('LED_CGST_OUTPUT') || output('CGST') || null,
+          sgstLedger: bySys('LED_SGST_OUTPUT') || output('SGST') || null,
+          igstLedger: bySys('LED_IGST_OUTPUT') || output('IGST') || null,
+        };
       },
     );
+    if (!salesLedger) {
+      throw new BadRequestException('No Sales ledger configured for bulk import posting.');
+    }
 
     // Fetch valid rows
     const { rows: validRows } = await this.getBatchRows(
@@ -449,10 +475,15 @@ export class ImportService {
     );
 
     let postedCount = 0;
+    const failures: { rowId: string; error: string }[] = [];
 
     for (const row of validRows) {
+      try {
       const data = row.parsedData;
-      const partyLedgerId = row.matchedLedgerId || salesLedger.id;
+      if (!row.matchedLedgerId) {
+        throw new Error('Row has no matched party ledger; resolve masters before posting.');
+      }
+      const partyLedgerId = row.matchedLedgerId;
       const totalAmount = data.totalAmount || 0;
       const taxable = data.taxableAmount || totalAmount;
       const cgst = data.cgstAmount || 0;
@@ -525,15 +556,22 @@ export class ImportService {
       });
 
       postedCount++;
+      } catch (err: any) {
+        // Per-row isolation: one bad row does not abort the batch. Voucher posts
+        // are idempotent (key IMPORT_<batch>_<row>), so re-running the batch
+        // safely completes the remaining rows.
+        failures.push({ rowId: row.id, error: err?.message || 'Posting failed' });
+      }
     }
 
-    // Update batch to completed
+    // The batch is COMPLETED only when every row posted; otherwise FAILED so the
+    // user can resolve and re-run (already-posted rows are skipped by idempotency).
     const updatedBatch = await this.uow.executeInTransaction(async (qr) => {
-      batch.status = ImportBatchStatus.COMPLETED;
+      batch.status = failures.length === 0 ? ImportBatchStatus.COMPLETED : ImportBatchStatus.FAILED;
       return qr.manager.save(ImportBatchOrmEntity, batch);
     });
 
-    return { batch: updatedBatch, postedCount };
+    return { batch: updatedBatch, postedCount, failedCount: failures.length, failures };
   }
 
   /**

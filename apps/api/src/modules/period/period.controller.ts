@@ -1,4 +1,7 @@
 import { Controller, Get, Post, Param, Query, Request } from '@nestjs/common';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@platform/shared-types';
+import { requireContext } from '../../common/http/request-context';
 import { PeriodService } from './period.service';
 
 @Controller('v1/companies/:companyId/periods')
@@ -6,16 +9,7 @@ export class PeriodController {
   constructor(private readonly periodService: PeriodService) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   @Get()
@@ -28,6 +22,7 @@ export class PeriodController {
     return await this.periodService.listPeriods(tenantId, companyId, financialYearId);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER)
   @Post(':id/lock')
   async lockPeriod(
     @Param('companyId') companyId: string,
@@ -38,6 +33,7 @@ export class PeriodController {
     return await this.periodService.lockPeriod(tenantId, companyId, periodId, userId);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER)
   @Post(':id/unlock')
   async unlockPeriod(
     @Param('companyId') companyId: string,

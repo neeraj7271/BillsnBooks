@@ -13,6 +13,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { requireContext } from '../../common/http/request-context';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImportService } from './import.service';
 import { ExcelTemplateService, TemplateType } from './excel-template.service';
@@ -32,16 +33,7 @@ export class ImportController {
   ) {}
 
   private getContext(req: any, companyId: string) {
-    // Extract tenantId and userId from JWT session or headers/defaults for development testing
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
+    const { tenantId, userId } = requireContext(req);
     return { tenantId, userId, companyId };
   }
 

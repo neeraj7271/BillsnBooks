@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Param, Body, Request } from '@nestjs/common';
+import { requireContext } from '../../common/http/request-context';
 import { CompanyService, CreateCompanyDto, UpdateCompanyDto, AddBranchDto } from './company.service';
 
 @Controller('v1/companies')
@@ -6,11 +7,7 @@ export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   private getTenantId(req: any): string {
-    return (
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001'
-    );
+    return requireContext(req).tenantId;
   }
 
   @Get()

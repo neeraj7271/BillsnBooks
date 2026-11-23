@@ -1,8 +1,11 @@
 import { Page, expect } from '@playwright/test';
 
+// Credentials are read from the environment so no real account is committed to
+// source control. Set E2E_EMAIL / E2E_PASSWORD in CI or a local .env; the
+// placeholders below are obviously-fake defaults for throwaway local runs.
 export const TEST_CREDENTIALS = {
-  email: 'neeraj8829sini@gmail.com',
-  password: 'SecurePassword123!',
+  email: process.env.E2E_EMAIL || 'e2e.user@example.test',
+  password: process.env.E2E_PASSWORD || 'ChangeMe_E2E!123',
 };
 
 export async function loginAsAdmin(page: Page) {

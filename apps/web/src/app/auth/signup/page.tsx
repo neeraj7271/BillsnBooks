@@ -62,6 +62,9 @@ export default function SignUpPage() {
         if (res.tokens?.accessToken) {
           localStorage.setItem('antigravity_access_token', res.tokens.accessToken);
         }
+        if (res.tokens?.refreshToken) {
+          localStorage.setItem('antigravity_refresh_token', res.tokens.refreshToken);
+        }
         // Clear old demo active company so user starts fresh
         localStorage.removeItem('antigravity_active_company_id');
       }

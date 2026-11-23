@@ -9,6 +9,9 @@ import {
   Request,
 } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '@platform/shared-types';
+import { requireContext } from '../../common/http/request-context';
 import { CreateInvoiceDto, InvoiceStatus } from '@platform/shared-types';
 
 @Controller('v1/companies/:companyId/invoices')
@@ -16,16 +19,7 @@ export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
 
   private getContext(req: any) {
-    const tenantId =
-      req.user?.tenantId ||
-      req.headers['x-tenant-id'] ||
-      'a0000000-0000-4000-8000-000000000001';
-    const userId =
-      req.user?.id ||
-      req.headers['x-user-id'] ||
-      'b0000000-0000-4000-8000-000000000001';
-
-    return { tenantId, userId };
+    return requireContext(req);
   }
 
   @Get()
@@ -93,6 +87,7 @@ export class InvoiceController {
     return await this.invoiceService.updateInvoice(tenantId, companyId, userId, id, dto);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
   @Post(':id/approve')
   async approveInvoice(
     @Param('companyId') companyId: string,
@@ -104,6 +99,7 @@ export class InvoiceController {
     return await this.invoiceService.approveInvoice(tenantId, companyId, userId, id, body?.comments);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
   @Post(':id/reject')
   async rejectInvoice(
     @Param('companyId') companyId: string,
@@ -136,6 +132,7 @@ export class InvoiceController {
     return await this.invoiceService.setPromiseToPay(tenantId, companyId, id, body);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
   @Post(':id/cancel')
   async cancelInvoice(
     @Param('companyId') companyId: string,

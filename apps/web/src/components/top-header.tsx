@@ -79,11 +79,14 @@ export function TopHeader({
 
   const handleSignOut = () => {
     if (typeof window !== 'undefined') {
+      // Best-effort server-side refresh-token revocation before clearing local state.
+      void apiClient.logout();
       localStorage.removeItem('antigravity_tenant_id');
       localStorage.removeItem('antigravity_user_id');
       localStorage.removeItem('antigravity_user_name');
       localStorage.removeItem('antigravity_user_email');
       localStorage.removeItem('antigravity_access_token');
+      localStorage.removeItem('antigravity_refresh_token');
       localStorage.removeItem('antigravity_active_company_id');
       window.location.href = '/auth/login';
     }

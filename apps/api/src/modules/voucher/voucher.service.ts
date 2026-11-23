@@ -159,6 +159,24 @@ export class VoucherService {
       }
 
       const originalDomain = VoucherMapper.toDomain(existingOrm);
+
+      // Period-lock pre-check: the reversal is dated today, so refuse early with
+      // a clear error if today falls in a locked accounting period (the DB
+      // trigger would otherwise reject the insert with a raw error).
+      const reversalDateIso = new Date().toISOString().split('T')[0];
+      const lockedPeriod = await qr.manager
+        .createQueryBuilder(AccountingPeriodOrmEntity, 'period')
+        .where('period.tenant_id = :tenantId', { tenantId })
+        .andWhere('period.company_id = :companyId', { companyId })
+        .andWhere('period.is_locked = true')
+        .andWhere(':vDate BETWEEN period.start_date AND period.end_date', { vDate: reversalDateIso })
+        .getOne();
+      if (lockedPeriod) {
+        throw new BadRequestException(
+          `Cannot reverse voucher on ${reversalDateIso}: accounting period "${lockedPeriod.periodName}" is locked.`,
+        );
+      }
+
       const reversalId = crypto.randomUUID();
 
       const reversalNumber = await this.allocateSequenceNumber(
