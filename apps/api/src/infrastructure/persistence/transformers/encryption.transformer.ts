@@ -24,6 +24,24 @@ export class EncryptionTransformer implements ValueTransformer {
     return this.cachedKey;
   }
 
+  /**
+   * Keys used before secrets were enforced: the old transformer derived its key
+   * at import time (before .env was loaded) so rows were written with the
+   * built-in dev key. Used ONLY to decrypt legacy rows; never to encrypt.
+   */
+  private get legacyKey(): Buffer {
+    return crypto
+      .createHash('sha256')
+      .update('accounting-dev-master-encryption-key-32b')
+      .digest();
+  }
+
+  private decryptWith(key: Buffer, ivHex: string, tagHex: string, data: string): string {
+    const decipher = crypto.createDecipheriv(this.algorithm, key, Buffer.from(ivHex, 'hex'));
+    decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
+    return decipher.update(data, 'hex', 'utf8') + decipher.final('utf8');
+  }
+
   to(value?: string | null): string | null {
     if (!value) return null;
 
@@ -41,24 +59,18 @@ export class EncryptionTransformer implements ValueTransformer {
   from(value?: string | null): string | null {
     if (!value) return null;
 
-    try {
-      const parts = value.split(':');
-      if (parts.length !== 3) return value; // Return as-is if not encrypted
+    const parts = value.split(':');
+    if (parts.length !== 3 || !/^[0-9a-f]{24}$/i.test(parts[0]!)) return value; // plaintext
+    const [ivHex, tagHex, data] = parts as [string, string, string];
 
-      const [ivHex, authTagHex, encryptedText] = parts;
-      const iv = Buffer.from(ivHex!, 'hex');
-      const authTag = Buffer.from(authTagHex!, 'hex');
-
-      const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv);
-      decipher.setAuthTag(authTag);
-
-      let decrypted = decipher.update(encryptedText!, 'hex', 'utf8');
-      decrypted += decipher.final('utf8');
-
-      return decrypted;
-    } catch {
-      return value;
+    for (const getKey of [() => this.key, () => this.legacyKey]) {
+      try {
+        return this.decryptWith(getKey(), ivHex, tagHex, data);
+      } catch {
+        /* try next key */
+      }
     }
+    // Never leak ciphertext to callers/UI.
+    return null;
   }
 }
-

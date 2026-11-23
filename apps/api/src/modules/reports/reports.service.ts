@@ -856,7 +856,7 @@ export class ReportsService {
 
       return {
         legalName: company?.legalName || 'Pannalal & Sons Traders',
-        pan: company?.panEncrypted ? 'PAN: AVAILABLE' : undefined,
+        pan: company?.panEncrypted || undefined,
         gstin: branch?.gstin || undefined,
         address: branch?.addressLine1 || undefined,
       };
