@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UnitOfWorkService } from '../../infrastructure/persistence/unit-of-work/unit-of-work.service';
 import { VoucherService } from '../voucher/voucher.service';
@@ -705,7 +706,7 @@ export class CollectionsService {
           provided.length === expected.length &&
           crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
         if (!ok) {
-          throw new BadRequestException('Invalid payment callback signature.');
+          throw new UnauthorizedException('Invalid payment callback signature.');
         }
       }
 

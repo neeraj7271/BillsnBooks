@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import { execSync } from 'child_process';
 import { attachConsoleAndNetworkGuards } from './helpers/heavy-utils';
 
@@ -122,6 +123,9 @@ test.describe('Heavy E2E Section 3 Continuation: All 28 Reports, DB Reconciliati
       const dbInvTotal = dbScalar(
         `SELECT COALESCE(ROUND(SUM(total_amount)::numeric, 2), 0) FROM invoices WHERE company_id = '${cid}' AND status != 'CANCELLED';`,
       );
+      const dbItemSalesTotal = dbScalar(
+        `SELECT COALESCE(ROUND(SUM(li.total_amount)::numeric, 2), 0) FROM invoice_items li JOIN invoices inv ON inv.id = li.invoice_id WHERE inv.company_id = '${cid}' AND inv.status != 'CANCELLED';`,
+      );
       const dbDrTotal = dbScalar(
         `SELECT COALESCE(ROUND(SUM(je.amount)::numeric, 2), 0) FROM journal_entries je JOIN vouchers v ON v.id = je.voucher_id WHERE v.company_id = '${cid}' AND v.status != 'CANCELLED' AND je.entry_type = 'DEBIT';`,
       );
@@ -141,11 +145,17 @@ test.describe('Heavy E2E Section 3 Continuation: All 28 Reports, DB Reconciliati
         `SELECT COUNT(*) FROM parties WHERE company_id = '${cid}' AND (gstin IS NULL OR trim(gstin) = '');`,
       );
 
-      // Verify Trial Balance Dr == Cr
+      // Verify Trial Balance Dr == Cr (both non-zero) and exact match to DB
       const tb = await getJson(`/v1/companies/${cid}/reports/trial-balance`);
-      const tbDr = Number(tb.totalDebit || tb.totals?.debit || 0);
-      const tbCr = Number(tb.totalCredit || tb.totals?.credit || 0);
-      expect(Math.abs(tbDr - tbCr)).toBeLessThanOrEqual(0.02);
+      const tbClosingDr = Number(tb.totalClosingDebit ?? 0);
+      const tbClosingCr = Number(tb.totalClosingCredit ?? 0);
+      const tbPeriodDr = Number(tb.totalPeriodDebit ?? 0);
+      const tbPeriodCr = Number(tb.totalPeriodCredit ?? 0);
+      expect(tbClosingDr).toBeGreaterThan(0);
+      expect(tbClosingCr).toBeGreaterThan(0);
+      expect(tbClosingDr).toBe(tbClosingCr);
+      expect(tbPeriodDr).toBe(dbDrTotal);
+      expect(tbPeriodCr).toBe(dbCrTotal);
 
       const pnl = await getJson(`/v1/companies/${cid}/reports/profit-and-loss`);
       const bs = await getJson(`/v1/companies/${cid}/reports/balance-sheet`);
@@ -191,11 +201,11 @@ test.describe('Heavy E2E Section 3 Continuation: All 28 Reports, DB Reconciliati
         reconciled: boolean;
         exportSupported: boolean;
       }> = [
-        { key: 'CUSTOMER_SALES', rows: custSales.rows?.length || 0, onScreenTotal: custSales.totalSales || 0, dbTotal: dbInvTotal, reconciled: Math.abs(Number(custSales.totalSales || 0) - dbInvTotal) <= 100, exportSupported: true },
-        { key: 'ITEM_SALES', rows: itemSales.rows?.length || 0, onScreenTotal: itemSales.totalSales || 0, dbTotal: dbInvTotal, reconciled: (itemSales.rows?.length || 0) > 0, exportSupported: true },
-        { key: 'TRIAL_BALANCE', rows: tb.rows?.length || tb.groups?.length || 1, onScreenTotal: tbDr, dbTotal: dbDrTotal, reconciled: Math.abs(tbDr - tbCr) <= 0.02, exportSupported: false },
-        { key: 'PROFIT_LOSS', rows: (pnl.income?.length || 0) + (pnl.expenses?.length || 0) || 1, onScreenTotal: pnl.netProfit ?? 0, dbTotal: pnl.netProfit ?? 0, reconciled: true, exportSupported: false },
-        { key: 'BALANCE_SHEET', rows: (bs.assetRows?.length || 0) + (bs.liabilityRows?.length || 0) || 1, onScreenTotal: bs.totalAssets || 0, dbTotal: bs.totalLiabilitiesAndEquity || 0, reconciled: Boolean(bs.isBalanced) && Math.abs(Number(bs.totalAssets || 0) - Number(bs.totalLiabilitiesAndEquity || 0)) <= 1, exportSupported: false },
+        { key: 'CUSTOMER_SALES', rows: custSales.rows?.length || 0, onScreenTotal: custSales.totalSales || 0, dbTotal: dbInvTotal, reconciled: Number(custSales.totalSales || 0) === dbInvTotal, exportSupported: true },
+        { key: 'ITEM_SALES', rows: itemSales.rows?.length || 0, onScreenTotal: itemSales.totalSales || 0, dbTotal: dbItemSalesTotal, reconciled: Number(itemSales.totalSales || 0) === dbItemSalesTotal, exportSupported: true },
+        { key: 'TRIAL_BALANCE', rows: tb.rows?.length || 1, onScreenTotal: tbPeriodDr, dbTotal: dbDrTotal, reconciled: tbClosingDr === tbClosingCr && tbPeriodDr === dbDrTotal && tbPeriodCr === dbCrTotal, exportSupported: false },
+        { key: 'PROFIT_LOSS', rows: (pnl.incomeRows?.length || 0) + (pnl.expenseRows?.length || 0) || 1, onScreenTotal: pnl.netProfit ?? 0, dbTotal: pnl.netProfit ?? 0, reconciled: true, exportSupported: false },
+        { key: 'BALANCE_SHEET', rows: (bs.assetRows?.length || 0) + (bs.liabilityRows?.length || 0) || 1, onScreenTotal: bs.totalAssets || 0, dbTotal: bs.totalLiabilitiesAndEquity || 0, reconciled: Boolean(bs.isBalanced) && Number(bs.totalAssets) === Number(bs.totalLiabilitiesAndEquity), exportSupported: false },
         { key: 'GENERAL_LEDGER', rows: gl.lines?.length || 0, onScreenTotal: gl.closingBalance || 0, dbTotal: gl.closingBalance || 0, reconciled: true, exportSupported: false },
         { key: 'AR_AGEING', rows: ageingInv?.length || 0, onScreenTotal: ageingInv?.length || 0, dbTotal: ageingInv?.length || 0, reconciled: (ageingInv?.length || 0) > 0, exportSupported: false },
         { key: 'BRS_STATEMENT', rows: bankAccs?.length || 0, onScreenTotal: brs0?.bankBalance ?? 0, dbTotal: brs0?.bankBalance ?? 0, reconciled: (bankAccs?.length || 0) > 0, exportSupported: false },
@@ -256,10 +266,12 @@ test.describe('Heavy E2E Section 3 Continuation: All 28 Reports, DB Reconciliati
             const anonCtx = await browser.newContext();
             const anonPage = await anonCtx.newPage();
             const tokenPart = shareUrl.split('/').pop();
-            await anonPage.goto(`/reports/shared/${tokenPart}`);
+            const navRes = await anonPage.goto(`/reports/shared/${tokenPart}`);
             await anonPage.waitForLoadState('networkidle');
             const anonText = (await anonPage.textContent('body')) || '';
-            shareStatus = anonText.length > 30 && !/Sign In/i.test(anonText) ? 'OK' : 'FAIL';
+            const bodySha = crypto.createHash('sha256').update(anonText).digest('hex').slice(0, 12);
+            const ok = (navRes?.status() ?? 500) < 400 && anonText.length > 30 && !/Sign In/i.test(anonText);
+            shareStatus = ok ? `OK(${navRes?.status()},sha256:${bodySha})` : 'FAIL';
             await anonCtx.close();
           } else {
             shareStatus = 'FAIL';
@@ -268,7 +280,7 @@ test.describe('Heavy E2E Section 3 Continuation: All 28 Reports, DB Reconciliati
 
         expect(xlsxStatus, `${e.key} xlsx export failed`).toBe('OK');
         expect(htmlStatus, `${e.key} html/pdf export failed`).toBe('OK');
-        expect(shareStatus, `${e.key} unauthenticated share failed`).toBe('OK');
+        expect(shareStatus.startsWith('OK'), `${e.key} unauthenticated share failed: ${shareStatus}`).toBe(true);
 
         reportLines.push(
           `REPORT ${e.key} | company=${cid} | rows=${e.rows} | onScreenTotal=${e.onScreenTotal} | dbTotal=${e.dbTotal} | reconciled=${e.reconciled ? 'YES' : 'NO'} | xlsx=${xlsxStatus} | pdf=${pdfStatus} | html=${htmlStatus} | share=${shareStatus}`,
@@ -277,9 +289,18 @@ test.describe('Heavy E2E Section 3 Continuation: All 28 Reports, DB Reconciliati
     };
 
     // Full export + unauthenticated share on Co1, and reconciliation across all 9 companies!
+    const distinctTotals = new Set<number>();
     for (let i = 0; i < companiesState.length; i++) {
       await checkCompanyReports(companiesState[i], i === 0);
     }
+    // Verify all 9 companies have distinct CUSTOMER_SALES totals
+    for (const line of reportLines) {
+      if (line.startsWith('REPORT CUSTOMER_SALES ')) {
+        const m = line.match(/onScreenTotal=([0-9.-]+)/);
+        if (m) distinctTotals.add(Number(m[1]));
+      }
+    }
+    expect(distinctTotals.size, 'Expected 9 distinct company CUSTOMER_SALES totals').toBe(9);
 
     fs.writeFileSync('/tmp/heavy-e2e/reports-log.txt', reportLines.join('\n') + '\n');
     expect(reportLines.length).toBe(28 * 9);

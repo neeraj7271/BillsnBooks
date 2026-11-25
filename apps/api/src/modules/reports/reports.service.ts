@@ -208,9 +208,9 @@ export class ReportsService {
         let closingCredit = 0;
 
         if (netCumulativeDebit >= netCumulativeCredit) {
-          closingDebit = Math.round((netCumulativeDebit - netCumulativeCredit) * 100) / 100;
+          closingDebit = new Decimal(netCumulativeDebit).minus(netCumulativeCredit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
         } else {
-          closingCredit = Math.round((netCumulativeCredit - netCumulativeDebit) * 100) / 100;
+          closingCredit = new Decimal(netCumulativeCredit).minus(netCumulativeDebit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
         }
 
         // Filter out zero-activity ledgers if opening, period, and closing are all zero
@@ -221,6 +221,14 @@ export class ReportsService {
           }
         }
 
+        const rOpeningDebit = new Decimal(openingDebit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+        const rOpeningCredit = new Decimal(openingCredit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+        const rPeriodDebit = new Decimal(act.periodDebit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+        const rPeriodCredit = new Decimal(act.periodCredit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+
+        const exactClosingDr = netCumulativeDebit >= netCumulativeCredit ? new Decimal(netCumulativeDebit).minus(netCumulativeCredit) : new Decimal(0);
+        const exactClosingCr = netCumulativeCredit > netCumulativeDebit ? new Decimal(netCumulativeCredit).minus(netCumulativeDebit) : new Decimal(0);
+
         rows.push({
           ledgerId: l.id,
           ledgerCode: l.code,
@@ -228,20 +236,24 @@ export class ReportsService {
           groupId: l.groupId,
           groupName: l.group?.name || 'Unassigned',
           nature,
-          openingDebit: Math.round(openingDebit * 100) / 100,
-          openingCredit: Math.round(openingCredit * 100) / 100,
-          periodDebit: Math.round(act.periodDebit * 100) / 100,
-          periodCredit: Math.round(act.periodCredit * 100) / 100,
+          openingDebit: rOpeningDebit,
+          openingCredit: rOpeningCredit,
+          periodDebit: rPeriodDebit,
+          periodCredit: rPeriodCredit,
           closingDebit,
           closingCredit,
-        });
+          _exactClosingDebit: exactClosingDr.toNumber(),
+          _exactClosingCredit: exactClosingCr.toNumber(),
+          _exactPeriodDebit: act.periodDebit,
+          _exactPeriodCredit: act.periodCredit,
+        } as any);
 
         totalOpeningDebit += openingDebit;
         totalOpeningCredit += openingCredit;
         totalPeriodDebit += act.periodDebit;
         totalPeriodCredit += act.periodCredit;
-        totalClosingDebit += closingDebit;
-        totalClosingCredit += closingCredit;
+        totalClosingDebit += exactClosingDr.toNumber();
+        totalClosingCredit += exactClosingCr.toNumber();
 
         // Group rollup
         const gName = l.group?.name || 'General';
@@ -252,14 +264,14 @@ export class ReportsService {
         groupsSummary[gName].totalCredit += closingCredit;
       }
 
-      totalOpeningDebit = Math.round(totalOpeningDebit * 100) / 100;
-      totalOpeningCredit = Math.round(totalOpeningCredit * 100) / 100;
-      totalPeriodDebit = Math.round(totalPeriodDebit * 100) / 100;
-      totalPeriodCredit = Math.round(totalPeriodCredit * 100) / 100;
-      totalClosingDebit = Math.round(totalClosingDebit * 100) / 100;
-      totalClosingCredit = Math.round(totalClosingCredit * 100) / 100;
+      totalOpeningDebit = new Decimal(totalOpeningDebit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+      totalOpeningCredit = new Decimal(totalOpeningCredit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+      totalPeriodDebit = new Decimal(totalPeriodDebit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+      totalPeriodCredit = new Decimal(totalPeriodCredit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+      totalClosingDebit = new Decimal(totalClosingDebit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
+      totalClosingCredit = new Decimal(totalClosingCredit).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
 
-      const netDifference = Math.round(Math.abs(totalClosingDebit - totalClosingCredit) * 100) / 100;
+      const netDifference = new Decimal(totalClosingDebit).minus(totalClosingCredit).abs().toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber();
       const isBalanced = netDifference === 0;
 
       return {
@@ -450,41 +462,51 @@ export class ReportsService {
     // (Indian FY starts 1 April) - never a hard-coded date.
     const fyStart = this.deriveFinancialYearStart(asOfDate);
     const pnl = await this.getProfitAndLoss(tenantId, companyId, fyStart, asOfDate);
-    const netProfit = new Decimal(pnl.netProfit || 0);
 
+    // Use unrounded ledger nets to avoid 1-paise sum-of-rounded drift across tax/round-off ledgers
     const assetRows = tb.rows.filter((r) => r.nature === 'ASSET');
     const liabilityRows = tb.rows.filter((r) => r.nature === 'LIABILITY');
     const equityRows = tb.rows.filter((r) => r.nature === 'EQUITY');
+    const incomeRows = tb.rows.filter((r) => r.nature === 'INCOME');
+    const expenseRows = tb.rows.filter((r) => r.nature === 'EXPENSE');
 
     let totalAssets = new Decimal(0);
     let totalLiabilities = new Decimal(0);
     let totalEquity = new Decimal(0);
+    let exactNetProfit = new Decimal(0);
 
-    for (const r of assetRows) {
-      totalAssets = totalAssets.plus(r.closingDebit).minus(r.closingCredit);
+    for (const r of assetRows as any[]) {
+      totalAssets = totalAssets.plus(r._exactClosingDebit ?? r.closingDebit).minus(r._exactClosingCredit ?? r.closingCredit);
     }
-    for (const r of liabilityRows) {
-      totalLiabilities = totalLiabilities.plus(r.closingCredit).minus(r.closingDebit);
+    for (const r of liabilityRows as any[]) {
+      totalLiabilities = totalLiabilities.plus(r._exactClosingCredit ?? r.closingCredit).minus(r._exactClosingDebit ?? r.closingDebit);
     }
-    // Equity (capital, reserves) carries a credit balance and belongs on the
-    // liabilities-and-equity side - previously these rows were dropped entirely.
-    for (const r of equityRows) {
-      totalEquity = totalEquity.plus(r.closingCredit).minus(r.closingDebit);
+    for (const r of equityRows as any[]) {
+      totalEquity = totalEquity.plus(r._exactClosingCredit ?? r.closingCredit).minus(r._exactClosingDebit ?? r.closingDebit);
+    }
+    for (const r of incomeRows as any[]) {
+      exactNetProfit = exactNetProfit.plus(r._exactClosingCredit ?? r.closingCredit).minus(r._exactClosingDebit ?? r.closingDebit);
+    }
+    for (const r of expenseRows as any[]) {
+      exactNetProfit = exactNetProfit.minus(r._exactClosingDebit ?? r.closingDebit).plus(r._exactClosingCredit ?? r.closingCredit);
     }
 
-    const totalLiabilitiesAndEquity = totalLiabilities.plus(totalEquity).plus(netProfit);
-    const variance = totalAssets.minus(totalLiabilitiesAndEquity).abs();
-    const isBalanced = variance.lessThanOrEqualTo(new Decimal('0.05'));
+    const netProfit = new Decimal(pnl.netProfit || 0);
+    const totalLiabilitiesAndEquity = totalLiabilities.plus(totalEquity).plus(exactNetProfit);
+    const roundedAssets = totalAssets.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+    const roundedLAndE = totalLiabilitiesAndEquity.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+    const variance = roundedAssets.minus(roundedLAndE).abs();
+    const isBalanced = variance.isZero();
 
     return {
       asOfDate,
       financialYearStart: fyStart,
-      totalAssets: totalAssets.toDecimalPlaces(2).toNumber(),
-      totalLiabilities: totalLiabilities.toDecimalPlaces(2).toNumber(),
-      totalEquity: totalEquity.toDecimalPlaces(2).toNumber(),
-      netProfitCurrentYear: netProfit.toDecimalPlaces(2).toNumber(),
-      totalLiabilitiesAndEquity: totalLiabilitiesAndEquity.toDecimalPlaces(2).toNumber(),
-      variance: variance.toDecimalPlaces(2).toNumber(),
+      totalAssets: roundedAssets.toNumber(),
+      totalLiabilities: totalLiabilities.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+      totalEquity: totalEquity.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+      netProfitCurrentYear: netProfit.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+      totalLiabilitiesAndEquity: roundedLAndE.toNumber(),
+      variance: variance.toNumber(),
       isBalanced,
       assetRows,
       liabilityRows,
@@ -1068,30 +1090,34 @@ export class ReportsService {
         entry.totalAmount += total;
       }
 
-      const rows = Array.from(itemMap.values()).map((r) => ({
+      const rawEntries = Array.from(itemMap.values());
+      const rows = rawEntries.map((r) => ({
         ...r,
-        quantitySold: Math.round(r.quantitySold * 100) / 100,
-        avgSellingPrice: r.quantitySold > 0 ? Math.round((r.taxableAmount / r.quantitySold) * 100) / 100 : 0,
-        taxableAmount: Math.round(r.taxableAmount * 100) / 100,
-        cgstAmount: Math.round(r.cgstAmount * 100) / 100,
-        sgstAmount: Math.round(r.sgstAmount * 100) / 100,
-        igstAmount: Math.round(r.igstAmount * 100) / 100,
-        totalTax: Math.round(r.totalTax * 100) / 100,
-        totalAmount: Math.round(r.totalAmount * 100) / 100,
+        quantitySold: new Decimal(r.quantitySold).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        avgSellingPrice:
+          r.quantitySold > 0
+            ? new Decimal(r.taxableAmount).div(r.quantitySold).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber()
+            : 0,
+        taxableAmount: new Decimal(r.taxableAmount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        cgstAmount: new Decimal(r.cgstAmount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        sgstAmount: new Decimal(r.sgstAmount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        igstAmount: new Decimal(r.igstAmount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        totalTax: new Decimal(r.totalTax).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        totalAmount: new Decimal(r.totalAmount).toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
       }));
 
       rows.sort((a, b) => b.totalAmount - a.totalAmount);
 
-      let totalQuantity = 0;
-      let totalTaxable = 0;
-      let totalTax = 0;
-      let totalSales = 0;
+      let totalQuantityDec = new Decimal(0);
+      let totalTaxableDec = new Decimal(0);
+      let totalTaxDec = new Decimal(0);
+      let totalSalesDec = new Decimal(0);
 
-      for (const r of rows) {
-        totalQuantity += r.quantitySold;
-        totalTaxable += r.taxableAmount;
-        totalTax += r.totalTax;
-        totalSales += r.totalAmount;
+      for (const r of rawEntries) {
+        totalQuantityDec = totalQuantityDec.plus(r.quantitySold);
+        totalTaxableDec = totalTaxableDec.plus(r.taxableAmount);
+        totalTaxDec = totalTaxDec.plus(r.totalTax);
+        totalSalesDec = totalSalesDec.plus(r.totalAmount);
       }
 
       return {
@@ -1102,10 +1128,10 @@ export class ReportsService {
         generatedAt: new Date().toISOString(),
         currency: 'INR',
         totalItemsSold: rows.length,
-        totalQuantity: Math.round(totalQuantity * 100) / 100,
-        totalTaxable: Math.round(totalTaxable * 100) / 100,
-        totalTax: Math.round(totalTax * 100) / 100,
-        totalSales: Math.round(totalSales * 100) / 100,
+        totalQuantity: totalQuantityDec.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        totalTaxable: totalTaxableDec.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        totalTax: totalTaxDec.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
+        totalSales: totalSalesDec.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber(),
         rows,
       };
     });

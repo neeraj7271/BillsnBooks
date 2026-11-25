@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import { execSync } from 'child_process';
 
 const PASS = 'HeavyQaPass@2026!';
+const WEBHOOK_SECRET = 'heavy-qa-webhook-secret-2026';
 const API = 'http://localhost:4000';
 const STATE_FILE = '/tmp/heavy-e2e/layer-a-state.json';
 
@@ -47,7 +49,8 @@ test.describe('Heavy E2E Section 1 Continuation: Data Top-Up Across All 9 Compan
     const tokenByTenant = new Map<string, string>();
     const summary: any[] = [];
 
-    for (const co of companiesState) {
+    for (let coIdx = 0; coIdx < companiesState.length; coIdx++) {
+      const co = companiesState[coIdx];
       let token = tokenByTenant.get(co.tenantEmail);
       if (!token) {
         const login = await apiJson('POST', '/v1/auth/login', '', {
@@ -195,18 +198,22 @@ test.describe('Heavy E2E Section 1 Continuation: Data Top-Up Across All 9 Compan
       const createdInvoiceIds: string[] = [];
       const itemSample = items[0] || { id: co.itemIds?.[0], hsnSacCode: '851762', uom: 'NOS' };
       const partySample = customers[0];
+      const companyNames = [
+        'Vanguard', 'Meridian', 'Solstice', 'Apex', 'Zenith', 'Kaveri', 'Deccan', 'Narmada', 'Vindhya',
+      ];
       for (let i = 0; i < 20; i++) {
-        const daysAgo = (i % 3) * 28 + (i % 7); // spread across 3 months
+        const daysAgo = (i * 3 + coIdx * 5) % 85; // varied dates across 3 months per company
         const invDate = isoDaysAgo(daysAgo);
-        const pos = i % 3 === 0 ? '29' : '27'; // mix inter-state & intra-state
+        const pos = (i + coIdx) % 3 === 0 ? '29' : '27'; // mix inter-state & intra-state
         const isZeroRated = i % 5 === 0;
         const hasCess = i % 4 === 0 && !isZeroRated;
-        const unitPrice = i % 2 === 0 ? '333.33' : '1500.00'; // round-off + standard
+        const qty = String(1 + ((i + coIdx) % 4));
+        const unitPrice = i % 2 === 0 ? (333.33 + coIdx * 111.17).toFixed(2) : String(1500 + coIdx * 317 + i * 25);
 
         const invRes = await apiJson('POST', `/v1/companies/${cid}/invoices`, token!, {
           branchId,
           financialYearId,
-          partyId: customers[i % customers.length]?.id || partySample.id,
+          partyId: customers[(i + coIdx) % customers.length]?.id || partySample.id,
           invoiceDate: invDate,
           dueDate: invDate,
           placeOfSupplyStateCode: pos,
@@ -215,14 +222,14 @@ test.describe('Heavy E2E Section 1 Continuation: Data Top-Up Across All 9 Compan
           isDraft: false,
           items: [
             {
-              itemId: itemSample.id,
-              description: `Topup Sales Line ${i + 1}`,
+              itemId: (items[(i + coIdx) % Math.max(1, items.length)] || itemSample).id,
+              description: `${companyNames[coIdx]} Sales Line ${i + 1}`,
               hsnSacCode: itemSample.hsnSacCode || '851762',
-              quantity: '2',
+              quantity: qty,
               uom: itemSample.uom || 'NOS',
               unitPrice,
               discountPercent: '0',
-              gstRatePercent: isZeroRated ? '0' : '18',
+              gstRatePercent: isZeroRated ? '5' : '18',
               cessRatePercent: hasCess ? '12' : '0',
             },
           ],
@@ -252,12 +259,12 @@ test.describe('Heavy E2E Section 1 Continuation: Data Top-Up Across All 9 Compan
       const bank1Id = bankLedgers[0]?.id;
       const bank2Id = bankLedgers[1]?.id || bankLedgers[0]?.id;
 
-      // 3. >= 20 approved Purchase / Expense vouchers
+      // 3. >= 20 approved Purchase / Expense vouchers (varied per company)
       const createdVoucherIds: string[] = [];
       if (expenseLedger && vCredId) {
         for (let i = 0; i < 20; i++) {
-          const d = isoDaysAgo((i % 3) * 25 + 2);
-          const amt = String(1500 + i * 250);
+          const d = isoDaysAgo(((i * 2 + coIdx * 3) % 75) + 2);
+          const amt = String(1500 + coIdx * 437 + i * 250);
           const v = await postVoucher('PURCHASE', d, `Topup Vendor Purchase #${i + 1}`, [
             { ledgerId: expenseLedger.id, entryType: 'DEBIT', amount: amt, narration: `Expense Bill ${i + 1}` },
             { ledgerId: vCredId, entryType: 'CREDIT', amount: amt, narration: `Payable to Vendor ${i + 1}` },
@@ -413,11 +420,15 @@ test.describe('Heavy E2E Section 1 Continuation: Data Top-Up Across All 9 Compan
         });
         if (plRes.status < 300 && plRes.data?.linkId) {
           if (p >= 3 && p < 6) {
+            const sig = crypto
+              .createHmac('sha256', WEBHOOK_SECRET)
+              .update(`${plRes.data.linkId}|${plRes.data.amount}`)
+              .digest('hex');
             await apiJson(
               'POST',
               `/v1/companies/${cid}/collections/payment-links/${plRes.data.linkId}/callback`,
               token!,
-              { amountPaid: plRes.data.amount, providerRef: `pay_topup_${p}` },
+              { amountPaid: plRes.data.amount, providerRef: `pay_topup_${p}`, signature: sig },
             );
           } else if (p >= 6) {
             expiredLinkIds.push(plRes.data.linkId);

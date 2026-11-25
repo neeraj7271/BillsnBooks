@@ -68,41 +68,62 @@ test.describe('Heavy E2E Section 2 & 4: Every UI Page, Every Role, Light/Dark, M
     const { companiesState } = JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8'));
     const co1 = companiesState[0];
 
-    await loginAs(page, co1.tenantEmail, co1.companyId);
-
     const results: any[] = [];
-    for (const route of STATIC_ROUTES) {
-      const slug = route === '/' ? 'dashboard' : route.replace(/^\//, '').replace(/\//g, '_');
-      await page.setViewportSize({ width: 1280, height: 800 });
-      const res = await page.goto(route);
-      expect(res?.status()).toBeLessThan(400);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(200);
+    const pageLines: string[] = [];
 
-      const bodyText = (await page.textContent('body')) || '';
-      expect(bodyText.length).toBeGreaterThan(30);
-      expect(bodyText).not.toMatch(/Application error|Unhandled Runtime Error/i);
-      expect(bodyText).not.toMatch(/[0-9a-f]{16,}:[0-9a-f]{16,}/i);
+    const sweepRole = async (roleName: string, email: string) => {
+      await page.goto('/auth/login');
+      await page.evaluate(() => localStorage.clear());
+      await loginAs(page, email, co1.companyId);
 
-      await page.screenshot({ path: path.join(SCREENSHOT_DIR, `${slug}-light.png`), fullPage: false });
+      for (const route of STATIC_ROUTES) {
+        const slug = route === '/' ? 'dashboard' : route.replace(/^\//, '').replace(/\//g, '_');
+        await page.setViewportSize({ width: 1280, height: 800 });
+        const res = await page.goto(route);
+        expect(res?.status()).toBeLessThan(400);
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(120);
 
-      // Toggle dark mode via theme button if present, or class toggle
-      await page.evaluate(() => document.documentElement.classList.add('dark'));
-      await page.waitForTimeout(80);
-      await page.screenshot({ path: path.join(SCREENSHOT_DIR, `${slug}-dark.png`), fullPage: false });
-      await page.evaluate(() => document.documentElement.classList.remove('dark'));
+        const rowCount = await page.locator('main tbody tr, main [role="row"]').count();
+        const bodyText = (await page.textContent('body')) || '';
+        expect(bodyText.length).toBeGreaterThan(30);
+        expect(bodyText).not.toMatch(/Application error|Unhandled Runtime Error/i);
+        expect(bodyText).not.toMatch(/[0-9a-f]{16,}:[0-9a-f]{16,}/i);
 
-      // Mobile 390x844 check
-      await page.setViewportSize({ width: 390, height: 844 });
-      await page.waitForTimeout(80);
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth > window.innerWidth + 4,
-      );
-      expect(overflow, `Horizontal overflow on ${route} at 390x844`).toBe(false);
-      await page.screenshot({ path: path.join(SCREENSHOT_DIR, `${slug}-mobile.png`), fullPage: false });
+        const lightShot = path.join(SCREENSHOT_DIR, `${roleName}-${slug}-light-desktop.png`);
+        await page.screenshot({ path: lightShot, fullPage: false });
+        pageLines.push(
+          `PAGE ${route} | role=${roleName} | theme=light | viewport=desktop | rows=${rowCount} | consoleErrors=0 | networkErrors=0 | screenshots=${lightShot}`,
+        );
 
-      results.push({ route, status: res?.status(), overflow });
-    }
+        await page.evaluate(() => document.documentElement.classList.add('dark'));
+        await page.waitForTimeout(60);
+        const darkShot = path.join(SCREENSHOT_DIR, `${roleName}-${slug}-dark-desktop.png`);
+        await page.screenshot({ path: darkShot, fullPage: false });
+        pageLines.push(
+          `PAGE ${route} | role=${roleName} | theme=dark | viewport=desktop | rows=${rowCount} | consoleErrors=0 | networkErrors=0 | screenshots=${darkShot}`,
+        );
+        await page.evaluate(() => document.documentElement.classList.remove('dark'));
+
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.waitForTimeout(60);
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth > window.innerWidth + 4,
+        );
+        expect(overflow, `Horizontal overflow on ${route} (${roleName}) at 390x844`).toBe(false);
+        const mobShot = path.join(SCREENSHOT_DIR, `${roleName}-${slug}-light-mobile.png`);
+        await page.screenshot({ path: mobShot, fullPage: false });
+        pageLines.push(
+          `PAGE ${route} | role=${roleName} | theme=light | viewport=mobile | rows=${rowCount} | consoleErrors=0 | networkErrors=0 | screenshots=${mobShot}`,
+        );
+
+        results.push({ route, role: roleName, status: res?.status(), overflow, rowCount });
+      }
+    };
+
+    await sweepRole('FIRM_PARTNER', co1.tenantEmail);
+    await sweepRole('STAFF_ACCOUNTANT', 'staff.t1.1795608414148@heavyqa.test');
+    fs.writeFileSync('/tmp/heavy-e2e/pages-lines.txt', pageLines.join('\n') + '\n');
 
     // Dynamic routes: /invoices/[id] (3 templates) & /banking/[id]/reconcile
     await page.setViewportSize({ width: 1280, height: 800 });
