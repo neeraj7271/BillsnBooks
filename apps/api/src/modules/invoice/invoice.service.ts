@@ -184,7 +184,7 @@ export class InvoiceService {
       throw new BadRequestException('An invoice must contain at least one line item.');
     }
 
-    const maxInvoiceNumberAttempts = 5;
+    const maxInvoiceNumberAttempts = 25;
     const autoNumber = !(dto.customInvoiceNumber || dto.invoiceNumber)?.trim();
     for (let attempt = 1; attempt <= maxInvoiceNumberAttempts; attempt++) {
       try {
@@ -314,16 +314,25 @@ export class InvoiceService {
           throw new ConflictException(`Invoice number '${invoiceNumber}' already exists for this company.`);
         }
       } else {
+        // Serialize auto-numbering per (company, documentType) within the transaction
+        // so concurrent requests never collide on uq_company_invoice_number.
+        await qr.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [
+          `invoice_num:${companyId}:${documentType}`,
+        ]);
         const prefix =
           documentType === DocumentType.PROFORMA_INVOICE
             ? 'PI'
             : documentType === DocumentType.DELIVERY_CHALLAN
               ? 'DC'
               : 'INV';
-        const invoiceCount = await qr.manager.count(InvoiceOrmEntity, {
-          where: { companyId, documentType },
-        });
-        invoiceNumber = `${prefix}-${String(invoiceCount + 1).padStart(5, '0')}`;
+        const maxRow = await qr.query(
+          `SELECT COALESCE(MAX(CAST(substring(invoice_number from '^' || $2 || '-([0-9]+)$') AS INTEGER)), 0) AS max_seq
+           FROM invoices
+           WHERE company_id = $1 AND document_type = $3 AND invoice_number ~ ('^' || $2 || '-[0-9]+$')`,
+          [companyId, prefix, documentType],
+        );
+        const nextSeq = Number(maxRow?.[0]?.max_seq ?? 0) + 1;
+        invoiceNumber = `${prefix}-${String(nextSeq).padStart(5, '0')}`;
 
         if (this.numberingService) {
           try {

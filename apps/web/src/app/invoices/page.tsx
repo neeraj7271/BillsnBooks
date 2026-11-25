@@ -410,7 +410,7 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto w-full sm:w-auto max-w-full">
           {['ALL', 'ISSUED', 'PENDING_APPROVAL', 'CANCELLED', 'DRAFT'].map((st) => (
             <button
               key={st}

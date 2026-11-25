@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FormField, Select, Input, Badge } from '@platform/ui';
+import { FormField, Select, Combobox, Input, Badge } from '@platform/ui';
 import { INDIAN_GST_STATES_LIST, formatPartyTaxIdentity } from '@platform/shared-types';
 import { Settings, Hash } from 'lucide-react';
 
@@ -185,7 +185,7 @@ export function InvoiceHeaderFields({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField label="Customer (Billed To)" required>
-          <Select
+          <Combobox
             value={selectedPartyId}
             onValueChange={onPartyChange}
             options={parties.map((p) => ({

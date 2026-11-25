@@ -229,36 +229,43 @@ export class VoucherService {
     },
   ): Promise<any[]> {
     return this.uow.executeInTransaction(async (qr: QueryRunner) => {
-      const qb = qr.manager
+      const idQb = qr.manager
+        .getRepository(VoucherOrmEntity)
+        .createQueryBuilder('v')
+        .select('v.id', 'id')
+        .where('v.tenant_id = :tenantId', { tenantId })
+        .andWhere('v.company_id = :companyId', { companyId })
+        .orderBy('v.voucher_date', 'DESC')
+        .addOrderBy('v.created_at', 'DESC')
+        .limit(filters?.limit || 100);
+
+      if (filters?.voucherType) {
+        idQb.andWhere('v.voucher_type = :vType', { vType: filters.voucherType });
+      }
+      if (filters?.status) {
+        idQb.andWhere('v.status = :status', { status: filters.status });
+      }
+      if (filters?.fromDate) {
+        idQb.andWhere('v.voucher_date >= :fromDate', { fromDate: filters.fromDate });
+      }
+      if (filters?.toDate) {
+        idQb.andWhere('v.voucher_date <= :toDate', { toDate: filters.toDate });
+      }
+
+      const idRows = await idQb.getRawMany();
+      const ids = idRows.map((r) => r.id);
+      if (ids.length === 0) return [];
+
+      const vouchers = await qr.manager
         .getRepository(VoucherOrmEntity)
         .createQueryBuilder('v')
         .leftJoinAndSelect('v.entries', 'entries')
         .leftJoinAndSelect('entries.ledger', 'ledger')
-        .where('v.tenant_id = :tenantId', { tenantId })
-        .andWhere('v.company_id = :companyId', { companyId })
+        .where('v.id IN (:...ids)', { ids })
         .orderBy('v.voucher_date', 'DESC')
-        .addOrderBy('v.created_at', 'DESC');
+        .addOrderBy('v.created_at', 'DESC')
+        .getMany();
 
-      if (filters?.voucherType) {
-        qb.andWhere('v.voucher_type = :vType', { vType: filters.voucherType });
-      }
-      if (filters?.status) {
-        qb.andWhere('v.status = :status', { status: filters.status });
-      }
-      if (filters?.fromDate) {
-        qb.andWhere('v.voucher_date >= :fromDate', { fromDate: filters.fromDate });
-      }
-      if (filters?.toDate) {
-        qb.andWhere('v.voucher_date <= :toDate', { toDate: filters.toDate });
-      }
-
-      if (filters?.limit) {
-        qb.take(filters.limit);
-      } else {
-        qb.take(100);
-      }
-
-      const vouchers = await qb.getMany();
       return vouchers.map((v) => ({
         id: v.id,
         voucherType: v.voucherType,
@@ -268,11 +275,12 @@ export class VoucherService {
         totalAmount: Number(v.totalAmount),
         narration: v.narration,
         reversalOfId: v.reversalOfId,
-        entries: v.entries.map((e) => ({
+        entries: (v.entries || []).map((e) => ({
           id: e.id,
           ledgerId: e.ledgerId,
           ledgerName: e.ledger?.name,
           ledgerCode: e.ledger?.code,
+          ledger: e.ledger ? { id: e.ledger.id, name: e.ledger.name, code: e.ledger.code } : undefined,
           entryType: e.entryType,
           amount: Number(e.amount),
         })),

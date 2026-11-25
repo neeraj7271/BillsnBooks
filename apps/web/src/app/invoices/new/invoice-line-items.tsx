@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Button, Input, CurrencyInput, Select, MoneyText } from '@platform/ui';
+import { Button, Input, CurrencyInput, Select, Combobox, MoneyText } from '@platform/ui';
 import type { LineItem, ComputedInvoiceTotals } from './invoice-math';
 
 interface InvoiceLineItemsProps {
@@ -57,12 +57,13 @@ export function InvoiceLineItems({
               return (
                 <tr key={`line-${idx}`} className="align-middle">
                   <td className="p-2">
-                    <Select
+                    <Combobox
                       size="sm"
                       value={line.itemId || ''}
                       onValueChange={(val) => onSelectItemForLine(idx, val)}
                       options={items.map((it) => ({ label: it.name, value: it.id }))}
                       placeholder="Select item..."
+                      searchPlaceholder="Search 5,000+ items..."
                     />
                   </td>
                   <td className="p-2">

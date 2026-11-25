@@ -19,10 +19,10 @@ export class TenantRlsWithCheckAndAuditAppendOnly1731400000000
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      DO $$
+      DO $plouter$
       DECLARE
         r RECORD;
-        v_qual text := '${this.qual}';
+        v_qual text := $q$${this.qual}$q$;
       BEGIN
         FOR r IN
           SELECT schemaname, tablename, policyname
@@ -35,7 +35,7 @@ export class TenantRlsWithCheckAndAuditAppendOnly1731400000000
             r.policyname, r.schemaname, r.tablename, v_qual, v_qual
           );
         END LOOP;
-      END $$;
+      END $plouter$;
     `);
 
     await queryRunner.query(`
@@ -59,10 +59,10 @@ export class TenantRlsWithCheckAndAuditAppendOnly1731400000000
     await queryRunner.query(`DROP FUNCTION IF EXISTS trg_audit_logs_append_only();`);
 
     await queryRunner.query(`
-      DO $$
+      DO $plouter$
       DECLARE
         r RECORD;
-        v_qual text := '${this.qual}';
+        v_qual text := $q$${this.qual}$q$;
       BEGIN
         FOR r IN
           SELECT schemaname, tablename, policyname
@@ -75,7 +75,7 @@ export class TenantRlsWithCheckAndAuditAppendOnly1731400000000
             r.policyname, r.schemaname, r.tablename, v_qual
           );
         END LOOP;
-      END $$;
+      END $plouter$;
     `);
   }
 }

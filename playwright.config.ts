@@ -4,13 +4,13 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,
   workers: 1,
-  reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
+  reporter: [['line'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3005',
     trace: 'on-first-retry',
-    screenshot: 'on',
-    video: 'off',
-    headless: process.env.HEADED === 'true' ? false : true,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    headless: true,
     launchOptions: {
       slowMo: process.env.HEADED === 'true' ? 150 : 0,
     },

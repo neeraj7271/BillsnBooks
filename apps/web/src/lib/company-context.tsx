@@ -59,6 +59,10 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchSettings = useCallback(async (targetCompanyId: string) => {
+    if (!targetCompanyId) return;
+    if (typeof window !== 'undefined' && !localStorage.getItem('antigravity_access_token')) {
+      return;
+    }
     try {
       const settings = await apiClient.getCompanySettings(targetCompanyId);
       setActiveSettings(settings || {});
@@ -68,14 +72,18 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchCompanies = async () => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('antigravity_access_token')) {
+      setCompanies([]);
+      setLoading(false);
+      return;
+    }
     try {
       const data = await apiClient.listCompanies();
       const companyList = data || [];
       setCompanies(companyList);
 
-      // If activeCompanyId not in list, fallback to first company or DEFAULT
-      let currentId = activeCompanyId;
       if (companyList.length > 0) {
+        let currentId = activeCompanyId;
         const found = companyList.find((c: any) => c.id === activeCompanyId);
         if (!found) {
           currentId = companyList[0].id;
@@ -84,8 +92,10 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem('antigravity_active_company_id', currentId);
           }
         }
+        await fetchSettings(currentId);
+      } else {
+        setActiveSettings({});
       }
-      await fetchSettings(currentId);
     } catch (err: unknown) {
       console.error('Failed to load companies in CompanyProvider', err);
     } finally {
@@ -98,10 +108,10 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (activeCompanyId) {
+    if (activeCompanyId && companies.some((c) => c.id === activeCompanyId)) {
       fetchSettings(activeCompanyId);
     }
-  }, [activeCompanyId, fetchSettings]);
+  }, [activeCompanyId, companies, fetchSettings]);
 
   const setActiveCompanyId = (id: string) => {
     setActiveCompanyIdState(id);

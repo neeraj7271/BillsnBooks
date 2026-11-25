@@ -177,7 +177,7 @@ export function Combobox({
                 {emptyText}
               </div>
             ) : (
-              filteredOptions.map((opt) => {
+              filteredOptions.slice(0, 100).map((opt) => {
                 const isSelected = opt.value === selectedValue;
                 return (
                   <button

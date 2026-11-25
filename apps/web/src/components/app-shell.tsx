@@ -92,7 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onOpenMobile={() => setMobileOpen(true)}
           />
         </div>
-        <main className="flex-1 w-full min-w-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible">
+        <main className="flex-1 w-full min-w-0 overflow-x-hidden overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible">
           <div className="max-w-7xl mx-auto w-full print:max-w-none print:w-full print:p-0">
             {children}
           </div>

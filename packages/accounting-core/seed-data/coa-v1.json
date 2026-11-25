@@ -930,6 +930,28 @@
       "tallyLedgerName": "Electricity Deposit",
       "scheduleIiiMapping": "Long-term Loans & Advances - Security Deposits",
       "templates": ["TRADER", "MANUFACTURER", "SERVICE"]
+    },
+    {
+      "systemKey": "LED_SUNDRY_DEBTORS",
+      "name": "Sundry Debtors Control Account",
+      "code": "1161",
+      "groupKey": "GRP_SUNDRY_DEBTORS",
+      "isBankOrCash": false,
+      "isLocked": true,
+      "tallyLedgerName": "Sundry Debtors",
+      "scheduleIiiMapping": "Trade Receivables",
+      "templates": ["TRADER", "MANUFACTURER", "SERVICE", "MINIMAL"]
+    },
+    {
+      "systemKey": "LED_SUNDRY_CREDITORS",
+      "name": "Sundry Creditors Control Account",
+      "code": "2131",
+      "groupKey": "GRP_SUNDRY_CREDITORS",
+      "isBankOrCash": false,
+      "isLocked": true,
+      "tallyLedgerName": "Sundry Creditors",
+      "scheduleIiiMapping": "Trade Payables",
+      "templates": ["TRADER", "MANUFACTURER", "SERVICE", "MINIMAL"]
     }
   ]
 }

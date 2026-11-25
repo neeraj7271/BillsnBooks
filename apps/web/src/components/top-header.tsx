@@ -191,9 +191,9 @@ export function TopHeader({
 
   return (
     <>
-      <header className="print:hidden sticky top-0 z-20 flex h-14 w-full items-center justify-between border-b border-slate-200/90 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md px-4 sm:px-6 transition-colors duration-200">
+      <header className="print:hidden sticky top-0 z-20 flex h-14 w-full items-center justify-between gap-2 border-b border-slate-200/90 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md px-3 sm:px-6 transition-colors duration-200">
         {/* Left Section: Mobile Menu, Sidebar Toggle, Breadcrumb & Company Pill */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           {/* Mobile Hamburger Button */}
           <button
             type="button"
@@ -260,19 +260,19 @@ export function TopHeader({
           )}
 
           {/* Active Company Switcher Dropdown */}
-          <div ref={companyRef} className="relative">
+          <div ref={companyRef} className="relative min-w-0">
             <button
               type="button"
               onClick={() => setShowCompanyMenu(!showCompanyMenu)}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900 px-2.5 py-1 text-xs text-slate-700 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-600 transition shadow-xs"
+              className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900 px-2 sm:px-2.5 py-1 text-xs text-slate-700 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-600 transition shadow-xs max-w-full"
               title="Click to switch active company"
             >
               <Building2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-              <span className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[130px] sm:max-w-[180px]">
+              <span className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[80px] sm:max-w-[180px]">
                 {activeCompany?.legalName || 'Select Company'}
               </span>
               {activeCompany?.defaultCurrency && (
-                <Badge variant="neutral" size="xs" className="font-mono text-[9px] px-1 py-0">
+                <Badge variant="neutral" size="xs" className="hidden sm:inline-flex font-mono text-[9px] px-1 py-0">
                   {activeCompany.defaultCurrency}
                 </Badge>
               )}
