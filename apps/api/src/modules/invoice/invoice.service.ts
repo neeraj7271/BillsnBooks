@@ -82,9 +82,31 @@ export class InvoiceService {
         qb.andWhere('invoice.invoice_date <= :toDate', { toDate: filters.toDate });
       }
 
-      qb.orderBy('invoice.created_at', 'DESC');
+      qb.orderBy('invoice.createdAt', 'DESC');
       if (filters?.limit) {
-        qb.take(filters.limit);
+        const idQb = qr.manager
+          .createQueryBuilder(InvoiceOrmEntity, 'invoice')
+          .select('invoice.id', 'id')
+          .where('invoice.tenant_id = :tenantId', { tenantId })
+          .andWhere('invoice.company_id = :companyId', { companyId });
+        if (filters.status) idQb.andWhere('invoice.status = :status', { status: filters.status });
+        if (filters.partyId) idQb.andWhere('invoice.party_id = :partyId', { partyId: filters.partyId });
+        if (filters.fromDate) idQb.andWhere('invoice.invoice_date >= :fromDate', { fromDate: filters.fromDate });
+        if (filters.toDate) idQb.andWhere('invoice.invoice_date <= :toDate', { toDate: filters.toDate });
+        const idRows = await idQb
+          .orderBy('invoice.createdAt', 'DESC')
+          .limit(filters.limit)
+          .getRawMany<{ id: string }>();
+        const ids = idRows.map((r) => r.id);
+        if (ids.length === 0) return [];
+        const hydrated = await qr.manager
+          .createQueryBuilder(InvoiceOrmEntity, 'invoice')
+          .leftJoinAndSelect('invoice.party', 'party')
+          .leftJoinAndSelect('invoice.items', 'items')
+          .where('invoice.id IN (:...ids)', { ids })
+          .orderBy('invoice.createdAt', 'DESC')
+          .getMany();
+        return hydrated.map((e) => this.toDto(e));
       }
 
       const entities = await qb.getMany();

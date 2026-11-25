@@ -14,7 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  const isAuthRoute = pathname.startsWith('/auth');
+  const isAuthRoute = pathname.startsWith('/auth') || pathname.startsWith('/reports/shared/');
 
   useEffect(() => {
     try {
