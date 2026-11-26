@@ -51,7 +51,7 @@ export function InvoicePreviewCard({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-testid="invoice-live-preview">
       {/* Top Bar with Template Switcher & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-2xl border border-default shadow-xs">
         <div className="flex items-center gap-2">
