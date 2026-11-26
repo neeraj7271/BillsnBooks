@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-canvas text-primary print:bg-white print:text-black print:min-h-0 print:block">
+    <div className="flex h-screen overflow-hidden bg-canvas text-primary print:bg-white print:text-black print:min-h-0 print:h-auto print:overflow-visible print:block">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-brand focus:text-inverse focus:text-xs focus:font-semibold"
@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to main content
       </a>
 
-      <div className="print:hidden">
+      <div className="h-full shrink-0 print:hidden">
         <Sidebar
           isCollapsed={isCollapsed}
           onToggleCollapse={handleToggleCollapse}
@@ -87,8 +87,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         />
       </div>
 
-      <div className="flex flex-1 flex-col min-w-0 print:block print:w-full print:p-0">
-        <div className="print:hidden">
+      <div className="flex flex-1 flex-col min-w-0 h-full overflow-hidden print:block print:w-full print:p-0 print:h-auto print:overflow-visible">
+        <div className="shrink-0 print:hidden">
           <TopHeader
             isCollapsed={isCollapsed}
             onToggleCollapse={handleToggleCollapse}
@@ -97,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <main
           id="main-content"
-          className="flex-1 w-full min-w-0 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible"
+          className="flex-1 h-0 w-full min-w-0 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible print:h-auto"
         >
           <div className="max-w-7xl mx-auto w-full print:max-w-none print:w-full print:p-0">
             <PageErrorBoundary>{children}</PageErrorBoundary>

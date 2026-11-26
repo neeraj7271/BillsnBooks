@@ -289,11 +289,12 @@ export function Sidebar({
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:block shrink-0 transition-all duration-200 ${
+        data-testid="sidebar"
+        className={`hidden lg:block shrink-0 h-full transition-all duration-200 ${
           isCollapsed ? 'w-[60px]' : 'w-[260px]'
         }`}
       >
-        <div className="sticky top-0 h-screen">{renderContent(false)}</div>
+        <div className="h-full">{renderContent(false)}</div>
       </aside>
 
       {/* Mobile Drawer */}
