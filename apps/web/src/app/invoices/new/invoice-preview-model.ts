@@ -149,6 +149,11 @@ export function buildInvoicePreviewModel(
     igstAmount: totalIgst,
     cessAmount: computedTotals?.cessAmount || 0,
     roundOffAmount: computedTotals?.roundOff || 0,
+    totalCgst,
+    totalSgst,
+    totalIgst,
+    totalCess: computedTotals?.cessAmount || 0,
+    roundOff: computedTotals?.roundOff || 0,
     totalAmount: grandTotal,
 
     notes: formState.notes || '',

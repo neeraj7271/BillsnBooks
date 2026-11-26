@@ -99,7 +99,7 @@ export function InvoicePreviewCard({
       <div className="w-full flex flex-col items-center py-4 bg-canvas/30 rounded-2xl border border-subtle overflow-y-auto print:bg-white print:p-0 print:m-0 print:border-none print:block">
         <div
           id="printable-invoice"
-          className="printable-document w-full max-w-[794px] aspect-[1/1.414] bg-white text-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.08)] rounded-[2px] px-[12mm] py-[10mm] box-border transition-all print:p-0 print:m-0 print:max-w-none print:w-full print:min-h-0 print:shadow-none print:border-none print:rounded-none print:aspect-auto"
+          className="printable-document w-full max-w-[794px] aspect-[1/1.414] mx-auto bg-white text-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.08)] rounded-[2px] px-[12mm] py-[10mm] box-border transition-all print:p-0 print:m-0 print:max-w-none print:w-full print:min-h-0 print:shadow-none print:border-none print:rounded-none print:aspect-auto"
         >
           <TemplateComponent
             invoice={previewModel}
