@@ -3,19 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
+  ListPage,
   Button,
   Badge,
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
   CardContent,
   FormField,
   Input,
   Select,
   MoneyText,
   DateText,
-  DataTable,
   ConfirmDialog,
   Dialog,
   DialogContent,
@@ -346,119 +343,107 @@ export default function VouchersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
-              General Ledger Vouchers
-            </h1>
-            <Badge variant="brand" size="sm">Double-Entry Audit Trail</Badge>
+      <ListPage<Voucher>
+        header={{
+          title: 'General Ledger Vouchers',
+          subtitle: 'Immutable financial transaction register enforcing zero-variance mathematical invariants.',
+          badge: <Badge variant="brand" size="sm">Double-Entry Audit Trail</Badge>,
+          actions: (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadData}
+                loading={loading}
+                leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+              >
+                Refresh
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setNewJvOpen(true)}
+                leftIcon={<Plus className="h-3.5 w-3.5" />}
+              >
+                New Journal Voucher (JV)
+              </Button>
+            </div>
+          ),
+        }}
+        kpis={
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted">
+                  <span>Total Posted Vouchers</span>
+                  <FileText className="h-4 w-4 text-brand-text" />
+                </div>
+                <div className="mt-2 text-2xl font-bold text-primary tabular-nums">
+                  {vouchers.filter((v) => v.status === 'POSTED').length}
+                </div>
+                <p className="mt-1 text-caption text-muted">Committed double-entry records</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted">
+                  <span>Zero-Variance Invariant</span>
+                  <Scale className="h-4 w-4 text-status-success-text" />
+                </div>
+                <div className="mt-2 text-2xl font-bold text-status-success-text tabular-nums">
+                  Δ ₹0.00
+                </div>
+                <p className="mt-1 text-caption text-muted">100% Balanced Debits = Credits</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted">
+                  <span>Reversed / Cancelled</span>
+                  <RotateCcw className="h-4 w-4 text-status-warning-text" />
+                </div>
+                <div className="mt-2 text-2xl font-bold text-primary tabular-nums">
+                  {vouchers.filter((v) => v.status === 'REVERSED').length}
+                </div>
+                <p className="mt-1 text-caption text-muted">Contra-reversed transactions</p>
+              </CardContent>
+            </Card>
           </div>
-          <p className="mt-1 text-sm text-muted text-muted">
-            Immutable financial transaction register enforcing zero-variance mathematical invariants.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadData}
-            loading={loading}
-            leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setNewJvOpen(true)}
-            leftIcon={<Plus className="h-3.5 w-3.5" />}
-          >
-            New Journal Voucher (JV)
-          </Button>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-muted">
-              <span>Total Posted Vouchers</span>
-              <FileText className="h-4 w-4 text-brand-text" />
+        }
+        toolbar={{
+          searchValue: searchTerm,
+          onSearchChange: setSearchTerm,
+          searchPlaceholder: 'Search by voucher #, account, narration...',
+          filters: (
+            <div className="flex items-center gap-1 p-1 bg-surface-sunken rounded-lg overflow-x-auto">
+              {['ALL', 'SALES', 'JOURNAL', 'PAYMENT', 'RECEIPT', 'CREDIT_NOTE'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTypeFilter(t)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition whitespace-nowrap ${
+                    typeFilter === t
+                      ? 'bg-surface text-primary shadow-xs'
+                      : 'text-muted hover:text-primary'
+                  }`}
+                >
+                  {t === 'ALL' ? 'All Types' : t}
+                </button>
+              ))}
             </div>
-            <div className="mt-2 text-2xl font-black text-primary dark:text-white">
-              {vouchers.filter((v) => v.status === 'POSTED').length}
-            </div>
-            <p className="mt-1 text-[11px] text-muted">Committed double-entry records</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-muted">
-              <span>Zero-Variance Invariant</span>
-              <Scale className="h-4 w-4 text-status-success-text" />
-            </div>
-            <div className="mt-2 text-2xl font-black text-status-success-text text-status-success-text">
-              Δ ₹0.00
-            </div>
-            <p className="mt-1 text-[11px] text-muted">100% Balanced Debits = Credits</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-muted">
-              <span>Reversed / Cancelled</span>
-              <RotateCcw className="h-4 w-4 text-status-warning-text" />
-            </div>
-            <div className="mt-2 text-2xl font-black text-primary dark:text-white">
-              {vouchers.filter((v) => v.status === 'REVERSED').length}
-            </div>
-            <p className="mt-1 text-[11px] text-muted">Contra-reversed transactions</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by voucher #, account, narration..."
-            className="pl-9 text-xs"
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5 p-1 bg-surface-sunken bg-surface-raised rounded-xl overflow-x-auto">
-          {['ALL', 'SALES', 'JOURNAL', 'PAYMENT', 'RECEIPT', 'CREDIT_NOTE'].map((t) => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
-                typeFilter === t
-                  ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
-                  : 'text-muted hover:text-primary dark:hover:text-white'
-              }`}
-            >
-              {t === 'ALL' ? 'All Types' : t}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Live Vouchers DataTable */}
-      <DataTable
+          ),
+        }}
         columns={columns}
         data={filteredVouchers}
         loading={loading}
-        emptyTitle="No vouchers found"
-        emptyDescription="Post invoices or manual journal entries to populate the general ledger books."
+        onRetry={loadData}
+        empty={{
+          title: 'No vouchers found',
+          description: 'Post invoices or manual journal entries to populate the general ledger books.',
+        }}
+        tableProps={{ stickyHeader: true }}
       />
 
       {/* Voucher Entries Drill-down Modal */}
