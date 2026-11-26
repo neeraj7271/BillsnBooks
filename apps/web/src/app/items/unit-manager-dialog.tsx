@@ -150,7 +150,7 @@ export function UnitManagerDialog({
       <DialogContent size="lg" className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="h-8 w-8 rounded-lg bg-status-info-subtle flex items-center justify-center text-status-info-text">
               <Scale className="h-4 w-4" />
             </div>
             <div>
@@ -163,31 +163,31 @@ export function UnitManagerDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-400 flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {/* Create / Edit Unit Form */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-slate-50/70 dark:bg-slate-900/50 space-y-3">
+        <div className="rounded-xl border border-default p-4 bg-surface-sunken space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
               {editingCode ? (
                 <>
-                  <Edit3 className="w-3.5 h-3.5 text-blue-500" />
-                  Edit Custom Unit: <span className="font-mono text-blue-600">{editingCode}</span>
+                  <Edit3 className="w-3.5 h-3.5 text-status-info-text" />
+                  Edit Custom Unit: <span className="font-mono text-status-info-text">{editingCode}</span>
                 </>
               ) : (
                 <>
-                  <Plus className="w-3.5 h-3.5 text-blue-500" />
+                  <Plus className="w-3.5 h-3.5 text-status-info-text" />
                   Create New Custom Unit
                 </>
               )}
@@ -197,7 +197,7 @@ export function UnitManagerDialog({
               <button
                 type="button"
                 onClick={resetForm}
-                className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
+                className="text-xs text-muted hover:text-secondary flex items-center gap-1"
               >
                 <X className="w-3.5 h-3.5" /> Cancel Edit
               </button>
@@ -216,7 +216,7 @@ export function UnitManagerDialog({
                   onChange={(e) => setNewCode(e.target.value.toUpperCase())}
                   placeholder="e.g. TRIP, BATCH, BUNDLE"
                   className={`font-mono uppercase text-xs ${
-                    editingCode ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed opacity-80' : ''
+                    editingCode ? 'bg-surface-sunken cursor-not-allowed opacity-80' : ''
                   }`}
                 />
               </FormField>
@@ -265,35 +265,35 @@ export function UnitManagerDialog({
         {/* Saved Custom Units */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            <span className="text-xs font-bold uppercase tracking-wider text-secondary">
               Saved Company Units ({customUnits.length})
             </span>
-            <span className="text-[11px] text-slate-400">Available across all item creation forms</span>
+            <span className="text-[11px] text-muted">Available across all item creation forms</span>
           </div>
 
           {customUnits.length === 0 ? (
-            <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-xs text-slate-400">
+            <div className="p-4 rounded-xl border border-dashed border-default text-center text-xs text-muted">
               No custom units registered yet. Create your first unit above, or use statutory standard GST units below.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+            <div className="divide-y divide-border-subtle border border-default rounded-xl overflow-hidden bg-surface">
               {customUnits.map((u) => (
                 <div key={u.code} className="p-3 flex items-center justify-between gap-4 text-xs">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                      <span className="font-mono font-bold px-2 py-0.5 rounded bg-status-info-subtle text-status-info-text">
                         {u.code}
                       </span>
-                      <span className="font-semibold text-slate-900 dark:text-white">{u.name}</span>
+                      <span className="font-semibold text-primary">{u.name}</span>
                     </div>
-                    {u.description && <p className="text-[11px] text-slate-400 mt-0.5">{u.description}</p>}
+                    {u.description && <p className="text-[11px] text-muted mt-0.5">{u.description}</p>}
                   </div>
 
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 w-7 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                      className="h-7 w-7 p-0 text-muted hover:text-status-success-text hover:bg-status-success-subtle"
                       title={`Edit unit ${u.code}`}
                       onClick={() => handleStartEdit(u)}
                     >
@@ -302,7 +302,7 @@ export function UnitManagerDialog({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950"
+                      className="h-7 w-7 p-0 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle"
                       title={`Delete unit ${u.code}`}
                       onClick={() => handleDelete(u.code)}
                     >
@@ -316,19 +316,19 @@ export function UnitManagerDialog({
         </div>
 
         {/* Standard GST Reference Units */}
-        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+        <div className="space-y-2 pt-2 border-t border-subtle">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+            <BookOpen className="w-3.5 h-3.5 text-muted" />
             Statutory GST Standard Units Reference ({GST_STATUTORY_UOM_LIST.length} units pre-loaded)
           </span>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-2 bg-surface-sunken rounded-xl border border-default text-[11px]">
             {GST_STATUTORY_UOM_LIST.map((su) => (
               <div key={su.code} className="flex items-center gap-1.5 truncate">
-                <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
+                <span className="font-mono font-semibold text-secondary">
                   {su.code}
                 </span>
-                <span className="text-slate-400 truncate">— {su.name.split(' (')[0]}</span>
+                <span className="text-muted truncate">— {su.name.split(' (')[0]}</span>
               </div>
             ))}
           </div>

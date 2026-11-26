@@ -89,14 +89,14 @@ export function EditUnitDialog({
       <DialogContent size="sm" className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="h-9 w-9 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text">
               <Edit3 className="h-4 w-4" />
             </div>
             <div>
               <DialogTitle>Edit Custom Unit</DialogTitle>
               <DialogDescription className="text-xs">
                 Update display name and specifications for unit{' '}
-                <span className="font-mono font-bold text-slate-900 dark:text-white">
+                <span className="font-mono font-bold text-primary">
                   {unit.code}
                 </span>
                 .
@@ -106,7 +106,7 @@ export function EditUnitDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-400 flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -114,14 +114,14 @@ export function EditUnitDialog({
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            <label className="text-xs font-semibold text-secondary block mb-1">
               Unit Code (UOM / UQC)
             </label>
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+              <span className="font-mono font-bold text-xs px-3 py-1.5 rounded-lg bg-surface-sunken text-secondary border border-default">
                 {unit.code}
               </span>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-muted">
                 (Unique identifier; code is immutable to preserve reference integrity)
               </span>
             </div>

@@ -45,11 +45,11 @@ export function ItemDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="lg" className="max-w-2xl overflow-hidden p-0 gap-0">
         {/* Header Banner */}
-        <div className="p-6 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
+        <div className="p-6 bg-surface-sunken border-b border-default">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-bold">
+                <span className="font-mono text-xs px-2 py-0.5 rounded bg-status-info-subtle text-status-info-text font-bold">
                   {item.itemCode}
                 </span>
                 <Badge variant={isService ? 'brand' : 'neutral'} size="xs">
@@ -60,23 +60,23 @@ export function ItemDetailsDialog({
                 </Badge>
               </div>
 
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+              <h2 className="text-xl font-bold text-primary mt-1">
                 {item.name}
               </h2>
               {item.description && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                <p className="text-xs text-muted line-clamp-2">
                   {item.description}
                 </p>
               )}
             </div>
 
             <div className="text-right whitespace-nowrap">
-              <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wider block">
+              <span className="text-[11px] font-medium text-muted uppercase tracking-wider block">
                 Standard Rate
               </span>
               <div className="text-lg font-bold">
                 <MoneyText amount={Number(item.unitPrice || 0)} />
-                <span className="text-xs text-slate-400 font-normal uppercase ml-1">
+                <span className="text-xs text-muted font-normal uppercase ml-1">
                   / {item.uom}
                 </span>
               </div>
@@ -87,33 +87,33 @@ export function ItemDetailsDialog({
         {/* Content Body */}
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Statutory Tax Classification */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              <FileText className="w-4 h-4 text-blue-500" />
+          <div className="rounded-xl border border-default p-4 bg-surface space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
+              <FileText className="w-4 h-4 text-status-info-text" />
               Statutory GST Classification & Tariff Codes
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
               <div>
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-[11px] text-muted block">
                   {isService ? 'SAC Code (Services)' : 'HSN Code (Goods)'}
                 </span>
-                <span className="font-mono text-sm font-bold text-slate-900 dark:text-white mt-0.5 block">
+                <span className="font-mono text-sm font-bold text-primary mt-0.5 block">
                   {item.hsnSacCode || '—'}
                 </span>
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-400 block">GST Rate Slab</span>
-                <span className="font-mono text-sm font-bold text-slate-900 dark:text-white mt-0.5 block">
+                <span className="text-[11px] text-muted block">GST Rate Slab</span>
+                <span className="font-mono text-sm font-bold text-primary mt-0.5 block">
                   {item.gstRatePercent}%
                   {Number(item.gstRatePercent) === 0 ? ' (Exempt / Nil-Rated)' : ''}
                 </span>
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-400 block">Compensation Cess</span>
-                <span className="font-mono text-sm font-semibold text-slate-900 dark:text-white mt-0.5 block">
+                <span className="text-[11px] text-muted block">Compensation Cess</span>
+                <span className="font-mono text-sm font-semibold text-primary mt-0.5 block">
                   {item.cessRatePercent ? `${item.cessRatePercent}%` : '0.00%'}
                 </span>
               </div>
@@ -121,26 +121,26 @@ export function ItemDetailsDialog({
           </div>
 
           {/* Commercial & Measurement Parameters */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              <Scale className="w-4 h-4 text-emerald-500" />
+          <div className="rounded-xl border border-default p-4 bg-surface space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
+              <Scale className="w-4 h-4 text-status-success-text" />
               Measurement & Commercial Parameters
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 text-xs">
               <div className="space-y-1">
-                <span className="text-[11px] text-slate-400 block">Unit of Measurement (UOM)</span>
+                <span className="text-[11px] text-muted block">Unit of Measurement (UOM)</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-surface-sunken text-primary">
                     {item.uom}
                   </span>
-                  <span className="text-slate-500">Statutory GST Quantity Code</span>
+                  <span className="text-muted">Statutory GST Quantity Code</span>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <span className="text-[11px] text-slate-400 block">Default Unit Selling Price</span>
-                <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                <span className="text-[11px] text-muted block">Default Unit Selling Price</span>
+                <div className="font-semibold text-primary text-sm">
                   ₹{Number(item.unitPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
               </div>
@@ -149,11 +149,11 @@ export function ItemDetailsDialog({
 
           {/* Description */}
           {item.description && (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-1">
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold block">
+            <div className="rounded-xl border border-default p-4 bg-surface space-y-1">
+              <span className="text-[11px] text-muted uppercase tracking-wider font-semibold block">
                 Billing Item Specification / Memo
               </span>
-              <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap">
+              <p className="text-xs text-secondary whitespace-pre-wrap">
                 {item.description}
               </p>
             </div>
@@ -161,7 +161,7 @@ export function ItemDetailsDialog({
         </div>
 
         {/* Action Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-4 bg-surface-sunken border-t border-default flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
@@ -169,7 +169,7 @@ export function ItemDetailsDialog({
               onOpenChange(false);
               onDelete(item);
             }}
-            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+            className="text-status-danger-text hover:text-status-danger-text hover:bg-status-danger-subtle"
             leftIcon={<Trash2 className="w-4 h-4" />}
           >
             Deactivate / Delete

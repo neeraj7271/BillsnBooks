@@ -206,7 +206,7 @@ export function PartyDialog({ open, onOpenChange, onSuccess, companyId, initialD
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}
@@ -257,12 +257,12 @@ export function PartyDialog({ open, onOpenChange, onSuccess, companyId, initialD
 
           {/* Conditional GSTIN Section Based on Statutory Policy */}
           {isGstinForbidden ? (
-            <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/60 text-xs flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-status-info-subtle border border-default text-xs flex items-center justify-between">
               <div className="space-y-0.5">
-                <span className="font-semibold text-blue-900 dark:text-blue-300">
+                <span className="font-semibold text-status-info-text">
                   {isOverseas ? 'Cross-Border / Foreign Client' : 'Unregistered Retail Consumer / Client'}
                 </span>
-                <p className="text-slate-600 dark:text-slate-400">
+                <p className="text-secondary">
                   {isOverseas
                     ? 'Overseas client for zero-rated export supplies. GSTIN is disabled.'
                     : 'B2C vouchers and invoices will be issued without input tax credit. GSTIN is disabled.'}
@@ -364,7 +364,7 @@ export function PartyDialog({ open, onOpenChange, onSuccess, companyId, initialD
             </FormField>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-1 border-t border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-2 gap-4 pt-1 border-t border-subtle">
             <FormField label="Credit Limit (₹) (Optional)" id="party-credit-limit">
               <Input
                 id="party-credit-limit"
