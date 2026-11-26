@@ -10,6 +10,7 @@ export interface SelectOption {
 }
 
 export interface SelectProps {
+  id?: string;
   value?: string;
   defaultValue?: string;
   onValueChange?: (value: string) => void;
@@ -22,6 +23,7 @@ export interface SelectProps {
 }
 
 export function Select({
+  id,
   value,
   defaultValue,
   onValueChange,
@@ -47,6 +49,7 @@ export function Select({
       disabled={disabled}
     >
       <SelectPrimitive.Trigger
+        id={id}
         aria-label={ariaLabel || (typeof placeholder === 'string' && placeholder ? placeholder : 'Select option')}
         className={cn(
           'flex w-full items-center justify-between rounded-xl border border-default bg-surface text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:border-focus disabled:cursor-not-allowed disabled:opacity-50 text-left',

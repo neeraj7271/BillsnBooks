@@ -16,6 +16,7 @@ import {
   Pause,
   CheckCircle2,
   AlertCircle,
+  Edit,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -31,6 +32,7 @@ export default function RecurringSchedulesPage() {
   const [schedules, setSchedules] = useState<RecurringScheduleDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<RecurringScheduleDto | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -166,6 +168,17 @@ export default function RecurringSchedulesPage() {
           <Button
             variant="outline"
             size="sm"
+            onClick={() => {
+              setSelectedSchedule(row);
+              setOpenModal(true);
+            }}
+            leftIcon={<Edit className="h-3 w-3" />}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleTriggerRun(row)}
             loading={actionLoadingId === row.id}
             disabled={row.status !== RecurringScheduleStatus.ACTIVE}
@@ -219,7 +232,10 @@ export default function RecurringSchedulesPage() {
           <Button
             variant="primary"
             size="sm"
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setSelectedSchedule(null);
+              setOpenModal(true);
+            }}
             leftIcon={<Plus className="h-3.5 w-3.5" />}
           >
             New Schedule
@@ -280,7 +296,11 @@ export default function RecurringSchedulesPage() {
       {/* Modal */}
       <RecurringScheduleDialog
         open={openModal}
-        onOpenChange={setOpenModal}
+        onOpenChange={(isOpen) => {
+          setOpenModal(isOpen);
+          if (!isOpen) setSelectedSchedule(null);
+        }}
+        initialSchedule={selectedSchedule}
         onSuccess={loadSchedules}
       />
     </div>
