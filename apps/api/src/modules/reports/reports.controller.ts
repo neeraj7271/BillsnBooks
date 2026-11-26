@@ -452,8 +452,8 @@ export class ReportsController {
       }
     }
 
-    // 8. Vendor Payables Summary
-    if (rKeyUpper === 'PAYABLES_SUMMARY') {
+    // 8. Vendor Payables Summary & Advances
+    if (rKeyUpper === 'PAYABLES_SUMMARY' || rKeyUpper === 'ADVANCE_TO_VENDORS') {
       const data = await this.reportsService.getPayablesSummaryReport(tenantId, companyId, fromDate, toDate);
       const headers = ['#', 'Vendor / Creditor Name', 'Primary Group', 'PAN', 'GSTIN', 'Opening Balance (₹)', 'Debit Paid (₹)', 'Credit Bills (₹)', 'Closing Balance (₹)', 'Net Due (₹)'];
       const rows = data.rows.map((r, i) => [

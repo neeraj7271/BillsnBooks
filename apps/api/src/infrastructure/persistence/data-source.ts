@@ -1,3 +1,4 @@
+import '../../common/config/load-env';
 import { DataSource } from 'typeorm';
 import { TenantOrmEntity } from './entities/tenant.orm-entity';
 import { UserOrmEntity } from './entities/user.orm-entity';
@@ -61,6 +62,8 @@ import { NumberingSeriesAndAllocations1731100000000 } from './migrations/1731100
 import { ChartOfAccountsMetadataAndProtection1731200000000 } from './migrations/1731200000000-ChartOfAccountsMetadataAndProtection';
 import { PartyMasterGstIntegrityAndSnapshots1731300000000 } from './migrations/1731300000000-PartyMasterGstIntegrityAndSnapshots';
 import { TenantRlsWithCheckAndAuditAppendOnly1731400000000 } from './migrations/1731400000000-TenantRlsWithCheckAndAuditAppendOnly';
+import { AuthSecurityDefinerHelpers1731500000000 } from './migrations/1731500000000-AuthSecurityDefinerHelpers';
+import { TenantRlsCollectionsAndRemainingTables1731600000000 } from './migrations/1731600000000-TenantRlsCollectionsAndRemainingTables';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -136,6 +139,8 @@ export const AppDataSource = new DataSource({
     ChartOfAccountsMetadataAndProtection1731200000000,
     PartyMasterGstIntegrityAndSnapshots1731300000000,
     TenantRlsWithCheckAndAuditAppendOnly1731400000000,
+    AuthSecurityDefinerHelpers1731500000000,
+    TenantRlsCollectionsAndRemainingTables1731600000000,
   ],
   migrationsRun: false,
 });
