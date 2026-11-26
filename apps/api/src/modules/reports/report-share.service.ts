@@ -79,16 +79,25 @@ export class ReportShareService {
    */
   async resolveSharedReport(token: string): Promise<ReportShareOrmEntity> {
     return this.uow.executeInTransaction(async (qr) => {
-      const share = await qr.manager.findOne(ReportShareOrmEntity, {
-        where: { token },
-      });
-
-      if (!share) {
+      const rows = await qr.query(
+        `SELECT id, tenant_id AS "tenantId", expires_at AS "expiresAt" FROM resolve_shared_report_by_token($1)`,
+        [token],
+      );
+      const found = rows?.[0];
+      if (!found) {
         throw new NotFoundException('Shared report link does not exist or has been revoked.');
       }
 
-      if (new Date() > new Date(share.expiresAt)) {
+      if (new Date() > new Date(found.expiresAt)) {
         throw new GoneException('This report link has expired. Please request an updated share link from your accountant.');
+      }
+
+      await qr.query(`SELECT set_config('app.tenant_id', $1, true)`, [found.tenantId]);
+      const share = await qr.manager.findOne(ReportShareOrmEntity, {
+        where: { id: found.id },
+      });
+      if (!share) {
+        throw new NotFoundException('Shared report link does not exist or has been revoked.');
       }
 
       share.downloadCount++;

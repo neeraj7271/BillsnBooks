@@ -18,6 +18,7 @@ export class TenantRlsCollectionsAndRemainingTables1731600000000 implements Migr
     'party_registrations',
     'payment_links',
     'recurring_schedules',
+    'report_shares',
     'staff_assignments',
     'task_comments',
     'user_favorite_reports',
@@ -34,12 +35,31 @@ export class TenantRlsCollectionsAndRemainingTables1731600000000 implements Migr
         WITH CHECK (tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid);
       `);
     }
+    await queryRunner.query(`
+      CREATE OR REPLACE FUNCTION resolve_shared_report_by_token(p_token text)
+      RETURNS SETOF report_shares
+      LANGUAGE sql
+      SECURITY DEFINER
+      SET search_path = public
+      AS $$
+        SELECT * FROM report_shares WHERE token = p_token LIMIT 1;
+      $$;
+    `);
+    await queryRunner.query(`
+      DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_user') THEN
+          GRANT EXECUTE ON FUNCTION resolve_shared_report_by_token(text) TO app_user;
+        END IF;
+      END $$;
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP FUNCTION IF EXISTS resolve_shared_report_by_token(text);`);
     for (const table of this.tables) {
       await queryRunner.query(`DROP POLICY IF EXISTS tenant_isolation_policy ON "${table}";`);
       await queryRunner.query(`ALTER TABLE "${table}" DISABLE ROW LEVEL SECURITY;`);
     }
   }
 }
+
