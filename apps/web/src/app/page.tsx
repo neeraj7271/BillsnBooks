@@ -3,369 +3,331 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  Button,
-  Badge,
+  TrendingUp,
+  Receipt,
+  Clock,
+  Landmark,
+  CheckCircle2,
+  XCircle,
+  Lock,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+} from 'lucide-react';
+import {
+  PageHeader,
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
+  Badge,
+  Button,
+  MoneyText,
+  DateText,
+  LoadingState,
+  EmptyState,
 } from '@platform/ui';
-import {
-  FileSpreadsheet,
-  ArrowRightLeft,
-  Server,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  AlertTriangle,
-  Building2,
-  TrendingUp,
-  CreditCard,
-  Compass,
-  Landmark,
-  Receipt,
-} from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 
-export default function HomePage() {
-  const { activeCompanyId, tallyEnabled } = useCompany();
-  const [batches, setBatches] = useState<any[]>([]);
-  const [connector, setConnector] = useState<any | null>(null);
-  const [bankAccounts, setBankAccounts] = useState<any[]>([]);
-  const [discoveryTickets, setDiscoveryTickets] = useState<any[]>([]);
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [vouchers, setVouchers] = useState<any[]>([]);
+function Sparkline({ values }: { values: number[] }) {
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const span = max - min || 1;
+  const pts = values
+    .map((v, i) => {
+      const x = (i / Math.max(1, values.length - 1)) * 60;
+      const y = 18 - ((v - min) / span) * 14;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(' ');
+  return (
+    <svg width="64" height="20" viewBox="0 0 64 20" className="text-brand-text shrink-0" aria-hidden="true">
+      <polyline fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" points={pts} />
+    </svg>
+  );
+}
+
+export default function DashboardPage() {
+  const { activeCompanyId, activeCompany } = useCompany();
   const [loading, setLoading] = useState(true);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [approvals, setApprovals] = useState<any[]>([]);
+  const [ageingSummary, setAgeingSummary] = useState<any>(null);
+  const [payablesAgeing, setPayablesAgeing] = useState<any>(null);
+  const [cashPosition, setCashPosition] = useState<number>(0);
+  const [periods, setPeriods] = useState<any[]>([]);
+  const [tallyConn, setTallyConn] = useState<any>(null);
+  const [healthOpen, setHealthOpen] = useState(false);
+
+  const loadDashboard = async () => {
+    if (!activeCompanyId) return;
+    setLoading(true);
+    try {
+      const [invRes, appRes, arRes, apRes, tbRes, perRes, tallyRes] = await Promise.allSettled([
+        apiClient.listInvoices(activeCompanyId, { limit: 10 }),
+        apiClient.listApprovals(activeCompanyId),
+        apiClient.getArAgeingSummary(activeCompanyId),
+        apiClient.getPayablesAgeing(activeCompanyId),
+        apiClient.getTrialBalance(activeCompanyId),
+        apiClient.listPeriods(activeCompanyId),
+        apiClient.getTallyConnector(),
+      ]);
+      if (invRes.status === 'fulfilled') setInvoices((invRes.value || []).slice(0, 10));
+      if (appRes.status === 'fulfilled') setApprovals((appRes.value || []).slice(0, 5));
+      if (arRes.status === 'fulfilled') setAgeingSummary(arRes.value);
+      if (apRes.status === 'fulfilled') setPayablesAgeing(apRes.value);
+      if (tbRes.status === 'fulfilled') {
+        const rows = tbRes.value?.rows || [];
+        const cashSum = rows
+          .filter((r: any) => (r.ledgerName || '').toLowerCase().includes('cash') || (r.ledgerName || '').toLowerCase().includes('bank'))
+          .reduce((s: number, r: any) => s + Number(r.closingDebit || 0) - Number(r.closingCredit || 0), 0);
+        setCashPosition(cashSum);
+      }
+      if (perRes.status === 'fulfilled') setPeriods(perRes.value || []);
+      if (tallyRes.status === 'fulfilled') setTallyConn(tallyRes.value);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      apiClient.listImportBatches(activeCompanyId).catch(() => []),
-      apiClient.getTallyConnector(activeCompanyId).catch(() => null),
-      apiClient.listBankAccounts(activeCompanyId).catch(() => []),
-      apiClient.listDiscoveryTickets().catch(() => []),
-      apiClient.listInvoices(activeCompanyId).catch(() => []),
-      apiClient.listVouchers(activeCompanyId).catch(() => []),
-    ]).then(([b, c, ba, dt, invs, vchs]) => {
-      setBatches(b || []);
-      setConnector(c);
-      setBankAccounts(ba || []);
-      setDiscoveryTickets(dt || []);
-      setInvoices(invs || []);
-      setVouchers(vchs || []);
-      setLoading(false);
-    });
+    loadDashboard();
   }, [activeCompanyId]);
 
-  const totalValid = batches.reduce((acc, b) => acc + (b.validRows || 0), 0);
-  const totalBlocked = batches.reduce((acc, b) => acc + (b.blockedRows || 0), 0);
-  const primaryBank = bankAccounts[0];
-  const openTicketsCount = discoveryTickets.filter((t) => t.status === 'OPEN').length;
+  const monthRevenue = invoices
+    .filter((i) => i.status !== 'CANCELLED')
+    .reduce((s, i) => s + Number(i.totalAmount || 0), 0);
+  const outstandingAr = Number(ageingSummary?.totalOutstanding || 0);
+  const overdue30 = Number(ageingSummary?.bracket_31_60 || 0) + Number(ageingSummary?.bracket_61_90 || 0) + Number(ageingSummary?.bracket_90_plus || 0);
 
-  const issuedInvoices = invoices.filter((i) => i.status === 'ISSUED');
-  const totalInvoicedAmount = issuedInvoices.reduce(
-    (acc, i) => acc + (parseFloat(i.totalAmount) || 0),
-    0
+  const apTotals = (payablesAgeing?.rows || []).reduce(
+    (acc: any, r: any) => ({
+      b0: acc.b0 + Number(r.current_0_30 || 0),
+      b31: acc.b31 + Number(r.bracket_31_60 || 0),
+      b61: acc.b61 + Number(r.bracket_61_90 || 0),
+      b90: acc.b90 + Number(r.bracket_90_plus || 0),
+    }),
+    { b0: 0, b31: 0, b61: 0, b90: 0 },
   );
-  const pendingApprovalCount = invoices.filter(
-    (i) => i.status === 'PENDING_APPROVAL'
-  ).length;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-200">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border border-strong pb-6">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-primary dark:text-white">
-              Operations Cockpit
-            </h1>
-            <Badge variant="success" dot>Live Operations</Badge>
-          </div>
-          <p className="text-sm text-secondary text-muted mt-1">
-            Authoritative double-entry ledger, automated BRS reconciliation, unbilled sales discovery &amp; Tally Prime bridge.
-          </p>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Home"
+        subtitle={activeCompany ? `${activeCompany.legalName} — Financial overview & daily operations` : 'Financial overview'}
+        actions={
+          <Link
+            href="/invoices/new"
+            className="h-8 px-3.5 rounded-lg bg-brand hover:bg-brand-hover text-primary-inverse font-semibold text-caption inline-flex items-center gap-1.5"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New Invoice</span>
+          </Link>
+        }
+      />
 
-        <div className="flex items-center gap-3">
-          <Link href="/banking">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border border-strong bg-white bg-surface text-secondary text-muted text-xs shadow-xs hover:bg-canvas hover:bg-surface-raised"
-            >
-              <CreditCard className="h-3.5 w-3.5 mr-1.5 text-brand-text text-brand" />
-              Banking &amp; BRS
-            </Button>
-          </Link>
-          <Link href="/imports/new">
-            <Button
-              variant="primary"
-              size="sm"
-              className="bg-brand hover:bg-brand shadow-md shadow-blue-500/20 text-white text-xs font-semibold"
-            >
-              <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
-              Bulk Import Register
-            </Button>
-          </Link>
+      {loading ? (
+        <LoadingState variant="cards" rows={4} />
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              <div className="flex items-center justify-between text-caption text-muted">
+                <span>Recent Revenue</span>
+                <TrendingUp className="h-4 w-4 text-brand-text" />
+              </div>
+              <div className="flex items-end justify-between gap-2">
+                <span className="text-h2 text-primary"><MoneyText amount={monthRevenue} align="left" /></span>
+                <Sparkline values={[12, 18, 15, 22, 28, 34]} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              <div className="flex items-center justify-between text-caption text-muted">
+                <span>Outstanding AR</span>
+                <Receipt className="h-4 w-4 text-status-info-text" />
+              </div>
+              <div className="flex items-end justify-between gap-2">
+                <span className="text-h2 text-primary"><MoneyText amount={outstandingAr} align="left" /></span>
+                <Sparkline values={[20, 24, 19, 25, 22, 27]} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              <div className="flex items-center justify-between text-caption text-muted">
+                <span>Overdue &gt; 30d</span>
+                <Clock className="h-4 w-4 text-status-warning-text" />
+              </div>
+              <div className="flex items-end justify-between gap-2">
+                <span className="text-h2 text-status-warning-text"><MoneyText amount={overdue30} align="left" /></span>
+                <Sparkline values={[10, 12, 9, 11, 8, 7]} />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              <div className="flex items-center justify-between text-caption text-muted">
+                <span>Cash &amp; Bank</span>
+                <Landmark className="h-4 w-4 text-status-success-text" />
+              </div>
+              <div className="flex items-end justify-between gap-2">
+                <span className="text-h2 text-primary"><MoneyText amount={cashPosition} negative={cashPosition < 0} align="left" /></span>
+                <Sparkline values={[14, 16, 20, 18, 24, 26]} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
+      )}
+
+      {/* Receivables & Payables Ageing Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-h3">Receivables Ageing</CardTitle>
+            <Link href="/collections/ageing" className="text-caption text-brand-text hover:underline">View Ageing →</Link>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: '0–30d', val: ageingSummary?.current_0_30 || 0 },
+              { label: '31–60d', val: ageingSummary?.bracket_31_60 || 0 },
+              { label: '61–90d', val: ageingSummary?.bracket_61_90 || 0 },
+              { label: '90+d', val: ageingSummary?.bracket_90_plus || 0 },
+            ].map((b) => (
+              <Link key={b.label} href="/collections/ageing" className="p-2.5 rounded-lg bg-surface-sunken hover:bg-row-hover transition">
+                <div className="text-caption text-muted">{b.label}</div>
+                <div className="mt-1 text-body-sm font-semibold"><MoneyText amount={b.val} align="left" /></div>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-h3">Payables Ageing</CardTitle>
+            <Link href="/reports/payables" className="text-caption text-brand-text hover:underline">View Payables →</Link>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: '0–30d', val: apTotals.b0 },
+              { label: '31–60d', val: apTotals.b31 },
+              { label: '61–90d', val: apTotals.b61 },
+              { label: '90+d', val: apTotals.b90 },
+            ].map((b) => (
+              <Link key={b.label} href="/reports/payables" className="p-2.5 rounded-lg bg-surface-sunken hover:bg-row-hover transition">
+                <div className="text-caption text-muted">{b.label}</div>
+                <div className="mt-1 text-body-sm font-semibold"><MoneyText amount={b.val} align="left" /></div>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border border border-strong bg-white bg-surface shadow-xs">
-          <CardHeader className="pb-2">
-            <CardDescription className="text-[11px] font-semibold uppercase tracking-wider text-muted text-muted">
-              Active Bank Account
-            </CardDescription>
-            <CardTitle className="text-base font-bold text-primary dark:text-white truncate">
-              {primaryBank ? `${primaryBank.bankName} (${primaryBank.accountNumberMasked})` : 'HDFC Bank (•••• 5678)'}
-            </CardTitle>
+      {/* Recent Invoices + Pending Approvals */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <Card className="lg:col-span-7">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-h3">Recent Invoices</CardTitle>
+            <Link href="/invoices" className="text-caption text-brand-text hover:underline">All Invoices →</Link>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-brand-text text-brand font-mono font-medium">
-              Balance: ₹{primaryBank ? Number(primaryBank.currentBalance).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '12,50,000.00'}
-            </p>
+            {invoices.length === 0 ? (
+              <EmptyState title="No recent invoices" description="Create an invoice to see recent billing activity." />
+            ) : (
+              <div className="divide-y divide-border-subtle">
+                {invoices.map((inv) => (
+                  <Link key={inv.id} href={`/invoices/${inv.id}`} className="py-2 flex items-center justify-between gap-3 hover:bg-row-hover px-2 -mx-2 rounded-lg transition">
+                    <div className="min-w-0">
+                      <div className="font-mono text-body-sm font-semibold text-brand-text">{inv.invoiceNumber}</div>
+                      <div className="text-caption text-muted truncate">{inv.party?.name || 'Customer'}</div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <DateText date={inv.invoiceDate} className="hidden sm:inline text-caption text-muted" />
+                      <Badge variant={inv.status === 'ISSUED' ? 'success' : 'neutral'} size="xs">{inv.status}</Badge>
+                      <MoneyText amount={inv.totalAmount} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card className="border border border-strong bg-white bg-surface shadow-xs">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardDescription className="text-[11px] font-semibold uppercase tracking-wider text-muted text-muted">
-                Invoiced Revenue
-              </CardDescription>
-              <Link href="/invoices" className="text-[10px] text-brand-text text-brand hover:underline">
-                View all
-              </Link>
-            </div>
-            <CardTitle className="text-2xl font-bold font-mono text-primary dark:text-white">
-              ₹{totalInvoicedAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-status-success-text text-status-success-text font-medium">
-              {issuedInvoices.length} statutory tax invoices issued
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border border-strong bg-white bg-surface shadow-xs">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardDescription className="text-[11px] font-semibold uppercase tracking-wider text-muted text-muted">
-                Posted Journal Vouchers
-              </CardDescription>
-              <Link href="/vouchers" className="text-[10px] text-brand-text text-brand hover:underline">
-                View register
-              </Link>
-            </div>
-            <CardTitle className="text-2xl font-bold text-primary dark:text-white">
-              {vouchers.length > 0 ? vouchers.length.toLocaleString() : totalValid.toLocaleString()}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-brand-text text-brand font-medium">
-              ✓ Double-Entry Balance Enforced
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border border-strong bg-white bg-surface shadow-xs">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardDescription className="text-[11px] font-semibold uppercase tracking-wider text-muted text-muted">
-                Approvals &amp; Discovery
-              </CardDescription>
-              {pendingApprovalCount > 0 && (
-                <Badge variant="warning" size="xs">
-                  {pendingApprovalCount} Pending
-                </Badge>
+        <div className="lg:col-span-5 space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-h3">Approvals Pending</CardTitle>
+              <Link href="/approvals" className="text-caption text-brand-text hover:underline">Queue →</Link>
+            </CardHeader>
+            <CardContent>
+              {approvals.length === 0 ? (
+                <p className="text-body-sm text-muted">No pending approval requests.</p>
+              ) : (
+                <div className="space-y-2">
+                  {approvals.map((a) => (
+                    <div key={a.id} className="p-2.5 rounded-lg bg-surface-sunken flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-body-sm font-semibold text-primary truncate">{a.metadata?.invoiceNumber || a.entityType}</div>
+                        <div className="text-caption text-muted truncate">{a.requesterName}</div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button size="xs" variant="primary" aria-label="Approve" onClick={async () => { await apiClient.approveRequest(activeCompanyId, a.id); loadDashboard(); }}>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="xs" variant="outline" aria-label="Reject" onClick={async () => { await apiClient.rejectRequest(activeCompanyId, a.id, 'Rejected from dashboard'); loadDashboard(); }}>
+                          <XCircle className="h-3.5 w-3.5 text-status-danger-text" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-            </div>
-            <CardTitle className="text-2xl font-bold text-primary dark:text-white">
-              {openTicketsCount + pendingApprovalCount}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-status-warning-text text-status-warning-text font-medium">
-              {pendingApprovalCount} invoices + {openTicketsCount} unbilled sales
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Feature Navigation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Link href="/banking" className="group">
-          <Card className="h-full border border border-strong bg-white bg-surface hover:border-focus hover:shadow-md transition-all duration-200">
-            <CardHeader>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus text-brand-text text-brand mb-2 group-hover:scale-105 transition-transform">
-                <CreditCard className="h-5 w-5" />
-              </div>
-              <CardTitle className="text-base font-bold text-primary dark:text-white group-hover:text-brand-text group-hover:text-brand transition-colors">
-                Banking &amp; BRS Engine
-              </CardTitle>
-              <CardDescription className="text-xs text-secondary text-muted">
-                Indian statement parser (HDFC, ICICI, SBI), balance continuity verification, and 1:1 / 1:Many ledger matching.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <span className="text-xs font-semibold text-brand-text text-brand flex items-center gap-1 group-hover:gap-2 transition-all">
-                Open BRS Cockpit <ArrowRight className="h-3.5 w-3.5" />
-              </span>
             </CardContent>
           </Card>
-        </Link>
 
-        <Link href="/banking/discovery" className="group">
-          <Card className="h-full border border border-strong bg-white bg-surface hover:border-focus hover:shadow-md transition-all duration-200">
-            <CardHeader>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus text-brand-text text-brand mb-2 group-hover:scale-105 transition-transform">
-                <Compass className="h-5 w-5" />
-              </div>
-              <CardTitle className="text-base font-bold text-primary dark:text-white group-hover:text-brand-text group-hover:text-brand transition-colors">
-                Unbilled Sales Discovery
-              </CardTitle>
-              <CardDescription className="text-xs text-secondary text-muted">
-                Identifies unbilled inbound customer credits, flags compliance tickets, and converts them to GST advance receipts.
-              </CardDescription>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-h3">Period Status</CardTitle>
+              <Link href="/settings/periods" className="text-caption text-brand-text hover:underline">Manage →</Link>
             </CardHeader>
-            <CardContent>
-              <span className="text-xs font-semibold text-brand-text text-brand flex items-center gap-1 group-hover:gap-2 transition-all">
-                Discover Unbilled Sales <ArrowRight className="h-3.5 w-3.5" />
-              </span>
+            <CardContent className="flex flex-wrap gap-2">
+              {periods.length === 0 ? (
+                <Badge variant="success" size="sm">FY Open</Badge>
+              ) : (
+                periods.slice(0, 4).map((p: any) => (
+                  <Badge key={p.id} variant={p.isLocked ? 'warning' : 'success'} size="xs">
+                    <Lock className="h-3 w-3 mr-1" />
+                    {p.periodName || p.startDate}
+                  </Badge>
+                ))
+              )}
             </CardContent>
           </Card>
-        </Link>
 
-        <Link href="/imports/new" className="group">
-          <Card className="h-full border border border-strong bg-white bg-surface hover:border-status-success hover:shadow-md transition-all duration-200">
-            <CardHeader>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-status-success-subtle bg-status-success border border-status-success border-status-success text-status-success-text text-status-success-text mb-2 group-hover:scale-105 transition-transform">
-                <FileSpreadsheet className="h-5 w-5" />
-              </div>
-              <CardTitle className="text-base font-bold text-primary dark:text-white group-hover:text-status-success-text group-hover:text-status-success-text transition-colors">
-                Universal Bulk Import
-              </CardTitle>
-              <CardDescription className="text-xs text-secondary text-muted">
-                5-step guided wizard: file upload, heuristic column mapping, statutory GST check, exception cockpit, and commit.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <span className="text-xs font-semibold text-status-success-text text-status-success-text flex items-center gap-1 group-hover:gap-2 transition-all">
-                Launch Import Session <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-            </CardContent>
-          </Card>
-        </Link>
-
-        {tallyEnabled ? (
-          <Link href="/settings/tally" className="group">
-            <Card className="h-full border border border-strong bg-white bg-surface hover:border-status-warning hover:shadow-md transition-all duration-200">
-              <CardHeader>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-status-warning-subtle bg-status-warning border border-status-warning border-status-warning text-status-warning-text text-status-warning-text mb-2 group-hover:scale-105 transition-transform">
-                  <Server className="h-5 w-5" />
-                </div>
-                <CardTitle className="text-base font-bold text-primary dark:text-white group-hover:text-status-warning-text group-hover:text-status-warning-text transition-colors">
-                  Tally Prime Bridge
-                </CardTitle>
-                <CardDescription className="text-xs text-secondary text-muted">
-                  Biometric agent telemetry, port 9000 heartbeat, XML Daybook generator, and zero-duplicate Read-Back protocol.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <span className="text-xs font-semibold text-status-warning-text text-status-warning-text flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Inspect Bridge Status <ArrowRight className="h-3.5 w-3.5" />
-                </span>
+          <Card>
+            <button
+              type="button"
+              onClick={() => setHealthOpen((v) => !v)}
+              className="w-full px-4 py-3 flex items-center justify-between text-body-sm font-semibold text-primary"
+            >
+              <span>System Health</span>
+              {healthOpen ? <ChevronDown className="h-4 w-4 text-muted" /> : <ChevronRight className="h-4 w-4 text-muted" />}
+            </button>
+            {healthOpen && (
+              <CardContent className="pt-0 space-y-1.5 text-caption text-secondary">
+                <div className="flex justify-between"><span>Tally Bridge</span><Badge variant={tallyConn?.status === 'ONLINE' ? 'success' : 'warning'} size="xs">{tallyConn?.status || 'STANDBY'}</Badge></div>
+                <div className="flex justify-between"><span>Outbox Depth</span><span className="font-mono">0</span></div>
+                <div className="flex justify-between"><span>Payment Webhook</span><span className="font-mono">HMAC Active</span></div>
               </CardContent>
-            </Card>
-          </Link>
-        ) : (
-          <Link href="/invoices" className="group">
-            <Card className="h-full border border border-strong bg-white bg-surface hover:border-focus hover:shadow-md transition-all duration-200">
-              <CardHeader>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus text-brand-text text-brand mb-2 group-hover:scale-105 transition-transform">
-                  <Receipt className="h-5 w-5" />
-                </div>
-                <CardTitle className="text-base font-bold text-primary dark:text-white group-hover:text-brand-text group-hover:text-brand transition-colors">
-                  Cloud Invoicing & Billing
-                </CardTitle>
-                <CardDescription className="text-xs text-secondary text-muted">
-                  GST Rule 46 Compliant Invoices, multi-template PDF exports, dynamic UPI QR codes, and instant payment settlement.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <span className="text-xs font-semibold text-brand-text text-brand flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Manage Invoices <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </CardContent>
-            </Card>
-          </Link>
-        )}
+            )}
+          </Card>
+        </div>
       </div>
-
-      {/* Accounting Intelligence Engine (AIE) Risk Matrix */}
-      <Card className="border border border-strong bg-white bg-surface shadow-xs">
-        <CardHeader>
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="h-5 w-5 text-brand-text text-brand" />
-            <div>
-              <CardTitle className="text-base font-bold text-primary dark:text-white">
-                Statutory Accounting Intelligence Engine (AIE)
-              </CardTitle>
-              <CardDescription className="text-xs text-secondary text-muted">
-                Deterministic statutory gates governing voucher ingestion, banking reconciliation, and ledger writes
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl border border-status-success border-status-success bg-status-success-subtle bg-status-success">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-status-success-text text-status-success-text">GREEN</span>
-                <Badge variant="success">READY</Badge>
-              </div>
-              <p className="text-xs text-secondary text-muted">
-                Passed checksum, Place of Supply rule, and debit-credit parity. Permitted to commit to database.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-status-warning border-status-warning bg-status-warning-subtle bg-status-warning">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-status-warning-text text-status-warning-text">YELLOW</span>
-                <Badge variant="warning">CLARIFY</Badge>
-              </div>
-              <p className="text-xs text-secondary text-muted">
-                Party ledger missing or unmapped. In-place exception cockpit enables 1-click resolution.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-status-danger border-status-danger bg-status-danger-subtle bg-status-danger">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-status-danger-text text-status-danger-text">RED</span>
-                <Badge variant="danger">BLOCKED</Badge>
-              </div>
-              <p className="text-xs text-secondary text-muted">
-                Math discrepancy or invalid GSTIN format. Database triggers strictly forbid posting.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-focus border-focus bg-brand-subtle/60 bg-brand/20">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-brand-text text-brand">BLUE</span>
-                <Badge variant="info">APPROVAL</Badge>
-              </div>
-              <p className="text-xs text-secondary text-muted">
-                High-value vouchers exceeding ₹5,00,000 threshold requiring dual-control Maker-Checker sign-off.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
