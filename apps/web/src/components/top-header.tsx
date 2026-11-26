@@ -103,12 +103,15 @@ export function TopHeader({
     loadNotifications();
   }, []);
 
-  // Global keyboard shortcut for Command Palette (Cmd+K or Ctrl+K)
+  // Global keyboard shortcuts: Cmd+K (Command Palette) & Cmd+Shift+C (Company Switcher)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen((prev) => !prev);
+      } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        setShowCompanyMenu((prev) => !prev);
       }
     };
 
@@ -260,26 +263,27 @@ export function TopHeader({
           )}
 
           {/* Active Company Switcher Dropdown */}
-          <div ref={companyRef} className="relative">
+          <div ref={companyRef} className="relative min-w-0">
             <button
               type="button"
               onClick={() => setShowCompanyMenu(!showCompanyMenu)}
-              className="flex items-center gap-2 rounded-xl border border border-strong bg-canvas bg-surface px-2.5 py-1 text-xs text-secondary text-muted hover:border-focus hover:border-focus transition shadow-xs"
-              title="Click to switch active company"
+              className="flex items-center gap-2 rounded-lg border border-border bg-surface-sunken px-2.5 py-1 text-caption text-secondary hover:border-focus transition shadow-xs max-w-full"
+              title={
+                activeCompany?.branches?.[0]
+                  ? `Branch: ${activeCompany.branches[0].name || 'Head Office'} (State ${activeCompany.branches[0].stateCode || 'IN'}) • Cmd+Shift+C`
+                  : 'Click to switch active company (Cmd+Shift+C)'
+              }
             >
-              <Building2 className="h-3.5 w-3.5 text-brand-text text-brand shrink-0" />
-              <span className="font-semibold text-primary text-primary-inverse truncate max-w-[130px] sm:max-w-[180px]">
+              <Building2 className="h-3.5 w-3.5 text-brand-text shrink-0" />
+              <span className="font-semibold text-primary truncate max-w-[90px] sm:max-w-[200px]">
                 {activeCompany?.legalName || 'Select Company'}
               </span>
-              {activeCompany?.defaultCurrency && (
-                <Badge variant="neutral" size="xs" className="font-mono text-[9px] px-1 py-0">
-                  {activeCompany.defaultCurrency}
-                </Badge>
+              {activeCompany?.pan && (
+                <span className="hidden md:inline font-mono text-[11px] text-muted">
+                  • {activeCompany.pan}
+                </span>
               )}
-              <span className="font-mono text-[10px] text-muted hidden md:inline">
-                {activeCompany?.branches?.[0]?.gstin ? `• ${activeCompany.branches[0].gstin}` : activeCompany?.pan ? `• PAN: ${activeCompany.pan}` : ''}
-              </span>
-              <ChevronDown className="h-3 w-3 text-muted ml-0.5" />
+              <ChevronDown className="h-3 w-3 text-muted ml-0.5 shrink-0" />
             </button>
 
             {showCompanyMenu && (
@@ -341,7 +345,7 @@ export function TopHeader({
           </div>
         </div>
 
-        {/* Right Section: Global Search, Tally Status, Theme Toggle, Profile */}
+        {/* Right Section: Global Search, Theme Toggle, Notifications, Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Quick Search Shortcut Pill */}
           <button
@@ -349,29 +353,14 @@ export function TopHeader({
             onClick={() => setIsCommandPaletteOpen(true)}
             aria-label="Open command palette"
             title="Press Cmd+K to open search"
-            className="hidden md:flex items-center gap-2 rounded-xl border border border-strong bg-canvas bg-surface px-3 py-1.5 text-xs text-muted shadow-xs cursor-pointer hover:border hover:border-strong transition"
+            className="hidden md:flex items-center gap-2 rounded-lg border border-border bg-surface-sunken px-3 py-1.5 text-caption text-muted shadow-xs cursor-pointer hover:border-strong transition"
           >
             <Search className="h-3.5 w-3.5" />
-            <span className="text-xs text-muted">Quick search...</span>
-            <kbd className="rounded border border border-strong bg-white bg-surface-raised px-1.5 py-0.2 font-mono text-[10px] font-semibold text-muted">
+            <span className="text-caption text-muted">Quick search...</span>
+            <kbd className="rounded border border-border bg-surface-raised px-1.5 py-0.2 font-mono text-[10px] font-semibold text-muted">
               ⌘K
             </kbd>
           </button>
-
-          {/* Tally Live Status Pill */}
-          <Link
-            href="/settings/tally"
-            className="hidden sm:flex items-center gap-1.5 rounded-full border border border-strong bg-canvas bg-surface px-2.5 py-1 text-xs transition hover:border hover:border-strong shadow-xs"
-          >
-            <span
-              className={`h-2 w-2 rounded-full shrink-0 ${
-                tallyOnline ? 'bg-status-success shadow-xs shadow-emerald-500/50 animate-pulse' : 'bg-status-warning'
-              }`}
-            />
-            <span className="text-[11px] font-bold text-secondary text-muted">
-              Tally: {tallyOnline ? 'Live' : 'Standby'}
-            </span>
-          </Link>
 
           {/* Theme Toggle Button */}
           <button

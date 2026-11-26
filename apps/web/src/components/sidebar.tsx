@@ -117,96 +117,96 @@ export function Sidebar({
   const navigationSections: SidebarSection[] = invoicingOnly
     ? [
         {
-          title: 'Billing & Sales',
+          title: 'Sales',
           items: [
-            { label: 'Overview Cockpit', href: '/', icon: Layers },
-            { label: 'Tax Invoices', href: '/invoices', icon: Receipt },
-            { label: 'Approval Inbox', href: '/approvals', icon: CheckSquare },
-            { label: 'Customers & Vendors', href: '/parties', icon: Users },
-            { label: 'Items & Products', href: '/items', icon: Boxes },
-            { label: 'Bulk Import Register', href: '/imports', icon: FileSpreadsheet },
+            { label: 'Home', href: '/', icon: Layers },
+            { label: 'Invoices', href: '/invoices', icon: Receipt },
+            { label: 'Approvals', href: '/approvals', icon: CheckSquare },
+            { label: 'Parties', href: '/parties', icon: Users },
+            { label: 'Items', href: '/items', icon: Boxes },
+            { label: 'Imports', href: '/imports', icon: FileSpreadsheet },
           ],
         },
         {
-          title: 'Collections & Payments',
+          title: 'Money',
           items: [
-            { label: 'Payment Links & Settl.', href: '/collections/payment-links', icon: CreditCard },
-            { label: 'AR Ageing Analysis', href: '/collections/ageing', icon: BarChart3 },
-            { label: 'Recurring Schedules', href: '/collections/recurring', icon: CalendarClock },
+            { label: 'Payment Links', href: '/collections/payment-links', icon: CreditCard },
+            { label: 'Ageing', href: '/collections/ageing', icon: BarChart3 },
+            { label: 'Recurring', href: '/collections/recurring', icon: CalendarClock },
           ],
         },
         {
-          title: 'Setup & Branding',
+          title: 'Setup',
           items: [
-            { label: 'Global System Settings', href: '/settings', icon: Settings },
-            { label: 'Invoice & Branding', href: '/settings/invoice-branding', icon: Sliders },
-            { label: 'Document Numbering', href: '/settings/numbering', icon: Hash },
-            { label: 'Notifications & Alerts', href: '/settings/notifications', icon: Bell },
-            { label: 'Companies & Branches', href: '/settings/companies', icon: Building2 },
+            { label: 'Settings', href: '/settings', icon: Settings },
+            { label: 'Branding', href: '/settings/invoice-branding', icon: Sliders },
+            { label: 'Numbering', href: '/settings/numbering', icon: Hash },
+            { label: 'Notifications', href: '/settings/notifications', icon: Bell },
+            { label: 'Companies', href: '/settings/companies', icon: Building2 },
           ],
         },
       ]
     : [
         {
-          title: 'Operations',
+          title: 'Sales',
           items: [
-            { label: 'Overview Cockpit', href: '/', icon: Layers },
-            { label: 'Tax Invoices', href: '/invoices', icon: Receipt },
-            { label: 'Approval Inbox', href: '/approvals', icon: CheckSquare },
-            { label: 'Banking & BRS', href: '/banking', icon: CreditCard },
-            { label: 'Sales Discovery', href: '/banking/discovery', icon: Compass },
-            { label: 'Bulk Import Register', href: '/imports', icon: FileSpreadsheet },
-            { label: 'Vouchers & Journals', href: '/vouchers', icon: ArrowRightLeft },
-            { label: 'Customers & Vendors', href: '/parties', icon: Users },
-            { label: 'Items & Products', href: '/items', icon: Boxes },
+            { label: 'Home', href: '/', icon: Layers },
+            { label: 'Invoices', href: '/invoices', icon: Receipt },
+            { label: 'Approvals', href: '/approvals', icon: CheckSquare },
+            { label: 'Parties', href: '/parties', icon: Users },
+            { label: 'Items', href: '/items', icon: Boxes },
+            { label: 'Imports', href: '/imports', icon: FileSpreadsheet },
           ],
         },
         {
-          title: 'Collections & Automation',
+          title: 'Money',
           items: [
-            { label: 'AR Ageing Analysis', href: '/collections/ageing', icon: BarChart3 },
-            { label: 'Recurring Schedules', href: '/collections/recurring', icon: CalendarClock },
-            { label: 'Payment Links & Settl.', href: '/collections/payment-links', icon: CreditCard },
+            { label: 'Vouchers', href: '/vouchers', icon: ArrowRightLeft },
+            { label: 'Banking', href: '/banking', icon: CreditCard },
+            { label: 'Discovery', href: '/banking/discovery', icon: Compass },
+            { label: 'Payment Links', href: '/collections/payment-links', icon: CreditCard },
+            { label: 'Ageing', href: '/collections/ageing', icon: BarChart3 },
+            { label: 'Recurring', href: '/collections/recurring', icon: CalendarClock },
           ],
         },
         {
-          title: 'Practice & Portal',
+          title: 'Reports',
           items: [
-            { label: 'Client Directory', href: '/practice/clients', icon: Building2 },
-            { label: 'Compliance Tasks', href: '/practice/tasks', icon: CheckSquare },
-            { label: 'Statutory Calendar', href: '/practice/calendar', icon: CalendarClock },
-            { label: 'Client Documents', href: '/practice/documents', icon: FileSpreadsheet },
-          ],
-        },
-        {
-          title: 'Reports & Analytics',
-          items: [
-            { label: 'All Reports Hub', href: '/reports', icon: FileSpreadsheet },
+            { label: 'Reports', href: '/reports', icon: FileSpreadsheet },
             { label: 'Customer-Wise Sales', href: '/reports/customer-sales', icon: Users },
             { label: 'Item-Wise Sales', href: '/reports/item-sales', icon: Boxes },
             { label: 'Purchases & Expenses', href: '/reports/expenses', icon: Receipt },
             { label: 'Cash & Bank Audit', href: '/reports/cash-bank-audit', icon: Landmark },
             { label: 'Payables & Vendors', href: '/reports/payables', icon: Users },
             { label: 'Trial Balance', href: '/reports/trial-balance', icon: Scale },
-            { label: 'Profit & Loss (P&L)', href: '/reports/profit-and-loss', icon: BarChart3 },
+            { label: 'P&L', href: '/reports/profit-and-loss', icon: BarChart3 },
             { label: 'Balance Sheet', href: '/reports/balance-sheet', icon: PieChart },
             { label: 'General Ledger', href: '/reports/general-ledger', icon: FileText },
           ],
         },
         {
-          title: 'Setup & Governance',
+          title: 'Practice',
           items: [
-            { label: 'Global System Settings', href: '/settings', icon: Settings },
+            { label: 'Clients', href: '/practice/clients', icon: Building2 },
+            { label: 'Tasks', href: '/practice/tasks', icon: CheckSquare },
+            { label: 'Calendar', href: '/practice/calendar', icon: CalendarClock },
+            { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
+          ],
+        },
+        {
+          title: 'Setup',
+          items: [
+            { label: 'Settings', href: '/settings', icon: Settings },
             { label: 'Chart of Accounts', href: '/settings/ledgers', icon: BookOpen },
-            { label: 'Companies & Branches', href: '/settings/companies', icon: Building2 },
-            { label: 'Invoice & Branding', href: '/settings/invoice-branding', icon: Sliders },
-            { label: 'Document Numbering', href: '/settings/numbering', icon: Hash },
-            { label: 'Notifications & Alerts', href: '/settings/notifications', icon: Bell },
-            { label: 'Month-End Period Locks', href: '/settings/periods', icon: CalendarClock },
+            { label: 'Companies', href: '/settings/companies', icon: Building2 },
+            { label: 'Branding', href: '/settings/invoice-branding', icon: Sliders },
+            { label: 'Numbering', href: '/settings/numbering', icon: Hash },
+            { label: 'Notifications', href: '/settings/notifications', icon: Bell },
+            { label: 'Period Locks', href: '/settings/periods', icon: CalendarClock },
             ...(tallyEnabled
               ? [
                   {
-                    label: 'Tally Prime Bridge',
+                    label: 'Tally',
                     href: '/settings/tally',
                     icon: Server,
                     statusDot: tallyOnline ? 'bg-status-success' : 'bg-status-warning',
@@ -346,10 +346,10 @@ export function Sidebar({
                       <div key={item.href} className="relative group/item">
                         <Link
                           href={item.href}
-                          className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 ${
+                          className={`group flex items-center gap-3 rounded-lg px-2.5 py-2 text-body-sm font-medium transition-colors duration-150 ${
                             isActive
-                              ? 'bg-brand-subtle text-brand-text font-bold bg-brand/60 text-brand border border-focus border-focus shadow-xs'
-                              : 'text-secondary text-muted hover:bg-surface-sunken/70 hover:bg-surface-raised hover:text-primary hover:text-primary-inverse'
+                              ? 'border-l-2 border-brand bg-brand-subtle text-brand-text font-semibold'
+                              : 'text-secondary hover:bg-surface-sunken hover:text-primary'
                           } ${isCollapsed ? 'justify-center px-0' : ''}`}
                         >
                           <Icon
