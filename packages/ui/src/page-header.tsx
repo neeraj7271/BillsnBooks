@@ -19,7 +19,7 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-2 print:hidden', className)}>
       {breadcrumbs && <div className="text-xs text-muted">{breadcrumbs}</div>}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0 space-y-1">

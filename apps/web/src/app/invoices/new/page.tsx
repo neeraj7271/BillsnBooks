@@ -21,6 +21,7 @@ import { InvoiceLineItems } from './invoice-line-items';
 import { InvoiceSummary } from './invoice-summary';
 import { InvoiceSettingsDialog } from './invoice-settings-dialog';
 import { InvoicePreviewCard, type TemplateStyle } from './invoice-preview-card';
+import { buildInvoicePreviewModel } from './invoice-preview-model';
 
 export type ViewMode = 'edit' | 'split' | 'preview';
 
@@ -473,26 +474,34 @@ function NewInvoiceContent() {
   );
 
   // Shared Preview Component
-  const renderPreview = (showBack: boolean = false) => (
-    <InvoicePreviewCard
-      templateStyle={templateStyle}
-      setTemplateStyle={setTemplateStyle}
-      activeCompany={activeCompany}
-      activeBranch={activeBranch}
-      documentType={documentType}
-      displayInvoiceNo={displayInvoiceNo}
-      selectedParty={selectedParty}
-      invoiceDate={invoiceDate}
-      dueDate={dueDate}
-      posStateCode={posStateCode}
-      lineItems={lineItems}
-      computedTotals={computedTotals}
-      isIntraState={isIntraState}
-      notes={notes}
-      showBackToEdit={showBack}
-      onBackToEdit={() => handleSetViewMode('edit')}
-    />
-  );
+  const renderPreview = (showBack: boolean = false) => {
+    const previewModel = buildInvoicePreviewModel(
+      {
+        documentType,
+        displayInvoiceNo,
+        invoiceDate,
+        dueDate,
+        posStateCode,
+        notes,
+      },
+      activeCompany,
+      activeBranch,
+      selectedParty,
+      lineItems,
+      computedTotals,
+    );
+
+    return (
+      <InvoicePreviewCard
+        templateStyle={templateStyle}
+        setTemplateStyle={setTemplateStyle}
+        previewModel={previewModel}
+        activeCompany={activeCompany}
+        showBackToEdit={showBack}
+        onBackToEdit={() => handleSetViewMode('edit')}
+      />
+    );
+  };
 
   return (
     <FormPage
@@ -623,7 +632,7 @@ function NewInvoiceContent() {
 
               <div
                 style={{ width: `${100 - splitRatio}%` }}
-                className="shrink-0 pl-4 sticky top-6 space-y-6"
+                className="shrink-0 pl-4 sticky top-6 max-h-[calc(100vh-120px)] overflow-y-auto space-y-6"
               >
                 {renderPreview(false)}
               </div>
