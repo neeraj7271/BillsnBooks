@@ -19,6 +19,7 @@ import { useTheme } from './theme-provider';
 import { useCompany } from '@/lib/company-context';
 import { apiClient } from '@/lib/api-client';
 import { CommandPalette } from './command-palette';
+import { NotificationCenter } from './notification-center';
 
 export interface TopHeaderProps {
   isCollapsed: boolean;
@@ -210,36 +211,7 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
             </kbd>
           </button>
 
-          <div ref={notificationRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setShowNotifications((v) => !v)}
-              aria-label="Notifications"
-              className="relative h-9 w-9 flex items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface-sunken transition-colors"
-            >
-              <Bell className="h-4 w-4" />
-              {notifications.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-brand" />
-              )}
-            </button>
-
-            {showNotifications && (
-              <div className="absolute right-0 mt-1.5 w-72 rounded-xl border border-default bg-surface-raised p-3 shadow-lg z-50 space-y-2">
-                <div className="text-xs font-semibold text-primary">Notifications</div>
-                {notifications.length === 0 ? (
-                  <div className="text-xs text-muted py-4 text-center">All caught up.</div>
-                ) : (
-                  <div className="space-y-1.5 max-h-60 overflow-y-auto">
-                    {notifications.slice(0, 5).map((n, i) => (
-                      <div key={n.id || i} className="text-xs text-secondary p-2 rounded-lg bg-surface-sunken">
-                        {n.title || n.message}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <NotificationCenter />
 
           <button
             type="button"

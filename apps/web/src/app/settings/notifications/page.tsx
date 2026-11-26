@@ -245,6 +245,43 @@ export default function NotificationSettingsPage() {
         </div>
       )}
 
+      {/* Browser Native Push Notifications */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-brand-subtle text-brand-text flex items-center justify-center font-bold">
+                <Bell className="h-4 w-4" />
+              </div>
+              <div>
+                <CardTitle className="text-base">Browser Native Push Notifications</CardTitle>
+                <CardDescription>
+                  Receive real-time system alerts on your desktop even when Antigravity Books is not in focus.
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                if (typeof window !== 'undefined' && 'Notification' in window) {
+                  const perm = await Notification.requestPermission();
+                  if (perm === 'granted') {
+                    showToast('success', 'Browser native push notifications enabled successfully!');
+                  } else {
+                    showToast('error', 'Browser notification permission was not granted.');
+                  }
+                } else {
+                  showToast('error', 'Browser push notifications are not supported in this environment.');
+                }
+              }}
+            >
+              Request Browser Permission
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+
       {/* Global Dispatch & Delivery Window */}
       <Card>
         <CardHeader>
