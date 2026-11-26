@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Scale,
   Lock,
+  UploadCloud,
 } from 'lucide-react';
 import {
   Button,
@@ -38,6 +39,7 @@ import { UnitManagerDialog } from './unit-manager-dialog';
 import { UnitDetailsDialog } from './unit-details-dialog';
 import { EditUnitDialog } from './edit-unit-dialog';
 import { DeleteUnitDialog } from './delete-unit-dialog';
+import { ImportItemsModal } from './import-items-modal';
 
 interface Item {
   id: string;
@@ -86,6 +88,7 @@ export default function ItemsPage() {
 
   // Modals state
   const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null);
   const [selectedItemForView, setSelectedItemForView] = useState<Item | null>(null);
   const [showUnitModal, setShowUnitModal] = useState<boolean>(false);
@@ -524,6 +527,14 @@ export default function ItemsPage() {
               >
                 View Units Table
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImportModal(true)}
+                leftIcon={<UploadCloud className="h-3.5 w-3.5" />}
+              >
+                Import
+              </Button>
               <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
                 Add Item
               </Button>
@@ -802,6 +813,12 @@ export default function ItemsPage() {
           await loadUnits();
           await loadItems();
         }}
+      />
+
+      <ImportItemsModal
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onSuccess={loadItems}
       />
     </div>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users, Plus, RefreshCw, Search, Eye, Edit, Trash2, AlertCircle, FileText } from 'lucide-react';
+import { Users, Plus, RefreshCw, Search, Eye, Edit, Trash2, AlertCircle, FileText, UploadCloud } from 'lucide-react';
 import {
   Button,
   Badge,
@@ -23,6 +23,7 @@ import { useCompany } from '@/lib/company-context';
 import { useTablePagination } from '@/hooks/use-table-pagination';
 import { PartyDialog } from './party-dialog';
 import { PartyDetailsDialog } from './party-details-dialog';
+import { ImportPartiesModal } from './import-parties-modal';
 
 interface Party {
   id: string;
@@ -63,6 +64,7 @@ export default function PartiesPage() {
 
   // Modals state
   const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [selectedPartyForEdit, setSelectedPartyForEdit] = useState<Party | null>(null);
   const [selectedPartyForView, setSelectedPartyForView] = useState<Party | null>(null);
 
@@ -278,6 +280,9 @@ export default function PartiesPage() {
           <Button variant="outline" size="sm" onClick={loadParties} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)} leftIcon={<UploadCloud className="h-3.5 w-3.5" />}>
+            Import
+          </Button>
           <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
             New Party
           </Button>
@@ -410,6 +415,12 @@ export default function PartiesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ImportPartiesModal
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onSuccess={loadParties}
+      />
     </div>
   );
 }
