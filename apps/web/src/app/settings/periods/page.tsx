@@ -1,21 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import {
-  CalendarClock,
-  Lock,
-  Unlock,
-  ShieldCheck,
-  AlertCircle,
-  CheckCircle2,
-} from 'lucide-react';
-import {
-  Button,
-  Badge,
-  DataTable,
-  DateText,
-  type ColumnDef,
-} from '@platform/ui';
+import { Lock, Unlock, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ListPage, Button, Badge, DateText, type ColumnDef } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 
@@ -35,6 +22,23 @@ export default function PeriodsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('FIRM_PARTNER');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('antigravity_user');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed?.role) setUserRole(parsed.role);
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
+  }, []);
+
+  const canManageLocks = userRole !== 'STAFF_ACCOUNTANT';
 
   const loadPeriods = async () => {
     setLoading(true);
@@ -42,8 +46,7 @@ export default function PeriodsPage() {
       const data = await apiClient.listPeriods(activeCompanyId);
       setPeriods(data || []);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load accounting periods';
-      setError(msg);
+      setError(err instanceof Error ? err.message : 'Failed to load accounting periods');
     } finally {
       setLoading(false);
     }
@@ -54,6 +57,7 @@ export default function PeriodsPage() {
   }, [activeCompanyId]);
 
   const handleToggleLock = async (period: Period) => {
+    if (!canManageLocks) return;
     setProcessingId(period.id);
     setError(null);
     setSuccess(null);
@@ -67,8 +71,7 @@ export default function PeriodsPage() {
       }
       await loadPeriods();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to update period lock status';
-      setError(msg);
+      setError(err instanceof Error ? err.message : 'Failed to update period lock status');
     } finally {
       setProcessingId(null);
     }
@@ -78,7 +81,7 @@ export default function PeriodsPage() {
     {
       key: 'periodName',
       header: 'Period Name',
-      cell: (p) => <span className="font-bold text-primary dark:text-white text-sm">{p.periodName}</span>,
+      cell: (p) => <span className="font-semibold text-primary text-sm">{p.periodName}</span>,
     },
     {
       key: 'startDate',
@@ -104,8 +107,10 @@ export default function PeriodsPage() {
       key: 'audit',
       header: 'Audit Information',
       cell: (p) => (
-        <span className="text-[11px] text-muted">
-          {p.isLocked && p.lockedAt ? `Locked on ${new Date(p.lockedAt).toLocaleDateString('en-IN')}` : 'Open for journal entry'}
+        <span className="text-caption text-muted">
+          {p.isLocked && p.lockedAt
+            ? `Locked on ${new Date(p.lockedAt).toLocaleDateString('en-IN')}`
+            : 'Open for journal entry'}
         </span>
       ),
     },
@@ -118,6 +123,12 @@ export default function PeriodsPage() {
           variant={p.isLocked ? 'outline' : 'danger'}
           size="xs"
           loading={processingId === p.id}
+          disabled={!canManageLocks}
+          title={
+            !canManageLocks
+              ? 'Only Firm Partners can lock or unlock accounting periods'
+              : undefined
+          }
           onClick={() => handleToggleLock(p)}
           leftIcon={p.isLocked ? <Unlock className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
         >
@@ -128,53 +139,48 @@ export default function PeriodsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
-              Accounting Period Locks &amp; Month-End Closing
-            </h1>
-            <Badge variant="brand" size="sm">Audit Lock</Badge>
-          </div>
-          <p className="text-sm text-muted text-muted">
-            Enforce audit integrity by locking closed accounting periods to prevent unauthorized retroactive edits.
-          </p>
-        </div>
-      </div>
-
-      {error && (
-        <div className="rounded-xl border border-status-danger border-status-danger bg-status-danger-subtle bg-status-danger p-4 text-xs font-semibold text-status-danger-text text-status-danger-text flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 shrink-0 text-status-danger-text" />
-          <span>{error}</span>
-        </div>
-      )}
-
+    <div className="space-y-4">
       {success && (
-        <div className="rounded-xl border border-status-success border-status-success bg-status-success-subtle bg-status-success p-4 text-xs font-semibold text-status-success-text text-status-success-text flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success-text" />
+        <div className="rounded-xl border border-status-success bg-status-success-subtle p-3.5 text-xs font-medium text-status-success-text flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
-      {/* Info Notice */}
-      <div className="rounded-2xl border border-focus border-focus bg-brand-subtle/50 bg-brand/20 p-5 flex items-start gap-3">
-        <ShieldCheck className="h-5 w-5 text-brand-text text-brand shrink-0 mt-0.5" />
-        <div className="text-xs text-brand-text text-brand space-y-1">
-          <p className="font-bold">Automated Statutory Safeguard:</p>
-          <p className="text-brand-text text-brand">
-            When a period is locked, the Accounting Core strictly rejects any voucher creation, bulk import post, or bank match within the period window.
-          </p>
+      {!canManageLocks && (
+        <div className="rounded-xl border border-status-warning bg-status-warning-subtle p-3.5 text-xs font-medium text-status-warning-text flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>Read-only view: Only Firm Partners can lock or unlock accounting periods.</span>
         </div>
-      </div>
+      )}
 
-      <DataTable
+      <ListPage<Period>
+        header={{
+          title: 'Accounting Period Locks',
+          subtitle: 'Enforce audit integrity by locking closed accounting periods against retroactive edits.',
+          badge: <Badge variant="brand" size="sm">Audit Lock</Badge>,
+        }}
+        kpis={
+          <div className="rounded-xl border border-focus bg-brand-subtle p-4 flex items-start gap-3">
+            <ShieldCheck className="h-5 w-5 text-brand-text shrink-0 mt-0.5" />
+            <div className="text-xs text-brand-text space-y-0.5">
+              <p className="font-semibold">Automated Statutory Safeguard</p>
+              <p>
+                When a period is locked, the Accounting Core rejects voucher creation, bulk import posts, and bank matches within that window.
+              </p>
+            </div>
+          </div>
+        }
         columns={columns}
         data={periods}
         loading={loading}
-        emptyTitle="No accounting periods found"
-        emptyDescription="Financial year periods are auto-generated upon company creation."
+        error={error}
+        onRetry={loadPeriods}
+        empty={{
+          title: 'No accounting periods found',
+          description: 'Financial year periods are auto-generated upon company creation.',
+        }}
+        tableProps={{ stickyHeader: true }}
       />
     </div>
   );

@@ -38,10 +38,12 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useDensity } from '@/components/theme-provider';
 import { InvoiceCustomizerDialog } from '../invoices/[id]/invoice-customizer-dialog';
 
 export default function GlobalSettingsPage() {
   const { activeCompanyId, companies, refreshSettings } = useCompany();
+  const { density, setDensity } = useDensity();
   const [loading, setLoading] = useState(true);
   const [updatingMode, setUpdatingMode] = useState(false);
   const [settingsMap, setSettingsMap] = useState<Record<string, any>>({});
@@ -212,30 +214,52 @@ export default function GlobalSettingsPage() {
         </div>
       </div>
 
-      {/* View Toggle */}
-      <div className="flex items-center gap-2 border-b border border-strong pb-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab('overview')}
-          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
-            activeTab === 'overview'
-              ? 'bg-brand-subtle bg-brand/60 text-brand-text text-brand'
-              : 'text-muted hover:text-primary hover:text-primary-inverse'
-          }`}
-        >
-          Visual Module Cards
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('all_keys')}
-          className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
-            activeTab === 'all_keys'
-              ? 'bg-brand-subtle bg-brand/60 text-brand-text text-brand'
-              : 'text-muted hover:text-primary hover:text-primary-inverse'
-          }`}
-        >
-          All System Keys & Audit ({resolvedList.length})
-        </button>
+      {/* View Toggle + Density Preference */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab('overview')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
+              activeTab === 'overview'
+                ? 'bg-brand-subtle text-brand-text'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            Visual Module Cards
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('all_keys')}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
+              activeTab === 'all_keys'
+                ? 'bg-brand-subtle text-brand-text'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            All System Keys & Audit ({resolvedList.length})
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-muted font-medium">Table Density:</span>
+          <div className="inline-flex rounded-lg bg-surface-sunken p-0.5 border border-border">
+            {(['compact', 'comfortable'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setDensity(mode)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium capitalize transition ${
+                  density === mode
+                    ? 'bg-surface text-primary shadow-xs'
+                    : 'text-muted hover:text-primary'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {activeTab === 'overview' && (
