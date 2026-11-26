@@ -71,11 +71,11 @@ export default function DashboardPage() {
       const [ageingRes, invRes, appRes, perRes] = await Promise.all([
         apiClient.getArAgeingSummary(activeCompanyId).catch(() => null),
         apiClient.listInvoices(activeCompanyId, { limit: 10 }).catch(() => []),
-        apiClient.listPendingApprovals?.(activeCompanyId).catch(() => []) ?? Promise.resolve([]),
+        apiClient.listApprovals(activeCompanyId).catch(() => []),
         apiClient.listPeriods(activeCompanyId).catch(() => []),
       ]);
       setAgeing(ageingRes);
-      setInvoices(Array.isArray(invRes) ? invRes.slice(0, 10) : invRes?.items?.slice(0, 10) || []);
+      setInvoices(Array.isArray(invRes) ? invRes.slice(0, 10) : ((invRes as any)?.items || []).slice(0, 10));
       setApprovals(Array.isArray(appRes) ? appRes.slice(0, 5) : []);
       setPeriods(Array.isArray(perRes) ? perRes.slice(0, 6) : []);
     } finally {

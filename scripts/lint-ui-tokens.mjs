@@ -91,7 +91,7 @@ function checkClassString(file, lineNum, raw) {
         errors.push(`${file}:${lineNum} conflicting text classes "${textByScope.get(scope)}" and "${tok}"`);
       }
       textByScope.set(scope, tok);
-      if (base === 'text-inverse' || base === 'text-primary-inverse') {
+      if (scope === '' && (base === 'text-inverse' || base === 'text-primary-inverse')) {
         hasInverse = true;
       }
     }

@@ -500,9 +500,9 @@ function NewInvoiceContent() {
                   <div className="text-sm font-bold text-primary">
                     {activeCompany?.legalName || 'Your Company'}
                   </div>
-                  {activeCompany?.gstin && (
+                  {(activeBranch?.gstin || activeCompany?.pan) && (
                     <div className="font-mono text-[11px] text-secondary mt-0.5">
-                      GSTIN: {activeCompany.gstin}
+                      {activeBranch?.gstin ? `GSTIN: ${activeBranch.gstin}` : `PAN: ${activeCompany?.pan}`}
                     </div>
                   )}
                 </div>

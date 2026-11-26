@@ -85,7 +85,7 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
   useEffect(() => {
     if (!activeCompanyId) return;
     apiClient
-      .listNotifications?.(activeCompanyId)
+      .listNotifications?.(20)
       ?.then((list: any[]) => setNotifications(list || []))
       .catch(() => {});
   }, [activeCompanyId]);
