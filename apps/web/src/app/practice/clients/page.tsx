@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Briefcase, Plus, RefreshCw, Search, CheckSquare, FileSpreadsheet } from 'lucide-react';
 import {
+  ListPage,
   Button,
   Badge,
-  Input,
-  DataTable,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -141,65 +140,49 @@ export default function ClientsDirectoryPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
-              CA Firm Practice Command
-            </h1>
-            <Badge variant="brand" size="sm">CA Practice</Badge>
-          </div>
-          <p className="mt-1 text-sm text-muted text-muted">
-            Multi-client governance, statutory task allocation, and client document portal.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadClients}
-            loading={loading}
-            leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setOpenOnboardModal(true)}
-            leftIcon={<Plus className="h-3.5 w-3.5" />}
-          >
-            Onboard Client
-          </Button>
-        </div>
-      </div>
-
-      {/* KPI Stats */}
-      <ClientStatsCards clients={clients} />
-
-      {/* Search Bar */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
-          <Input
-            placeholder="Search by client name, code, contact..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <DataTable
+    <>
+      <ListPage<ClientItem>
+        header={{
+          title: 'CA Firm Practice Command',
+          subtitle: 'Multi-client governance, statutory task allocation, and client document portal.',
+          badge: <Badge variant="brand" size="sm">CA Practice</Badge>,
+          actions: (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadClients}
+                loading={loading}
+                leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+              >
+                Refresh
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setOpenOnboardModal(true)}
+                leftIcon={<Plus className="h-3.5 w-3.5" />}
+              >
+                Onboard Client
+              </Button>
+            </div>
+          ),
+        }}
+        kpis={<ClientStatsCards clients={clients} />}
+        toolbar={{
+          searchValue: searchTerm,
+          onSearchChange: setSearchTerm,
+          searchPlaceholder: 'Search by client name, code, contact...',
+        }}
         columns={columns}
         data={filteredClients}
         loading={loading}
-        emptyTitle="No clients onboarded yet"
-        emptyDescription="Onboard your first enterprise client entity to start managing statutory deadlines."
+        onRetry={loadClients}
+        empty={{
+          title: 'No clients onboarded yet',
+          description: 'Onboard your first enterprise client entity to start managing statutory deadlines.',
+        }}
+        tableProps={{ stickyHeader: true }}
       />
 
       <ClientDialog
@@ -207,6 +190,6 @@ export default function ClientsDirectoryPage() {
         onOpenChange={setOpenOnboardModal}
         onSuccess={loadClients}
       />
-    </div>
+    </>
   );
 }

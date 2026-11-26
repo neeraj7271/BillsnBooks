@@ -8,6 +8,8 @@ import {
   Badge,
   DataTable,
   DateText,
+  LoadingState,
+  PageHeader,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -36,6 +38,7 @@ function ComplianceTasksContent() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [openCreateModal, setOpenCreateModal] = useState(false);
 
   // Status update modal state
@@ -204,10 +207,25 @@ function ComplianceTasksContent() {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-lg bg-surface-sunken p-0.5 border border-border text-xs">
+            {(['table', 'kanban'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setViewMode(m)}
+                className={`px-2.5 py-1 rounded-md font-medium capitalize transition ${
+                  viewMode === m ? 'bg-surface text-primary shadow-xs' : 'text-muted hover:text-primary'
+                }`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
           <select
+            aria-label="Filter by category"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="text-xs rounded-lg border border border-strong bg-white bg-surface-raised text-secondary text-muted px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-focus-ring"
+            className="text-xs rounded-lg border border-border bg-surface text-secondary px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-focus-ring"
           >
             <option value="ALL">All Categories</option>
             <option value="GST">GST</option>
@@ -219,14 +237,63 @@ function ComplianceTasksContent() {
         </div>
       </div>
 
-      {/* Tasks Table */}
-      <DataTable
-        columns={columns}
-        data={tasks}
-        loading={loading}
-        emptyTitle="No tasks matching criteria"
-        emptyDescription="Create statutory compliance tasks or switch filters to view deliverables."
-      />
+      {/* Tasks Table or Kanban Board */}
+      {viewMode === 'table' ? (
+        <DataTable
+          columns={columns}
+          data={tasks}
+          loading={loading}
+          stickyHeader
+          emptyTitle="No tasks matching criteria"
+          emptyDescription="Create statutory compliance tasks or switch filters to view deliverables."
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { key: 'NOT_STARTED', label: 'Not Started' },
+            { key: 'IN_PROGRESS', label: 'In Progress' },
+            { key: 'PENDING_REVIEW', label: 'Pending Review' },
+            { key: 'FILED', label: 'Filed / Done' },
+          ].map((col) => {
+            const colTasks = tasks.filter((t) => t.status === col.key);
+            return (
+              <div
+                key={col.key}
+                className="rounded-xl border border-border bg-surface-raised p-3 flex flex-col gap-2.5 min-h-[320px]"
+              >
+                <div className="flex items-center justify-between px-1 pb-1 border-b border-border-subtle">
+                  <span className="text-xs font-semibold text-primary">{col.label}</span>
+                  <Badge variant="neutral" size="xs">{colTasks.length}</Badge>
+                </div>
+                {colTasks.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTask(t);
+                      setOpenStatusModal(true);
+                    }}
+                    className="text-left rounded-lg border border-border bg-surface p-3 hover:border-focus transition space-y-1.5 shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant="brand" size="xs">{t.category}</Badge>
+                      <span className="text-caption text-muted">{t.statutoryPeriod}</span>
+                    </div>
+                    <div className="text-xs font-semibold text-primary line-clamp-2">{t.title}</div>
+                    <div className="flex items-center justify-between text-caption text-muted pt-1">
+                      <span className="truncate">{t.clientName}</span>
+                      <DateText date={t.dueDate} />
+                    </div>
+                  </button>
+                ))}
+                {colTasks.length === 0 && (
+                  <div className="text-caption text-muted text-center py-8">No tasks</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <TaskDialog
         open={openCreateModal}
@@ -247,7 +314,7 @@ function ComplianceTasksContent() {
 
 export default function ComplianceTasksPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-muted">Loading compliance tasks...</div>}>
+    <Suspense fallback={<LoadingState rows={5} />}>
       <ComplianceTasksContent />
     </Suspense>
   );
