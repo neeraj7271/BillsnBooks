@@ -126,7 +126,7 @@ export default function GlobalSettingsPage() {
               <Sliders className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-primary dark:text-white flex items-center gap-2">
+              <h1 className="text-xl font-black text-primary flex items-center gap-2">
                 <span>Global System Configuration & Governance</span>
                 <Badge variant="info" size="xs">
                   Central Registry
@@ -167,7 +167,7 @@ export default function GlobalSettingsPage() {
           <div className="text-[10px] font-bold text-muted text-muted uppercase tracking-wider mb-1">
             Active Operating Entity
           </div>
-          <div className="font-bold text-sm text-primary dark:text-white truncate">
+          <div className="font-bold text-sm text-primary truncate">
             {activeCompany?.legalName || 'Acme Global Pvt Ltd'}
           </div>
           <div className="text-[11px] font-mono text-muted mt-0.5">
@@ -192,7 +192,7 @@ export default function GlobalSettingsPage() {
           <div className="text-[10px] font-bold text-muted text-muted uppercase tracking-wider mb-1">
             Ledger & Accounting
           </div>
-          <div className="font-bold text-sm text-primary dark:text-white">
+          <div className="font-bold text-sm text-primary">
             Accrual (Strict 0-Var)
           </div>
           <div className="text-[11px] text-muted mt-0.5">
@@ -613,7 +613,7 @@ export default function GlobalSettingsPage() {
             <CardContent className="space-y-3.5 text-xs">
               <div className="flex items-center justify-between p-3 rounded-xl bg-canvas bg-surface border border border-strong">
                 <div>
-                  <div className="font-bold text-primary dark:text-white">Tally Prime Synchronization</div>
+                  <div className="font-bold text-primary">Tally Prime Synchronization</div>
                   <div className="text-[11px] text-muted text-muted">
                     {Boolean(settingsMap['integration.tally_enabled'])
                       ? 'Tally bridge, XML push/pull & ledger alias inputs are active.'
@@ -702,7 +702,7 @@ export default function GlobalSettingsPage() {
                   {filteredResolved.length > 0 ? (
                     filteredResolved.map((s) => (
                       <tr key={s.key} className="hover:bg-canvas hover:bg-surface-raised">
-                        <td className="py-2 px-3 font-semibold text-primary dark:text-white">
+                        <td className="py-2 px-3 font-semibold text-primary">
                           <div>{s.key}</div>
                           {s.definition?.description && (
                             <div className="font-sans font-normal text-[10px] text-muted line-clamp-1">

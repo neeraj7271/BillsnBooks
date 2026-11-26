@@ -83,7 +83,7 @@ export default function ImportsDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-primary">
               Bulk Import Registers
             </h1>
             <Badge variant="info">GST Register Wizard</Badge>
@@ -131,7 +131,7 @@ export default function ImportsDashboardPage() {
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-primary dark:text-white">{batches.length}</span>
+              <span className="text-2xl font-bold text-primary">{batches.length}</span>
               <span className="text-xs text-muted text-muted">batches</span>
             </div>
           </CardContent>
@@ -194,7 +194,7 @@ export default function ImportsDashboardPage() {
         <CardHeader className="border-b border border-strong px-6 py-4 bg-canvas bg-surface">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-bold text-primary dark:text-white">Import Ingestion History</CardTitle>
+              <CardTitle className="text-base font-bold text-primary">Import Ingestion History</CardTitle>
               <CardDescription className="text-xs text-secondary text-muted">
                 Audited ingestion sessions with SHA-256 deduplication and line-level verification
               </CardDescription>
@@ -221,7 +221,7 @@ export default function ImportsDashboardPage() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-subtle bg-surface-raised text-brand-text text-brand mb-4 shadow-sm">
                 <UploadCloud className="h-6 w-6" />
               </div>
-              <h3 className="text-base font-bold text-primary dark:text-white">No import batches uploaded yet</h3>
+              <h3 className="text-base font-bold text-primary">No import batches uploaded yet</h3>
               <p className="text-sm text-secondary text-muted mt-1 max-w-sm mx-auto">
                 Begin verification by uploading your first Excel or CSV sales register.
               </p>

@@ -52,7 +52,7 @@ export function BackButton({
         onClick={handleBack}
         title={title}
         aria-label={title}
-        className={`flex h-8 w-8 items-center justify-center rounded-lg border border border-strong bg-white bg-surface text-secondary hover:text-primary text-muted dark:hover:text-white hover:bg-canvas hover:bg-surface-raised transition shadow-xs cursor-pointer ${className}`}
+        className={`flex h-8 w-8 items-center justify-center rounded-lg border border border-strong bg-white bg-surface text-secondary hover:text-primary text-muted hover:text-primary hover:bg-canvas hover:bg-surface-raised transition shadow-xs cursor-pointer ${className}`}
       >
         <ArrowLeft className="h-4 w-4" />
       </button>
@@ -66,7 +66,7 @@ export function BackButton({
         onClick={handleBack}
         title={title}
         aria-label={title}
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border border border-strong bg-canvas bg-surface text-secondary text-muted hover:bg-surface-sunken hover:bg-surface-raised hover:text-primary dark:hover:text-white transition shadow-xs cursor-pointer ${className}`}
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border border border-strong bg-canvas bg-surface text-secondary text-muted hover:bg-surface-sunken hover:bg-surface-raised hover:text-primary hover:text-primary transition shadow-xs cursor-pointer ${className}`}
       >
         <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
         <span>{label}</span>

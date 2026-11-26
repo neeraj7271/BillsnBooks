@@ -79,7 +79,7 @@ export default function CompaniesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Company & Tenant Directory
             </h1>
             <Badge variant="brand" size="sm">
@@ -119,7 +119,7 @@ export default function CompaniesPage() {
             <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Registered Companies
             </div>
-            <div className="text-xl font-black text-primary dark:text-white mt-0.5">
+            <div className="text-xl font-black text-primary mt-0.5">
               {companies.length}
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function CompaniesPage() {
             <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Operating Branches & GSTINs
             </div>
-            <div className="text-xl font-black text-primary dark:text-white mt-0.5">
+            <div className="text-xl font-black text-primary mt-0.5">
               {totalBranches}
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function CompaniesPage() {
             <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Working Workspace Entity
             </div>
-            <div className="text-sm font-bold text-primary dark:text-white truncate max-w-[170px] mt-0.5">
+            <div className="text-sm font-bold text-primary truncate max-w-[170px] mt-0.5">
               {companies.find((c) => c.id === workingCompanyId)?.legalName || 'No Company Selected'}
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function CompaniesPage() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-subtle bg-brand/60 text-brand-text text-brand">
               <Building2 className="h-6 w-6" />
             </div>
-            <h3 className="mt-4 text-base font-bold text-primary dark:text-white">
+            <h3 className="mt-4 text-base font-bold text-primary">
               No Companies Registered in this Tenant
             </h3>
             <p className="mt-1 text-xs text-muted text-muted max-w-sm mx-auto">
@@ -232,7 +232,7 @@ export default function CompaniesPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <CardTitle className="text-base font-extrabold text-primary dark:text-white">
+                      <CardTitle className="text-base font-extrabold text-primary">
                         {company.legalName}
                       </CardTitle>
                       {isWorking ? (
@@ -321,7 +321,7 @@ export default function CompaniesPage() {
                         className="p-4 rounded-xl border border border-strong bg-canvas bg-surface text-xs space-y-2 hover:border hover:border-strong transition-colors shadow-xs"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-primary dark:text-white text-sm">
+                          <span className="font-bold text-primary text-sm">
                             {branch.branchName || branch.name || 'Main Office'}
                           </span>
                           {branch.isHeadOffice && (

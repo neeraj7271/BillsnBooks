@@ -213,7 +213,7 @@ export function TopHeader({
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg border border border-strong bg-white bg-surface text-muted hover:text-primary text-muted dark:hover:text-white transition shadow-xs"
+            className="hidden lg:flex h-8 w-8 items-center justify-center rounded-lg border border border-strong bg-white bg-surface text-muted hover:text-primary text-muted hover:text-primary transition shadow-xs"
           >
             {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </button>
@@ -233,7 +233,7 @@ export function TopHeader({
               }}
               title="Go back to previous page"
               aria-label="Go back to previous page"
-              className="flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border border-strong bg-white bg-surface text-secondary hover:text-primary text-muted dark:hover:text-white hover:bg-canvas hover:bg-surface-raised transition shadow-xs text-xs font-semibold cursor-pointer"
+              className="flex h-8 items-center gap-1.5 px-2.5 rounded-lg border border border-strong bg-white bg-surface text-secondary hover:text-primary text-muted hover:text-primary hover:bg-canvas hover:bg-surface-raised transition shadow-xs text-xs font-semibold cursor-pointer"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Back</span>
@@ -250,13 +250,13 @@ export function TopHeader({
                 Reports
               </Link>
               <span className="text-muted text-secondary">/</span>
-              <span className="font-bold text-primary dark:text-white">
+              <span className="font-bold text-primary">
                 {getBreadcrumb().replace(/^Reports \/ /, '')}
               </span>
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
-              <span className="text-xs font-bold text-primary dark:text-white">
+              <span className="text-xs font-bold text-primary">
                 {getBreadcrumb()}
               </span>
             </div>
@@ -315,7 +315,7 @@ export function TopHeader({
                         }`}
                       >
                         <div className="space-y-0.5 min-w-0 pr-2">
-                          <div className="font-bold text-xs text-primary dark:text-white truncate">
+                          <div className="font-bold text-xs text-primary truncate">
                             {c.legalName}
                           </div>
                           <div className="font-mono text-[10px] text-muted">
@@ -397,7 +397,7 @@ export function TopHeader({
               <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border border-strong bg-white bg-surface p-3 shadow-2xl z-50">
                 <div className="flex items-center justify-between pb-2 border-b border-subtle border-strong mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-primary dark:text-white">Activity & Notifications</span>
+                    <span className="text-xs font-bold text-primary">Activity & Notifications</span>
                     {unreadCount > 0 && (
                       <span className="rounded-full bg-brand-subtle bg-brand/40 text-brand-text text-brand px-1.5 py-0.5 text-[10px] font-bold">
                         {unreadCount} new
@@ -430,7 +430,7 @@ export function TopHeader({
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <span className="font-bold text-primary dark:text-white leading-tight">
+                          <span className="font-bold text-primary leading-tight">
                             {n.title}
                           </span>
                           <span className="text-[10px] text-muted shrink-0">
@@ -460,7 +460,7 @@ export function TopHeader({
                 {getInitials(userName)}
               </div>
               <div className="hidden xl:flex flex-col text-left">
-                <span className="text-xs font-bold text-primary dark:text-white leading-tight">
+                <span className="text-xs font-bold text-primary leading-tight">
                   {userName}
                 </span>
                 <span className="text-[10px] text-muted leading-tight">
@@ -473,7 +473,7 @@ export function TopHeader({
             {showProfileMenu && (
               <div className="absolute right-0 mt-2 w-64 rounded-2xl border border border-strong bg-white bg-surface p-2 shadow-2xl z-50 animate-in fade-in duration-100">
                 <div className="px-3 py-2 border-b border-subtle border-strong">
-                  <div className="text-xs font-bold text-primary dark:text-white">
+                  <div className="text-xs font-bold text-primary">
                     {userName}
                   </div>
                   <div className="text-[11px] text-muted font-mono truncate max-w-[210px]">

@@ -72,7 +72,7 @@ function ClientDocumentsPortalContent() {
       key: 'title',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">{row.title}</div>
+          <div className="font-bold text-primary">{row.title}</div>
           <div className="text-xs text-muted text-muted">
             {row.clientName} | Period: <span className="font-mono">{row.period}</span>
           </div>
@@ -176,7 +176,7 @@ function ClientDocumentsPortalContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Client Document Vault & Requests
             </h1>
             <Badge variant="brand" size="sm">Client Portal</Badge>

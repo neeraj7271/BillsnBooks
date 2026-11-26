@@ -76,7 +76,7 @@ export function PartyDetailsDialog({
                 </Badge>
               </div>
 
-              <h2 className="text-xl font-bold text-primary dark:text-white mt-1">
+              <h2 className="text-xl font-bold text-primary mt-1">
                 {party.name}
               </h2>
               {party.tradeName && (
@@ -118,14 +118,14 @@ export function PartyDetailsDialog({
 
               <div>
                 <span className="text-[11px] text-muted block">Goods & Services Tax (GSTIN)</span>
-                <span className="font-mono text-xs font-semibold text-primary dark:text-white mt-0.5 block">
+                <span className="font-mono text-xs font-semibold text-primary mt-0.5 block">
                   {identity.showGstin && party.gstin ? party.gstin : 'None (Unregistered / Exempt)'}
                 </span>
               </div>
 
               <div>
                 <span className="text-[11px] text-muted block">Permanent Account Number (PAN)</span>
-                <span className="font-mono text-xs font-semibold text-primary dark:text-white mt-0.5 block">
+                <span className="font-mono text-xs font-semibold text-primary mt-0.5 block">
                   {party.pan || '—'}
                 </span>
               </div>

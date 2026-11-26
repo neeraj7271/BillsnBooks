@@ -86,7 +86,7 @@ export function SendReminderDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md bg-white bg-surface border border border-strong rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-primary dark:text-white flex items-center gap-2">
+          <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
             <Send className="h-5 w-5 text-brand-text" />
             Send Collection Follow-Up
           </DialogTitle>
@@ -94,7 +94,7 @@ export function SendReminderDialog({
 
         {party && (
           <div className="mt-2 p-3 bg-canvas bg-surface-raised rounded-lg text-xs space-y-1">
-            <div className="font-semibold text-primary dark:text-white">{party.partyName}</div>
+            <div className="font-semibold text-primary">{party.partyName}</div>
             <div className="text-muted text-muted">
               Outstanding Balance: <span className="font-bold text-status-danger-text text-status-danger-text">{formattedDue}</span>
             </div>
@@ -147,7 +147,7 @@ export function SendReminderDialog({
                 value={customMessage}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomMessage(e.target.value)}
                 rows={3}
-                className="w-full text-xs rounded-lg border border border-strong bg-white bg-surface p-2 text-primary dark:text-white focus:outline-hidden focus:ring-2 focus:ring-focus-ring"
+                className="w-full text-xs rounded-lg border border border-strong bg-white bg-surface p-2 text-primary focus:outline-hidden focus:ring-2 focus:ring-focus-ring"
               />
             </div>
           </div>

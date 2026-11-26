@@ -190,7 +190,7 @@ export function InvoiceSettingsDialog({
         <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken bg-surface-raised border border border-strong text-xs">
           <div className="flex items-center gap-2 text-secondary text-muted">
             <Layers className="h-3.5 w-3.5 text-brand-text text-brand" />
-            <span>Configuring Series for: <strong className="text-primary dark:text-white">{docTypeLabel}</strong></span>
+            <span>Configuring Series for: <strong className="text-primary">{docTypeLabel}</strong></span>
           </div>
           <Badge variant="brand" size="xs">Independent Series</Badge>
         </div>

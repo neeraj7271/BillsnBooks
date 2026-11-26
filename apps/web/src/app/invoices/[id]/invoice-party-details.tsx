@@ -46,7 +46,7 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
               {isCompanyGstRegistered ? '(Original for Recipient — GST Rule 46)' : '(Commercial Invoice)'}
             </span>
           </div>
-          <h2 className="text-xl font-black mt-1 text-primary dark:text-white print:text-black">
+          <h2 className="text-xl font-black mt-1 text-primary print:text-black">
             {companyName}
           </h2>
           <p className="text-xs text-muted text-muted print:text-secondary mt-0.5">
@@ -72,7 +72,7 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
           <div className="text-xs text-muted print:text-secondary uppercase font-bold tracking-wider">
             Invoice Number
           </div>
-          <div className="text-lg font-black font-mono text-primary dark:text-white print:text-black">
+          <div className="text-lg font-black font-mono text-primary print:text-black">
             {invoice.invoiceNumber}
           </div>
           <div className="mt-2 text-xs space-y-0.5 text-secondary text-muted print:text-primary">
@@ -94,7 +94,7 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
           <div className="font-bold uppercase tracking-wider text-muted print:text-secondary text-[10px] mb-1">
             Billed To (Customer):
           </div>
-          <div className="text-sm font-bold text-primary dark:text-white print:text-black">
+          <div className="text-sm font-bold text-primary print:text-black">
             {partyName}
           </div>
           {partyTradeName && (
@@ -130,7 +130,7 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
             Remittance Bank Details:
           </div>
           <div className="p-3 rounded-xl bg-canvas bg-surface-raised print:bg-canvas border border-subtle border-strong print:border text-xs space-y-1">
-            <div className="font-bold text-primary dark:text-white print:text-black">HDFC Bank Limited</div>
+            <div className="font-bold text-primary print:text-black">HDFC Bank Limited</div>
             <div className="text-secondary text-muted print:text-black">
               <span className="text-muted print:text-secondary">Current A/c:</span>{' '}
               <span className="font-mono font-bold">50200012345678</span>

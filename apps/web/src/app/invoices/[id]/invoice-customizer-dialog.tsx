@@ -220,7 +220,7 @@ export function InvoiceCustomizerDialog({
               <Sliders className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-bold text-primary dark:text-white">
+              <DialogTitle className="text-lg font-bold text-primary">
                 Invoice Branding & Output Customizer
               </DialogTitle>
               <DialogDescription className="text-xs text-muted text-muted">
@@ -308,7 +308,7 @@ export function InvoiceCustomizerDialog({
               </div>
 
               <div className="space-y-2 flex-1">
-                <div className="text-xs font-bold text-primary dark:text-white">
+                <div className="text-xs font-bold text-primary">
                   Company Header Logo
                 </div>
                 <p className="text-xs text-muted text-muted">
@@ -365,7 +365,7 @@ export function InvoiceCustomizerDialog({
           <div className="space-y-4 py-2">
             <div className="flex items-center justify-between p-3 rounded-xl bg-canvas bg-surface border border border-strong">
               <div>
-                <div className="text-xs font-bold text-primary dark:text-white">
+                <div className="text-xs font-bold text-primary">
                   Print Signature Block
                 </div>
                 <div className="text-[11px] text-muted">
@@ -475,7 +475,7 @@ export function InvoiceCustomizerDialog({
 
                 {signatureType === 'DSC' && (
                   <div className="p-4 rounded-xl border border border-strong space-y-3">
-                    <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-2">
+                    <div className="text-xs font-bold text-primary flex items-center gap-2">
                       <span>DSC Certificate Credentials</span>
                       <Badge variant="success" size="xs">
                         IT Act 2000 Compliant
@@ -549,7 +549,7 @@ export function InvoiceCustomizerDialog({
           <div className="space-y-4 py-2">
             <div className="flex items-center justify-between p-3 rounded-xl bg-canvas bg-surface border border border-strong">
               <div>
-                <div className="text-xs font-bold text-primary dark:text-white">
+                <div className="text-xs font-bold text-primary">
                   Dynamic UPI Payment QR Code
                 </div>
                 <div className="text-[11px] text-muted">
@@ -580,7 +580,7 @@ export function InvoiceCustomizerDialog({
                     <QrCode value={demoUpiUri} size={80} />
                   </div>
                   <div className="space-y-1">
-                    <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-1.5">
+                    <div className="text-xs font-bold text-primary flex items-center gap-1.5">
                       <Sparkles className="h-3.5 w-3.5 text-brand-text" />
                       Dynamic Amount & Ref QR
                     </div>
@@ -599,7 +599,7 @@ export function InvoiceCustomizerDialog({
           <div className="space-y-4 py-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs font-bold text-primary dark:text-white">
+                <div className="text-xs font-bold text-primary">
                   Statutory Terms & Conditions
                 </div>
                 <div className="text-[11px] text-muted">
@@ -623,7 +623,7 @@ export function InvoiceCustomizerDialog({
               value={terms}
               onChange={(e) => setTerms(e.target.value)}
               placeholder="Enter company terms and conditions..."
-              className="w-full text-xs font-mono p-3 rounded-xl border border border-strong bg-white bg-surface text-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-focus-ring"
+              className="w-full text-xs font-mono p-3 rounded-xl border border border-strong bg-white bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
             <div className="text-right text-[10px] text-muted">
               {terms.length} / 2000 characters

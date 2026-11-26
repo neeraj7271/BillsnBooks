@@ -91,7 +91,7 @@ export default function SalesDiscoveryCockpitPage() {
       header: 'Extracted Entity & Narrative',
       cell: (t) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">
+          <div className="font-bold text-primary">
             {t.transaction?.extractedPartyName || 'Unknown Depositor'}
           </div>
           <div className="text-[11px] text-muted">{t.transaction?.description}</div>
@@ -159,7 +159,7 @@ export default function SalesDiscoveryCockpitPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-primary dark:text-white">
+              <h1 className="text-xl font-black text-primary">
                 Unbilled Deposits & Sales Discovery
               </h1>
               <Badge variant="brand" size="sm">Rule-Engine</Badge>
@@ -198,8 +198,8 @@ export default function SalesDiscoveryCockpitPage() {
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                 statusFilter === st
-                  ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
-                  : 'text-muted hover:text-primary dark:hover:text-white'
+                  ? 'bg-white bg-surface text-primary shadow-xs'
+                  : 'text-muted hover:text-primary hover:text-primary'
               }`}
             >
               {st}

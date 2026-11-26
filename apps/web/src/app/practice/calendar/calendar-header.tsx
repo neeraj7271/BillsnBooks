@@ -21,7 +21,7 @@ export function CalendarHeader({ data, selectedMonth, onMonthChange }: CalendarH
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-primary dark:text-white">
+          <h2 className="text-lg font-bold text-primary">
             Statutory Filing Schedule
           </h2>
           <p className="text-xs text-muted text-muted">
@@ -34,7 +34,7 @@ export function CalendarHeader({ data, selectedMonth, onMonthChange }: CalendarH
             type="month"
             value={selectedMonth}
             onChange={(e) => onMonthChange(e.target.value)}
-            className="text-xs rounded-lg border border border-strong bg-white bg-surface-raised text-primary dark:text-white px-3 py-1.5 font-medium outline-none focus:ring-1 focus:ring-focus-ring"
+            className="text-xs rounded-lg border border border-strong bg-white bg-surface-raised text-primary px-3 py-1.5 font-medium outline-none focus:ring-1 focus:ring-focus-ring"
           />
         </div>
       </div>
@@ -44,7 +44,7 @@ export function CalendarHeader({ data, selectedMonth, onMonthChange }: CalendarH
           <CardContent className="p-3.5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase text-muted text-muted">Total Filings</p>
-              <p className="text-xl font-black text-primary dark:text-white mt-0.5">{data?.totalTasks || 0}</p>
+              <p className="text-xl font-black text-primary mt-0.5">{data?.totalTasks || 0}</p>
             </div>
             <CalendarClock className="h-4 w-4 text-brand-text" />
           </CardContent>

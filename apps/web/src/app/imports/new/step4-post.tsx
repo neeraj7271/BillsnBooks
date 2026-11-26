@@ -29,7 +29,7 @@ export function Step4Post({
           <div className="h-12 w-12 rounded-full bg-status-success-subtle text-status-success-text flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <h2 className="text-lg font-bold text-primary dark:text-white">Batch Ingestion Complete</h2>
+          <h2 className="text-lg font-bold text-primary">Batch Ingestion Complete</h2>
           <p className="text-xs text-muted max-w-md mx-auto">
             Successfully posted {postResult.postedCount || greenCount} verified vouchers directly to the canonical general ledger.
           </p>

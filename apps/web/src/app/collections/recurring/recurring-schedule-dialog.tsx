@@ -118,7 +118,7 @@ export function RecurringScheduleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg bg-white bg-surface border border border-strong rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-primary dark:text-white flex items-center gap-2">
+          <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
             <CalendarClock className="h-5 w-5 text-brand-text" />
             Create Recurring Invoicing Schedule
           </DialogTitle>

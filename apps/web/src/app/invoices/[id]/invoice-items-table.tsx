@@ -27,7 +27,7 @@ export function InvoiceItemsTable({ items }: InvoiceItemsTableProps) {
             <tr key={it.id || idx}>
               <td className="py-3 px-2 text-muted print:text-secondary">{idx + 1}</td>
               <td className="py-3 px-3">
-                <div className="font-bold text-primary dark:text-white print:text-black">
+                <div className="font-bold text-primary print:text-black">
                   {it.description}
                 </div>
               </td>
@@ -49,7 +49,7 @@ export function InvoiceItemsTable({ items }: InvoiceItemsTableProps) {
               <td className="py-3 px-2 text-right font-mono text-secondary text-muted print:text-black">
                 {parseFloat(it.gstRatePercent)}%
               </td>
-              <td className="py-3 px-2 text-right font-bold text-primary dark:text-white print:text-black">
+              <td className="py-3 px-2 text-right font-bold text-primary print:text-black">
                 <MoneyText amount={it.totalAmount} />
               </td>
             </tr>

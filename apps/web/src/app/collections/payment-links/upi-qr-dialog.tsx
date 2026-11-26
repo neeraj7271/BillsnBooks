@@ -77,7 +77,7 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
             <span className="text-xs uppercase tracking-wider text-muted font-semibold">
               Total Amount Payable
             </span>
-            <div className="text-2xl font-bold tracking-tight text-primary dark:text-white">
+            <div className="text-2xl font-bold tracking-tight text-primary">
               <MoneyText amount={paymentLink.amount} currency={paymentLink.currency || 'INR'} />
             </div>
             <div className="mt-1 flex items-center gap-2">

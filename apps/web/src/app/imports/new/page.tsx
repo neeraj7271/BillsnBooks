@@ -176,7 +176,7 @@ export default function NewImportWizardPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-primary dark:text-white">
+              <h1 className="text-xl font-black text-primary">
                 Bulk Ingestion Engine
               </h1>
               <Badge variant="brand" size="sm">Step {currentStep} of 4</Badge>

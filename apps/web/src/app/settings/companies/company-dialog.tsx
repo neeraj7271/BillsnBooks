@@ -231,7 +231,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <Cloud className="h-4 w-4 text-brand-text text-brand" />
-                      <span className="font-bold text-xs text-primary dark:text-white">
+                      <span className="font-bold text-xs text-primary">
                         Standalone Cloud
                       </span>
                     </div>
@@ -262,7 +262,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <Server className="h-4 w-4 text-status-warning-text text-status-warning-text" />
-                      <span className="font-bold text-xs text-primary dark:text-white">
+                      <span className="font-bold text-xs text-primary">
                         Tally Prime Sync
                       </span>
                     </div>
@@ -293,7 +293,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <Receipt className="h-4 w-4 text-status-success-text text-status-success-text" />
-                      <span className="font-bold text-xs text-primary dark:text-white">
+                      <span className="font-bold text-xs text-primary">
                         Invoicing Only
                       </span>
                     </div>

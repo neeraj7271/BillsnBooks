@@ -60,7 +60,7 @@ export function ItemDetailsDialog({
                 </Badge>
               </div>
 
-              <h2 className="text-xl font-bold text-primary dark:text-white mt-1">
+              <h2 className="text-xl font-bold text-primary mt-1">
                 {item.name}
               </h2>
               {item.description && (
@@ -98,14 +98,14 @@ export function ItemDetailsDialog({
                 <span className="text-[11px] text-muted block">
                   {isService ? 'SAC Code (Services)' : 'HSN Code (Goods)'}
                 </span>
-                <span className="font-mono text-sm font-bold text-primary dark:text-white mt-0.5 block">
+                <span className="font-mono text-sm font-bold text-primary mt-0.5 block">
                   {item.hsnSacCode || '—'}
                 </span>
               </div>
 
               <div>
                 <span className="text-[11px] text-muted block">GST Rate Slab</span>
-                <span className="font-mono text-sm font-bold text-primary dark:text-white mt-0.5 block">
+                <span className="font-mono text-sm font-bold text-primary mt-0.5 block">
                   {item.gstRatePercent}%
                   {Number(item.gstRatePercent) === 0 ? ' (Exempt / Nil-Rated)' : ''}
                 </span>
@@ -113,7 +113,7 @@ export function ItemDetailsDialog({
 
               <div>
                 <span className="text-[11px] text-muted block">Compensation Cess</span>
-                <span className="font-mono text-sm font-semibold text-primary dark:text-white mt-0.5 block">
+                <span className="font-mono text-sm font-semibold text-primary mt-0.5 block">
                   {item.cessRatePercent ? `${item.cessRatePercent}%` : '0.00%'}
                 </span>
               </div>

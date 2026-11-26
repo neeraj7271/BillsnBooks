@@ -142,7 +142,7 @@ export default function BatchReviewPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <h1 className="text-xl font-black text-primary dark:text-white">
+            <h1 className="text-xl font-black text-primary">
               Batch Resolution: {batch.fileName}
             </h1>
             <Badge variant="brand" size="sm">{batch.status}</Badge>
@@ -239,7 +239,7 @@ export default function BatchReviewPage() {
                 onClick={() => setActiveTab(tab)}
                 className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                   activeTab === tab
-                    ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
+                    ? 'bg-white bg-surface text-primary shadow-xs'
                     : 'text-muted'
                 }`}
               >
@@ -291,7 +291,7 @@ export default function BatchReviewPage() {
                     <tr key={row.id} className="hover:bg-canvas hover:bg-surface-raised">
                       <td className="py-2.5 px-3 font-mono text-muted">{row.rowIndex}</td>
                       <td className="py-2.5 px-3">
-                        <span className="font-bold text-primary dark:text-white">
+                        <span className="font-bold text-primary">
                           {row.parsedData.voucherNumber || 'Missing Inv No'}
                         </span>
                         <span className="block text-[11px] text-muted">{row.parsedData.date || 'N/A'}</span>

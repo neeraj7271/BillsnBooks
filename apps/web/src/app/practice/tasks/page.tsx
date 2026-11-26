@@ -71,7 +71,7 @@ function ComplianceTasksContent() {
       key: 'title',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">{row.title}</div>
+          <div className="font-bold text-primary">{row.title}</div>
           <div className="text-xs text-muted text-muted">
             {row.clientName} | Period: <span className="font-mono">{row.statutoryPeriod}</span>
           </div>
@@ -157,7 +157,7 @@ function ComplianceTasksContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Compliance & Statutory Tasks
             </h1>
             <Badge variant="brand" size="sm">Practice Workflow</Badge>
@@ -198,7 +198,7 @@ function ComplianceTasksContent() {
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 statusFilter === st
                   ? 'bg-brand text-white shadow-xs'
-                  : 'bg-surface-sunken bg-surface-raised text-secondary text-muted hover:text-primary dark:hover:text-white'
+                  : 'bg-surface-sunken bg-surface-raised text-secondary text-muted hover:text-primary hover:text-primary'
               }`}
             >
               {st === 'ALL' ? 'All Tasks' : st.replace('_', ' ')}

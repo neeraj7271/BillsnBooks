@@ -108,7 +108,7 @@ function ReconciliationWorkbenchContent() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-primary dark:text-white">
+              <h1 className="text-xl font-black text-primary">
                 Bank Reconciliation Workbench (BRS)
               </h1>
               <Badge variant="brand" size="sm">2-Way Match</Badge>

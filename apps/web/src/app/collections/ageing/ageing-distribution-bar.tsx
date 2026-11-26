@@ -27,7 +27,7 @@ export function AgeingDistributionBar({ summary }: AgeingDistributionBarProps) {
     <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h2 className="text-sm font-bold text-primary dark:text-white">
+          <h2 className="text-sm font-bold text-primary">
             Ageing Concentration & Exposure
           </h2>
           <p className="text-xs text-muted text-muted">
@@ -81,28 +81,28 @@ export function AgeingDistributionBar({ summary }: AgeingDistributionBarProps) {
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-status-success" />
           <span className="text-secondary text-muted">0–30 Days:</span>
-          <span className="font-bold text-primary dark:text-white tabular-nums">
+          <span className="font-bold text-primary tabular-nums">
             {formatInr(c0_30)} ({p0_30.toFixed(0)}%)
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-status-warning" />
           <span className="text-secondary text-muted">31–60 Days:</span>
-          <span className="font-bold text-primary dark:text-white tabular-nums">
+          <span className="font-bold text-primary tabular-nums">
             {formatInr(c31_60)} ({p31_60.toFixed(0)}%)
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-status-warning" />
           <span className="text-secondary text-muted">61–90 Days:</span>
-          <span className="font-bold text-primary dark:text-white tabular-nums">
+          <span className="font-bold text-primary tabular-nums">
             {formatInr(c61_90)} ({p61_90.toFixed(0)}%)
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-2.5 w-2.5 rounded-full bg-status-danger" />
           <span className="text-secondary text-muted">90+ Days:</span>
-          <span className="font-bold text-primary dark:text-white tabular-nums">
+          <span className="font-bold text-primary tabular-nums">
             {formatInr(c90_plus)} ({p90_plus.toFixed(0)}%)
           </span>
         </div>

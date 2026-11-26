@@ -64,7 +64,7 @@ export default function ClientsDirectoryPage() {
       key: 'companyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">{row.companyName}</div>
+          <div className="font-bold text-primary">{row.companyName}</div>
           <div className="text-[11px] font-mono text-muted text-muted">{row.clientCode}</div>
         </div>
       ),
@@ -130,7 +130,7 @@ export default function ClientsDirectoryPage() {
       cell: (row) => (
         <Link
           href={`/practice/documents?clientId=${row.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-secondary text-muted hover:text-primary dark:hover:text-white"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-secondary text-muted hover:text-primary hover:text-primary"
         >
           <FileSpreadsheet className="h-3.5 w-3.5" />
           {row.pendingDocCount} Pending

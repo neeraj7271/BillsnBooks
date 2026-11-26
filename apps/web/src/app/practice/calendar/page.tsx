@@ -36,7 +36,7 @@ export default function StatutoryCalendarPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Statutory Compliance Calendar
             </h1>
             <Badge variant="brand" size="sm">Automated Schedule</Badge>
@@ -96,7 +96,7 @@ export default function StatutoryCalendarPage() {
               >
                 <div className="flex items-center justify-between pb-2 border-b border-subtle border-strong">
                   <div className="flex items-center gap-2">
-                    <span className="font-extrabold text-primary dark:text-white text-sm">
+                    <span className="font-extrabold text-primary text-sm">
                       <DateText date={group.date} />
                     </span>
                     {isToday && <Badge variant="brand" size="xs">Due Today</Badge>}
@@ -115,7 +115,7 @@ export default function StatutoryCalendarPage() {
                     >
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-xs text-primary dark:text-white">
+                          <span className="font-bold text-xs text-primary">
                             {t.title}
                           </span>
                           <Badge variant="neutral" size="xs">{t.category}</Badge>

@@ -311,7 +311,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             placeholder="Type a command, page, or report to jump..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent text-sm text-primary dark:text-white placeholder:text-muted focus:outline-none"
+            className="w-full bg-transparent text-sm text-primary placeholder:text-muted focus:outline-none"
           />
           <kbd className="hidden sm:inline-block rounded border border border-strong bg-white bg-surface-raised px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted shadow-xs">
             ESC

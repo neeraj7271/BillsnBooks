@@ -252,7 +252,7 @@ export default function NumberingSettingsPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+              <h1 className="text-2xl font-black tracking-tight text-primary">
                 Document Numbering & Sequences
               </h1>
               <Badge variant="brand" size="sm">Gap-Free Rule 46</Badge>
@@ -277,7 +277,7 @@ export default function NumberingSettingsPage() {
       <div className="p-4 rounded-2xl bg-brand-subtle/60 bg-brand/30 border border-focus border-focus flex items-start gap-3">
         <ShieldCheck className="w-5 h-5 text-brand-text text-brand shrink-0 mt-0.5" />
         <div className="text-xs text-secondary text-muted leading-relaxed">
-          <span className="font-bold text-primary dark:text-white block mb-0.5">
+          <span className="font-bold text-primary block mb-0.5">
             Statutory GST Numbering Invariant (Rule 46(b)):
           </span>
           All Tax Invoices, Credit Notes, and Delivery Challans must follow unique, consecutive numbering containing only alphanumeric and special characters (`-`, `/`). Gap-free sequence tracking prevents audit disallowances.

@@ -142,7 +142,7 @@ export function InvoiceLineItems({
                   <td className="p-2 text-right">
                     <MoneyText amount={comp?.taxable || 0} />
                   </td>
-                  <td className="p-2 text-right font-bold text-primary dark:text-white">
+                  <td className="p-2 text-right font-bold text-primary">
                     <MoneyText amount={comp?.total || 0} />
                   </td>
                   <td className="p-2 text-center">

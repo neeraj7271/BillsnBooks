@@ -136,7 +136,7 @@ export function DeleteUnitDialog({
           ) : (
             <p className="text-secondary text-muted leading-relaxed">
               Are you sure you want to delete custom unit{' '}
-              <strong className="text-primary dark:text-white font-mono">{unit.code}</strong> (
+              <strong className="text-primary font-mono">{unit.code}</strong> (
               {unit.name})? This unit will be removed from your company&apos;s active measurement units.
             </p>
           )}

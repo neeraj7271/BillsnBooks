@@ -354,7 +354,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('cash-negative')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'cash-negative'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -365,7 +365,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('bank-negative')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'bank-negative'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -376,7 +376,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('inter-bank')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'inter-bank'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -387,7 +387,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('cash-withdrawals')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'cash-withdrawals'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -398,7 +398,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('cash-deposits')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'cash-deposits'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -409,7 +409,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('cash-expenses')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'cash-expenses'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -420,7 +420,7 @@ export default function CashBankAuditSuitePage() {
             onClick={() => setActiveTab('cash-income')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'cash-income'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >

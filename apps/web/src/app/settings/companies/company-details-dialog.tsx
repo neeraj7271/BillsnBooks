@@ -121,7 +121,7 @@ export function CompanyDetailsDialog({
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted text-muted">
                 Permanent Account No (PAN)
               </span>
-              <div className="mt-1 font-mono font-bold text-primary dark:text-white text-sm">
+              <div className="mt-1 font-mono font-bold text-primary text-sm">
                 {panValue}
               </div>
             </div>
@@ -170,7 +170,7 @@ export function CompanyDetailsDialog({
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-primary dark:text-white">
+                          <span className="font-bold text-primary">
                             {b.branchName || b.name || 'Head Office'}
                           </span>
                           {b.isHeadOffice && (
@@ -224,7 +224,7 @@ export function CompanyDetailsDialog({
                     className="p-3 rounded-xl border border border-strong bg-white bg-surface flex items-center justify-between"
                   >
                     <div>
-                      <div className="font-bold text-primary dark:text-white">{fy.name}</div>
+                      <div className="font-bold text-primary">{fy.name}</div>
                       <div className="text-[10px] text-muted font-mono">
                         {fy.startDate} → {fy.endDate}
                       </div>

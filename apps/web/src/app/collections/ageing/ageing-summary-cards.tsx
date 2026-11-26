@@ -70,7 +70,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
               {c.badge}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-black tracking-tight text-primary dark:text-white tabular-nums">
+          <div className="mt-2 text-2xl font-black tracking-tight text-primary tabular-nums">
             {loading ? '...' : c.value}
           </div>
           <div className="mt-1 flex items-center gap-1.5 text-xs text-muted text-muted">

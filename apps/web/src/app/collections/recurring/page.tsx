@@ -91,7 +91,7 @@ export default function RecurringSchedulesPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">{row.partyName || 'Customer'}</div>
+          <div className="font-bold text-primary">{row.partyName || 'Customer'}</div>
           <div className="text-[11px] text-muted text-muted">
             {row.templatePayload.items[0]?.description || 'Billing Template'}
           </div>
@@ -129,7 +129,7 @@ export default function RecurringSchedulesPage() {
       header: 'Runs Executed',
       key: 'totalRuns',
       cell: (row) => (
-        <span className="text-xs font-bold text-primary dark:text-white tabular-nums">
+        <span className="text-xs font-bold text-primary tabular-nums">
           {row.totalRuns} {row.maxRuns ? `/ ${row.maxRuns}` : ''}
         </span>
       ),
@@ -190,7 +190,7 @@ export default function RecurringSchedulesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Recurring Invoicing Schedules
             </h1>
             <Badge variant="brand" size="sm">Automation</Badge>
@@ -232,21 +232,21 @@ export default function RecurringSchedulesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs border-l-4 border-l-emerald-500">
           <div className="text-xs font-semibold text-muted text-muted">Active Schedules</div>
-          <div className="mt-1 text-2xl font-black text-primary dark:text-white tabular-nums">
+          <div className="mt-1 text-2xl font-black text-primary tabular-nums">
             {activeCount}
           </div>
           <div className="text-[11px] text-muted text-muted">Executing automatically</div>
         </Card>
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs border-l-4 border-l-amber-500">
           <div className="text-xs font-semibold text-muted text-muted">Paused Schedules</div>
-          <div className="mt-1 text-2xl font-black text-primary dark:text-white tabular-nums">
+          <div className="mt-1 text-2xl font-black text-primary tabular-nums">
             {pausedCount}
           </div>
           <div className="text-[11px] text-muted text-muted">On-hold billing</div>
         </Card>
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs border-l-4 border-l-blue-500">
           <div className="text-xs font-semibold text-muted text-muted">Generated Invoices</div>
-          <div className="mt-1 text-2xl font-black text-primary dark:text-white tabular-nums">
+          <div className="mt-1 text-2xl font-black text-primary tabular-nums">
             {totalInvoicesGen}
           </div>
           <div className="text-[11px] text-muted text-muted">Total automated cycles</div>
@@ -255,7 +255,7 @@ export default function RecurringSchedulesPage() {
 
       {/* DataTable */}
       <div className="space-y-3">
-        <div className="text-sm font-bold text-primary dark:text-white">Active Recurring Pipelines</div>
+        <div className="text-sm font-bold text-primary">Active Recurring Pipelines</div>
         <DataTable
           columns={columns}
           data={schedules}

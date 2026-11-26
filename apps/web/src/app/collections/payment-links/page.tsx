@@ -92,7 +92,7 @@ export default function PaymentLinksPage() {
       key: 'invoiceNumber',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">
+          <div className="font-bold text-primary">
             {row.invoiceNumber || 'INV-DIRECT'}
           </div>
           <div className="text-[11px] text-muted text-muted">
@@ -105,7 +105,7 @@ export default function PaymentLinksPage() {
       header: 'Amount',
       key: 'amount',
       cell: (row) => (
-        <span className="font-extrabold text-primary dark:text-white tabular-nums">
+        <span className="font-extrabold text-primary tabular-nums">
           {formatInr(row.amount)}
         </span>
       ),
@@ -197,7 +197,7 @@ export default function PaymentLinksPage() {
       key: 'settlementId',
       cell: (row) => (
         <div>
-          <div className="font-mono font-bold text-primary dark:text-white text-xs">
+          <div className="font-mono font-bold text-primary text-xs">
             {row.settlementId}
           </div>
           <div className="text-[11px] text-muted text-muted">
@@ -210,7 +210,7 @@ export default function PaymentLinksPage() {
       header: 'Gross Collections',
       key: 'grossAmount',
       cell: (row) => (
-        <span className="font-bold text-primary dark:text-white tabular-nums text-xs">
+        <span className="font-bold text-primary tabular-nums text-xs">
           {formatInr(row.grossAmount)}
         </span>
       ),
@@ -259,7 +259,7 @@ export default function PaymentLinksPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Payment Links & Gateway Settlements
             </h1>
             <Badge variant="brand" size="sm">Collections</Badge>
@@ -301,7 +301,7 @@ export default function PaymentLinksPage() {
       {/* Payment Links Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-primary dark:text-white">
+          <h2 className="text-sm font-bold text-primary">
             Active & Settled Payment Links
           </h2>
           <span className="text-xs text-muted text-muted">
@@ -321,7 +321,7 @@ export default function PaymentLinksPage() {
       <div className="space-y-3 pt-4 border-t border-subtle border-strong">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-primary dark:text-white">
+            <h2 className="text-sm font-bold text-primary">
               Gateway Settlement Ledger Log
             </h2>
             <p className="text-xs text-muted text-muted">

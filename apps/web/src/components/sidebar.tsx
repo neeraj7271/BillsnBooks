@@ -229,7 +229,7 @@ export function Sidebar({
             {!isCollapsed && (
               <div className="flex flex-col animate-in fade-in duration-150">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-extrabold tracking-tight text-primary dark:text-white leading-tight">
+                  <span className="text-base font-extrabold tracking-tight text-primary leading-tight">
                     Antigravity
                   </span>
                   <span className="text-[10px] font-bold text-brand-text text-brand bg-brand-subtle bg-brand px-1.5 py-0.2 rounded border border-focus border-focus leading-tight">
@@ -249,7 +249,7 @@ export function Sidebar({
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border border-strong bg-canvas bg-surface-raised text-muted hover:text-primary dark:hover:text-white transition shadow-xs"
+            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border border-strong bg-canvas bg-surface-raised text-muted hover:text-primary hover:text-primary transition shadow-xs"
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>

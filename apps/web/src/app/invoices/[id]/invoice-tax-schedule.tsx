@@ -61,7 +61,7 @@ export function InvoiceTaxSchedule({ invoice, company }: InvoiceTaxScheduleProps
                   <td className="py-2 px-3 text-right"><MoneyText amount={invoice.igstAmount} /></td>
                 </>
               )}
-              <td className="py-2 px-3 text-right font-bold text-primary dark:text-white print:text-black">
+              <td className="py-2 px-3 text-right font-bold text-primary print:text-black">
                 <MoneyText amount={totalTax} />
               </td>
             </tr>
@@ -111,7 +111,7 @@ export function InvoiceTaxSchedule({ invoice, company }: InvoiceTaxScheduleProps
           )}
 
           <div className="pt-3 border-t border border-strong print:border flex justify-between items-baseline font-black">
-            <span className="text-sm text-primary dark:text-white print:text-black">Total Due:</span>
+            <span className="text-sm text-primary print:text-black">Total Due:</span>
             <span className="text-xl font-mono text-brand-text text-brand print:text-black">
               <MoneyText amount={invoice.totalAmount} />
             </span>

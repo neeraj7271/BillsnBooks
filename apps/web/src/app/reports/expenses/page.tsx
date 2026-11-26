@@ -345,7 +345,7 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('dashboard')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'dashboard'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -356,7 +356,7 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('monthly')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'monthly'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -367,7 +367,7 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('vendor')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'vendor'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -378,7 +378,7 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('category')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'category'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -389,7 +389,7 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('register')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'register'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -400,7 +400,7 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('item')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'item'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >

@@ -218,12 +218,12 @@ export default function InvoiceBrandingSettingsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/invoices"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border border-strong bg-white bg-surface text-muted hover:text-primary dark:hover:text-white transition shadow-2xs"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border border-strong bg-white bg-surface text-muted hover:text-primary hover:text-primary transition shadow-2xs"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-xl font-black text-primary dark:text-white flex items-center gap-2">
+            <h1 className="text-xl font-black text-primary flex items-center gap-2">
               <span>Invoice Branding & Print Settings</span>
               <Badge variant="info" size="xs">
                 Statutory Config
@@ -555,7 +555,7 @@ export default function InvoiceBrandingSettingsPage() {
                 <QrCode value={demoUpiUri} size={84} />
               </div>
               <div className="space-y-1">
-                <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-1.5">
+                <div className="text-xs font-bold text-primary flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-brand-text" />
                   Dynamic Invoice-Linked QR Code
                 </div>
@@ -601,7 +601,7 @@ export default function InvoiceBrandingSettingsPage() {
             value={terms}
             onChange={(e) => setTerms(e.target.value)}
             placeholder="Enter custom terms and conditions..."
-            className="w-full text-xs font-mono p-3 rounded-xl border border border-strong bg-white bg-surface text-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-focus-ring"
+            className="w-full text-xs font-mono p-3 rounded-xl border border border-strong bg-white bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
           <div className="text-right text-[10px] text-muted">
             {terms.length} / 2000 characters

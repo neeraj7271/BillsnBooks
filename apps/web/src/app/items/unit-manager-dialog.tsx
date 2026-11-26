@@ -284,7 +284,7 @@ export function UnitManagerDialog({
                       <span className="font-mono font-bold px-2 py-0.5 rounded bg-brand-subtle bg-brand text-brand-text text-brand">
                         {u.code}
                       </span>
-                      <span className="font-semibold text-primary dark:text-white">{u.name}</span>
+                      <span className="font-semibold text-primary">{u.name}</span>
                     </div>
                     {u.description && <p className="text-[11px] text-muted mt-0.5">{u.description}</p>}
                   </div>

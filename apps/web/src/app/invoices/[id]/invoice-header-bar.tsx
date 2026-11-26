@@ -77,14 +77,14 @@ export function InvoiceHeaderBar({
         <div className="flex items-center gap-3 min-w-0">
           <Link
             href="/invoices"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border border-strong bg-white bg-surface text-muted hover:text-primary dark:hover:text-white transition shadow-2xs shrink-0"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border border-strong bg-white bg-surface text-muted hover:text-primary hover:text-primary transition shadow-2xs shrink-0"
             title="Back to Invoices"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl font-black text-primary dark:text-white font-mono tracking-tight whitespace-nowrap">
+              <h1 className="text-xl font-black text-primary font-mono tracking-tight whitespace-nowrap">
                 {invoice.invoiceNumber}
               </h1>
               <Badge variant={statusVariant} size="sm" dot>
@@ -198,7 +198,7 @@ export function InvoiceHeaderBar({
             <LayoutTemplate className="w-4 h-4" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-2 whitespace-nowrap">
+            <div className="text-xs font-bold text-primary flex items-center gap-2 whitespace-nowrap">
               <span>PDF Template:</span>
               <span className="text-brand-text text-brand font-mono">
                 {INVOICE_TEMPLATES.find((t) => t.id === selectedTemplate)?.name}
@@ -222,7 +222,7 @@ export function InvoiceHeaderBar({
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer select-none whitespace-nowrap ${
                   isSelected
                     ? 'bg-white bg-surface text-brand-text text-brand shadow-2xs border border border-strong font-bold'
-                    : 'text-secondary text-muted hover:text-primary dark:hover:text-white'
+                    : 'text-secondary text-muted hover:text-primary hover:text-primary'
                 }`}
               >
                 {isSelected && <Check className="w-3.5 h-3.5 text-brand-text text-brand" />}

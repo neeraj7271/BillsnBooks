@@ -343,7 +343,7 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('summary')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'summary'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -354,7 +354,7 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('ageing-tally')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'ageing-tally'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -365,7 +365,7 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('ageing-fifo')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'ageing-fifo'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -376,7 +376,7 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('advances')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'advances'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -387,7 +387,7 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('receipts')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'receipts'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >
@@ -398,7 +398,7 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('non-purchase')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'non-purchase'
-                ? 'border-status-warning text-primary dark:text-white font-bold'
+                ? 'border-status-warning text-primary font-bold'
                 : 'border-transparent text-secondary text-muted hover:text-primary hover:text-primary-inverse font-medium'
             }`}
           >

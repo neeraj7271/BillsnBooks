@@ -233,7 +233,7 @@ export default function ChartOfAccountsPage() {
       header: 'Account Name',
       cell: (l) => (
         <div className="flex items-center gap-2">
-          <span className="font-bold text-primary dark:text-white">{l.name}</span>
+          <span className="font-bold text-primary">{l.name}</span>
           {l.isBankOrCash && <Badge variant="brand" size="xs">Bank / Cash</Badge>}
           {l.isLocked && (
             <span title="Locked System Account">
@@ -483,7 +483,7 @@ export default function ChartOfAccountsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border border-strong pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-primary dark:text-white tracking-tight">
+            <h1 className="text-2xl font-black text-primary tracking-tight">
               Chart of Accounts (COA)
             </h1>
             <Badge variant="brand" size="xs">Auto-Managed Numbering</Badge>
@@ -533,19 +533,19 @@ export default function ChartOfAccountsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
           <p className="text-xs font-medium text-muted">Total Ledger Groups</p>
-          <p className="text-xl font-black text-primary dark:text-white mt-1">{groups.length}</p>
+          <p className="text-xl font-black text-primary mt-1">{groups.length}</p>
           <span className="text-[10px] text-brand-text font-medium">Standard 28 Tally Groups</span>
         </Card>
 
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
           <p className="text-xs font-medium text-muted">Standard Active Ledgers</p>
-          <p className="text-xl font-black text-primary dark:text-white mt-1">{flatLedgers.length}</p>
+          <p className="text-xl font-black text-primary mt-1">{flatLedgers.length}</p>
           <span className="text-[10px] text-status-success-text font-medium">Auto-Numbered (1000–4999)</span>
         </Card>
 
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
           <p className="text-xs font-medium text-muted">Bank & Cash Ledgers</p>
-          <p className="text-xl font-black text-primary dark:text-white mt-1">
+          <p className="text-xl font-black text-primary mt-1">
             {flatLedgers.filter((l) => l.isBankOrCash).length}
           </p>
           <span className="text-[10px] text-muted">BRS & Cash Rules Active</span>
@@ -553,7 +553,7 @@ export default function ChartOfAccountsPage() {
 
         <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
           <p className="text-xs font-medium text-muted">System Locked Ledgers</p>
-          <p className="text-xl font-black text-primary dark:text-white mt-1">
+          <p className="text-xl font-black text-primary mt-1">
             {flatLedgers.filter((l) => l.isLocked).length}
           </p>
           <span className="text-[10px] text-brand-text font-medium">Protected against deletion</span>

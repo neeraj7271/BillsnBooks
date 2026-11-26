@@ -180,7 +180,7 @@ export default function NotificationSettingsPage() {
               Notification & Reminder Architecture
             </span>
           </div>
-          <h1 className="text-2xl font-black text-primary dark:text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-black text-primary flex items-center gap-2.5">
             <Bell className="h-6 w-6 text-brand-text text-brand" />
             Notification Rules & Automated Scheduler
           </h1>
@@ -367,7 +367,7 @@ export default function NotificationSettingsPage() {
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
                       className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="inv-upcoming-enabled" className="text-xs font-bold text-primary dark:text-white">
+                    <label htmlFor="inv-upcoming-enabled" className="text-xs font-bold text-primary">
                       Pre-Due Date Reminders (Upcoming Invoices)
                     </label>
                   </div>
@@ -458,7 +458,7 @@ export default function NotificationSettingsPage() {
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
                       className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="inv-today-enabled" className="text-xs font-bold text-primary dark:text-white">
+                    <label htmlFor="inv-today-enabled" className="text-xs font-bold text-primary">
                       Due Today Settlement Alert
                     </label>
                   </div>
@@ -663,7 +663,7 @@ export default function NotificationSettingsPage() {
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
                       className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="task-upcoming-enabled" className="text-xs font-bold text-primary dark:text-white">
+                    <label htmlFor="task-upcoming-enabled" className="text-xs font-bold text-primary">
                       Task Deadline Approaching (Advance Notice)
                     </label>
                   </div>
@@ -767,7 +767,7 @@ export default function NotificationSettingsPage() {
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
                       className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="period-lock-enabled" className="text-xs font-bold text-primary dark:text-white">
+                    <label htmlFor="period-lock-enabled" className="text-xs font-bold text-primary">
                       Month-End Period Closing & Lock Approaching
                     </label>
                   </div>

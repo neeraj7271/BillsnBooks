@@ -96,7 +96,7 @@ export function EditUnitDialog({
               <DialogTitle>Edit Custom Unit</DialogTitle>
               <DialogDescription className="text-xs">
                 Update display name and specifications for unit{' '}
-                <span className="font-mono font-bold text-primary dark:text-white">
+                <span className="font-mono font-bold text-primary">
                   {unit.code}
                 </span>
                 .

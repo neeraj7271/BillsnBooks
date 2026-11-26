@@ -76,7 +76,7 @@ export default function ArAgeingPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white">{row.partyName}</div>
+          <div className="font-bold text-primary">{row.partyName}</div>
           <div className="text-[11px] text-muted text-muted font-mono">
             {row.gstin || 'Unregistered B2C'}
           </div>
@@ -87,7 +87,7 @@ export default function ArAgeingPage() {
       header: 'Total Outstanding',
       key: 'totalDue',
       cell: (row) => (
-        <span className="font-extrabold text-primary dark:text-white tabular-nums">
+        <span className="font-extrabold text-primary tabular-nums">
           {formatInr(row.totalDue)}
         </span>
       ),
@@ -187,7 +187,7 @@ export default function ArAgeingPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary dark:text-white text-xs">{row.partyName}</div>
+          <div className="font-bold text-primary text-xs">{row.partyName}</div>
           <div className="text-[10px] text-muted font-mono">{row.partyGstin || 'Unregistered'}</div>
         </div>
       ),
@@ -208,7 +208,7 @@ export default function ArAgeingPage() {
       header: 'Amount',
       key: 'totalAmount',
       cell: (row) => (
-        <span className="font-extrabold text-primary dark:text-white tabular-nums text-xs">
+        <span className="font-extrabold text-primary tabular-nums text-xs">
           {formatInr(row.totalAmount)}
         </span>
       ),
@@ -269,7 +269,7 @@ export default function ArAgeingPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Accounts Receivable Ageing
             </h1>
             <Badge variant="brand" size="sm">AR Intelligence</Badge>
@@ -323,8 +323,8 @@ export default function ArAgeingPage() {
                 onClick={() => setViewMode('PARTIES')}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                   viewMode === 'PARTIES'
-                    ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
-                    : 'text-muted hover:text-primary dark:hover:text-white'
+                    ? 'bg-white bg-surface text-primary shadow-xs'
+                    : 'text-muted hover:text-primary hover:text-primary'
                 }`}
               >
                 By Customer ({parties.length})
@@ -335,7 +335,7 @@ export default function ArAgeingPage() {
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                   viewMode === 'INVOICES'
                     ? 'bg-brand text-white shadow-xs'
-                    : 'text-muted hover:text-primary dark:hover:text-white'
+                    : 'text-muted hover:text-primary hover:text-primary'
                 }`}
               >
                 By Invoice & Promises ({invoices.length})

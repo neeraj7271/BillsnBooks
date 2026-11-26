@@ -85,7 +85,7 @@ export default function SignUpPage() {
           <Sparkles className="h-6 w-6" />
         </div>
         <div className="flex items-center justify-center gap-2">
-          <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
+          <h1 className="text-2xl font-black tracking-tight text-primary">
             Antigravity Books
           </h1>
           <Badge variant="brand" size="xs">Professional Edition</Badge>

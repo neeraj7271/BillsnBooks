@@ -288,7 +288,7 @@ export default function VouchersPage() {
         const total = (v.entries || [])
           .filter((e) => e.entryType === 'DEBIT')
           .reduce((sum, e) => sum + (parseFloat(String(e.amount)) || 0), 0);
-        return <MoneyText amount={total} className="font-bold text-primary dark:text-white" />;
+        return <MoneyText amount={total} className="font-bold text-primary" />;
       },
     },
     {
@@ -473,7 +473,7 @@ export default function VouchersPage() {
             <div className="space-y-4 my-2">
               {selectedVoucher.narration && (
                 <div className="p-3 rounded-xl bg-canvas bg-surface-raised border border border-strong text-xs text-secondary text-muted">
-                  <span className="font-bold text-primary dark:text-white">Narration: </span>
+                  <span className="font-bold text-primary">Narration: </span>
                   {selectedVoucher.narration}
                 </div>
               )}
@@ -492,7 +492,7 @@ export default function VouchersPage() {
                     {selectedVoucher.entries?.map((e, idx) => (
                       <tr key={e.id || idx}>
                         <td className="p-2.5 font-mono text-muted">{e.ledger?.code || '—'}</td>
-                        <td className="p-2.5 font-semibold text-primary dark:text-white">
+                        <td className="p-2.5 font-semibold text-primary">
                           {e.ledger?.name || 'Account'}
                           {e.narration && (
                             <span className="block text-[10px] text-muted font-normal">
@@ -500,10 +500,10 @@ export default function VouchersPage() {
                             </span>
                           )}
                         </td>
-                        <td className="p-2.5 text-right font-mono font-bold text-primary dark:text-white">
+                        <td className="p-2.5 text-right font-mono font-bold text-primary">
                           {e.entryType === 'DEBIT' ? <MoneyText amount={e.amount} /> : '—'}
                         </td>
-                        <td className="p-2.5 text-right font-mono font-bold text-primary dark:text-white">
+                        <td className="p-2.5 text-right font-mono font-bold text-primary">
                           {e.entryType === 'CREDIT' ? <MoneyText amount={e.amount} /> : '—'}
                         </td>
                       </tr>
@@ -674,11 +674,11 @@ export default function VouchersPage() {
               <div className="p-3 rounded-xl bg-canvas bg-surface border border border-strong flex items-center justify-between text-xs font-mono">
                 <div>
                   <span className="text-muted">Total Debit: </span>
-                  <span className="font-bold text-primary dark:text-white"><MoneyText amount={totalJvDebit} /></span>
+                  <span className="font-bold text-primary"><MoneyText amount={totalJvDebit} /></span>
                 </div>
                 <div>
                   <span className="text-muted">Total Credit: </span>
-                  <span className="font-bold text-primary dark:text-white"><MoneyText amount={totalJvCredit} /></span>
+                  <span className="font-bold text-primary"><MoneyText amount={totalJvCredit} /></span>
                 </div>
                 <div>
                   {isJvBalanced ? (

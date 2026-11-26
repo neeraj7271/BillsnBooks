@@ -29,8 +29,8 @@ export function BankStatementFeed({
               onClick={() => onFilterChange(f)}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
                 filter === f
-                  ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
-                  : 'text-muted hover:text-primary dark:hover:text-white'
+                  ? 'bg-white bg-surface text-primary shadow-xs'
+                  : 'text-muted hover:text-primary hover:text-primary'
               }`}
             >
               {f}
@@ -59,7 +59,7 @@ export function BankStatementFeed({
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="space-y-0.5">
-                    <div className="text-xs font-bold text-primary dark:text-white">
+                    <div className="text-xs font-bold text-primary">
                       {tx.description}
                     </div>
                     <div className="text-[11px] text-muted">
@@ -71,7 +71,7 @@ export function BankStatementFeed({
                     <MoneyText
                       amount={tx.amount}
                       className={`text-xs font-bold ${
-                        tx.type === 'CREDIT' ? 'text-status-success-text text-status-success-text' : 'text-primary dark:text-white'
+                        tx.type === 'CREDIT' ? 'text-status-success-text text-status-success-text' : 'text-primary'
                       }`}
                     />
                     <div>

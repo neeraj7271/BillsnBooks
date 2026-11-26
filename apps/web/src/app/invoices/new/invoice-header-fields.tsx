@@ -126,7 +126,7 @@ export function InvoiceHeaderFields({
                     Allocating sequence...
                   </span>
                 ) : (
-                  <span className="font-mono font-bold text-sm text-primary dark:text-white tracking-wider">
+                  <span className="font-mono font-bold text-sm text-primary tracking-wider">
                     {autoInvoiceNumber || 'INV-00001'}
                   </span>
                 )}

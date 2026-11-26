@@ -94,7 +94,7 @@ function GeneralLedgerContent() {
             <BackButton fallbackUrl="/reports" label="Back" />
             <div className="h-5 w-px bg-surface-sunken bg-surface-raised" />
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-primary dark:text-white">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-primary">
                 General Ledger Account Statement
               </h1>
               <Badge variant="brand" size="sm">Audit Trail</Badge>
@@ -151,7 +151,7 @@ function GeneralLedgerContent() {
           <Card>
             <CardContent className="pt-4 pb-4">
               <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Account Code & Name</div>
-              <div className="text-base font-black text-primary dark:text-white mt-1 truncate">
+              <div className="text-base font-black text-primary mt-1 truncate">
                 {report.ledger?.name || 'Selected Account'}
               </div>
               <div className="font-mono text-xs font-bold text-brand-text text-brand mt-0.5">
@@ -306,7 +306,7 @@ function GeneralLedgerContent() {
                     <td className="py-2.5 px-4">
                       <Badge variant="brand" size="xs">CLS</Badge>
                     </td>
-                    <td className="py-2.5 px-4 font-black text-primary dark:text-white uppercase tracking-wider">
+                    <td className="py-2.5 px-4 font-black text-primary uppercase tracking-wider">
                       Closing Balance c/f
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono font-black text-status-success-text">

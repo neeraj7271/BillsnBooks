@@ -60,7 +60,7 @@ export function ClientStatsCards({ clients }: ClientStatsCardsProps) {
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted text-muted">
                   {s.label}
                 </p>
-                <p className="text-2xl font-black text-primary dark:text-white mt-1">
+                <p className="text-2xl font-black text-primary mt-1">
                   {s.value}
                 </p>
                 <p className="text-[11px] text-muted text-muted mt-0.5 font-medium">

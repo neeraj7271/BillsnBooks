@@ -77,7 +77,7 @@ export function UnitDetailsDialog({
           <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-canvas bg-surface border border border-strong">
             <div>
               <span className="text-[11px] font-semibold text-muted uppercase">Unit Code (UOM / UQC)</span>
-              <div className="mt-0.5 font-mono font-bold text-primary dark:text-white text-sm">
+              <div className="mt-0.5 font-mono font-bold text-primary text-sm">
                 {unit.code}
               </div>
             </div>
@@ -114,7 +114,7 @@ export function UnitDetailsDialog({
               <ShieldCheck className="w-4 h-4 text-status-success-text shrink-0 mt-0.5" />
             )}
             <div>
-              <div className="font-bold text-primary dark:text-white">
+              <div className="font-bold text-primary">
                 {unit.isCustom ? 'Commercial Custom Measurement' : 'Statutory GST Portal Compliance'}
               </div>
               <p className="text-[11px] text-muted text-muted mt-0.5 leading-relaxed">
@@ -149,7 +149,7 @@ export function UnitDetailsDialog({
                         <span className="font-mono font-bold text-xs text-brand-text text-brand">
                           {it.itemCode}
                         </span>
-                        <span className="font-medium text-primary dark:text-white">
+                        <span className="font-medium text-primary">
                           {it.name}
                         </span>
                       </div>
