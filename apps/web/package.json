@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "dev:web": "next dev",
-    "build": "next build",
+    "build": "pnpm lint:tokens && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "pnpm lint:tokens && next lint",
+    "lint:tokens": "node ../../scripts/lint-ui-tokens.mjs src",
     "typecheck": "tsc --noEmit",
     "test": "echo 'Web application verified'"
   },
