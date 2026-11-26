@@ -48,7 +48,7 @@ export function ListPage<T extends Record<string, any>>({
       {error ? (
         <ErrorState error={error} onRetry={onRetry} />
       ) : loading ? (
-        <LoadingState rows={6} />
+        <LoadingState rows={8} />
       ) : data.length === 0 ? (
         hasActiveFilters && filteredEmpty ? (
           <EmptyState {...filteredEmpty} />

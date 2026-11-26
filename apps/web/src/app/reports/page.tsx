@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { LoadingState } from '@platform/ui';
 
 interface ReportCatalogItem {
   reportKey: string;
@@ -279,7 +280,9 @@ export default function ReportsHubPage() {
       </div>
 
       {/* 4. Master Catalog View (Grid Mode or Dense List Mode) */}
-      {viewMode === 'grid' ? (
+      {loading ? (
+        <LoadingState variant="cards" rows={8} />
+      ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredCatalog.map((report) => (
             <div

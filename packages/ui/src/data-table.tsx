@@ -234,8 +234,8 @@ export function DataTable<T extends Record<string, any>>({
 
           <tbody className="divide-y divide-border-subtle">
             {loading ? (
-              Array.from({ length: 4 }).map((_, rIdx) => (
-                <tr key={`skel-row-${rIdx}`}>
+              Array.from({ length: 8 }).map((_, rIdx) => (
+                <tr key={`skel-row-${rIdx}`} aria-busy="true">
                   {columns.map((_, cIdx) => (
                     <td key={`skel-cell-${rIdx}-${cIdx}`} className={cellPadding}>
                       <Skeleton className="h-4 w-full max-w-[80%]" />

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Calendar, RefreshCw, AlertCircle, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
-import { Button, Badge, Card, CardContent, CardHeader, CardTitle, DateText } from '@platform/ui';
+import { Button, Badge, Card, CardContent, CardHeader, CardTitle, DateText, LoadingState } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { CalendarHeader } from './calendar-header';
 
@@ -70,7 +70,9 @@ export default function StatutoryCalendarPage() {
           Deadlines & Filing Milestones
         </h3>
 
-        {(!data?.upcomingDeadlines || data.upcomingDeadlines.length === 0) && (
+        {loading ? (
+          <LoadingState rows={8} />
+        ) : (!data?.upcomingDeadlines || data.upcomingDeadlines.length === 0) ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Calendar className="h-10 w-10 text-muted mx-auto mb-2" />
@@ -82,67 +84,67 @@ export default function StatutoryCalendarPage() {
               </p>
             </CardContent>
           </Card>
-        )}
+        ) : (
+          <div className="space-y-3">
+            {data.upcomingDeadlines.map((group: any) => {
+              const isPast = group.date < today;
+              const isToday = group.date === today;
 
-        <div className="space-y-3">
-          {data?.upcomingDeadlines?.map((group: any) => {
-            const isPast = group.date < today;
-            const isToday = group.date === today;
-
-            return (
-              <div
-                key={group.date}
-                className="p-4 rounded-2xl border border-default bg-surface shadow-xs space-y-3"
-              >
-                <div className="flex items-center justify-between pb-2 border-b border-subtle">
-                  <div className="flex items-center gap-2">
-                    <span className="font-extrabold text-primary text-sm">
-                      <DateText date={group.date} />
-                    </span>
-                    {isToday && <Badge variant="brand" size="xs">Due Today</Badge>}
-                    {isPast && <Badge variant="danger" size="xs">Due Date Elapsed</Badge>}
-                  </div>
-                  <span className="text-xs text-muted font-medium">
-                    {group.tasks?.length} filing(s)
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  {group.tasks?.map((t: any) => (
-                    <div
-                      key={t.id}
-                      className="p-3 rounded-xl border border-default bg-surface-sunken flex items-center justify-between shadow-xs"
-                    >
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-xs text-primary">
-                            {t.title}
-                          </span>
-                          <Badge variant="neutral" size="xs">{t.category}</Badge>
-                        </div>
-                        <div className="text-[11px] text-secondary mt-0.5">
-                          Client: <span className="font-semibold">{t.clientName}</span>
-                        </div>
-                        {t.filingAcknowledgmentNumber && (
-                          <div className="text-[10px] font-mono text-status-success-text">
-                            ARN: {t.filingAcknowledgmentNumber}
-                          </div>
-                        )}
-                      </div>
-
-                      <Badge
-                        variant={t.status === 'FILED' ? 'success' : isPast ? 'danger' : 'warning'}
-                        size="xs"
-                      >
-                        {t.status === 'FILED' ? 'Filed' : isPast ? 'Overdue' : 'Pending'}
-                      </Badge>
+              return (
+                <div
+                  key={group.date}
+                  className="p-4 rounded-2xl border border-default bg-surface shadow-xs space-y-3"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-subtle">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-primary text-sm">
+                        <DateText date={group.date} />
+                      </span>
+                      {isToday && <Badge variant="brand" size="xs">Due Today</Badge>}
+                      {isPast && <Badge variant="danger" size="xs">Due Date Elapsed</Badge>}
                     </div>
-                  ))}
+                    <span className="text-xs text-muted font-medium">
+                      {group.tasks?.length} filing(s)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    {group.tasks?.map((t: any) => (
+                      <div
+                        key={t.id}
+                        className="p-3 rounded-xl border border-default bg-surface-sunken flex items-center justify-between shadow-xs"
+                      >
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-xs text-primary">
+                              {t.title}
+                            </span>
+                            <Badge variant="neutral" size="xs">{t.category}</Badge>
+                          </div>
+                          <div className="text-[11px] text-secondary mt-0.5">
+                            Client: <span className="font-semibold">{t.clientName}</span>
+                          </div>
+                          {t.filingAcknowledgmentNumber && (
+                            <div className="text-[10px] font-mono text-status-success-text">
+                              ARN: {t.filingAcknowledgmentNumber}
+                            </div>
+                          )}
+                        </div>
+
+                        <Badge
+                          variant={t.status === 'FILED' ? 'success' : isPast ? 'danger' : 'warning'}
+                          size="xs"
+                        >
+                          {t.status === 'FILED' ? 'Filed' : isPast ? 'Overdue' : 'Pending'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

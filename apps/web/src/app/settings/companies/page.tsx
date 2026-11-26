@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   ShieldCheck,
 } from 'lucide-react';
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@platform/ui';
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent, LoadingState } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { CompanyDialog } from './company-dialog';
@@ -188,7 +188,9 @@ export default function CompaniesPage() {
 
       {/* Companies List */}
       <div className="space-y-4">
-        {companies.length === 0 && !loading && (
+        {loading ? (
+          <LoadingState variant="cards" rows={4} />
+        ) : companies.length === 0 ? (
           <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-default bg-surface p-8 shadow-xs">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-status-info-subtle text-status-info-text">
               <Building2 className="h-6 w-6" />
@@ -210,10 +212,9 @@ export default function CompaniesPage() {
               </Button>
             </div>
           </div>
-        )}
-
-        {companies.map((company) => {
-          const isWorking = company.id === workingCompanyId;
+        ) : (
+          companies.map((company) => {
+            const isWorking = company.id === workingCompanyId;
           const branches = company.branches || [];
 
           return (
@@ -355,7 +356,7 @@ export default function CompaniesPage() {
               </CardContent>
             </Card>
           );
-        })}
+        }))}
       </div>
 
       {/* New Company Registration Dialog */}

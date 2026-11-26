@@ -9,6 +9,7 @@ import {
   CardContent,
   Button,
   Badge,
+  LoadingState,
 } from '@platform/ui';
 import {
   Server,
@@ -82,6 +83,14 @@ export default function TallySettingsPage() {
       text: 'Downloading Antigravity Tally Connector Bridge Agent v2.1.0 (.msi installer). Install on Windows Server where Tally is running.',
     });
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6 pb-12 pt-4">
+        <LoadingState variant="cards" rows={4} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">

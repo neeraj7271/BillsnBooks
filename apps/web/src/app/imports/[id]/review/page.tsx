@@ -12,6 +12,7 @@ import {
   Button,
   Badge,
   MoneyText,
+  LoadingState,
 } from '@platform/ui';
 import {
   CheckCircle2,
@@ -117,8 +118,8 @@ export default function BatchReviewPage() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-xs text-muted">
-        Loading batch audit details...
+      <div className="space-y-6 pb-12 pt-4">
+        <LoadingState rows={8} />
       </div>
     );
   }

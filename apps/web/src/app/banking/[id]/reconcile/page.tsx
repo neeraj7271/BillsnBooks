@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
-import { Button, Badge } from '@platform/ui';
+import { Button, Badge, LoadingState } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { BankStatementFeed } from './bank-statement-feed';
@@ -136,27 +136,31 @@ function ReconciliationWorkbenchContent() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5">
-          <BankStatementFeed
-            transactions={transactions}
-            selectedTxnId={selectedTxn?.id || null}
-            filter={filter}
-            onFilterChange={setFilter}
-            onSelectTxn={setSelectedTxn}
-          />
-        </div>
+      {loading ? (
+        <LoadingState rows={8} />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5">
+            <BankStatementFeed
+              transactions={transactions}
+              selectedTxnId={selectedTxn?.id || null}
+              filter={filter}
+              onFilterChange={setFilter}
+              onSelectTxn={setSelectedTxn}
+            />
+          </div>
 
-        <div className="lg:col-span-7">
-          <MatchCandidates
-            selectedTxn={selectedTxn}
-            suggestions={suggestions}
-            loadingSuggestions={loadingSuggestions}
-            onMatch={handleMatch}
-            onUnmatch={handleUnmatch}
-          />
+          <div className="lg:col-span-7">
+            <MatchCandidates
+              selectedTxn={selectedTxn}
+              suggestions={suggestions}
+              loadingSuggestions={loadingSuggestions}
+              onMatch={handleMatch}
+              onUnmatch={handleUnmatch}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -165,8 +169,8 @@ export default function ReconciliationWorkbenchPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-8 text-center text-sm text-muted">
-          Loading reconciliation workbench...
+        <div className="p-4 space-y-4">
+          <LoadingState rows={8} />
         </div>
       }
     >

@@ -29,7 +29,7 @@ export function DetailPage({
       {error ? (
         <ErrorState error={error} onRetry={onRetry} />
       ) : loading ? (
-        <LoadingState rows={6} />
+        <LoadingState rows={8} />
       ) : sidebar ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-7 space-y-6">{primary}</div>

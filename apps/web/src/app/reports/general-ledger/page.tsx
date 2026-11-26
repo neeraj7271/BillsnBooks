@@ -15,6 +15,7 @@ import {
   Badge,
   Card,
   CardContent,
+  Skeleton,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -242,11 +243,13 @@ function GeneralLedgerContent() {
                 </tr>
 
                 {loading ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-10 text-muted">
-                      Loading general ledger transactions...
-                    </td>
-                  </tr>
+                  Array.from({ length: 8 }).map((_, rIdx) => (
+                    <tr key={`gl-skel-${rIdx}`} aria-busy="true">
+                      <td colSpan={7} className="py-3 px-4">
+                        <Skeleton className="h-4 w-full" />
+                      </td>
+                    </tr>
+                  ))
                 ) : !report?.entries || report.entries.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="text-center py-10 text-muted italic">

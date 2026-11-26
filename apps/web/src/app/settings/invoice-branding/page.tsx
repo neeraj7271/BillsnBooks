@@ -29,6 +29,7 @@ import {
   CardDescription,
   CardContent,
   QrCode,
+  LoadingState,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -210,6 +211,14 @@ export default function InvoiceBrandingSettingsPage() {
   };
 
   const demoUpiUri = `upi://pay?pa=${encodeURIComponent(upiId || 'merchant@upi')}&pn=Tax%20Invoice&am=59000.00&cu=INR&tn=Invoice%20Payment`;
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 pb-16 pt-4">
+        <LoadingState variant="form" rows={8} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-16">

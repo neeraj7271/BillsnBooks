@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Clock, FileText, Edit, CheckCircle2, Printer, Sliders } from 'lucide-react';
-import { Button, ConfirmDialog } from '@platform/ui';
+import { Button, ConfirmDialog, LoadingState } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { InvoiceHeaderBar } from './invoice-header-bar';
@@ -174,8 +174,8 @@ export default function InvoiceDetailsPage() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-xs text-muted">
-        Loading invoice #{invoiceId}...
+      <div className="max-w-5xl mx-auto space-y-6 pt-4">
+        <LoadingState variant="form" rows={8} />
       </div>
     );
   }
