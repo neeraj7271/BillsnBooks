@@ -602,9 +602,9 @@ function NewInvoiceContent() {
             </div>
           )}
 
-          {/* MODE 2: PREVIEW MODE (Preview centered at max-w-4xl, Form completely unmounted) */}
+          {/* MODE 2: PREVIEW MODE (Preview centered at max-w-[820px], Form completely unmounted) */}
           {viewMode === 'preview' && (
-            <div className="max-w-4xl mx-auto w-full space-y-6">
+            <div className="max-w-[820px] mx-auto w-full space-y-6">
               {renderPreview(true)}
             </div>
           )}
@@ -631,8 +631,9 @@ function NewInvoiceContent() {
               </div>
 
               <div
+                data-testid="invoice-preview-scroll"
                 style={{ width: `${100 - splitRatio}%` }}
-                className="shrink-0 min-w-0 pl-4 sticky top-6 max-h-[calc(100vh-120px)] overflow-y-auto space-y-6"
+                className="shrink-0 min-w-0 pl-4 sticky top-0 h-[calc(100vh-theme(spacing.14))] overflow-y-auto space-y-6"
               >
                 {renderPreview(false)}
               </div>

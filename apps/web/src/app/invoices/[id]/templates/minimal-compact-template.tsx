@@ -16,14 +16,14 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
   const billingCity = invoice.billingAddressSnapshot?.city || invoice.party?.billingCity || '';
   const billingState = invoice.billingAddressSnapshot?.state || invoice.party?.billingState || 'India';
 
-  const companyName = company?.legalName || 'Acme Global Technologies Pvt Ltd';
+  const companyName = company?.legalName || invoice.companyLegalNameSnapshot || 'Acme Global Technologies Pvt Ltd';
   const branch =
     company?.branches?.find((b: any) => b.id === invoice.branchId) ||
     company?.branches?.[0];
 
   const isCompanyGstRegistered = Boolean(branch?.gstin && branch.gstin.trim() !== '');
   const companyGstin = isCompanyGstRegistered ? branch.gstin.trim() : null;
-  const companyPan = company?.pan || (companyGstin ? companyGstin.substring(2, 12) : null);
+  const companyPan = company?.pan || invoice.companyPanSnapshot || (companyGstin ? companyGstin.substring(2, 12) : null);
   const companyStateCode = branch?.stateCode || (companyGstin ? companyGstin.substring(0, 2) : '08');
   const companyState = branch?.state || INDIAN_GST_STATES[companyStateCode]?.name || 'Rajasthan';
 
