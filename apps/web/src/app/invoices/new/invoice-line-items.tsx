@@ -27,7 +27,7 @@ export function InvoiceLineItems({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-secondary">
           Billable Items & Services
         </h3>
         <Button variant="outline" size="xs" onClick={onAddLineItem} leftIcon={<Plus className="h-3.5 w-3.5" />}>
@@ -35,9 +35,9 @@ export function InvoiceLineItems({
         </Button>
       </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
+      <div className="rounded-xl border border-default overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 font-semibold text-slate-500 text-[11px]">
+          <thead className="bg-surface-sunken border-b border-default font-semibold text-secondary text-[11px]">
             <tr>
               <th className="py-2.5 px-3 min-w-[200px]">Item / Service</th>
               <th className="py-2.5 px-2 w-24">HSN/SAC</th>
@@ -51,7 +51,7 @@ export function InvoiceLineItems({
               <th className="py-2.5 px-2 w-10 text-center"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+          <tbody className="divide-y divide-border-subtle">
             {lineItems.map((line, idx) => {
               const comp = computedTotals.computedLines[idx];
               return (
@@ -120,7 +120,7 @@ export function InvoiceLineItems({
                         }}
                         placeholder="0"
                       />
-                      <span className="absolute right-2 top-2 text-[10px] font-bold text-slate-400 pointer-events-none">
+                      <span className="absolute right-2 top-2 text-[10px] font-bold text-muted pointer-events-none">
                         %
                       </span>
                     </div>
@@ -142,7 +142,7 @@ export function InvoiceLineItems({
                   <td className="p-2 text-right">
                     <MoneyText amount={comp?.taxable || 0} />
                   </td>
-                  <td className="p-2 text-right font-bold text-slate-900 dark:text-white">
+                  <td className="p-2 text-right font-bold text-primary">
                     <MoneyText amount={comp?.total || 0} />
                   </td>
                   <td className="p-2 text-center">
@@ -152,7 +152,7 @@ export function InvoiceLineItems({
                       disabled={lineItems.length <= 1}
                       onClick={() => onRemoveLineItem(idx)}
                       aria-label="Remove line item"
-                      className="text-slate-400 hover:text-rose-600"
+                      className="text-muted hover:text-status-danger-text"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

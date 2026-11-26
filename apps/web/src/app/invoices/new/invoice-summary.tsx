@@ -29,7 +29,7 @@ export function InvoiceSummary({
   const isHighValue = computedTotals.grandTotal > 50000;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-default">
       <div>
         <FormField label="Invoice Notes / Terms & Conditions" id="inv-notes">
           <Input
@@ -41,9 +41,9 @@ export function InvoiceSummary({
         </FormField>
 
         {isHighValue && (
-          <div className="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs flex items-center gap-2.5">
-            <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
-            <div className="text-amber-800 dark:text-amber-300">
+          <div className="mt-4 p-3 rounded-xl bg-status-warning-subtle border border-status-warning text-xs flex items-center gap-2.5">
+            <Clock className="h-4 w-4 text-status-warning-text shrink-0" />
+            <div className="text-status-warning-text">
               <span className="font-bold">Maker-Checker Quarantine:</span> Invoices &gt; ₹50,000 will be held in the Approval Inbox for CA partner sign-off before posting to general ledger.
             </div>
           </div>
@@ -52,40 +52,40 @@ export function InvoiceSummary({
 
       <Card>
         <CardContent className="p-4 space-y-2.5 text-xs">
-          <div className="flex justify-between text-slate-600 dark:text-slate-400">
+          <div className="flex justify-between text-secondary">
             <span>Taxable Subtotal:</span>
             <MoneyText amount={computedTotals.subtotal} />
           </div>
 
           {isIntraState ? (
             <>
-              <div className="flex justify-between text-slate-600 dark:text-slate-400">
+              <div className="flex justify-between text-secondary">
                 <span>Central GST (CGST):</span>
                 <MoneyText amount={computedTotals.totalCgst} />
               </div>
-              <div className="flex justify-between text-slate-600 dark:text-slate-400">
+              <div className="flex justify-between text-secondary">
                 <span>State GST (SGST):</span>
                 <MoneyText amount={computedTotals.totalSgst} />
               </div>
             </>
           ) : (
-            <div className="flex justify-between text-slate-600 dark:text-slate-400">
+            <div className="flex justify-between text-secondary">
               <span>Integrated GST (IGST):</span>
               <MoneyText amount={computedTotals.totalIgst} />
             </div>
           )}
 
           {computedTotals.roundOff !== 0 && (
-            <div className="flex justify-between text-slate-400 text-[11px]">
+            <div className="flex justify-between text-muted text-[11px]">
               <span>Round-off:</span>
               <MoneyText amount={computedTotals.roundOff} />
             </div>
           )}
 
           {/* Highlighted Total Amount Due */}
-          <div className="mt-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex justify-between items-baseline">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Total Amount Due:</span>
-            <span className="text-xl font-black font-mono text-blue-600 dark:text-blue-400">
+          <div className="mt-3 p-3 rounded-xl bg-surface-sunken border border-subtle flex justify-between items-baseline">
+            <span className="text-xs font-bold uppercase tracking-wider text-secondary">Total Amount Due:</span>
+            <span className="text-xl font-black font-mono text-brand-text">
               <MoneyText amount={computedTotals.grandTotal} />
             </span>
           </div>
@@ -96,18 +96,18 @@ export function InvoiceSummary({
               type="button"
               onClick={onSubmit}
               disabled={submitting || submittingDraft}
-              className="w-full h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 hover:from-blue-700 hover:via-blue-700 hover:to-indigo-700 active:scale-[0.99] text-white font-bold text-sm shadow-md hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full h-11 px-6 rounded-xl bg-brand hover:bg-brand-hover active:scale-[0.99] text-inverse font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
             >
               {submitting ? (
                 <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="h-4 w-4 border-2 border-inverse/30 border-t-inverse rounded-full animate-spin" />
                   Generating Invoice & Posting...
                 </span>
               ) : (
                 <>
-                  <CheckCircle2 className="h-4 w-4 text-blue-200 group-hover:scale-110 transition-transform" />
+                  <CheckCircle2 className="h-4 w-4 text-inverse group-hover:scale-110 transition-transform" />
                   <span className="tracking-wide">Create Tax Invoice & Post</span>
-                  <span className="text-blue-200 text-xs font-normal ml-0.5 group-hover:translate-x-0.5 transition-transform">→</span>
+                  <span className="text-inverse text-xs font-normal ml-0.5 group-hover:translate-x-0.5 transition-transform">→</span>
                 </>
               )}
             </button>
@@ -118,15 +118,15 @@ export function InvoiceSummary({
                   type="button"
                   onClick={onSaveDraft}
                   disabled={submitting || submittingDraft}
-                  className="text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1.5 py-1 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer disabled:opacity-50"
+                  className="text-xs font-medium text-secondary hover:text-primary flex items-center gap-1.5 py-1 px-2 rounded-lg hover:bg-surface-sunken transition cursor-pointer disabled:opacity-50"
                 >
-                  <FileText className="h-3.5 w-3.5 text-slate-400" />
+                  <FileText className="h-3.5 w-3.5 text-muted" />
                   <span>{submittingDraft ? 'Saving Draft...' : 'Save as Unposted Draft'}</span>
                 </button>
               ) : <div />}
 
-              <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-[11px] text-muted flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-status-success-text" />
                 GST Section 31
               </span>
             </div>
