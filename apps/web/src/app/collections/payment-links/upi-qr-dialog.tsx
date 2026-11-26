@@ -49,7 +49,7 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-success text-status-success-text text-status-success-text">
               <QrIcon className="h-5 w-5" />
             </div>
             <div>
@@ -63,7 +63,7 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
 
         <div className="flex flex-col items-center justify-center py-4 text-center">
           {/* Card containing the white QR surface for maximum scanner contrast */}
-          <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-slate-200">
+          <div className="rounded-2xl bg-white p-4 shadow-md ring-1 ring-border-focus">
             <QrCode
               value={upiIntentUrl}
               size={220}
@@ -74,10 +74,10 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
           </div>
 
           <div className="mt-4 flex flex-col items-center gap-1">
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+            <span className="text-xs uppercase tracking-wider text-muted font-semibold">
               Total Amount Payable
             </span>
-            <div className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <div className="text-2xl font-bold tracking-tight text-primary dark:text-white">
               <MoneyText amount={paymentLink.amount} currency={paymentLink.currency || 'INR'} />
             </div>
             <div className="mt-1 flex items-center gap-2">
@@ -92,9 +92,9 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
             </div>
           </div>
 
-          <div className="mt-4 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted text-muted">
             <Smartphone className="h-4 w-4" />
-            <span>VPA: <strong className="text-slate-800 dark:text-slate-200">{vpa}</strong></span>
+            <span>VPA: <strong className="text-primary text-primary-inverse">{vpa}</strong></span>
           </div>
         </div>
 
@@ -107,7 +107,7 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
           >
             {copied ? (
               <>
-                <Check className="h-4 w-4 text-emerald-500" />
+                <Check className="h-4 w-4 text-status-success-text" />
                 Copied Link
               </>
             ) : (

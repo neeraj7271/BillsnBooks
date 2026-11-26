@@ -38,21 +38,21 @@ export function Step2Mapping({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="rounded-xl border border border-strong overflow-hidden">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 font-semibold text-slate-500">
+            <thead className="bg-canvas bg-surface-raised border-b border border-strong font-semibold text-muted">
               <tr>
                 <th className="py-2.5 px-4">Uploaded File Header</th>
                 <th className="py-2.5 px-4">Canonical Platform Field</th>
                 <th className="py-2.5 px-4 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-subtle divide-strong">
               {detectedHeaders.map((header) => {
                 const mappedVal = mapping[header] || '';
                 return (
                   <tr key={header}>
-                    <td className="py-3 px-4 font-mono font-semibold text-slate-800 dark:text-slate-200">
+                    <td className="py-3 px-4 font-mono font-semibold text-primary text-primary-inverse">
                       {header}
                     </td>
                     <td className="py-3 px-4">

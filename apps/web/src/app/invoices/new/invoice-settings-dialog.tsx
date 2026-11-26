@@ -174,7 +174,7 @@ export function InvoiceSettingsDialog({
       <DialogContent size="md" className="max-w-xl">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="h-9 w-9 rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus flex items-center justify-center text-brand-text text-brand">
               <Settings className="h-4 w-4" />
             </div>
             <div>
@@ -187,24 +187,24 @@ export function InvoiceSettingsDialog({
         </DialogHeader>
 
         {/* Document Type Scope Banner */}
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs">
-          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-            <Layers className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            <span>Configuring Series for: <strong className="text-slate-900 dark:text-white">{docTypeLabel}</strong></span>
+        <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken bg-surface-raised border border border-strong text-xs">
+          <div className="flex items-center gap-2 text-secondary text-muted">
+            <Layers className="h-3.5 w-3.5 text-brand-text text-brand" />
+            <span>Configuring Series for: <strong className="text-primary dark:text-white">{docTypeLabel}</strong></span>
           </div>
           <Badge variant="brand" size="xs">Independent Series</Badge>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs text-status-danger-text text-status-danger-text flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-status-danger-text shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {savedMsg && (
-          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-300 font-medium flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="p-3 rounded-xl bg-status-success-subtle bg-status-success border border-status-success border-status-success text-xs text-status-success-text text-status-success-text font-medium flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-status-success-text shrink-0" />
             <span>Series settings saved and applied!</span>
           </div>
         )}
@@ -212,7 +212,7 @@ export function InvoiceSettingsDialog({
         <form onSubmit={handleApply} className="space-y-4 text-xs">
           {/* Mode Selector */}
           <div>
-            <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+            <label className="font-semibold text-secondary text-muted block mb-1.5">
               Numbering Mode
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -221,8 +221,8 @@ export function InvoiceSettingsDialog({
                 onClick={() => setMode('AUTO')}
                 className={`p-3 rounded-xl border text-left transition ${
                   mode === 'AUTO'
-                    ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-bold shadow-2xs'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400'
+                    ? 'border-focus bg-brand-subtle/60 bg-brand/50 text-brand-text text-brand font-bold shadow-2xs'
+                    : 'border border-strong hover:bg-canvas hover:bg-surface-raised text-secondary text-muted'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -239,8 +239,8 @@ export function InvoiceSettingsDialog({
                 onClick={() => setMode('CUSTOM')}
                 className={`p-3 rounded-xl border text-left transition ${
                   mode === 'CUSTOM'
-                    ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-bold shadow-2xs'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400'
+                    ? 'border-focus bg-brand-subtle/60 bg-brand/50 text-brand-text text-brand font-bold shadow-2xs'
+                    : 'border border-strong hover:bg-canvas hover:bg-surface-raised text-secondary text-muted'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">
@@ -256,7 +256,7 @@ export function InvoiceSettingsDialog({
 
           {/* Configuration Inputs */}
           {mode === 'CUSTOM' ? (
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="p-3.5 rounded-xl bg-canvas bg-surface border border border-strong space-y-2">
               <FormField label="Custom Invoice Number" required id="custom-inv-num">
                 <Input
                   id="custom-inv-num"
@@ -267,12 +267,12 @@ export function InvoiceSettingsDialog({
                   className="font-mono uppercase font-bold text-sm"
                 />
               </FormField>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-muted">
                 This exact custom number will be assigned to this specific document upon creation.
               </p>
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
+            <div className="p-3.5 rounded-xl bg-canvas bg-surface border border border-strong space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField label="Prefix" id="seq-prefix">
                   <Input
@@ -326,16 +326,16 @@ export function InvoiceSettingsDialog({
               </div>
 
               {/* Live Preview Display */}
-              <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="pt-2.5 border-t border border-strong flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block">
+                  <span className="text-[11px] text-muted text-muted font-semibold uppercase tracking-wider block">
                     Next Document Number Preview:
                   </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                  <span className="text-[10px] text-muted text-muted">
                     Will be allocated to the next {docTypeLabel} saved
                   </span>
                 </div>
-                <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-sm px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-900 shadow-2xs">
+                <span className="font-mono font-black text-brand-text text-brand text-sm px-3 py-1.5 rounded-lg bg-brand-subtle bg-brand/80 border border-focus border-focus shadow-2xs">
                   {previewAuto}
                 </span>
               </div>
@@ -344,8 +344,8 @@ export function InvoiceSettingsDialog({
 
           {/* Default Invoice PDF Template */}
           <div>
-            <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1.5 flex items-center gap-1.5">
-              <LayoutTemplate className="w-3.5 h-3.5 text-blue-500" />
+            <label className="font-semibold text-secondary text-muted block mb-1.5 flex items-center gap-1.5">
+              <LayoutTemplate className="w-3.5 h-3.5 text-brand-text" />
               <span>Default Invoice PDF Template</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -358,13 +358,13 @@ export function InvoiceSettingsDialog({
                     onClick={() => setDefaultTemplate(tmpl.id)}
                     className={`p-2.5 rounded-xl border text-left transition select-none ${
                       isSelected
-                        ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-bold shadow-2xs'
-                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400'
+                        ? 'border-focus bg-brand-subtle/60 bg-brand/50 text-brand-text text-brand font-bold shadow-2xs'
+                        : 'border border-strong hover:bg-canvas hover:bg-surface-raised text-secondary text-muted'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-bold leading-tight">{tmpl.name}</span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-brand-text text-brand shrink-0" />}
                     </div>
                     <div className="text-[10px] opacity-75 font-normal line-clamp-2 leading-snug">
                       {tmpl.tagline}
@@ -385,15 +385,15 @@ export function InvoiceSettingsDialog({
             />
           </FormField>
 
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-            <div className="text-slate-600 dark:text-slate-400">
+          <div className="p-3 rounded-xl bg-canvas bg-surface border border border-strong flex items-center justify-between text-xs">
+            <div className="text-secondary text-muted">
               Company Logo, Signature/DSC & Payment QR
             </div>
             <a
               href="/settings/invoice-branding"
               target="_blank"
               rel="noreferrer"
-              className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+              className="text-brand-text text-brand font-semibold hover:underline"
             >
               Configure Branding →
             </a>

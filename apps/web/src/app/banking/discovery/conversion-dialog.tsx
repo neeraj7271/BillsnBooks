@@ -82,7 +82,7 @@ export function ConversionDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}

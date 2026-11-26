@@ -71,7 +71,7 @@ export function UploadClientDocDialog({
           </DialogHeader>
 
           {error && (
-            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <div className="p-3 rounded-lg bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs text-status-danger-text text-status-danger-text font-medium">
               {error}
             </div>
           )}
@@ -85,11 +85,11 @@ export function UploadClientDocDialog({
               />
             </FormField>
 
-            <div className="p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 text-center space-y-1">
-              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <div className="p-4 rounded-xl border border-dashed border border-strong bg-canvas bg-surface-raised text-center space-y-1">
+              <p className="text-xs font-semibold text-secondary text-muted">
                 Encrypted & Signed Storage Vault
               </p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-muted">
                 Uploaded documents are cryptographically SHA-256 hashed and scanned for virus signatures.
               </p>
             </div>

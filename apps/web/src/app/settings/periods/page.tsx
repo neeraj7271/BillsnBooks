@@ -78,7 +78,7 @@ export default function PeriodsPage() {
     {
       key: 'periodName',
       header: 'Period Name',
-      cell: (p) => <span className="font-bold text-slate-900 dark:text-white text-sm">{p.periodName}</span>,
+      cell: (p) => <span className="font-bold text-primary dark:text-white text-sm">{p.periodName}</span>,
     },
     {
       key: 'startDate',
@@ -104,7 +104,7 @@ export default function PeriodsPage() {
       key: 'audit',
       header: 'Audit Information',
       cell: (p) => (
-        <span className="text-[11px] text-slate-500">
+        <span className="text-[11px] text-muted">
           {p.isLocked && p.lockedAt ? `Locked on ${new Date(p.lockedAt).toLocaleDateString('en-IN')}` : 'Open for journal entry'}
         </span>
       ),
@@ -133,37 +133,37 @@ export default function PeriodsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
               Accounting Period Locks &amp; Month-End Closing
             </h1>
             <Badge variant="brand" size="sm">Audit Lock</Badge>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted text-muted">
             Enforce audit integrity by locking closed accounting periods to prevent unauthorized retroactive edits.
           </p>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-4 text-xs font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+        <div className="rounded-xl border border-status-danger border-status-danger bg-status-danger-subtle bg-status-danger p-4 text-xs font-semibold text-status-danger-text text-status-danger-text flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0 text-status-danger-text" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 p-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+        <div className="rounded-xl border border-status-success border-status-success bg-status-success-subtle bg-status-success p-4 text-xs font-semibold text-status-success-text text-status-success-text flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success-text" />
           <span>{success}</span>
         </div>
       )}
 
       {/* Info Notice */}
-      <div className="rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 p-5 flex items-start gap-3">
-        <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-        <div className="text-xs text-blue-900 dark:text-blue-200 space-y-1">
+      <div className="rounded-2xl border border-focus border-focus bg-brand-subtle/50 bg-brand/20 p-5 flex items-start gap-3">
+        <ShieldCheck className="h-5 w-5 text-brand-text text-brand shrink-0 mt-0.5" />
+        <div className="text-xs text-brand-text text-brand space-y-1">
           <p className="font-bold">Automated Statutory Safeguard:</p>
-          <p className="text-blue-700 dark:text-blue-300">
+          <p className="text-brand-text text-brand">
             When a period is locked, the Accounting Core strictly rejects any voucher creation, bulk import post, or bank match within the period window.
           </p>
         </div>

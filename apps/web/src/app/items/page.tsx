@@ -239,7 +239,7 @@ export default function ItemsPage() {
       header: 'SKU / Code',
       width: '120px',
       cell: (it) => (
-        <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
+        <span className="font-mono font-bold text-xs text-brand-text text-brand">
           {it.itemCode}
         </span>
       ),
@@ -249,9 +249,9 @@ export default function ItemsPage() {
       header: 'Item & Description',
       cell: (it) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{it.name}</div>
+          <div className="font-bold text-primary dark:text-white">{it.name}</div>
           {it.description && (
-            <div className="text-[11px] text-slate-400 truncate max-w-xs">{it.description}</div>
+            <div className="text-[11px] text-muted truncate max-w-xs">{it.description}</div>
           )}
         </div>
       ),
@@ -269,7 +269,7 @@ export default function ItemsPage() {
       key: 'hsnSacCode',
       header: 'HSN / SAC',
       cell: (it) => (
-        <span className="font-mono text-xs text-slate-600 dark:text-slate-400 font-medium">
+        <span className="font-mono text-xs text-secondary text-muted font-medium">
           {it.hsnSacCode}
         </span>
       ),
@@ -291,7 +291,7 @@ export default function ItemsPage() {
       cell: (it) => (
         <div className="text-right">
           <MoneyText amount={it.unitPrice} />
-          <span className="text-[10px] text-slate-400 ml-1 uppercase font-mono">/ {it.uom}</span>
+          <span className="text-[10px] text-muted ml-1 uppercase font-mono">/ {it.uom}</span>
         </div>
       ),
     },
@@ -304,7 +304,7 @@ export default function ItemsPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-brand-text hover:bg-brand-subtle hover:bg-brand/40"
             title="View full item profile"
             onClick={() => setSelectedItemForView(it)}
           >
@@ -313,7 +313,7 @@ export default function ItemsPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-status-success-text hover:bg-status-success-subtle hover:bg-status-success"
             title="Edit item"
             onClick={() => handleOpenEdit(it)}
           >
@@ -322,7 +322,7 @@ export default function ItemsPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle hover:bg-status-danger"
             title="Delete / Deactivate"
             onClick={() => handleOpenDelete(it)}
           >
@@ -340,7 +340,7 @@ export default function ItemsPage() {
       header: 'Unit Code (UOM / UQC)',
       width: '160px',
       cell: (u) => (
-        <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+        <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-brand-subtle bg-brand text-brand-text text-brand">
           {u.code}
         </span>
       ),
@@ -350,8 +350,8 @@ export default function ItemsPage() {
       header: 'Unit Description / Full Name',
       cell: (u) => (
         <div>
-          <span className="font-bold text-slate-900 dark:text-white">{u.name}</span>
-          {u.description && <div className="text-[11px] text-slate-400">{u.description}</div>}
+          <span className="font-bold text-primary dark:text-white">{u.name}</span>
+          {u.description && <div className="text-[11px] text-muted">{u.description}</div>}
         </div>
       ),
     },
@@ -368,7 +368,7 @@ export default function ItemsPage() {
       key: 'category',
       header: 'Category',
       cell: (u) => (
-        <span className="font-mono text-[11px] text-slate-500 uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800">
+        <span className="font-mono text-[11px] text-muted uppercase px-1.5 py-0.5 rounded bg-surface-sunken bg-surface-raised">
           {u.category}
         </span>
       ),
@@ -392,7 +392,7 @@ export default function ItemsPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-brand-text hover:bg-brand-subtle hover:bg-brand/40"
             title="View unit details and catalog usage"
             onClick={() => setSelectedUnitForView(u)}
           >
@@ -403,7 +403,7 @@ export default function ItemsPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+              className="h-8 w-8 p-0 text-muted hover:text-status-success-text hover:bg-status-success-subtle hover:bg-status-success"
               title={`Edit custom unit ${u.code}`}
               onClick={() => setSelectedUnitForEdit(u)}
             >
@@ -414,7 +414,7 @@ export default function ItemsPage() {
               variant="ghost"
               size="sm"
               disabled
-              className="h-8 w-8 p-0 text-slate-300 dark:text-slate-600 opacity-50 cursor-not-allowed"
+              className="h-8 w-8 p-0 text-muted text-secondary opacity-50 cursor-not-allowed"
               title="Statutory GST standard units are system-locked and cannot be modified"
             >
               <Lock className="h-3 w-3" />
@@ -425,7 +425,7 @@ export default function ItemsPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+              className="h-8 w-8 p-0 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle hover:bg-status-danger"
               title={`Delete custom unit ${u.code}`}
               onClick={() => setSelectedUnitForDelete(u)}
             >
@@ -436,7 +436,7 @@ export default function ItemsPage() {
               variant="ghost"
               size="sm"
               disabled
-              className="h-8 w-8 p-0 text-slate-300 dark:text-slate-600 opacity-40 cursor-not-allowed"
+              className="h-8 w-8 p-0 text-muted text-secondary opacity-40 cursor-not-allowed"
               title="Statutory GST standard units cannot be deleted"
             >
               <Trash2 className="h-3 w-3" />
@@ -450,7 +450,7 @@ export default function ItemsPage() {
   return (
     <div className="space-y-6">
       {/* Top Main Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <div className="flex items-center gap-2 border-b border border-strong pb-3">
         <button
           type="button"
           onClick={() => {
@@ -459,13 +459,13 @@ export default function ItemsPage() {
           }}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${
             mainView === 'ITEMS'
-              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 shadow-xs'
-              : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-brand-subtle bg-brand/60 text-brand-text text-brand shadow-xs'
+              : 'text-muted hover:text-primary dark:hover:text-white'
           }`}
         >
           <Boxes className="h-4 w-4" />
           <span>Products & Services Catalog</span>
-          <span className="text-xs px-1.5 py-0.2 rounded-full bg-blue-200/60 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-semibold">
+          <span className="text-xs px-1.5 py-0.2 rounded-full bg-brand-subtle/60 bg-brand text-brand-text text-brand font-semibold">
             {items.length}
           </span>
         </button>
@@ -479,13 +479,13 @@ export default function ItemsPage() {
           }}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${
             mainView === 'UNITS'
-              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 shadow-xs'
-              : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-brand-subtle bg-brand/60 text-brand-text text-brand shadow-xs'
+              : 'text-muted hover:text-primary dark:hover:text-white'
           }`}
         >
           <Scale className="h-4 w-4" />
           <span>Units of Measure (UOM Master)</span>
-          <span className="text-xs px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
+          <span className="text-xs px-1.5 py-0.2 rounded-full bg-surface-sunken bg-surface-raised text-secondary text-muted font-semibold">
             {units.length}
           </span>
         </button>
@@ -498,12 +498,12 @@ export default function ItemsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
                   Item & Service Master
                 </h1>
                 <Badge variant="neutral" size="sm">{filteredItems.length} Products</Badge>
               </div>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm text-muted text-muted">
                 Catalog of billable goods and professional services with statutory HSN/SAC codes.
               </p>
             </div>
@@ -541,7 +541,7 @@ export default function ItemsPage() {
               />
             </div>
 
-            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <div className="flex items-center gap-1.5 p-1 bg-surface-sunken bg-surface-raised rounded-xl">
               {['ALL', 'SERVICES', 'GOODS'].map((t) => (
                 <button
                   key={t}
@@ -551,8 +551,8 @@ export default function ItemsPage() {
                   }}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                     filterType === t
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
+                      : 'text-muted hover:text-primary dark:hover:text-white'
                   }`}
                 >
                   {t === 'ALL' ? 'All Items' : t === 'SERVICES' ? 'Services' : 'Goods'}
@@ -581,12 +581,12 @@ export default function ItemsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
                   Units of Measurement (UOM Master)
                 </h1>
                 <Badge variant="neutral" size="sm">{filteredUnits.length} Units</Badge>
               </div>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm text-muted text-muted">
                 Official statutory GST e-Invoicing UQC codes and custom company units.
               </p>
             </div>
@@ -616,7 +616,7 @@ export default function ItemsPage() {
               />
             </div>
 
-            <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <div className="flex items-center gap-1.5 p-1 bg-surface-sunken bg-surface-raised rounded-xl">
               {[
                 { label: 'All Units', value: 'ALL' },
                 { label: 'Custom Units', value: 'CUSTOM' },
@@ -630,8 +630,8 @@ export default function ItemsPage() {
                   }}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                     unitFilter === t.value
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
+                      : 'text-muted hover:text-primary dark:hover:text-white'
                   }`}
                 >
                   {t.label}
@@ -702,16 +702,16 @@ export default function ItemsPage() {
           </DialogHeader>
 
           {deleteError ? (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-400 space-y-1">
+            <div className="p-3.5 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs text-status-danger-text text-status-danger-text space-y-1">
               <div className="font-semibold flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4 text-rose-600" />
+                <AlertCircle className="w-4 h-4 text-status-danger-text" />
                 Accounting Protection Alert
               </div>
               <p>{deleteError}</p>
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-400">
-              <span className="font-semibold text-slate-800 dark:text-slate-200 block mb-1">
+            <div className="p-3.5 rounded-xl bg-canvas bg-surface-raised border border border-strong text-xs text-secondary text-muted">
+              <span className="font-semibold text-primary text-primary-inverse block mb-1">
                 Double-Entry Accounting & Statutory Safeguard:
               </span>
               If this item has been used on issued invoices, deletion is safely blocked to protect billing registers. If unused, it will be deactivated and removed from active catalogs.

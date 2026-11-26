@@ -76,7 +76,7 @@ export function MissingMastersModal({
       <DialogContent size="lg">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full bg-status-warning-subtle bg-status-warning text-status-warning-text flex items-center justify-center">
               <AlertTriangle className="h-4 w-4" />
             </div>
             <div>
@@ -90,8 +90,8 @@ export function MissingMastersModal({
 
         <div className="space-y-4 py-2">
           {/* Summary Badges */}
-          <div className="flex items-center gap-2 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">To be created:</span>
+          <div className="flex items-center gap-2 p-3 bg-canvas bg-surface rounded-xl border border border-strong text-xs">
+            <span className="font-semibold text-secondary text-muted">To be created:</span>
             <Badge variant="warning">{scanData.missingParties.length} New Parties</Badge>
             <Badge variant="brand">{scanData.missingItems.length} New Products/Services</Badge>
             {scanData.unmappedUnits.length > 0 && (
@@ -100,13 +100,13 @@ export function MissingMastersModal({
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex border-b border-slate-200 dark:border-slate-800 text-xs">
+          <div className="flex border-b border border-strong text-xs">
             <button
               type="button"
               className={`pb-2 px-3 font-semibold border-b-2 flex items-center gap-1.5 ${
                 activeTab === 'PARTIES'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
+                  ? 'border-focus text-brand-text'
+                  : 'border-transparent text-muted hover:text-primary'
               }`}
               onClick={() => setActiveTab('PARTIES')}
             >
@@ -117,8 +117,8 @@ export function MissingMastersModal({
               type="button"
               className={`pb-2 px-3 font-semibold border-b-2 flex items-center gap-1.5 ${
                 activeTab === 'ITEMS'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
+                  ? 'border-focus text-brand-text'
+                  : 'border-transparent text-muted hover:text-primary'
               }`}
               onClick={() => setActiveTab('ITEMS')}
             >
@@ -129,12 +129,12 @@ export function MissingMastersModal({
 
           {/* Tab 1: Parties */}
           {activeTab === 'PARTIES' && (
-            <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <div className="max-h-60 overflow-y-auto rounded-xl border border border-strong divide-y divide-subtle divide-strong text-xs">
               {scanData.missingParties.map((p, idx) => (
-                <div key={idx} className="p-3 flex items-center justify-between hover:bg-slate-50/50">
+                <div key={idx} className="p-3 flex items-center justify-between hover:bg-canvas">
                   <div>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{p.name}</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="font-semibold text-primary text-primary-inverse">{p.name}</p>
+                    <p className="text-[11px] text-muted">
                       GSTIN: {p.gstin || 'Unregistered'} • State: {p.stateCode || '27'}
                     </p>
                   </div>
@@ -146,12 +146,12 @@ export function MissingMastersModal({
 
           {/* Tab 2: Items */}
           {activeTab === 'ITEMS' && (
-            <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <div className="max-h-60 overflow-y-auto rounded-xl border border border-strong divide-y divide-subtle divide-strong text-xs">
               {scanData.missingItems.map((item, idx) => (
-                <div key={idx} className="p-3 flex items-center justify-between hover:bg-slate-50/50">
+                <div key={idx} className="p-3 flex items-center justify-between hover:bg-canvas">
                   <div>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{item.name}</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="font-semibold text-primary text-primary-inverse">{item.name}</p>
+                    <p className="text-[11px] text-muted">
                       HSN: {item.hsnSac || 'Standard'} • UOM: {item.uqc} • Tax Rate: {item.taxRate}%
                     </p>
                   </div>
@@ -163,7 +163,7 @@ export function MissingMastersModal({
         </div>
 
         <DialogFooter className="justify-between items-center">
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-muted">
             Masters will be created with standard GST accounts automatically.
           </p>
           <div className="flex gap-2">

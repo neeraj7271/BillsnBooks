@@ -36,78 +36,78 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
 
   return (
     <>
-      <div className="border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-6 flex justify-between items-start">
+      <div className="border-b border border-strong print:border pb-6 flex justify-between items-start">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 print:text-black">
+            <span className="text-xs font-black uppercase tracking-widest text-brand-text text-brand print:text-black">
               {isCompanyGstRegistered ? 'TAX INVOICE' : 'INVOICE'}
             </span>
-            <span className="text-[10px] text-slate-400 print:text-slate-600 font-semibold">
+            <span className="text-[10px] text-muted print:text-secondary font-semibold">
               {isCompanyGstRegistered ? '(Original for Recipient — GST Rule 46)' : '(Commercial Invoice)'}
             </span>
           </div>
-          <h2 className="text-xl font-black mt-1 text-slate-900 dark:text-white print:text-black">
+          <h2 className="text-xl font-black mt-1 text-primary dark:text-white print:text-black">
             {companyName}
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 print:text-slate-700 mt-0.5">
+          <p className="text-xs text-muted text-muted print:text-secondary mt-0.5">
             {companyAddr}
           </p>
-          <div className="mt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-600 dark:text-slate-400 print:text-black">
+          <div className="mt-2 flex flex-wrap gap-4 text-xs font-mono text-secondary text-muted print:text-black">
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 print:text-black">GSTIN:</span>{' '}
-              {companyGstin || <span className="italic font-sans text-slate-400">Unregistered</span>}
+              <span className="font-bold text-primary text-primary-inverse print:text-black">GSTIN:</span>{' '}
+              {companyGstin || <span className="italic font-sans text-muted">Unregistered</span>}
             </div>
             {companyPan && (
               <div>
-                <span className="font-bold text-slate-800 dark:text-slate-200 print:text-black">PAN:</span> {companyPan}
+                <span className="font-bold text-primary text-primary-inverse print:text-black">PAN:</span> {companyPan}
               </div>
             )}
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 print:text-black">State Code:</span> {companyStateCode} ({companyStateName})
+              <span className="font-bold text-primary text-primary-inverse print:text-black">State Code:</span> {companyStateCode} ({companyStateName})
             </div>
           </div>
         </div>
 
         <div className="text-right">
-          <div className="text-xs text-slate-400 print:text-slate-600 uppercase font-bold tracking-wider">
+          <div className="text-xs text-muted print:text-secondary uppercase font-bold tracking-wider">
             Invoice Number
           </div>
-          <div className="text-lg font-black font-mono text-slate-900 dark:text-white print:text-black">
+          <div className="text-lg font-black font-mono text-primary dark:text-white print:text-black">
             {invoice.invoiceNumber}
           </div>
-          <div className="mt-2 text-xs space-y-0.5 text-slate-600 dark:text-slate-400 print:text-slate-800">
+          <div className="mt-2 text-xs space-y-0.5 text-secondary text-muted print:text-primary">
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300 print:text-black">Invoice Date:</span> <DateText date={invoice.invoiceDate} />
+              <span className="font-bold text-secondary text-muted print:text-black">Invoice Date:</span> <DateText date={invoice.invoiceDate} />
             </div>
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300 print:text-black">Payment Due:</span> <DateText date={invoice.dueDate} />
+              <span className="font-bold text-secondary text-muted print:text-black">Payment Due:</span> <DateText date={invoice.dueDate} />
             </div>
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300 print:text-black">Place of Supply:</span> State Code {invoice.placeOfSupplyStateCode}
+              <span className="font-bold text-secondary text-muted print:text-black">Place of Supply:</span> State Code {invoice.placeOfSupplyStateCode}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="py-6 border-b border-slate-200 dark:border-slate-800 print:border-slate-300 grid grid-cols-2 gap-8 text-xs">
+      <div className="py-6 border-b border border-strong print:border grid grid-cols-2 gap-8 text-xs">
         <div>
-          <div className="font-bold uppercase tracking-wider text-slate-400 print:text-slate-600 text-[10px] mb-1">
+          <div className="font-bold uppercase tracking-wider text-muted print:text-secondary text-[10px] mb-1">
             Billed To (Customer):
           </div>
-          <div className="text-sm font-bold text-slate-900 dark:text-white print:text-black">
+          <div className="text-sm font-bold text-primary dark:text-white print:text-black">
             {partyName}
           </div>
           {partyTradeName && (
-            <div className="text-xs text-slate-500 print:text-slate-600">
+            <div className="text-xs text-muted print:text-secondary">
               Trade Name: {partyTradeName}
             </div>
           )}
-          <div className="text-slate-600 dark:text-slate-400 print:text-slate-800 mt-1">
+          <div className="text-secondary text-muted print:text-primary mt-1">
             {billingAddr}
             {billingCity && `, ${billingCity}`}
             {billingPincode && ` - ${billingPincode}`}
           </div>
-          <div className="mt-2 font-mono text-slate-700 dark:text-slate-300 print:text-black space-y-1">
+          <div className="mt-2 font-mono text-secondary text-muted print:text-black space-y-1">
             <div className="flex items-center gap-1.5">
               <span className="font-bold">Tax Treatment:</span>
               <Badge variant={identity.badgeVariant} size="xs">
@@ -126,21 +126,21 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
         </div>
 
         <div>
-          <div className="font-bold uppercase tracking-wider text-slate-400 print:text-slate-600 text-[10px] mb-1">
+          <div className="font-bold uppercase tracking-wider text-muted print:text-secondary text-[10px] mb-1">
             Remittance Bank Details:
           </div>
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 print:bg-slate-50 border border-slate-100 dark:border-slate-800 print:border-slate-300 text-xs space-y-1">
-            <div className="font-bold text-slate-900 dark:text-white print:text-black">HDFC Bank Limited</div>
-            <div className="text-slate-700 dark:text-slate-300 print:text-black">
-              <span className="text-slate-500 print:text-slate-600">Current A/c:</span>{' '}
+          <div className="p-3 rounded-xl bg-canvas bg-surface-raised print:bg-canvas border border-subtle border-strong print:border text-xs space-y-1">
+            <div className="font-bold text-primary dark:text-white print:text-black">HDFC Bank Limited</div>
+            <div className="text-secondary text-muted print:text-black">
+              <span className="text-muted print:text-secondary">Current A/c:</span>{' '}
               <span className="font-mono font-bold">50200012345678</span>
             </div>
-            <div className="text-slate-700 dark:text-slate-300 print:text-black">
-              <span className="text-slate-500 print:text-slate-600">IFSC Code:</span>{' '}
+            <div className="text-secondary text-muted print:text-black">
+              <span className="text-muted print:text-secondary">IFSC Code:</span>{' '}
               <span className="font-mono font-bold">HDFC0000060</span>
             </div>
-            <div className="text-slate-700 dark:text-slate-300 print:text-black">
-              <span className="text-slate-500 print:text-slate-600">Branch:</span> Nariman Point Commercial Hub
+            <div className="text-secondary text-muted print:text-black">
+              <span className="text-muted print:text-secondary">Branch:</span> Nariman Point Commercial Hub
             </div>
           </div>
         </div>

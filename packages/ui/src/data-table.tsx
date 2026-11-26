@@ -61,10 +61,10 @@ export function DataTable<T extends Record<string, any>>({
   const endItem = page && totalItems ? Math.min(page * pageSize, totalItems) : data.length;
 
   return (
-    <div className={cn('flex flex-col w-full rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 overflow-hidden shadow-xs', className)}>
+    <div className={cn('flex flex-col w-full rounded-2xl border border border-strong bg-white bg-surface overflow-hidden shadow-xs', className)}>
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          <thead className={cn('bg-slate-50/75 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-800/80', stickyHeader && 'sticky top-0 z-10 backdrop-blur-xs')}>
+          <thead className={cn('bg-canvas bg-surface-raised border-b border border-strong', stickyHeader && 'sticky top-0 z-10 backdrop-blur-xs')}>
             <tr>
               {columns.map((col) => {
                 const isSorted = sortColumn === col.key;
@@ -73,11 +73,11 @@ export function DataTable<T extends Record<string, any>>({
                     key={col.key}
                     style={{ width: col.width }}
                     className={cn(
-                      'font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none',
+                      'font-semibold uppercase tracking-wider text-muted text-muted select-none',
                       headerPadding,
                       col.align === 'right' && 'text-right',
                       col.align === 'center' && 'text-center',
-                      col.sortable && 'cursor-pointer hover:text-slate-900 dark:hover:text-slate-100',
+                      col.sortable && 'cursor-pointer hover:text-primary hover:text-primary-inverse',
                       col.className
                     )}
                     onClick={() => col.sortable && onSort?.(col.key)}
@@ -91,12 +91,12 @@ export function DataTable<T extends Record<string, any>>({
                     >
                       <span>{col.header}</span>
                       {col.sortable && (
-                        <span className="text-slate-400">
+                        <span className="text-muted">
                           {isSorted ? (
                             sortDirection === 'asc' ? (
-                              <ChevronUp className="h-3.5 w-3.5 text-blue-600" />
+                              <ChevronUp className="h-3.5 w-3.5 text-brand-text" />
                             ) : (
-                              <ChevronDown className="h-3.5 w-3.5 text-blue-600" />
+                              <ChevronDown className="h-3.5 w-3.5 text-brand-text" />
                             )
                           ) : (
                             <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
@@ -110,7 +110,7 @@ export function DataTable<T extends Record<string, any>>({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+          <tbody className="divide-y divide-subtle divide-strong">
             {loading ? (
               Array.from({ length: 4 }).map((_, rIdx) => (
                 <tr key={`skel-row-${rIdx}`}>
@@ -125,13 +125,13 @@ export function DataTable<T extends Record<string, any>>({
               <tr>
                 <td colSpan={columns.length} className="py-12 px-4 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
-                    <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                    <div className="h-10 w-10 rounded-full bg-surface-sunken bg-surface-raised flex items-center justify-center text-muted">
                       <Inbox className="h-5 w-5" />
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <p className="text-sm font-semibold text-secondary text-muted">
                       {emptyTitle}
                     </p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 max-w-sm">
+                    <p className="text-xs text-muted text-muted max-w-sm">
                       {emptyDescription}
                     </p>
                   </div>
@@ -143,7 +143,7 @@ export function DataTable<T extends Record<string, any>>({
                   key={row.id || `row-${rIdx}`}
                   onClick={() => onRowClick?.(row)}
                   className={cn(
-                    'transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/50',
+                    'transition-colors hover:bg-canvas hover:bg-surface-raised',
                     onRowClick && 'cursor-pointer'
                   )}
                 >
@@ -151,7 +151,7 @@ export function DataTable<T extends Record<string, any>>({
                     <td
                       key={col.key}
                       className={cn(
-                        'text-slate-800 dark:text-slate-200',
+                        'text-primary text-primary-inverse',
                         cellPadding,
                         col.align === 'right' && 'text-right',
                         col.align === 'center' && 'text-center',
@@ -169,11 +169,11 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {page !== undefined && totalItems !== undefined && totalItems > 0 && (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/50">
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startItem}</span> to{' '}
-            <span className="font-semibold text-slate-700 dark:text-slate-200">{endItem}</span> of{' '}
-            <span className="font-semibold text-slate-700 dark:text-slate-200">{totalItems}</span> results
+        <div className="flex items-center justify-between px-4 py-3 border-t border-subtle border-strong bg-canvas bg-surface">
+          <p className="text-xs text-muted text-muted">
+            Showing <span className="font-semibold text-secondary text-primary-inverse">{startItem}</span> to{' '}
+            <span className="font-semibold text-secondary text-primary-inverse">{endItem}</span> of{' '}
+            <span className="font-semibold text-secondary text-primary-inverse">{totalItems}</span> results
           </p>
           <div className="flex items-center gap-1.5">
             <Button
@@ -185,7 +185,7 @@ export function DataTable<T extends Record<string, any>>({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-xs font-semibold px-2 text-slate-600 dark:text-slate-400">
+            <span className="text-xs font-semibold px-2 text-secondary text-muted">
               Page {page} of {totalPages}
             </span>
             <Button

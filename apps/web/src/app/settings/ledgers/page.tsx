@@ -226,18 +226,18 @@ export default function ChartOfAccountsPage() {
       key: 'code',
       header: 'Code',
       width: '100px',
-      cell: (l) => <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">{l.code}</span>,
+      cell: (l) => <span className="font-mono font-bold text-xs text-brand-text text-brand">{l.code}</span>,
     },
     {
       key: 'name',
       header: 'Account Name',
       cell: (l) => (
         <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-900 dark:text-white">{l.name}</span>
+          <span className="font-bold text-primary dark:text-white">{l.name}</span>
           {l.isBankOrCash && <Badge variant="brand" size="xs">Bank / Cash</Badge>}
           {l.isLocked && (
             <span title="Locked System Account">
-              <Lock className="h-3 w-3 text-slate-400 inline" />
+              <Lock className="h-3 w-3 text-muted inline" />
             </span>
           )}
         </div>
@@ -247,7 +247,7 @@ export default function ChartOfAccountsPage() {
       key: 'group',
       header: 'Group & Classification',
       cell: (l) => (
-        <span className="text-xs text-slate-600 dark:text-slate-400">{l.group?.name || 'Unassigned'}</span>
+        <span className="text-xs text-secondary text-muted">{l.group?.name || 'Unassigned'}</span>
       ),
     },
     {
@@ -284,7 +284,7 @@ export default function ChartOfAccountsPage() {
         <div className="flex items-center justify-end gap-1">
           <Link
             href={`/reports/general-ledger?ledgerId=${l.id}`}
-            className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded transition"
+            className="p-1 text-muted hover:text-brand-text hover:bg-brand-subtle hover:bg-brand/40 rounded transition"
             title="View General Ledger Statement"
           >
             <BookOpen className="h-3.5 w-3.5" />
@@ -294,7 +294,7 @@ export default function ChartOfAccountsPage() {
               variant="ghost"
               size="xs"
               onClick={() => handleDeleteLedger(l)}
-              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+              className="text-status-danger-text hover:text-status-danger-text hover:bg-status-danger-subtle hover:bg-status-danger"
               title="Delete ledger"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -325,15 +325,15 @@ export default function ChartOfAccountsPage() {
       <div key={node.id} className="text-xs">
         {/* Group Header Row */}
         <div
-          className={`group flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition ${
-            depth > 0 ? 'ml-6 border-l border-slate-200 dark:border-slate-800 pl-3' : ''
+          className={`group flex items-center justify-between py-2 px-3 rounded-lg hover:bg-surface-sunken/80 hover:bg-surface-raised transition ${
+            depth > 0 ? 'ml-6 border-l border border-strong pl-3' : ''
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => toggleNode(node.id)}
-              className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-0.5 rounded"
+              className="text-muted hover:text-secondary hover:text-primary-inverse p-0.5 rounded"
             >
               {hasChildren ? (
                 isExpanded ? (
@@ -347,16 +347,16 @@ export default function ChartOfAccountsPage() {
             </button>
 
             {isExpanded ? (
-              <FolderOpen className="h-4 w-4 text-blue-500 dark:text-blue-400 shrink-0" />
+              <FolderOpen className="h-4 w-4 text-brand-text text-brand shrink-0" />
             ) : (
-              <Folder className="h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0" />
+              <Folder className="h-4 w-4 text-muted text-muted shrink-0" />
             )}
 
-            <span className="font-mono font-semibold text-blue-600 dark:text-blue-400 text-[11px]">
+            <span className="font-mono font-semibold text-brand-text text-brand text-[11px]">
               {node.code}
             </span>
 
-            <span className="font-bold text-slate-900 dark:text-slate-100 truncate">
+            <span className="font-bold text-primary text-primary-inverse truncate">
               {node.name}
             </span>
 
@@ -366,11 +366,11 @@ export default function ChartOfAccountsPage() {
 
             {node.isLocked && (
               <span title="Locked System Primary Group">
-                <Lock className="h-3 w-3 text-slate-400" />
+                <Lock className="h-3 w-3 text-muted" />
               </span>
             )}
 
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-muted">
               ({node.ledgers.length} ledgers, {node.subGroups.length} sub-groups)
             </span>
           </div>
@@ -380,7 +380,7 @@ export default function ChartOfAccountsPage() {
               variant="ghost"
               size="xs"
               onClick={() => handleOpenAddLedger(node.id)}
-              className="text-[10px] h-6 px-1.5 text-blue-600 dark:text-blue-400"
+              className="text-[10px] h-6 px-1.5 text-brand-text text-brand"
             >
               <Plus className="h-3 w-3 mr-0.5" /> Ledger
             </Button>
@@ -388,7 +388,7 @@ export default function ChartOfAccountsPage() {
               variant="ghost"
               size="xs"
               onClick={() => handleOpenAddGroup(node.id)}
-              className="text-[10px] h-6 px-1.5 text-slate-600 dark:text-slate-400"
+              className="text-[10px] h-6 px-1.5 text-secondary text-muted"
             >
               <Plus className="h-3 w-3 mr-0.5" /> Sub-Group
             </Button>
@@ -397,7 +397,7 @@ export default function ChartOfAccountsPage() {
                 variant="ghost"
                 size="xs"
                 onClick={() => handleDeleteGroup(node)}
-                className="h-6 w-6 p-0 text-rose-500 hover:text-rose-700"
+                className="h-6 w-6 p-0 text-status-danger-text hover:text-status-danger-text"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -415,16 +415,16 @@ export default function ChartOfAccountsPage() {
             {node.ledgers.map((l) => (
               <div
                 key={l.id}
-                className={`group flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-blue-50/40 dark:hover:bg-blue-950/20 text-slate-700 dark:text-slate-300 transition ${
-                  depth > 0 ? 'ml-12 border-l border-slate-200 dark:border-slate-800 pl-3' : 'ml-6'
+                className={`group flex items-center justify-between py-1.5 px-3 rounded-lg hover:bg-brand-subtle/40 hover:bg-brand/20 text-secondary text-muted transition ${
+                  depth > 0 ? 'ml-12 border-l border border-strong pl-3' : 'ml-6'
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <FileText className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span className="font-mono text-[11px] text-slate-500 font-medium">
+                  <FileText className="h-3.5 w-3.5 text-muted shrink-0" />
+                  <span className="font-mono text-[11px] text-muted font-medium">
                     {l.code}
                   </span>
-                  <span className="font-medium text-slate-900 dark:text-slate-200 truncate">
+                  <span className="font-medium text-primary text-primary-inverse truncate">
                     {l.name}
                   </span>
                   {l.isBankOrCash && (
@@ -437,7 +437,7 @@ export default function ChartOfAccountsPage() {
                   )}
                   {l.isLocked && (
                     <span title="Locked System Ledger">
-                      <Lock className="h-3 w-3 text-slate-400" />
+                      <Lock className="h-3 w-3 text-muted" />
                     </span>
                   )}
                 </div>
@@ -450,7 +450,7 @@ export default function ChartOfAccountsPage() {
                   />
                   <Link
                     href={`/reports/general-ledger?ledgerId=${l.id}`}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded transition"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-muted hover:text-brand-text hover:bg-brand-subtle hover:bg-brand/40 rounded transition"
                     title="View General Ledger Statement"
                   >
                     <BookOpen className="h-3.5 w-3.5" />
@@ -460,7 +460,7 @@ export default function ChartOfAccountsPage() {
                       variant="ghost"
                       size="xs"
                       onClick={() => handleDeleteLedger(l)}
-                      className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-rose-500 hover:text-rose-700"
+                      className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 text-status-danger-text hover:text-status-danger-text"
                       title="Delete ledger"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -480,15 +480,15 @@ export default function ChartOfAccountsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border border-strong pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl font-black text-primary dark:text-white tracking-tight">
               Chart of Accounts (COA)
             </h1>
             <Badge variant="brand" size="xs">Auto-Managed Numbering</Badge>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-xs text-secondary text-muted mt-1">
             Standard double-entry statutory accounts with automatic 4-digit code allocation (1000–4999).
           </p>
         </div>
@@ -501,7 +501,7 @@ export default function ChartOfAccountsPage() {
               loading={seeding}
               onClick={() => handleSeedStandardCoa('TRADER')}
             >
-              <Sparkles className="h-4 w-4 mr-1.5 text-blue-500" /> Seed Standard Accounts
+              <Sparkles className="h-4 w-4 mr-1.5 text-brand-text" /> Seed Standard Accounts
             </Button>
           )}
 
@@ -516,55 +516,55 @@ export default function ChartOfAccountsPage() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-medium text-rose-600 dark:text-rose-400 flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs font-medium text-status-danger-text text-status-danger-text flex items-center justify-between">
           <span>{error}</span>
-          <button type="button" onClick={() => setError(null)} className="text-rose-500 font-bold ml-2">✕</button>
+          <button type="button" onClick={() => setError(null)} className="text-status-danger-text font-bold ml-2">✕</button>
         </div>
       )}
 
       {success && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-status-success-subtle bg-status-success border border-status-success border-status-success text-xs font-medium text-status-success-text text-status-success-text flex items-center justify-between">
           <span>{success}</span>
-          <button type="button" onClick={() => setSuccess(null)} className="text-emerald-500 font-bold ml-2">✕</button>
+          <button type="button" onClick={() => setSuccess(null)} className="text-status-success-text font-bold ml-2">✕</button>
         </div>
       )}
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <p className="text-xs font-medium text-slate-500">Total Ledger Groups</p>
-          <p className="text-xl font-black text-slate-900 dark:text-white mt-1">{groups.length}</p>
-          <span className="text-[10px] text-blue-500 font-medium">Standard 28 Tally Groups</span>
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
+          <p className="text-xs font-medium text-muted">Total Ledger Groups</p>
+          <p className="text-xl font-black text-primary dark:text-white mt-1">{groups.length}</p>
+          <span className="text-[10px] text-brand-text font-medium">Standard 28 Tally Groups</span>
         </Card>
 
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <p className="text-xs font-medium text-slate-500">Standard Active Ledgers</p>
-          <p className="text-xl font-black text-slate-900 dark:text-white mt-1">{flatLedgers.length}</p>
-          <span className="text-[10px] text-emerald-500 font-medium">Auto-Numbered (1000–4999)</span>
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
+          <p className="text-xs font-medium text-muted">Standard Active Ledgers</p>
+          <p className="text-xl font-black text-primary dark:text-white mt-1">{flatLedgers.length}</p>
+          <span className="text-[10px] text-status-success-text font-medium">Auto-Numbered (1000–4999)</span>
         </Card>
 
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <p className="text-xs font-medium text-slate-500">Bank & Cash Ledgers</p>
-          <p className="text-xl font-black text-slate-900 dark:text-white mt-1">
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
+          <p className="text-xs font-medium text-muted">Bank & Cash Ledgers</p>
+          <p className="text-xl font-black text-primary dark:text-white mt-1">
             {flatLedgers.filter((l) => l.isBankOrCash).length}
           </p>
-          <span className="text-[10px] text-slate-400">BRS & Cash Rules Active</span>
+          <span className="text-[10px] text-muted">BRS & Cash Rules Active</span>
         </Card>
 
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <p className="text-xs font-medium text-slate-500">System Locked Ledgers</p>
-          <p className="text-xl font-black text-slate-900 dark:text-white mt-1">
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl">
+          <p className="text-xs font-medium text-muted">System Locked Ledgers</p>
+          <p className="text-xl font-black text-primary dark:text-white mt-1">
             {flatLedgers.filter((l) => l.isLocked).length}
           </p>
-          <span className="text-[10px] text-indigo-500 font-medium">Protected against deletion</span>
+          <span className="text-[10px] text-brand-text font-medium">Protected against deletion</span>
         </Card>
       </div>
 
       {/* Toolbar: Search, Nature Filters, View Mode Toggle */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white bg-surface p-3 rounded-xl border border border-strong">
         <div className="flex items-center gap-2 w-full sm:w-80">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -584,8 +584,8 @@ export default function ChartOfAccountsPage() {
                 onClick={() => setSelectedNature(nat)}
                 className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg transition ${
                   selectedNature === nat
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-brand text-white shadow-sm'
+                    : 'text-secondary text-muted hover:bg-surface-sunken hover:bg-surface-raised'
                 }`}
               >
                 {nat === 'ALL' ? 'All Natures' : nat}
@@ -594,14 +594,14 @@ export default function ChartOfAccountsPage() {
           </div>
 
           {/* View mode toggle */}
-          <div className="flex items-center border border-slate-200 dark:border-slate-800 rounded-lg p-0.5">
+          <div className="flex items-center border border border-strong rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => setViewMode('TREE')}
               className={`p-1.5 rounded transition ${
                 viewMode === 'TREE'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold'
-                  : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  ? 'bg-surface-sunken bg-surface-raised text-brand-text text-brand font-bold'
+                  : 'text-muted hover:text-secondary hover:text-primary-inverse'
               }`}
               title="Hierarchy Tree View"
             >
@@ -612,8 +612,8 @@ export default function ChartOfAccountsPage() {
               onClick={() => setViewMode('FLAT')}
               className={`p-1.5 rounded transition ${
                 viewMode === 'FLAT'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold'
-                  : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  ? 'bg-surface-sunken bg-surface-raised text-brand-text text-brand font-bold'
+                  : 'text-muted hover:text-secondary hover:text-primary-inverse'
               }`}
               title="Flat Table View"
             >
@@ -647,12 +647,12 @@ export default function ChartOfAccountsPage() {
               return (
                 <Card
                   key={natureKey}
-                  className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl"
+                  className="p-4 bg-white bg-surface border border border-strong rounded-xl"
                 >
-                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-2 mb-3">
+                  <div className="flex items-center justify-between border-b border-subtle border-strong pb-2 mb-3">
                     <div className="flex items-center gap-2">
-                      <Layers className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <h2 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                      <Layers className="h-4 w-4 text-brand-text text-brand" />
+                      <h2 className="text-xs font-black uppercase tracking-wider text-primary text-primary-inverse">
                         {titleMap[natureKey]}
                       </h2>
                     </div>

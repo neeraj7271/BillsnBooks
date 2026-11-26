@@ -205,7 +205,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}
@@ -213,7 +213,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Operating Mode Selector */}
           <div>
-            <label className="text-xs font-bold text-slate-800 dark:text-slate-200 block mb-2">
+            <label className="text-xs font-bold text-primary text-primary-inverse block mb-2">
               Accounting & Integration Mode:
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
@@ -223,23 +223,23 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
                 onClick={() => setFormData({ ...formData, accountingMode: 'STANDALONE' })}
                 className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   formData.accountingMode === 'STANDALONE'
-                    ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 ring-2 ring-blue-600/20'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60'
+                    ? 'border-focus bg-brand-subtle/60 bg-brand/40 ring-2 ring-focus-ring'
+                    : 'border border-strong hover:border hover:border-strong bg-white bg-surface'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <Cloud className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <span className="font-bold text-xs text-slate-900 dark:text-white">
+                      <Cloud className="h-4 w-4 text-brand-text text-brand" />
+                      <span className="font-bold text-xs text-primary dark:text-white">
                         Standalone Cloud
                       </span>
                     </div>
                     {formData.accountingMode === 'STANDALONE' && (
-                      <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                      <Check className="h-3.5 w-3.5 text-brand-text text-brand" />
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                  <p className="text-[11px] text-muted text-muted leading-snug">
                     Zero Tally overhead. Complete cloud accounting, BRS, invoicing & GST.
                   </p>
                 </div>
@@ -254,23 +254,23 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
                 onClick={() => setFormData({ ...formData, accountingMode: 'TALLY_SYNC' })}
                 className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   formData.accountingMode === 'TALLY_SYNC'
-                    ? 'border-amber-600 bg-amber-50/60 dark:bg-amber-950/40 ring-2 ring-amber-600/20'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60'
+                    ? 'border-status-warning bg-status-warning-subtle bg-status-warning ring-2 ring-status-warning'
+                    : 'border border-strong hover:border hover:border-strong bg-white bg-surface'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <Server className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                      <span className="font-bold text-xs text-slate-900 dark:text-white">
+                      <Server className="h-4 w-4 text-status-warning-text text-status-warning-text" />
+                      <span className="font-bold text-xs text-primary dark:text-white">
                         Tally Prime Sync
                       </span>
                     </div>
                     {formData.accountingMode === 'TALLY_SYNC' && (
-                      <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                      <Check className="h-3.5 w-3.5 text-status-warning-text text-status-warning-text" />
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                  <p className="text-[11px] text-muted text-muted leading-snug">
                     For CAs & Tally users. 2-way XML gateway, live connector & ledger aliases.
                   </p>
                 </div>
@@ -285,23 +285,23 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
                 onClick={() => setFormData({ ...formData, accountingMode: 'INVOICING_ONLY' })}
                 className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
                   formData.accountingMode === 'INVOICING_ONLY'
-                    ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40 ring-2 ring-emerald-600/20'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/60'
+                    ? 'border-status-success bg-status-success-subtle bg-status-success ring-2 ring-status-success'
+                    : 'border border-strong hover:border hover:border-strong bg-white bg-surface'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
-                      <Receipt className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      <span className="font-bold text-xs text-slate-900 dark:text-white">
+                      <Receipt className="h-4 w-4 text-status-success-text text-status-success-text" />
+                      <span className="font-bold text-xs text-primary dark:text-white">
                         Invoicing Only
                       </span>
                     </div>
                     {formData.accountingMode === 'INVOICING_ONLY' && (
-                      <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <Check className="h-3.5 w-3.5 text-status-success-text text-status-success-text" />
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                  <p className="text-[11px] text-muted text-muted leading-snug">
                     Streamlined sales billing, WhatsApp/PDF delivery, UPI QR & GST summaries.
                   </p>
                 </div>
@@ -376,7 +376,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
             </FormField>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
+          <div className="grid grid-cols-3 gap-3 pt-1 border-t border-subtle border-strong">
             <div className="col-span-2">
               <FormField label="Head Office Address (Optional)" id="comp-addr">
                 <Input

@@ -8,17 +8,17 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         brand:
-          'bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30',
+          'bg-brand-subtle text-brand-text border border-focus bg-brand/15 text-brand border-focus',
         success:
-          'bg-emerald-50 text-emerald-800 border border-emerald-300/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700/60 font-semibold',
+          'bg-status-success-subtle text-status-success-text border border-status-success bg-status-success text-status-success-text border-status-success font-semibold',
         warning:
-          'bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30',
+          'bg-status-warning-subtle text-status-warning-text border border-status-warning bg-status-warning text-status-warning-text border-status-warning',
         danger:
-          'bg-rose-50 text-rose-700 border border-rose-200/60 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30',
+          'bg-status-danger-subtle text-status-danger-text border border-status-danger bg-status-danger text-status-danger-text border-status-danger',
         info:
-          'bg-sky-50 text-sky-700 border border-sky-200/60 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30',
+          'bg-status-info-subtle text-status-info-text border border-status-info bg-status-info text-status-info-text border-status-info',
         neutral:
-          'bg-slate-100 text-slate-700 border border-slate-200/60 dark:bg-slate-800/80 dark:text-slate-200 dark:border-slate-700/60',
+          'bg-surface-sunken text-secondary border border bg-surface-raised text-primary-inverse border-strong',
       },
       size: {
         xs: 'text-[10px] px-1.5 py-0.5 rounded-md gap-1 tracking-tight',
@@ -48,12 +48,12 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const dotColor = {
-    brand: 'bg-blue-500',
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    danger: 'bg-rose-500',
-    info: 'bg-sky-500',
-    neutral: 'bg-slate-400',
+    brand: 'bg-brand',
+    success: 'bg-status-success',
+    warning: 'bg-status-warning',
+    danger: 'bg-status-danger',
+    info: 'bg-status-info',
+    neutral: 'bg-surface-sunken',
   }[variant || 'neutral'];
 
   return (

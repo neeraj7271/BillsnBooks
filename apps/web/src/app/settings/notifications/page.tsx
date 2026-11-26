@@ -171,20 +171,20 @@ export default function NotificationSettingsPage() {
           <div className="flex items-center gap-2 mb-1">
             <Link
               href="/settings"
-              className="text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 transition flex items-center gap-1"
+              className="text-xs font-medium text-muted hover:text-primary hover:text-primary-inverse transition flex items-center gap-1"
             >
               <ArrowLeft className="h-3 w-3" /> System Settings
             </Link>
-            <span className="text-slate-300 dark:text-slate-700">/</span>
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+            <span className="text-muted text-secondary">/</span>
+            <span className="text-xs font-semibold text-brand-text text-brand">
               Notification & Reminder Architecture
             </span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Bell className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <h1 className="text-2xl font-black text-primary dark:text-white flex items-center gap-2.5">
+            <Bell className="h-6 w-6 text-brand-text text-brand" />
             Notification Rules & Automated Scheduler
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-muted text-muted mt-1">
             Configure multi-channel reminders, advance notice days, daily dispatch times, and statutory dunning triggers for {activeCompany?.legalName || activeCompany?.tradeName || 'Active Company'}.
           </p>
         </div>
@@ -209,7 +209,7 @@ export default function NotificationSettingsPage() {
             disabled={testing}
             className="text-xs"
           >
-            <Send className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
+            <Send className="h-3.5 w-3.5 mr-1.5 text-brand-text" />
             Test Alert ({testChannel})
           </Button>
 
@@ -232,14 +232,14 @@ export default function NotificationSettingsPage() {
           role="alert"
           className={`flex items-center gap-2 p-3.5 rounded-xl border text-xs font-medium shadow-md transition animate-in fade-in-50 duration-200 ${
             toastMessage.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
-              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+              ? 'bg-status-success-subtle bg-status-success border-status-success border-status-success text-status-success-text text-status-success-text'
+              : 'bg-status-danger-subtle bg-status-danger border-status-danger border-status-danger text-status-danger-text text-status-danger-text'
           }`}
         >
           {toastMessage.type === 'success' ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-status-success-text shrink-0" />
           ) : (
-            <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+            <AlertCircle className="h-4 w-4 text-status-danger-text shrink-0" />
           )}
           <span>{toastMessage.text}</span>
         </div>
@@ -251,7 +251,7 @@ export default function NotificationSettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                <Clock className="h-4 w-4 text-blue-600" />
+                <Clock className="h-4 w-4 text-brand-text" />
                 Global Delivery Window & Quiet Hours
               </CardTitle>
               <CardDescription>
@@ -266,7 +266,7 @@ export default function NotificationSettingsPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+              <label className="text-xs font-semibold text-secondary text-muted block mb-1.5">
                 Standard Business Timezone
               </label>
               <Select
@@ -284,7 +284,7 @@ export default function NotificationSettingsPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+              <label className="text-xs font-semibold text-secondary text-muted block mb-1.5">
                 Daily Master Dispatch Time
               </label>
               <Input
@@ -296,7 +296,7 @@ export default function NotificationSettingsPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+              <label className="text-xs font-semibold text-secondary text-muted block mb-1.5">
                 Test Alert Channel
               </label>
               <Select
@@ -313,19 +313,19 @@ export default function NotificationSettingsPage() {
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="mt-4 pt-4 border-t border-subtle border-strong flex items-center justify-between">
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 id="quiet-hours-toggle"
                 checked={quietHoursEnabled}
                 onChange={(e) => setQuietHoursEnabled(e.target.checked)}
-                className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+                className="h-4 w-4 rounded text-brand-text focus:ring-focus-ring border"
               />
-              <label htmlFor="quiet-hours-toggle" className="text-xs font-medium text-slate-800 dark:text-slate-200">
+              <label htmlFor="quiet-hours-toggle" className="text-xs font-medium text-primary text-primary-inverse">
                 Enable Nighttime Quiet Hours (Suppress external WhatsApp & SMS between{' '}
-                <span className="font-semibold text-blue-600">{quietHoursStart}</span> and{' '}
-                <span className="font-semibold text-blue-600">{quietHoursEnd}</span>)
+                <span className="font-semibold text-brand-text">{quietHoursStart}</span> and{' '}
+                <span className="font-semibold text-brand-text">{quietHoursEnd}</span>)
               </label>
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function NotificationSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center font-bold">
+              <div className="h-8 w-8 rounded-lg bg-brand-subtle bg-brand/40 text-brand-text flex items-center justify-center font-bold">
                 <FileText className="h-4 w-4" />
               </div>
               <div>
@@ -357,7 +357,7 @@ export default function NotificationSettingsPage() {
           {(() => {
             const rule = getRule(NotificationType.INVOICE_DUE_UPCOMING);
             return (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
+              <div className="p-4 rounded-xl border border border-strong bg-canvas bg-surface space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <input
@@ -365,9 +365,9 @@ export default function NotificationSettingsPage() {
                       id="inv-upcoming-enabled"
                       checked={rule.isEnabled}
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
-                      className="h-4 w-4 rounded text-blue-600"
+                      className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="inv-upcoming-enabled" className="text-xs font-bold text-slate-900 dark:text-white">
+                    <label htmlFor="inv-upcoming-enabled" className="text-xs font-bold text-primary dark:text-white">
                       Pre-Due Date Reminders (Upcoming Invoices)
                     </label>
                   </div>
@@ -378,7 +378,7 @@ export default function NotificationSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Remind How Many Days Before Due Date
                     </label>
                     <Input
@@ -393,11 +393,11 @@ export default function NotificationSettingsPage() {
                       }}
                       className="h-8 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-slate-400 mt-0.5 block">Comma-separated days before (e.g. 7, 3, 1)</span>
+                    <span className="text-[10px] text-muted mt-0.5 block">Comma-separated days before (e.g. 7, 3, 1)</span>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Dispatch Time (HH:MM)
                     </label>
                     <Input
@@ -409,7 +409,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Active Delivery Channels
                     </label>
                     <div className="flex items-center gap-3 mt-1.5">
@@ -448,7 +448,7 @@ export default function NotificationSettingsPage() {
           {(() => {
             const rule = getRule(NotificationType.INVOICE_DUE_TODAY);
             return (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
+              <div className="p-4 rounded-xl border border border-strong bg-canvas bg-surface space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <input
@@ -456,9 +456,9 @@ export default function NotificationSettingsPage() {
                       id="inv-today-enabled"
                       checked={rule.isEnabled}
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
-                      className="h-4 w-4 rounded text-blue-600"
+                      className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="inv-today-enabled" className="text-xs font-bold text-slate-900 dark:text-white">
+                    <label htmlFor="inv-today-enabled" className="text-xs font-bold text-primary dark:text-white">
                       Due Today Settlement Alert
                     </label>
                   </div>
@@ -469,16 +469,16 @@ export default function NotificationSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Trigger Day
                     </label>
-                    <div className="h-8 flex items-center text-xs font-medium text-slate-700 dark:text-slate-300">
+                    <div className="h-8 flex items-center text-xs font-medium text-secondary text-muted">
                       Day 0 (Exact Due Date)
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Dispatch Time (HH:MM)
                     </label>
                     <Input
@@ -490,7 +490,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Active Delivery Channels
                     </label>
                     <div className="flex items-center gap-3 mt-1.5">
@@ -529,7 +529,7 @@ export default function NotificationSettingsPage() {
           {(() => {
             const rule = getRule(NotificationType.INVOICE_OVERDUE);
             return (
-              <div className="p-4 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/20 dark:bg-rose-950/20 space-y-3">
+              <div className="p-4 rounded-xl border border-status-danger border-status-danger bg-status-danger-subtle bg-status-danger space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <input
@@ -537,9 +537,9 @@ export default function NotificationSettingsPage() {
                       id="inv-overdue-enabled"
                       checked={rule.isEnabled}
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
-                      className="h-4 w-4 rounded text-rose-600"
+                      className="h-4 w-4 rounded text-status-danger-text"
                     />
-                    <label htmlFor="inv-overdue-enabled" className="text-xs font-bold text-rose-900 dark:text-rose-200">
+                    <label htmlFor="inv-overdue-enabled" className="text-xs font-bold text-status-danger-text text-status-danger-text">
                       Overdue Dunning Escalation Notices
                     </label>
                   </div>
@@ -550,7 +550,7 @@ export default function NotificationSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Remind at Days Overdue
                     </label>
                     <Input
@@ -565,11 +565,11 @@ export default function NotificationSettingsPage() {
                       }}
                       className="h-8 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-slate-400 mt-0.5 block">Trigger on +3d, +7d, +15d, +30d overdue</span>
+                    <span className="text-[10px] text-muted mt-0.5 block">Trigger on +3d, +7d, +15d, +30d overdue</span>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Dispatch Time (HH:MM)
                     </label>
                     <Input
@@ -581,7 +581,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Delivery Channels & Payment Link
                     </label>
                     <div className="flex flex-col gap-1.5 mt-1">
@@ -611,7 +611,7 @@ export default function NotificationSettingsPage() {
                           WhatsApp
                         </label>
                       </div>
-                      <label className="flex items-center gap-1.5 text-[11px] font-semibold text-blue-600 mt-0.5">
+                      <label className="flex items-center gap-1.5 text-[11px] font-semibold text-brand-text mt-0.5">
                         <input
                           type="checkbox"
                           checked={rule.includePaymentLink}
@@ -633,7 +633,7 @@ export default function NotificationSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center font-bold">
+              <div className="h-8 w-8 rounded-lg bg-status-success-subtle bg-status-success text-status-success-text flex items-center justify-center font-bold">
                 <CheckSquare className="h-4 w-4" />
               </div>
               <div>
@@ -653,7 +653,7 @@ export default function NotificationSettingsPage() {
           {(() => {
             const rule = getRule(NotificationType.COMPLIANCE_TASK_UPCOMING);
             return (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
+              <div className="p-4 rounded-xl border border border-strong bg-canvas bg-surface space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <input
@@ -661,9 +661,9 @@ export default function NotificationSettingsPage() {
                       id="task-upcoming-enabled"
                       checked={rule.isEnabled}
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
-                      className="h-4 w-4 rounded text-blue-600"
+                      className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="task-upcoming-enabled" className="text-xs font-bold text-slate-900 dark:text-white">
+                    <label htmlFor="task-upcoming-enabled" className="text-xs font-bold text-primary dark:text-white">
                       Task Deadline Approaching (Advance Notice)
                     </label>
                   </div>
@@ -674,7 +674,7 @@ export default function NotificationSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Remind Days Before Filing Cutoff
                     </label>
                     <Input
@@ -692,7 +692,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Dispatch Time (HH:MM)
                     </label>
                     <Input
@@ -704,7 +704,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Target Channels
                     </label>
                     <div className="flex items-center gap-3 mt-1.5">
@@ -738,7 +738,7 @@ export default function NotificationSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 flex items-center justify-center font-bold">
+              <div className="h-8 w-8 rounded-lg bg-status-warning-subtle bg-status-warning text-status-warning-text flex items-center justify-center font-bold">
                 <Lock className="h-4 w-4" />
               </div>
               <div>
@@ -757,7 +757,7 @@ export default function NotificationSettingsPage() {
           {(() => {
             const rule = getRule(NotificationType.PERIOD_LOCK_APPROACHING);
             return (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
+              <div className="p-4 rounded-xl border border border-strong bg-canvas bg-surface space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <input
@@ -765,9 +765,9 @@ export default function NotificationSettingsPage() {
                       id="period-lock-enabled"
                       checked={rule.isEnabled}
                       onChange={(e) => updateRuleField(rule.eventType, 'isEnabled', e.target.checked)}
-                      className="h-4 w-4 rounded text-blue-600"
+                      className="h-4 w-4 rounded text-brand-text"
                     />
-                    <label htmlFor="period-lock-enabled" className="text-xs font-bold text-slate-900 dark:text-white">
+                    <label htmlFor="period-lock-enabled" className="text-xs font-bold text-primary dark:text-white">
                       Month-End Period Closing & Lock Approaching
                     </label>
                   </div>
@@ -778,7 +778,7 @@ export default function NotificationSettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Remind Days Before Closure
                     </label>
                     <Input
@@ -796,7 +796,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Dispatch Time (HH:MM)
                     </label>
                     <Input
@@ -808,7 +808,7 @@ export default function NotificationSettingsPage() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">
+                    <label className="text-[11px] font-semibold text-muted text-muted block mb-1">
                       Target Channels
                     </label>
                     <div className="flex items-center gap-3 mt-1.5">

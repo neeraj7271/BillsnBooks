@@ -20,32 +20,32 @@ export function ClientStatsCards({ clients }: ClientStatsCardsProps) {
       value: total,
       sub: 'Active Engagements',
       icon: Building2,
-      color: 'text-blue-600 dark:text-blue-400',
-      bg: 'bg-blue-50 dark:bg-blue-950/40',
+      color: 'text-brand-text text-brand',
+      bg: 'bg-brand-subtle bg-brand/40',
     },
     {
       label: 'Healthy Standing',
       value: healthy,
       sub: 'Zero Pending Overdues',
       icon: CheckCircle2,
-      color: 'text-emerald-600 dark:text-emerald-400',
-      bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+      color: 'text-status-success-text text-status-success-text',
+      bg: 'bg-status-success-subtle bg-status-success',
     },
     {
       label: 'Action Required',
       value: actionRequired,
       sub: 'Pending Documentation',
       icon: AlertTriangle,
-      color: 'text-amber-600 dark:text-amber-400',
-      bg: 'bg-amber-50 dark:bg-amber-950/40',
+      color: 'text-status-warning-text text-status-warning-text',
+      bg: 'bg-status-warning-subtle bg-status-warning',
     },
     {
       label: 'Open Compliance Tasks',
       value: totalOpenTasks,
       sub: 'Across Client Entities',
       icon: Clock,
-      color: 'text-indigo-600 dark:text-indigo-400',
-      bg: 'bg-indigo-50 dark:bg-indigo-950/40',
+      color: 'text-brand-text text-brand',
+      bg: 'bg-brand-subtle bg-brand/40',
     },
   ];
 
@@ -57,13 +57,13 @@ export function ClientStatsCards({ clients }: ClientStatsCardsProps) {
           <Card key={idx}>
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted text-muted">
                   {s.label}
                 </p>
-                <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+                <p className="text-2xl font-black text-primary dark:text-white mt-1">
                   {s.value}
                 </p>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 font-medium">
+                <p className="text-[11px] text-muted text-muted mt-0.5 font-medium">
                   {s.sub}
                 </p>
               </div>

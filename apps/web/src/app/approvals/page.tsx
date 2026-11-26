@@ -105,12 +105,12 @@ export default function ApprovalsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
               Approval Inbox
             </h1>
             <Badge variant="brand" size="sm">Maker-Checker</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted text-muted">
             Senior accountant and CA partner governance queue. High-value transactions requiring authorized sign-off.
           </p>
         </div>
@@ -127,20 +127,20 @@ export default function ApprovalsPage() {
       </div>
 
       {/* Governance Banner */}
-      <div className="rounded-2xl border border-blue-200/60 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 p-4 flex items-start gap-3">
-        <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+      <div className="rounded-2xl border border-focus border-focus bg-brand-subtle/50 bg-brand/20 p-4 flex items-start gap-3">
+        <ShieldCheck className="h-5 w-5 text-brand-text text-brand shrink-0 mt-0.5" />
         <div className="text-xs">
-          <div className="font-bold text-blue-900 dark:text-blue-200">
+          <div className="font-bold text-brand-text text-brand">
             Maker-Checker Posting Guarantee
           </div>
-          <div className="mt-0.5 text-blue-700 dark:text-blue-300">
+          <div className="mt-0.5 text-brand-text text-brand">
             Invoices exceeding ₹50,000 or marked for escalation are quarantined. Approving posts the double-entry voucher to general ledger.
           </div>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 dark:text-rose-400 font-medium">
+        <div className="p-4 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text text-status-danger-text font-medium">
           {error}
         </div>
       )}
@@ -149,39 +149,39 @@ export default function ApprovalsPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-12 text-center text-xs text-slate-400">
+            <div className="p-12 text-center text-xs text-muted">
               Loading approval queue...
             </div>
           ) : approvals.length === 0 ? (
             <div className="p-12 text-center">
-              <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500 mb-3" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Inbox is Clear</h3>
-              <p className="mt-1 text-xs text-slate-400">
+              <CheckCircle2 className="mx-auto h-10 w-10 text-status-success-text mb-3" />
+              <h3 className="text-sm font-bold text-primary dark:text-white">Inbox is Clear</h3>
+              <p className="mt-1 text-xs text-muted">
                 No pending approval requests. All transactions are verified.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="divide-y divide-subtle divide-strong">
               {approvals.map((req) => (
                 <div
                   key={req.id}
-                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition"
+                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-canvas hover:bg-surface-raised transition"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-status-warning-subtle bg-status-warning text-status-warning-text text-status-warning-text shrink-0">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 dark:text-white text-sm">
+                        <span className="font-bold text-primary dark:text-white text-sm">
                           {req.entityType === 'INVOICE' ? 'High-Value Invoice Sign-Off' : req.requestType}
                         </span>
                         <Badge variant="warning" size="xs" dot>Pending Review</Badge>
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                      <p className="text-xs text-secondary text-muted">
                         {req.comments || 'Requires maker-checker sign-off.'}
                       </p>
-                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted text-muted pt-1">
                         <div className="flex items-center gap-1">
                           <User className="h-3 w-3" />
                           <span>Submitted by: <strong>{req.requesterName}</strong></span>
@@ -192,7 +192,7 @@ export default function ApprovalsPage() {
                             <span>Invoice:</span>
                             <Link
                               href={`/invoices/${req.entityId}`}
-                              className="font-mono font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5"
+                              className="font-mono font-bold text-brand-text text-brand hover:underline inline-flex items-center gap-0.5"
                             >
                               {req.metadata.invoiceNumber}
                               <ExternalLink className="h-2.5 w-2.5" />
@@ -200,7 +200,7 @@ export default function ApprovalsPage() {
                           </div>
                         )}
                         {req.metadata?.totalAmount && (
-                          <div className="font-bold text-slate-900 dark:text-white">
+                          <div className="font-bold text-primary dark:text-white">
                             Amount: <MoneyText amount={req.metadata.totalAmount} />
                           </div>
                         )}

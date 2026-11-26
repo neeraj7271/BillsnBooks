@@ -306,20 +306,20 @@ function NewInvoiceContent() {
           </Button>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-black text-slate-900 dark:text-white">
+              <h1 className="text-xl font-black text-primary dark:text-white">
                 {mode === 'edit' ? 'Revise Tax Invoice' : cloneFrom ? 'Duplicate Tax Invoice' : 'New GST Tax Invoice'}
               </h1>
               <Badge variant="brand" size="sm">Rule 46</Badge>
               {activeCompany && (
-                <Badge variant="neutral" size="sm" className="font-semibold text-slate-800 dark:text-slate-200">
+                <Badge variant="neutral" size="sm" className="font-semibold text-primary text-primary-inverse">
                   {activeCompany.tradeName || activeCompany.legalName}
                 </Badge>
               )}
               {mode === 'edit' && <Badge variant="warning" size="sm">Revision Mode</Badge>}
               {!mode && cloneFrom && <Badge variant="info" size="sm">Duplicated Draft</Badge>}
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Generate statutory tax invoice for <strong className="text-slate-700 dark:text-slate-300">{activeCompany?.legalName || 'Active Entity'}</strong> with automated Place of Supply determination.
+            <p className="text-xs text-muted text-muted">
+              Generate statutory tax invoice for <strong className="text-secondary text-muted">{activeCompany?.legalName || 'Active Entity'}</strong> with automated Place of Supply determination.
             </p>
           </div>
         </div>
@@ -329,14 +329,14 @@ function NewInvoiceContent() {
           size="sm"
           type="button"
           onClick={() => setSettingsOpen(true)}
-          leftIcon={<Settings className="h-3.5 w-3.5 text-blue-500" />}
+          leftIcon={<Settings className="h-3.5 w-3.5 text-brand-text" />}
         >
           Invoice & Series Settings
         </Button>
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text font-medium">
           {error}
         </div>
       )}
@@ -420,7 +420,7 @@ export default function NewInvoicePage() {
   return (
     <Suspense
       fallback={
-        <div className="p-12 text-center text-xs text-slate-400">
+        <div className="p-12 text-center text-xs text-muted">
           Loading invoice editor...
         </div>
       }

@@ -84,35 +84,35 @@ export function SendReminderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+      <DialogContent className="max-w-md bg-white bg-surface border border border-strong rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Send className="h-5 w-5 text-blue-600" />
+          <DialogTitle className="text-lg font-bold text-primary dark:text-white flex items-center gap-2">
+            <Send className="h-5 w-5 text-brand-text" />
             Send Collection Follow-Up
           </DialogTitle>
         </DialogHeader>
 
         {party && (
-          <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg text-xs space-y-1">
-            <div className="font-semibold text-slate-900 dark:text-white">{party.partyName}</div>
-            <div className="text-slate-500 dark:text-slate-400">
-              Outstanding Balance: <span className="font-bold text-rose-600 dark:text-rose-400">{formattedDue}</span>
+          <div className="mt-2 p-3 bg-canvas bg-surface-raised rounded-lg text-xs space-y-1">
+            <div className="font-semibold text-primary dark:text-white">{party.partyName}</div>
+            <div className="text-muted text-muted">
+              Outstanding Balance: <span className="font-bold text-status-danger-text text-status-danger-text">{formattedDue}</span>
             </div>
-            <div className="text-slate-500 dark:text-slate-400">
+            <div className="text-muted text-muted">
               Recipient: {channel === ReminderChannel.EMAIL ? party.email || 'Email missing' : party.phone || 'Phone missing'}
             </div>
           </div>
         )}
 
         {error && (
-          <div className="mt-3 p-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs rounded-lg border border-rose-200 dark:border-rose-900">
+          <div className="mt-3 p-2 bg-status-danger-subtle bg-status-danger text-status-danger-text text-status-danger-text text-xs rounded-lg border border-status-danger border-status-danger">
             {error}
           </div>
         )}
 
         <div className="mt-4 space-y-3">
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-secondary text-muted">
               Delivery Channel
             </label>
             <div className="mt-1">
@@ -125,7 +125,7 @@ export function SendReminderDialog({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-secondary text-muted">
               Reminder Cadence & Tone
             </label>
             <div className="mt-1">
@@ -138,7 +138,7 @@ export function SendReminderDialog({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-secondary text-muted">
               Custom Note (Optional)
             </label>
             <div className="mt-1">
@@ -147,7 +147,7 @@ export function SendReminderDialog({
                 value={customMessage}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomMessage(e.target.value)}
                 rows={3}
-                className="w-full text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full text-xs rounded-lg border border border-strong bg-white bg-surface p-2 text-primary dark:text-white focus:outline-hidden focus:ring-2 focus:ring-focus-ring"
               />
             </div>
           </div>

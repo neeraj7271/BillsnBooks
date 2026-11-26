@@ -91,10 +91,10 @@ export default function SalesDiscoveryCockpitPage() {
       header: 'Extracted Entity & Narrative',
       cell: (t) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">
+          <div className="font-bold text-primary dark:text-white">
             {t.transaction?.extractedPartyName || 'Unknown Depositor'}
           </div>
-          <div className="text-[11px] text-slate-400">{t.transaction?.description}</div>
+          <div className="text-[11px] text-muted">{t.transaction?.description}</div>
         </div>
       ),
     },
@@ -102,7 +102,7 @@ export default function SalesDiscoveryCockpitPage() {
       key: 'amount',
       header: 'Amount',
       align: 'right',
-      cell: (t) => <MoneyText amount={t.transaction?.amount || 0} className="font-bold text-emerald-600 dark:text-emerald-400" />,
+      cell: (t) => <MoneyText amount={t.transaction?.amount || 0} className="font-bold text-status-success-text text-status-success-text" />,
     },
     {
       key: 'confidence',
@@ -142,7 +142,7 @@ export default function SalesDiscoveryCockpitPage() {
             Convert
           </Button>
         ) : (
-          <span className="text-xs text-slate-400 font-medium">Reconciled</span>
+          <span className="text-xs text-muted font-medium">Reconciled</span>
         ),
     },
   ];
@@ -159,12 +159,12 @@ export default function SalesDiscoveryCockpitPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-slate-900 dark:text-white">
+              <h1 className="text-xl font-black text-primary dark:text-white">
                 Unbilled Deposits & Sales Discovery
               </h1>
               <Badge variant="brand" size="sm">Rule-Engine</Badge>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted text-muted">
               Heuristic detector flagging incoming bank credits without matching customer invoices.
             </p>
           </div>
@@ -178,28 +178,28 @@ export default function SalesDiscoveryCockpitPage() {
       </div>
 
       {success && (
-        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 text-xs text-emerald-700 font-medium">
+        <div className="p-3 rounded-xl bg-status-success-subtle bg-status-success border border-status-success text-xs text-status-success-text font-medium">
           {success}
         </div>
       )}
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text font-medium">
           {error}
         </div>
       )}
 
       {/* Filter and Table */}
       <div className="space-y-3">
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+        <div className="flex items-center gap-1 bg-surface-sunken bg-surface-raised p-1 rounded-xl w-fit">
           {['ALL', 'OPEN', 'CONVERTED'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                 statusFilter === st
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
+                  : 'text-muted hover:text-primary dark:hover:text-white'
               }`}
             >
               {st}

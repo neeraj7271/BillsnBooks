@@ -49,9 +49,9 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
   const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(companyName)}&am=${encodeURIComponent(invoice.totalAmount)}&cu=INR&tn=${encodeURIComponent('Invoice ' + invoice.invoiceNumber)}`;
 
   return (
-    <div className="w-full bg-white text-slate-900 font-sans text-[11px] select-text print:text-black">
+    <div className="w-full bg-white text-primary font-sans text-[11px] select-text print:text-black">
       {/* Compact Header */}
-      <div className="flex justify-between items-start pb-4 border-b border-slate-300">
+      <div className="flex justify-between items-start pb-4 border-b border">
         <div className="flex items-center gap-3">
           {logoUrl && (
             <img
@@ -61,12 +61,12 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
             />
           )}
           <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-800 print:text-black">
+            <span className="text-[10px] font-black uppercase tracking-wider text-primary print:text-black">
               {isCompanyGstRegistered ? 'TAX INVOICE' : 'INVOICE'}
             </span>
-            <h1 className="text-base font-black text-slate-950 print:text-black">{companyName}</h1>
-            <p className="text-[10px] text-slate-800 print:text-black">{companyAddr}</p>
-            <div className="text-[10px] font-mono text-slate-800 print:text-black mt-0.5">
+            <h1 className="text-base font-black text-primary print:text-black">{companyName}</h1>
+            <p className="text-[10px] text-primary print:text-black">{companyAddr}</p>
+            <div className="text-[10px] font-mono text-primary print:text-black mt-0.5">
               GSTIN: {companyGstin || 'Unregistered'}
               {companyPan ? ` | PAN: ${companyPan}` : ''}
               {` | State: ${companyStateCode} (${companyState})`}
@@ -75,37 +75,37 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
         </div>
 
         <div className="text-right space-y-0.5 shrink-0">
-          <div className="text-sm font-mono font-black text-slate-950 print:text-black whitespace-nowrap">{invoice.invoiceNumber}</div>
-          <div className="text-[10px] text-slate-800 print:text-black font-medium">
-            Date: <DateText date={invoice.invoiceDate} className="text-slate-950 print:text-black font-bold" /> | Due: <DateText date={invoice.dueDate} className="text-slate-950 print:text-black font-bold" />
+          <div className="text-sm font-mono font-black text-primary print:text-black whitespace-nowrap">{invoice.invoiceNumber}</div>
+          <div className="text-[10px] text-primary print:text-black font-medium">
+            Date: <DateText date={invoice.invoiceDate} className="text-primary print:text-black font-bold" /> | Due: <DateText date={invoice.dueDate} className="text-primary print:text-black font-bold" />
           </div>
-          <div className="text-[10px] text-slate-800 print:text-black font-medium">
+          <div className="text-[10px] text-primary print:text-black font-medium">
             POS: State {invoice.placeOfSupplyStateCode} ({isIntraState ? 'Intra-State' : 'Inter-State'})
           </div>
         </div>
       </div>
 
       {/* Bill To & Dispatch Row */}
-      <div className="grid grid-cols-2 gap-4 py-3 border-b border-slate-300 text-[10px]">
+      <div className="grid grid-cols-2 gap-4 py-3 border-b border text-[10px]">
         <div>
-          <span className="font-bold text-slate-700 print:text-black uppercase block">Billed To:</span>
-          <div className="font-bold text-xs text-slate-950 print:text-black">{partyName}</div>
-          <div className="text-slate-800 print:text-black">{billingAddr}, {billingCity} ({billingState})</div>
-          <div className="font-mono text-slate-800 print:text-black mt-0.5">GSTIN: {partyGstin}</div>
+          <span className="font-bold text-secondary print:text-black uppercase block">Billed To:</span>
+          <div className="font-bold text-xs text-primary print:text-black">{partyName}</div>
+          <div className="text-primary print:text-black">{billingAddr}, {billingCity} ({billingState})</div>
+          <div className="font-mono text-primary print:text-black mt-0.5">GSTIN: {partyGstin}</div>
         </div>
 
         <div className="text-right">
-          <span className="font-bold text-slate-700 print:text-black uppercase block">Bank Remittance:</span>
-          <div className="font-bold text-slate-950 print:text-black">HDFC Bank • A/c 50200012345678</div>
-          <div className="font-mono text-slate-800 print:text-black">IFSC: HDFC0000060</div>
+          <span className="font-bold text-secondary print:text-black uppercase block">Bank Remittance:</span>
+          <div className="font-bold text-primary print:text-black">HDFC Bank • A/c 50200012345678</div>
+          <div className="font-mono text-primary print:text-black">IFSC: HDFC0000060</div>
         </div>
       </div>
 
       {/* Line Items Table */}
-      <div className="py-3 border-b border-slate-300">
+      <div className="py-3 border-b border">
         <table className="w-full text-left text-[11px] border-collapse">
           <thead>
-            <tr className="border-b-2 border-slate-900 text-[10px] font-bold uppercase text-slate-900 print:text-black">
+            <tr className="border-b-2 border-strong text-[10px] font-bold uppercase text-primary print:text-black">
               <th className="py-1 px-1.5 w-6">#</th>
               <th className="py-1 px-2">Item Description</th>
               <th className="py-1 px-1.5 w-16 text-center">HSN</th>
@@ -117,30 +117,30 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
               <th className="py-1 px-2 w-20 text-right">Total</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide">
             {invoice.items?.map((it: any, idx: number) => {
               const disc = parseFloat(it.discountPercent) || 0;
               return (
                 <tr key={it.id || idx}>
-                  <td className="py-1.5 px-1.5 text-slate-800 print:text-black">{idx + 1}</td>
-                  <td className="py-1.5 px-2 font-semibold text-slate-950 print:text-black">{it.description}</td>
-                  <td className="py-1.5 px-1.5 font-mono text-center text-slate-900 print:text-black">{it.hsnSacCode}</td>
-                  <td className="py-1.5 px-1.5 text-right font-mono font-bold text-slate-950 print:text-black whitespace-nowrap">
+                  <td className="py-1.5 px-1.5 text-primary print:text-black">{idx + 1}</td>
+                  <td className="py-1.5 px-2 font-semibold text-primary print:text-black">{it.description}</td>
+                  <td className="py-1.5 px-1.5 font-mono text-center text-primary print:text-black">{it.hsnSacCode}</td>
+                  <td className="py-1.5 px-1.5 text-right font-mono font-bold text-primary print:text-black whitespace-nowrap">
                     {parseFloat(it.quantity).toFixed(0)} {it.uom}
                   </td>
-                  <td className="py-1.5 px-2 text-right text-slate-950 print:text-black font-mono">
+                  <td className="py-1.5 px-2 text-right text-primary print:text-black font-mono">
                     <MoneyText amount={it.unitPrice} />
                   </td>
-                  <td className="py-1.5 px-1.5 text-right font-mono text-slate-800 print:text-black">
+                  <td className="py-1.5 px-1.5 text-right font-mono text-primary print:text-black">
                     {disc > 0 ? `${disc.toFixed(0)}%` : '—'}
                   </td>
-                  <td className="py-1.5 px-2 text-right font-semibold text-slate-950 print:text-black font-mono">
+                  <td className="py-1.5 px-2 text-right font-semibold text-primary print:text-black font-mono">
                     <MoneyText amount={it.taxableAmount} />
                   </td>
-                  <td className="py-1.5 px-1.5 text-right font-mono text-slate-800 print:text-black">
+                  <td className="py-1.5 px-1.5 text-right font-mono text-primary print:text-black">
                     {parseFloat(it.gstRatePercent)}%
                   </td>
-                  <td className="py-1.5 px-2 text-right font-bold text-slate-950 print:text-black font-mono">
+                  <td className="py-1.5 px-2 text-right font-bold text-primary print:text-black font-mono">
                     <MoneyText amount={it.totalAmount} />
                   </td>
                 </tr>
@@ -152,22 +152,22 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
 
       {/* Summary Footer */}
       <div className="pt-3 flex justify-between items-start text-[10px]">
-        <div className="max-w-xs text-slate-800 print:text-black space-y-2">
+        <div className="max-w-xs text-primary print:text-black space-y-2">
           <div className="flex items-start gap-2.5">
             {showQrCode && (
               <div className="shrink-0 text-center">
-                <QrCode value={upiUri} size={60} className="border border-slate-300 p-0.5 bg-white rounded" />
-                <span className="text-[7.5px] font-bold text-slate-600 uppercase block mt-0.5">UPI Pay</span>
+                <QrCode value={upiUri} size={60} className="border border p-0.5 bg-white rounded" />
+                <span className="text-[7.5px] font-bold text-secondary uppercase block mt-0.5">UPI Pay</span>
               </div>
             )}
             <div className="space-y-1">
               <div>
                 <span className="font-bold">Terms & Conditions:</span>
-                <p className="whitespace-pre-line text-slate-700 leading-tight mt-0.5 text-[9.5px]">
+                <p className="whitespace-pre-line text-secondary leading-tight mt-0.5 text-[9.5px]">
                   {termsAndConditions}
                 </p>
               </div>
-              <div className="italic text-[8.5px] text-slate-600 pt-0.5">
+              <div className="italic text-[8.5px] text-secondary pt-0.5">
                 Declaration: This invoice shows the actual price of goods and all particulars are true.
               </div>
             </div>
@@ -175,43 +175,43 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
         </div>
 
         <div className="w-56 space-y-1 text-right">
-          <div className="flex justify-between text-slate-800 print:text-black font-medium">
+          <div className="flex justify-between text-primary print:text-black font-medium">
             <span>Subtotal:</span>
             <MoneyText amount={invoice.subtotalAmount} />
           </div>
 
           {isIntraState ? (
             <>
-              <div className="flex justify-between text-slate-800 print:text-black font-medium">
+              <div className="flex justify-between text-primary print:text-black font-medium">
                 <span>CGST (9%):</span>
                 <MoneyText amount={invoice.cgstAmount} />
               </div>
-              <div className="flex justify-between text-slate-800 print:text-black font-medium">
+              <div className="flex justify-between text-primary print:text-black font-medium">
                 <span>SGST (9%):</span>
                 <MoneyText amount={invoice.sgstAmount} />
               </div>
             </>
           ) : (
-            <div className="flex justify-between text-slate-800 print:text-black font-medium">
+            <div className="flex justify-between text-primary print:text-black font-medium">
               <span>IGST (18%):</span>
               <MoneyText amount={invoice.igstAmount} />
             </div>
           )}
 
-          <div className="pt-1.5 border-t border-slate-300 flex justify-between font-black text-xs text-slate-950 print:text-black">
+          <div className="pt-1.5 border-t border flex justify-between font-black text-xs text-primary print:text-black">
             <span>Total:</span>
             <span className="font-mono"><MoneyText amount={invoice.totalAmount} /></span>
           </div>
 
           <div className="pt-4 text-center flex flex-col items-center">
-            <span className="font-bold block text-slate-950 print:text-black mb-1">For {companyName}</span>
+            <span className="font-bold block text-primary print:text-black mb-1">For {companyName}</span>
 
             {showSignature && signatureType === 'DSC' ? (
-              <div className="inline-flex items-center gap-1 p-1 px-2 mb-1 rounded border border-emerald-600 bg-emerald-50/80 text-emerald-950 text-[7.5px] text-left">
-                <CheckCircle2 className="h-3 w-3 text-emerald-600 shrink-0" />
+              <div className="inline-flex items-center gap-1 p-1 px-2 mb-1 rounded border border-status-success bg-status-success-subtle text-status-success-text text-[7.5px] text-left">
+                <CheckCircle2 className="h-3 w-3 text-status-success-text shrink-0" />
                 <div>
                   <div className="font-bold">Digitally Signed by {dscSignerName}</div>
-                  <div className="text-[6.5px] text-emerald-800 font-mono">
+                  <div className="text-[6.5px] text-status-success-text font-mono">
                     {dscDesignation} • {dscCertDetails || 'Valid DSC'}
                   </div>
                 </div>
@@ -226,7 +226,7 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
               <div className="h-6" />
             )}
 
-            <div className="w-full border-t border-slate-300 pt-0.5 text-[9px] text-slate-700 print:text-black uppercase font-bold">
+            <div className="w-full border-t border pt-0.5 text-[9px] text-secondary print:text-black uppercase font-bold">
               {settings?.['document.authorized_signatory_title'] || 'Authorised Signatory'}
             </div>
           </div>

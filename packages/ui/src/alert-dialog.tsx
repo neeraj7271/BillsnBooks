@@ -49,13 +49,13 @@ export function ConfirmDialog({
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogPortal>
-        <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in-0" />
-        <AlertDialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xl rounded-2xl animate-in fade-in-0 zoom-in-95">
+        <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-surface backdrop-blur-xs transition-opacity animate-in fade-in-0" />
+        <AlertDialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border border border-strong bg-white bg-surface p-6 shadow-xl rounded-2xl animate-in fade-in-0 zoom-in-95">
           <div className="flex flex-col space-y-2 text-left">
-            <AlertDialogPrimitive.Title className="text-base font-semibold text-slate-900 dark:text-slate-100">
+            <AlertDialogPrimitive.Title className="text-base font-semibold text-primary text-primary-inverse">
               {title}
             </AlertDialogPrimitive.Title>
-            <AlertDialogPrimitive.Description className="text-xs text-slate-500 dark:text-slate-400">
+            <AlertDialogPrimitive.Description className="text-xs text-muted text-muted">
               {description}
             </AlertDialogPrimitive.Description>
           </div>
@@ -72,7 +72,7 @@ export function ConfirmDialog({
             </div>
           )}
 
-          <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-subtle border-strong">
             <Button
               variant="outline"
               size="sm"

@@ -216,14 +216,14 @@ export function InvoiceCustomizerDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400">
+            <div className="p-2 rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus text-brand-text text-brand">
               <Sliders className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white">
+              <DialogTitle className="text-lg font-bold text-primary dark:text-white">
                 Invoice Branding & Output Customizer
               </DialogTitle>
-              <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
+              <DialogDescription className="text-xs text-muted text-muted">
                 Configure your company logo, signature / DSC stamp, UPI payment QR code, and custom terms & conditions.
               </DialogDescription>
             </div>
@@ -231,20 +231,20 @@ export function InvoiceCustomizerDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-300 font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs text-status-danger-text text-status-danger-text font-medium">
             {error}
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-1">
+        <div className="flex border-b border border-strong gap-1">
           <button
             type="button"
             onClick={() => setActiveTab('branding')}
             className={`pb-2.5 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition ${
               activeTab === 'branding'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-focus text-brand-text text-brand'
+                : 'border-transparent text-muted hover:text-primary hover:text-primary-inverse'
             }`}
           >
             <ImageIcon className="h-4 w-4" />
@@ -255,8 +255,8 @@ export function InvoiceCustomizerDialog({
             onClick={() => setActiveTab('signature')}
             className={`pb-2.5 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition ${
               activeTab === 'signature'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-focus text-brand-text text-brand'
+                : 'border-transparent text-muted hover:text-primary hover:text-primary-inverse'
             }`}
           >
             <FileSignature className="h-4 w-4" />
@@ -267,8 +267,8 @@ export function InvoiceCustomizerDialog({
             onClick={() => setActiveTab('payment_qr')}
             className={`pb-2.5 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition ${
               activeTab === 'payment_qr'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-focus text-brand-text text-brand'
+                : 'border-transparent text-muted hover:text-primary hover:text-primary-inverse'
             }`}
           >
             <QrIcon className="h-4 w-4" />
@@ -279,8 +279,8 @@ export function InvoiceCustomizerDialog({
             onClick={() => setActiveTab('terms')}
             className={`pb-2.5 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition ${
               activeTab === 'terms'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-focus text-brand-text text-brand'
+                : 'border-transparent text-muted hover:text-primary hover:text-primary-inverse'
             }`}
           >
             <FileText className="h-4 w-4" />
@@ -292,7 +292,7 @@ export function InvoiceCustomizerDialog({
         {activeTab === 'branding' && (
           <div className="space-y-4 py-2">
             <div className="flex flex-col sm:flex-row items-start gap-4">
-              <div className="h-28 w-28 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0 relative group">
+              <div className="h-28 w-28 rounded-2xl border-2 border-dashed border border-strong bg-canvas bg-surface flex items-center justify-center overflow-hidden shrink-0 relative group">
                 {logoUrl ? (
                   <img
                     src={logoUrl}
@@ -300,7 +300,7 @@ export function InvoiceCustomizerDialog({
                     className="h-full w-full object-contain p-2"
                   />
                 ) : (
-                  <div className="text-center p-2 text-slate-400">
+                  <div className="text-center p-2 text-muted">
                     <ImageIcon className="h-8 w-8 mx-auto mb-1 opacity-50" />
                     <span className="text-[10px]">No Logo</span>
                   </div>
@@ -308,10 +308,10 @@ export function InvoiceCustomizerDialog({
               </div>
 
               <div className="space-y-2 flex-1">
-                <div className="text-xs font-bold text-slate-900 dark:text-white">
+                <div className="text-xs font-bold text-primary dark:text-white">
                   Company Header Logo
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-muted text-muted">
                   Upload a high-resolution logo (transparent PNG or SVG recommended, max 10MB). This logo will appear on all generated invoices and print PDFs.
                 </p>
 
@@ -339,8 +339,8 @@ export function InvoiceCustomizerDialog({
                       variant="outline"
                       size="sm"
                       onClick={() => setLogoUrl('')}
-                      leftIcon={<Trash2 className="h-3.5 w-3.5 text-rose-500" />}
-                      className="text-rose-600 dark:text-rose-400"
+                      leftIcon={<Trash2 className="h-3.5 w-3.5 text-status-danger-text" />}
+                      className="text-status-danger-text text-status-danger-text"
                     >
                       Remove
                     </Button>
@@ -363,12 +363,12 @@ export function InvoiceCustomizerDialog({
         {/* Tab 2: Signature & DSC */}
         {activeTab === 'signature' && (
           <div className="space-y-4 py-2">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-canvas bg-surface border border border-strong">
               <div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white">
+                <div className="text-xs font-bold text-primary dark:text-white">
                   Print Signature Block
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-muted">
                   Enable or disable the signature / DSC block on invoices.
                 </div>
               </div>
@@ -376,7 +376,7 @@ export function InvoiceCustomizerDialog({
                 type="checkbox"
                 checked={showSignature}
                 onChange={(e) => setShowSignature(e.target.checked)}
-                className="h-4 w-4 rounded text-blue-600 border-slate-300 cursor-pointer"
+                className="h-4 w-4 rounded text-brand-text border cursor-pointer"
               />
             </div>
 
@@ -388,15 +388,15 @@ export function InvoiceCustomizerDialog({
                     onClick={() => setSignatureType('IMAGE')}
                     className={`p-3 rounded-xl border text-left transition ${
                       signatureType === 'IMAGE'
-                        ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200'
-                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+                        ? 'border-focus bg-brand-subtle/60 bg-brand/40 text-brand-text text-brand'
+                        : 'border border-strong hover:bg-canvas hover:bg-surface'
                     }`}
                   >
                     <div className="font-bold text-xs flex items-center gap-1.5">
-                      <FileSignature className="h-4 w-4 text-blue-600" />
+                      <FileSignature className="h-4 w-4 text-brand-text" />
                       Handwritten Image / Stamp
                     </div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-muted text-muted mt-0.5">
                       Upload transparent PNG of physical signature or company seal stamp.
                     </div>
                   </button>
@@ -406,24 +406,24 @@ export function InvoiceCustomizerDialog({
                     onClick={() => setSignatureType('DSC')}
                     className={`p-3 rounded-xl border text-left transition ${
                       signatureType === 'DSC'
-                        ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200'
-                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+                        ? 'border-status-success bg-status-success-subtle bg-status-success text-status-success-text text-status-success-text'
+                        : 'border border-strong hover:bg-canvas hover:bg-surface'
                     }`}
                   >
                     <div className="font-bold text-xs flex items-center gap-1.5">
-                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                      <ShieldCheck className="h-4 w-4 text-status-success-text" />
                       Digital Signature (DSC / e-Sign)
                     </div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-muted text-muted mt-0.5">
                       Statutory Class-3 / eMudhra verified cryptographic signature box.
                     </div>
                   </button>
                 </div>
 
                 {signatureType === 'IMAGE' && (
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
+                  <div className="p-4 rounded-xl border border border-strong space-y-3">
                     <div className="flex items-center gap-4">
-                      <div className="h-20 w-36 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 flex items-center justify-center p-2 shrink-0">
+                      <div className="h-20 w-36 rounded-lg border-2 border-dashed border border-strong bg-white bg-surface flex items-center justify-center p-2 shrink-0">
                         {signatureUrl ? (
                           <img
                             src={signatureUrl}
@@ -431,12 +431,12 @@ export function InvoiceCustomizerDialog({
                             className="max-h-full max-w-full object-contain"
                           />
                         ) : (
-                          <span className="text-[10px] text-slate-400">No Signature</span>
+                          <span className="text-[10px] text-muted">No Signature</span>
                         )}
                       </div>
 
                       <div className="space-y-1.5 flex-1">
-                        <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        <div className="text-xs font-semibold text-primary text-primary-inverse">
                           Physical Sign / Stamp Upload
                         </div>
                         <input
@@ -462,7 +462,7 @@ export function InvoiceCustomizerDialog({
                               variant="outline"
                               size="sm"
                               onClick={() => setSignatureUrl('')}
-                              className="text-rose-500"
+                              className="text-status-danger-text"
                             >
                               Clear
                             </Button>
@@ -474,8 +474,8 @@ export function InvoiceCustomizerDialog({
                 )}
 
                 {signatureType === 'DSC' && (
-                  <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
-                    <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <div className="p-4 rounded-xl border border border-strong space-y-3">
+                    <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-2">
                       <span>DSC Certificate Credentials</span>
                       <Badge variant="success" size="xs">
                         IT Act 2000 Compliant
@@ -513,16 +513,16 @@ export function InvoiceCustomizerDialog({
 
                     {/* Live DSC Preview Stamp */}
                     <div className="pt-2">
-                      <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                      <div className="text-[11px] font-semibold text-muted mb-1">
                         DSC Stamp Preview on Invoices:
                       </div>
-                      <div className="inline-flex items-center gap-2 p-2 px-3 rounded-lg border border-emerald-600 bg-emerald-50/70 text-emerald-950 dark:bg-emerald-950/40 dark:text-emerald-200 text-xs">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <div className="inline-flex items-center gap-2 p-2 px-3 rounded-lg border border-status-success bg-status-success-subtle text-status-success-text bg-status-success text-status-success-text text-xs">
+                        <CheckCircle2 className="h-4 w-4 text-status-success-text shrink-0" />
                         <div>
                           <div className="font-bold">
                             Digitally Signed by {dscSignerName || 'Authorized Signatory'}
                           </div>
-                          <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-mono">
+                          <div className="text-[10px] text-status-success-text text-status-success-text font-mono">
                             {dscDesignation || 'Authorised Signatory'} • {dscCertDetails}
                           </div>
                         </div>
@@ -547,12 +547,12 @@ export function InvoiceCustomizerDialog({
         {/* Tab 3: Payment QR Code */}
         {activeTab === 'payment_qr' && (
           <div className="space-y-4 py-2">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-canvas bg-surface border border border-strong">
               <div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white">
+                <div className="text-xs font-bold text-primary dark:text-white">
                   Dynamic UPI Payment QR Code
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-muted">
                   Prints an NPCI-compliant UPI QR code on customer invoices for instant payments via GPay, PhonePe, Paytm, or BHIM.
                 </div>
               </div>
@@ -560,12 +560,12 @@ export function InvoiceCustomizerDialog({
                 type="checkbox"
                 checked={showQrCode}
                 onChange={(e) => setShowQrCode(e.target.checked)}
-                className="h-4 w-4 rounded text-blue-600 border-slate-300 cursor-pointer"
+                className="h-4 w-4 rounded text-brand-text border cursor-pointer"
               />
             </div>
 
             {showQrCode && (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+              <div className="p-4 rounded-xl border border border-strong space-y-4">
                 <FormField label="Merchant UPI ID / VPA">
                   <Input
                     value={upiId}
@@ -575,17 +575,17 @@ export function InvoiceCustomizerDialog({
                   />
                 </FormField>
 
-                <div className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
-                  <div className="p-2 bg-white rounded-lg shadow-2xs border border-slate-200 shrink-0">
+                <div className="flex items-center gap-4 p-3 rounded-xl bg-canvas bg-surface border border border-strong">
+                  <div className="p-2 bg-white rounded-lg shadow-2xs border border shrink-0">
                     <QrCode value={demoUpiUri} size={80} />
                   </div>
                   <div className="space-y-1">
-                    <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                    <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-brand-text" />
                       Dynamic Amount & Ref QR
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed">
-                      When a customer scans this QR code from their phone, their UPI app automatically prefills your VPA (<span className="font-mono font-semibold text-slate-800 dark:text-slate-200">{upiId || 'merchant@upi'}</span>), the exact payable invoice amount, and the invoice reference number.
+                    <p className="text-[11px] text-muted leading-relaxed">
+                      When a customer scans this QR code from their phone, their UPI app automatically prefills your VPA (<span className="font-mono font-semibold text-primary text-primary-inverse">{upiId || 'merchant@upi'}</span>), the exact payable invoice amount, and the invoice reference number.
                     </p>
                   </div>
                 </div>
@@ -599,10 +599,10 @@ export function InvoiceCustomizerDialog({
           <div className="space-y-4 py-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white">
+                <div className="text-xs font-bold text-primary dark:text-white">
                   Statutory Terms & Conditions
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-muted">
                   These terms are printed on the invoice document and statutory declarations.
                 </div>
               </div>
@@ -623,15 +623,15 @@ export function InvoiceCustomizerDialog({
               value={terms}
               onChange={(e) => setTerms(e.target.value)}
               placeholder="Enter company terms and conditions..."
-              className="w-full text-xs font-mono p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full text-xs font-mono p-3 rounded-xl border border border-strong bg-white bg-surface text-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
-            <div className="text-right text-[10px] text-slate-400">
+            <div className="text-right text-[10px] text-muted">
               {terms.length} / 2000 characters
             </div>
           </div>
         )}
 
-        <DialogFooter className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-3">
+        <DialogFooter className="mt-4 border-t border border-strong pt-3">
           <Button
             type="button"
             variant="outline"
@@ -646,7 +646,7 @@ export function InvoiceCustomizerDialog({
             size="sm"
             onClick={handleSave}
             loading={saving}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+            className="bg-brand hover:bg-brand text-white font-semibold"
           >
             Save & Apply to Invoices
           </Button>

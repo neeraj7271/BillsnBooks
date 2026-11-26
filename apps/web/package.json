@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "dev:web": "next dev",
-    "build": "next build",
+    "build": "pnpm lint:tokens && next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:tokens": "node -e \"const fs=require('fs'),p=require('path');const re=/\\b(?:dark:|hover:|focus:|focus-visible:|active:|group-hover:|print:)*(?:text|bg|border|ring|from|to|via|divide|placeholder|fill|stroke)-(?:slate|zinc|gray|blue|rose|emerald|indigo|amber|orange|sky|violet|purple)-[0-9]+(?:\\/[0-9]+)?\\b/g;let bad=[];function walk(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory())walk(f);else if(/\\.(ts|tsx)$/.test(e.name)){const c=fs.readFileSync(f,'utf8');const m=c.match(re);if(m)bad.push(f+': '+[...new Set(m)].slice(0,5).join(', '));}}}walk('src');if(bad.length){console.error('Raw palette tokens found:\\n'+bad.join('\\n'));process.exit(1);}console.log('Semantic tokens check passed (0 raw palette classes).');\"",
     "typecheck": "tsc --noEmit",
     "test": "echo 'Web application verified'"
   },

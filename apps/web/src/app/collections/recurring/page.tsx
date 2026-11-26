@@ -91,8 +91,8 @@ export default function RecurringSchedulesPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{row.partyName || 'Customer'}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="font-bold text-primary dark:text-white">{row.partyName || 'Customer'}</div>
+          <div className="text-[11px] text-muted text-muted">
             {row.templatePayload.items[0]?.description || 'Billing Template'}
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function RecurringSchedulesPage() {
       header: 'Cadence',
       key: 'frequency',
       cell: (row) => (
-        <span className="font-semibold text-slate-700 dark:text-slate-300 capitalize text-xs">
+        <span className="font-semibold text-secondary text-muted capitalize text-xs">
           {row.frequency.toLowerCase()}
         </span>
       ),
@@ -111,7 +111,7 @@ export default function RecurringSchedulesPage() {
       header: 'Next Run Date',
       key: 'nextRunDate',
       cell: (row) => (
-        <span className="font-mono text-xs font-semibold text-blue-600 dark:text-blue-400">
+        <span className="font-mono text-xs font-semibold text-brand-text text-brand">
           {row.nextRunDate}
         </span>
       ),
@@ -120,7 +120,7 @@ export default function RecurringSchedulesPage() {
       header: 'Last Run Date',
       key: 'lastRunDate',
       cell: (row) => (
-        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+        <span className="font-mono text-xs text-muted text-muted">
           {row.lastRunDate || 'Never'}
         </span>
       ),
@@ -129,7 +129,7 @@ export default function RecurringSchedulesPage() {
       header: 'Runs Executed',
       key: 'totalRuns',
       cell: (row) => (
-        <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">
+        <span className="text-xs font-bold text-primary dark:text-white tabular-nums">
           {row.totalRuns} {row.maxRuns ? `/ ${row.maxRuns}` : ''}
         </span>
       ),
@@ -163,7 +163,7 @@ export default function RecurringSchedulesPage() {
             onClick={() => handleTriggerRun(row)}
             loading={actionLoadingId === row.id}
             disabled={row.status !== RecurringScheduleStatus.ACTIVE}
-            leftIcon={<Play className="h-3 w-3 text-emerald-600" />}
+            leftIcon={<Play className="h-3 w-3 text-status-success-text" />}
           >
             Run Now
           </Button>
@@ -174,9 +174,9 @@ export default function RecurringSchedulesPage() {
             loading={actionLoadingId === row.id}
           >
             {row.status === RecurringScheduleStatus.ACTIVE ? (
-              <Pause className="h-3 w-3 text-amber-600" />
+              <Pause className="h-3 w-3 text-status-warning-text" />
             ) : (
-              <Play className="h-3 w-3 text-blue-600" />
+              <Play className="h-3 w-3 text-brand-text" />
             )}
           </Button>
         </div>
@@ -190,12 +190,12 @@ export default function RecurringSchedulesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
               Recurring Invoicing Schedules
             </h1>
             <Badge variant="brand" size="sm">Automation</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted text-muted">
             Automated recurring invoice generators with statutory GST rule verification on execution dates.
           </p>
         </div>
@@ -222,40 +222,40 @@ export default function RecurringSchedulesPage() {
       </div>
 
       {successMessage && (
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <div className="p-3 bg-status-success-subtle bg-status-success border border-status-success border-status-success rounded-xl text-status-success-text text-status-success-text text-xs flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success-text text-status-success-text" />
           <span>{successMessage}</span>
         </div>
       )}
 
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs border-l-4 border-l-emerald-500">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Active Schedules</div>
-          <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs border-l-4 border-l-emerald-500">
+          <div className="text-xs font-semibold text-muted text-muted">Active Schedules</div>
+          <div className="mt-1 text-2xl font-black text-primary dark:text-white tabular-nums">
             {activeCount}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">Executing automatically</div>
+          <div className="text-[11px] text-muted text-muted">Executing automatically</div>
         </Card>
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs border-l-4 border-l-amber-500">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Paused Schedules</div>
-          <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs border-l-4 border-l-amber-500">
+          <div className="text-xs font-semibold text-muted text-muted">Paused Schedules</div>
+          <div className="mt-1 text-2xl font-black text-primary dark:text-white tabular-nums">
             {pausedCount}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">On-hold billing</div>
+          <div className="text-[11px] text-muted text-muted">On-hold billing</div>
         </Card>
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs border-l-4 border-l-blue-500">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Generated Invoices</div>
-          <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+        <Card className="p-4 bg-white bg-surface border border border-strong rounded-xl shadow-xs border-l-4 border-l-blue-500">
+          <div className="text-xs font-semibold text-muted text-muted">Generated Invoices</div>
+          <div className="mt-1 text-2xl font-black text-primary dark:text-white tabular-nums">
             {totalInvoicesGen}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">Total automated cycles</div>
+          <div className="text-[11px] text-muted text-muted">Total automated cycles</div>
         </Card>
       </div>
 
       {/* DataTable */}
       <div className="space-y-3">
-        <div className="text-sm font-bold text-slate-900 dark:text-white">Active Recurring Pipelines</div>
+        <div className="text-sm font-bold text-primary dark:text-white">Active Recurring Pipelines</div>
         <DataTable
           columns={columns}
           data={schedules}

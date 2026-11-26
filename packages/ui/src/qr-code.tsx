@@ -52,7 +52,7 @@ export function QrCode({
     return (
       <div
         style={{ width: size, height: size }}
-        className="flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse text-xs text-slate-400"
+        className="flex items-center justify-center rounded-lg bg-surface-sunken bg-surface-raised animate-pulse text-xs text-muted"
       >
         Generating QR...
       </div>

@@ -54,36 +54,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-canvas bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white font-bold shadow-lg shadow-blue-500/25 mb-4">
+        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-brand via-brand to-brand text-white font-bold shadow-lg shadow-blue-500/25 mb-4">
           <Sparkles className="h-6 w-6" />
         </div>
         <div className="flex items-center justify-center gap-2">
-          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
             Sign In to Antigravity
           </h1>
         </div>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-2 text-sm text-secondary text-muted">
           Enter your registered administrator email to access your books.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <Card className="p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
+        <Card className="p-8 bg-white bg-surface border border border-strong rounded-2xl shadow-xl">
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs font-medium text-rose-600 dark:text-rose-400">
+            <div className="mb-6 p-3.5 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs font-medium text-status-danger-text text-status-danger-text">
               {error}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary text-muted">
                 Email Address
               </label>
               <div className="relative mt-1">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted text-muted" />
                 <Input
                   required
                   type="email"
@@ -96,11 +96,11 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary text-muted">
                 Password
               </label>
               <div className="relative mt-1">
-                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted text-muted" />
                 <Input
                   required
                   type="password"
@@ -124,9 +124,9 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500">
+          <div className="mt-6 pt-4 border-t border-subtle border-strong text-center text-xs text-muted">
             Need to setup a new tenant workspace?{' '}
-            <Link href="/auth/signup" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+            <Link href="/auth/signup" className="font-semibold text-brand-text text-brand hover:underline">
               Sign Up
             </Link>
           </div>

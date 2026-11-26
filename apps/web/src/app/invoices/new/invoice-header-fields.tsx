@@ -67,7 +67,7 @@ export function InvoiceHeaderFields({
   return (
     <div className="space-y-4">
       {/* Document Type, Numbering, and Tax Classification (Spacious 3-column layout) */}
-      <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+      <div className="p-4 rounded-xl bg-canvas bg-surface border border border-strong space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <FormField label="Document Type" required>
             <Select
@@ -86,7 +86,7 @@ export function InvoiceHeaderFields({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-secondary text-muted">
                   Invoice Number
                 </label>
                 {customInvoiceNumber ? (
@@ -99,7 +99,7 @@ export function InvoiceHeaderFields({
                 <button
                   type="button"
                   onClick={onOpenSettings}
-                  className="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium inline-flex items-center gap-1 cursor-pointer transition-colors"
+                  className="text-xs text-brand-text hover:text-brand-text text-brand font-medium inline-flex items-center gap-1 cursor-pointer transition-colors"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>Configure</span>
@@ -108,7 +108,7 @@ export function InvoiceHeaderFields({
             </div>
             <div
               onClick={onOpenSettings}
-              className="h-10 px-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex items-center justify-between text-xs cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors shadow-2xs group"
+              className="h-10 px-3.5 rounded-lg border border border-strong bg-white bg-surface flex items-center justify-between text-xs cursor-pointer hover:border-focus hover:border-focus transition-colors shadow-2xs group"
               title={
                 customInvoiceNumber
                   ? `Custom number specified: ${customInvoiceNumber}`
@@ -116,30 +116,30 @@ export function InvoiceHeaderFields({
               }
             >
               <div className="flex items-center gap-2 min-w-0">
-                <Hash className="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
+                <Hash className="w-4 h-4 text-muted group-hover:text-brand-text transition-colors shrink-0" />
                 {customInvoiceNumber ? (
-                  <span className="font-mono font-bold text-sm text-blue-600 dark:text-blue-400 tracking-wider">
+                  <span className="font-mono font-bold text-sm text-brand-text text-brand tracking-wider">
                     {customInvoiceNumber}
                   </span>
                 ) : fetchingNumber && !autoInvoiceNumber ? (
-                  <span className="text-slate-400 dark:text-slate-500 italic font-sans text-xs">
+                  <span className="text-muted text-muted italic font-sans text-xs">
                     Allocating sequence...
                   </span>
                 ) : (
-                  <span className="font-mono font-bold text-sm text-slate-900 dark:text-white tracking-wider">
+                  <span className="font-mono font-bold text-sm text-primary dark:text-white tracking-wider">
                     {autoInvoiceNumber || 'INV-00001'}
                   </span>
                 )}
               </div>
-              <span className="text-[11px] font-medium text-slate-400 group-hover:text-blue-500 transition-colors shrink-0">
+              <span className="text-[11px] font-medium text-muted group-hover:text-brand-text transition-colors shrink-0">
                 Edit Series &rarr;
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] text-muted text-muted">
               {customInvoiceNumber ? (
                 <span>Custom number active. Click Configure to revert to auto.</span>
               ) : (
-                <span>Next statutory sequence: <strong className="font-mono text-slate-700 dark:text-slate-200">{autoInvoiceNumber || 'next sequence'}</strong></span>
+                <span>Next statutory sequence: <strong className="font-mono text-secondary text-primary-inverse">{autoInvoiceNumber || 'next sequence'}</strong></span>
               )}
             </p>
           </div>
@@ -159,19 +159,19 @@ export function InvoiceHeaderFields({
         </div>
 
         {/* Statutory Reverse Charge Mechanism (RCM) Footer Bar */}
-        <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="pt-3 border-t border border-strong flex flex-wrap items-center justify-between gap-3 text-xs">
           <label className="flex items-center gap-2.5 cursor-pointer select-none">
             <input
               type="checkbox"
               id="rcm-checkbox"
               checked={isRcm}
               onChange={(e) => onRcmChange(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              className="h-4 w-4 rounded border text-brand-text focus:ring-focus-ring cursor-pointer"
             />
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
+            <span className="font-semibold text-secondary text-muted">
               Reverse Charge Mechanism (RCM)
             </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
+            <span className="text-[11px] text-muted text-muted hidden sm:inline">
               — Tax liability discharged directly by recipient under GST Section 9(3) / 9(4)
             </span>
           </label>
@@ -242,8 +242,8 @@ export function InvoiceHeaderFields({
 
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Place of Supply (POS) <span className="text-rose-500">*</span>
+            <label className="text-xs font-semibold text-secondary text-muted">
+              Place of Supply (POS) <span className="text-status-danger-text">*</span>
             </label>
             <Badge variant={isIntraState ? 'brand' : 'info'} size="xs">
               {isIntraState ? 'Intra-State (CGST+SGST)' : 'Inter-State (IGST)'}
@@ -264,7 +264,7 @@ export function InvoiceHeaderFields({
       {selectedParty && (() => {
         const identity = formatPartyTaxIdentity(selectedParty.registrationType, selectedParty.gstin);
         return (
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-xs flex flex-wrap gap-4 items-center">
+          <div className="p-3 rounded-xl bg-canvas bg-surface-raised border border-subtle border-strong text-xs flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-1.5">
               <span className="font-bold">Tax Treatment:</span>
               <Badge variant={identity.badgeVariant} size="xs">

@@ -218,18 +218,18 @@ export default function InvoiceBrandingSettingsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/invoices"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white transition shadow-2xs"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border border-strong bg-white bg-surface text-muted hover:text-primary dark:hover:text-white transition shadow-2xs"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <h1 className="text-xl font-black text-primary dark:text-white flex items-center gap-2">
               <span>Invoice Branding & Print Settings</span>
               <Badge variant="info" size="xs">
                 Statutory Config
               </Badge>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted text-muted">
               Configure company logos, signature & DSC seals, UPI QR codes, and custom terms & conditions for generated invoices.
             </p>
           </div>
@@ -237,7 +237,7 @@ export default function InvoiceBrandingSettingsPage() {
 
         <div className="flex items-center gap-2">
           {savedSuccess && (
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <span className="text-xs font-semibold text-status-success-text text-status-success-text flex items-center gap-1">
               <Check className="h-4 w-4" />
               Settings Saved
             </span>
@@ -247,7 +247,7 @@ export default function InvoiceBrandingSettingsPage() {
             size="sm"
             onClick={handleSaveAll}
             loading={saving}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs"
+            className="bg-brand hover:bg-brand text-white font-semibold shadow-xs"
           >
             Save All Settings
           </Button>
@@ -255,7 +255,7 @@ export default function InvoiceBrandingSettingsPage() {
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-300 font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs text-status-danger-text text-status-danger-text font-medium">
           {error}
         </div>
       )}
@@ -264,7 +264,7 @@ export default function InvoiceBrandingSettingsPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400">
+            <div className="p-2 rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus text-brand-text text-brand">
               <ImageIcon className="h-4 w-4" />
             </div>
             <div>
@@ -277,7 +277,7 @@ export default function InvoiceBrandingSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row items-start gap-4">
-            <div className="h-24 w-28 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-2 shrink-0">
+            <div className="h-24 w-28 rounded-xl border-2 border-dashed border border-strong bg-canvas bg-surface flex items-center justify-center p-2 shrink-0">
               {logoUrl ? (
                 <img
                   src={logoUrl}
@@ -285,12 +285,12 @@ export default function InvoiceBrandingSettingsPage() {
                   className="max-h-full max-w-full object-contain"
                 />
               ) : (
-                <span className="text-[10px] text-slate-400">No Logo</span>
+                <span className="text-[10px] text-muted">No Logo</span>
               )}
             </div>
 
             <div className="space-y-2 flex-1">
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 Upload a transparent PNG, SVG, or high-res JPG (up to 2MB).
               </p>
               <input
@@ -316,8 +316,8 @@ export default function InvoiceBrandingSettingsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setLogoUrl('')}
-                    leftIcon={<Trash2 className="h-3.5 w-3.5 text-rose-500" />}
-                    className="text-rose-600"
+                    leftIcon={<Trash2 className="h-3.5 w-3.5 text-status-danger-text" />}
+                    className="text-status-danger-text"
                   >
                     Remove Logo
                   </Button>
@@ -342,7 +342,7 @@ export default function InvoiceBrandingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-900 text-purple-600 dark:text-purple-400">
+              <div className="p-2 rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus text-brand-text text-brand">
                 <FileSignature className="h-4 w-4" />
               </div>
               <div>
@@ -352,12 +352,12 @@ export default function InvoiceBrandingSettingsPage() {
                 </CardDescription>
               </div>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-secondary text-muted">
               <input
                 type="checkbox"
                 checked={showSignature}
                 onChange={(e) => setShowSignature(e.target.checked)}
-                className="h-4 w-4 rounded text-blue-600"
+                className="h-4 w-4 rounded text-brand-text"
               />
               <span>Enable on Invoices</span>
             </label>
@@ -372,15 +372,15 @@ export default function InvoiceBrandingSettingsPage() {
                 onClick={() => setSignatureType('IMAGE')}
                 className={`p-3 rounded-xl border text-left transition ${
                   signatureType === 'IMAGE'
-                    ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+                    ? 'border-focus bg-brand-subtle/60 bg-brand/40 text-brand-text text-brand'
+                    : 'border border-strong hover:bg-canvas hover:bg-surface'
                 }`}
               >
                 <div className="font-bold text-xs flex items-center gap-1.5">
-                  <FileSignature className="h-4 w-4 text-blue-600" />
+                  <FileSignature className="h-4 w-4 text-brand-text" />
                   Physical Handwritten Image / Stamp
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">
+                <div className="text-[10px] text-muted mt-0.5">
                   Upload scanned signature or official seal stamp.
                 </div>
               </button>
@@ -390,23 +390,23 @@ export default function InvoiceBrandingSettingsPage() {
                 onClick={() => setSignatureType('DSC')}
                 className={`p-3 rounded-xl border text-left transition ${
                   signatureType === 'DSC'
-                    ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
+                    ? 'border-status-success bg-status-success-subtle bg-status-success text-status-success-text text-status-success-text'
+                    : 'border border-strong hover:bg-canvas hover:bg-surface'
                 }`}
               >
                 <div className="font-bold text-xs flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <ShieldCheck className="h-4 w-4 text-status-success-text" />
                   Digital Signature Certificate (DSC)
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">
+                <div className="text-[10px] text-muted mt-0.5">
                   Statutory cryptographic verification block (IT Act 2000).
                 </div>
               </button>
             </div>
 
             {signatureType === 'IMAGE' && (
-              <div className="flex items-center gap-4 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                <div className="h-16 w-32 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 flex items-center justify-center p-1.5 shrink-0">
+              <div className="flex items-center gap-4 p-3 rounded-xl border border border-strong bg-canvas bg-surface">
+                <div className="h-16 w-32 rounded border border border-strong bg-white bg-surface flex items-center justify-center p-1.5 shrink-0">
                   {signatureUrl ? (
                     <img
                       src={signatureUrl}
@@ -414,7 +414,7 @@ export default function InvoiceBrandingSettingsPage() {
                       className="max-h-full max-w-full object-contain"
                     />
                   ) : (
-                    <span className="text-[10px] text-slate-400">No Image</span>
+                    <span className="text-[10px] text-muted">No Image</span>
                   )}
                 </div>
                 <div className="space-y-1.5">
@@ -441,7 +441,7 @@ export default function InvoiceBrandingSettingsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setSignatureUrl('')}
-                        className="text-rose-500"
+                        className="text-status-danger-text"
                       >
                         Clear
                       </Button>
@@ -452,7 +452,7 @@ export default function InvoiceBrandingSettingsPage() {
             )}
 
             {signatureType === 'DSC' && (
-              <div className="space-y-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+              <div className="space-y-3 p-3 rounded-xl border border border-strong bg-canvas bg-surface">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormField label="Certificate Signer Full Name">
                     <Input
@@ -482,16 +482,16 @@ export default function InvoiceBrandingSettingsPage() {
                 </FormField>
 
                 <div className="pt-1">
-                  <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                  <div className="text-[11px] font-semibold text-muted mb-1">
                     Invoice DSC Verification Stamp Preview:
                   </div>
-                  <div className="inline-flex items-center gap-2 p-2 px-3 rounded-lg border border-emerald-600 bg-emerald-50/70 text-emerald-950 dark:bg-emerald-950/40 dark:text-emerald-200 text-xs">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <div className="inline-flex items-center gap-2 p-2 px-3 rounded-lg border border-status-success bg-status-success-subtle text-status-success-text bg-status-success text-status-success-text text-xs">
+                    <CheckCircle2 className="h-4 w-4 text-status-success-text shrink-0" />
                     <div>
                       <div className="font-bold">
                         Digitally Signed by {dscSignerName || 'Authorized Signatory'}
                       </div>
-                      <div className="text-[10px] text-emerald-800 dark:text-emerald-300 font-mono">
+                      <div className="text-[10px] text-status-success-text text-status-success-text font-mono">
                         {dscDesignation || 'Authorised Signatory'} • {dscCertDetails}
                       </div>
                     </div>
@@ -517,7 +517,7 @@ export default function InvoiceBrandingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400">
+              <div className="p-2 rounded-xl bg-status-success-subtle bg-status-success border border-status-success border-status-success text-status-success-text text-status-success-text">
                 <QrIcon className="h-4 w-4" />
               </div>
               <div>
@@ -527,12 +527,12 @@ export default function InvoiceBrandingSettingsPage() {
                 </CardDescription>
               </div>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-secondary text-muted">
               <input
                 type="checkbox"
                 checked={showQrCode}
                 onChange={(e) => setShowQrCode(e.target.checked)}
-                className="h-4 w-4 rounded text-blue-600"
+                className="h-4 w-4 rounded text-brand-text"
               />
               <span>Enable UPI QR</span>
             </label>
@@ -550,16 +550,16 @@ export default function InvoiceBrandingSettingsPage() {
               />
             </FormField>
 
-            <div className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
-              <div className="p-2 bg-white rounded-lg shadow-2xs border border-slate-200 shrink-0">
+            <div className="flex items-center gap-4 p-3 rounded-xl bg-canvas bg-surface border border border-strong">
+              <div className="p-2 bg-white rounded-lg shadow-2xs border border shrink-0">
                 <QrCode value={demoUpiUri} size={84} />
               </div>
               <div className="space-y-1">
-                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                <div className="text-xs font-bold text-primary dark:text-white flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-brand-text" />
                   Dynamic Invoice-Linked QR Code
                 </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="text-[11px] text-muted leading-relaxed">
                   When customers scan this code using Google Pay, PhonePe, Paytm, or BHIM, the app automatically fills your UPI ID, recipient name, exact invoice total, and invoice number.
                 </p>
               </div>
@@ -573,7 +573,7 @@ export default function InvoiceBrandingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900 text-amber-600 dark:text-amber-400">
+              <div className="p-2 rounded-xl bg-status-warning-subtle bg-status-warning border border-status-warning border-status-warning text-status-warning-text text-status-warning-text">
                 <FileText className="h-4 w-4" />
               </div>
               <div>
@@ -601,9 +601,9 @@ export default function InvoiceBrandingSettingsPage() {
             value={terms}
             onChange={(e) => setTerms(e.target.value)}
             placeholder="Enter custom terms and conditions..."
-            className="w-full text-xs font-mono p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full text-xs font-mono p-3 rounded-xl border border border-strong bg-white bg-surface text-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-focus-ring"
           />
-          <div className="text-right text-[10px] text-slate-400">
+          <div className="text-right text-[10px] text-muted">
             {terms.length} / 2000 characters
           </div>
         </CardContent>
@@ -616,7 +616,7 @@ export default function InvoiceBrandingSettingsPage() {
           size="md"
           onClick={handleSaveAll}
           loading={saving}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs px-6"
+          className="bg-brand hover:bg-brand text-white font-semibold shadow-xs px-6"
         >
           Save All Settings
         </Button>

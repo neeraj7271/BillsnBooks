@@ -36,12 +36,12 @@ export default function StatutoryCalendarPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
               Statutory Compliance Calendar
             </h1>
             <Badge variant="brand" size="sm">Automated Schedule</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted text-muted">
             Real-time statutory tax and corporate filing deadlines across all client entities.
           </p>
         </div>
@@ -66,18 +66,18 @@ export default function StatutoryCalendarPage() {
 
       {/* Timeline Feed */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-muted text-muted">
           Deadlines & Filing Milestones
         </h3>
 
         {(!data?.upcomingDeadlines || data.upcomingDeadlines.length === 0) && (
           <Card>
             <CardContent className="py-12 text-center">
-              <Calendar className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <Calendar className="h-10 w-10 text-muted text-secondary mx-auto mb-2" />
+              <p className="text-sm font-semibold text-secondary text-muted">
                 No statutory deadlines recorded for this month
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Tasks created in the practice manager will automatically plot onto this timeline.
               </p>
             </CardContent>
@@ -92,17 +92,17 @@ export default function StatutoryCalendarPage() {
             return (
               <div
                 key={group.date}
-                className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs space-y-3"
+                className="p-4 rounded-2xl border border border-strong bg-white bg-surface shadow-xs space-y-3"
               >
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-2 border-b border-subtle border-strong">
                   <div className="flex items-center gap-2">
-                    <span className="font-extrabold text-slate-900 dark:text-white text-sm">
+                    <span className="font-extrabold text-primary dark:text-white text-sm">
                       <DateText date={group.date} />
                     </span>
                     {isToday && <Badge variant="brand" size="xs">Due Today</Badge>}
                     {isPast && <Badge variant="danger" size="xs">Due Date Elapsed</Badge>}
                   </div>
-                  <span className="text-xs text-slate-400 font-medium">
+                  <span className="text-xs text-muted font-medium">
                     {group.tasks?.length} filing(s)
                   </span>
                 </div>
@@ -111,20 +111,20 @@ export default function StatutoryCalendarPage() {
                   {group.tasks?.map((t: any) => (
                     <div
                       key={t.id}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900 flex items-center justify-between shadow-xs"
+                      className="p-3 rounded-xl border border border-strong bg-canvas bg-surface flex items-center justify-between shadow-xs"
                     >
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-xs text-slate-900 dark:text-white">
+                          <span className="font-bold text-xs text-primary dark:text-white">
                             {t.title}
                           </span>
                           <Badge variant="neutral" size="xs">{t.category}</Badge>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="text-[11px] text-muted text-muted mt-0.5">
                           Client: <span className="font-semibold">{t.clientName}</span>
                         </div>
                         {t.filingAcknowledgmentNumber && (
-                          <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+                          <div className="text-[10px] font-mono text-status-success-text text-status-success-text">
                             ARN: {t.filingAcknowledgmentNumber}
                           </div>
                         )}

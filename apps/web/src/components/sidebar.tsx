@@ -209,7 +209,7 @@ export function Sidebar({
                     label: 'Tally Prime Bridge',
                     href: '/settings/tally',
                     icon: Server,
-                    statusDot: tallyOnline ? 'bg-emerald-500' : 'bg-amber-500',
+                    statusDot: tallyOnline ? 'bg-status-success' : 'bg-status-warning',
                   },
                 ]
               : []),
@@ -218,25 +218,25 @@ export function Sidebar({
       ];
 
   const sidebarContent = (
-    <div className="flex h-full flex-col justify-between overflow-y-auto overflow-x-hidden bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-colors duration-200">
+    <div className="flex h-full flex-col justify-between overflow-y-auto overflow-x-hidden bg-white bg-surface border-r border border-strong transition-colors duration-200">
       {/* Sidebar Header: Brand & Collapse Trigger */}
-      <div className="flex flex-col border-b border-slate-100 dark:border-slate-800/80 p-4">
+      <div className="flex flex-col border-b border-subtle border-strong p-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white font-bold shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200 shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-brand via-brand to-brand text-white font-bold shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200 shrink-0">
               <Sparkles className="h-4.5 w-4.5" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col animate-in fade-in duration-150">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  <span className="text-base font-extrabold tracking-tight text-primary dark:text-white leading-tight">
                     Antigravity
                   </span>
-                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-1.5 py-0.2 rounded border border-blue-200 dark:border-blue-900/60 leading-tight">
+                  <span className="text-[10px] font-bold text-brand-text text-brand bg-brand-subtle bg-brand px-1.5 py-0.2 rounded border border-focus border-focus leading-tight">
                     Books
                   </span>
                 </div>
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold leading-none">
+                <span className="text-[10px] uppercase tracking-wider text-muted text-muted font-semibold leading-none">
                   Enterprise Financial OS
                 </span>
               </div>
@@ -249,7 +249,7 @@ export function Sidebar({
             onClick={onToggleCollapse}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition shadow-xs"
+            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border border-strong bg-canvas bg-surface-raised text-muted hover:text-primary dark:hover:text-white transition shadow-xs"
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
@@ -258,7 +258,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="lg:hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="lg:hidden text-muted hover:text-secondary hover:text-primary-inverse"
           >
             <X className="h-5 w-5" />
           </button>
@@ -268,14 +268,14 @@ export function Sidebar({
         {!isCollapsed && (
           <Link
             href="/settings/companies"
-            className="mt-4 flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 p-2.5 text-xs text-slate-700 dark:text-slate-300 hover:border-blue-400 dark:hover:border-blue-600 transition"
+            className="mt-4 flex items-center gap-2.5 rounded-xl border border border-strong bg-canvas bg-surface-raised p-2.5 text-xs text-secondary text-muted hover:border-focus hover:border-focus transition"
           >
-            <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <Building2 className="h-4 w-4 text-brand-text text-brand shrink-0" />
             <div className="min-w-0 flex-1">
-              <span className="font-bold block text-slate-900 dark:text-slate-100 truncate">
+              <span className="font-bold block text-primary text-primary-inverse truncate">
                 {activeCompany?.legalName || 'Acme Solutions'}
               </span>
-              <span className="font-mono text-[10px] text-slate-400 block truncate">
+              <span className="font-mono text-[10px] text-muted block truncate">
                 {activeCompany?.branches?.[0]?.gstin || (activeCompany?.pan ? `PAN: ${activeCompany.pan}` : 'Unregistered')}
               </span>
             </div>
@@ -299,19 +299,19 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={() => toggleSection(sec.title)}
-                  className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100/70 dark:hover:bg-slate-800/50 transition group"
+                  className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-black uppercase tracking-wider text-muted text-muted hover:text-secondary hover:text-muted rounded-lg hover:bg-surface-sunken/70 hover:bg-surface-raised transition group"
                   title={`Click to ${isSectionCollapsed ? 'expand' : 'collapse'} ${sec.title}`}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>{sec.title}</span>
-                    <span className="text-[9px] font-mono text-slate-400/80 group-hover:text-slate-600 dark:group-hover:text-slate-300">
+                    <span className="text-[9px] font-mono text-muted group-hover:text-secondary group-hover:text-muted">
                       ({sec.items.length})
                     </span>
                     {hasActiveChild && isSectionCollapsed && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand bg-brand-subtle" />
                     )}
                   </div>
-                  <div className="text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-transform">
+                  <div className="text-muted group-hover:text-secondary group-hover:text-primary-inverse transition-transform">
                     {isSectionCollapsed ? (
                       <ChevronRight className="h-3 w-3" />
                     ) : (
@@ -320,7 +320,7 @@ export function Sidebar({
                   </div>
                 </button>
               ) : (
-                <div className="my-2 border-t border-slate-100 dark:border-slate-800/80" />
+                <div className="my-2 border-t border-subtle border-strong" />
               )}
 
               {/* Show items if section is open, or if the entire sidebar is in collapsed icon mode */}
@@ -348,15 +348,15 @@ export function Sidebar({
                           href={item.href}
                           className={`group flex items-center gap-3 rounded-xl px-2.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 ${
                             isActive
-                              ? 'bg-blue-50 text-blue-600 font-bold dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200/80 dark:border-blue-900/60 shadow-xs'
-                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100'
+                              ? 'bg-brand-subtle text-brand-text font-bold bg-brand/60 text-brand border border-focus border-focus shadow-xs'
+                              : 'text-secondary text-muted hover:bg-surface-sunken/70 hover:bg-surface-raised hover:text-primary hover:text-primary-inverse'
                           } ${isCollapsed ? 'justify-center px-0' : ''}`}
                         >
                           <Icon
                             className={`h-4.5 w-4.5 shrink-0 transition-transform group-hover:scale-105 ${
                               isActive
-                                ? 'text-blue-600 dark:text-blue-400'
-                                : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                                ? 'text-brand-text text-brand'
+                                : 'text-muted text-muted group-hover:text-secondary group-hover:text-muted'
                             }`}
                           />
 
@@ -364,7 +364,7 @@ export function Sidebar({
                             <div className="flex flex-1 items-center justify-between min-w-0">
                               <span className="truncate">{item.label}</span>
                               {item.badge && (
-                                <span className="rounded bg-blue-100 dark:bg-blue-950 px-1.5 py-0.2 text-[9px] font-bold text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                                <span className="rounded bg-brand-subtle bg-brand px-1.5 py-0.2 text-[9px] font-bold text-brand-text text-brand border border-focus border-focus">
                                   {item.badge}
                                 </span>
                               )}
@@ -381,10 +381,10 @@ export function Sidebar({
 
                         {/* Floating Tooltip when collapsed */}
                         {isCollapsed && (
-                          <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/item:flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-bold px-2.5 py-1 z-50 whitespace-nowrap shadow-xl border border-slate-700">
+                          <div className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/item:flex items-center gap-1.5 rounded-lg bg-surface bg-surface-raised text-white text-[11px] font-bold px-2.5 py-1 z-50 whitespace-nowrap shadow-xl border border-strong">
                             <span>{item.label}</span>
                             {item.badge && (
-                              <span className="text-[9px] bg-blue-600 px-1 rounded text-white font-semibold">
+                              <span className="text-[9px] bg-brand px-1 rounded text-white font-semibold">
                                 {item.badge}
                               </span>
                             )}
@@ -401,26 +401,26 @@ export function Sidebar({
       </div>
 
       {/* Sidebar Footer: System Status */}
-      <div className="border-t border-slate-100 dark:border-slate-800/80 p-3">
+      <div className="border-t border-subtle border-strong p-3">
         {tallyEnabled ? (
           <Link
             href="/settings/tally"
-            className={`flex items-center gap-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-2 text-xs transition hover:border-slate-300 dark:hover:border-slate-700 ${
+            className={`flex items-center gap-2.5 rounded-xl border border border-strong bg-canvas bg-surface-raised p-2 text-xs transition hover:border hover:border-strong ${
               isCollapsed ? 'justify-center p-2' : ''
             }`}
             title="Tally Bridge Connection Status"
           >
             <span
               className={`h-2.5 w-2.5 rounded-full shrink-0 ${
-                tallyOnline ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50 animate-pulse' : 'bg-amber-500'
+                tallyOnline ? 'bg-status-success shadow-xs shadow-emerald-500/50 animate-pulse' : 'bg-status-warning'
               }`}
             />
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px] truncate">
+                <span className="font-bold text-primary text-primary-inverse block text-[11px] truncate">
                   Tally Connector: {tallyOnline ? 'ONLINE' : 'STANDBY'}
                 </span>
-                <span className="font-mono text-[10px] text-slate-400 block truncate">
+                <span className="font-mono text-[10px] text-muted block truncate">
                   localhost:9000
                 </span>
               </div>
@@ -428,18 +428,18 @@ export function Sidebar({
           </Link>
         ) : invoicingOnly ? (
           <div
-            className={`flex items-center gap-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-2 text-xs ${
+            className={`flex items-center gap-2.5 rounded-xl border border border-strong bg-canvas bg-surface-raised p-2 text-xs ${
               isCollapsed ? 'justify-center p-2' : ''
             }`}
             title="Invoicing & Billing Only Mode"
           >
-            <span className="h-2 w-2 rounded-full shrink-0 bg-emerald-500 shadow-xs shadow-emerald-500/50" />
+            <span className="h-2 w-2 rounded-full shrink-0 bg-status-success shadow-xs shadow-emerald-500/50" />
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px] truncate">
+                <span className="font-bold text-primary text-primary-inverse block text-[11px] truncate">
                   Mode: Invoicing Only
                 </span>
-                <span className="text-[10px] text-slate-400 block truncate">
+                <span className="text-[10px] text-muted block truncate">
                   Streamlined Billing
                 </span>
               </div>
@@ -447,18 +447,18 @@ export function Sidebar({
           </div>
         ) : (
           <div
-            className={`flex items-center gap-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 p-2 text-xs ${
+            className={`flex items-center gap-2.5 rounded-xl border border border-strong bg-canvas bg-surface-raised p-2 text-xs ${
               isCollapsed ? 'justify-center p-2' : ''
             }`}
             title="Standalone Cloud Accounting Active"
           >
-            <span className="h-2 w-2 rounded-full shrink-0 bg-blue-500 shadow-xs shadow-blue-500/50" />
+            <span className="h-2 w-2 rounded-full shrink-0 bg-brand shadow-xs shadow-blue-500/50" />
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
-                <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px] truncate">
+                <span className="font-bold text-primary text-primary-inverse block text-[11px] truncate">
                   Mode: Standalone Cloud
                 </span>
-                <span className="text-[10px] text-slate-400 block truncate">
+                <span className="text-[10px] text-muted block truncate">
                   Zero Tally Overhead
                 </span>
               </div>
@@ -484,7 +484,7 @@ export function Sidebar({
       {mobileOpen && (
         <div className="print:hidden lg:hidden fixed inset-0 z-50 flex">
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in"
+            className="fixed inset-0 bg-surface backdrop-blur-xs transition-opacity animate-in fade-in"
             onClick={onCloseMobile}
           />
           <div className="relative w-72 max-w-[85vw] h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200">

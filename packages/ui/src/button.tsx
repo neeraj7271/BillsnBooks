@@ -10,17 +10,17 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 focus-visible:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500',
+          'bg-brand text-white shadow-sm hover:bg-brand active:bg-brand focus-visible:ring-focus-ring bg-brand hover:bg-brand',
         secondary:
-          'bg-slate-100 text-slate-800 hover:bg-slate-200 active:bg-slate-300 focus-visible:ring-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
+          'bg-surface-sunken text-primary hover:bg-surface-sunken active:bg-surface-sunken focus-visible:ring-border-focus bg-surface-raised text-primary-inverse hover:bg-surface-raised',
         outline:
-          'border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 active:bg-slate-100 focus-visible:ring-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800',
+          'border border bg-white text-primary hover:bg-canvas active:bg-surface-sunken focus-visible:ring-border-focus border-strong bg-surface text-primary-inverse hover:bg-surface-raised',
         ghost:
-          'text-slate-700 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 focus-visible:ring-slate-400 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100',
+          'text-secondary hover:bg-surface-sunken hover:text-primary active:bg-surface-sunken focus-visible:ring-border-focus text-muted hover:bg-surface-raised hover:text-primary-inverse',
         danger:
-          'bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800 focus-visible:ring-rose-500 dark:bg-rose-600 dark:hover:bg-rose-500',
+          'bg-status-danger text-white shadow-sm hover:bg-status-danger active:bg-status-danger focus-visible:ring-status-danger bg-status-danger hover:bg-status-danger',
         link:
-          'text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto',
+          'text-brand-text underline-offset-4 hover:underline focus-visible:ring-focus-ring text-brand p-0 h-auto',
       },
       size: {
         xs: 'h-7 px-2.5 text-xs rounded-lg gap-1.5',

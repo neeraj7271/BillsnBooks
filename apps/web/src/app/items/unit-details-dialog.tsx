@@ -51,7 +51,7 @@ export function UnitDetailsDialog({
       <DialogContent size="md" className="max-w-xl">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="h-10 w-10 rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus flex items-center justify-center text-brand-text text-brand">
               <Scale className="h-5 w-5" />
             </div>
             <div>
@@ -63,7 +63,7 @@ export function UnitDetailsDialog({
               </div>
               <DialogDescription className="text-xs">
                 Code:{' '}
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                <span className="font-mono font-bold text-primary text-primary-inverse">
                   {unit.code}
                 </span>{' '}
                 • Category: {unit.category}
@@ -74,32 +74,32 @@ export function UnitDetailsDialog({
 
         <div className="space-y-4 py-2 text-xs">
           {/* Metadata Grid */}
-          <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-canvas bg-surface border border border-strong">
             <div>
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Unit Code (UOM / UQC)</span>
-              <div className="mt-0.5 font-mono font-bold text-slate-900 dark:text-white text-sm">
+              <span className="text-[11px] font-semibold text-muted uppercase">Unit Code (UOM / UQC)</span>
+              <div className="mt-0.5 font-mono font-bold text-primary dark:text-white text-sm">
                 {unit.code}
               </div>
             </div>
 
             <div>
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Category</span>
-              <div className="mt-0.5 font-medium text-slate-800 dark:text-slate-200">
+              <span className="text-[11px] font-semibold text-muted uppercase">Category</span>
+              <div className="mt-0.5 font-medium text-primary text-primary-inverse">
                 {unit.category}
               </div>
             </div>
 
             <div className="col-span-2">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase">Full Description / Title</span>
-              <div className="mt-0.5 font-medium text-slate-800 dark:text-slate-200">
+              <span className="text-[11px] font-semibold text-muted uppercase">Full Description / Title</span>
+              <div className="mt-0.5 font-medium text-primary text-primary-inverse">
                 {unit.name}
               </div>
             </div>
 
             {unit.description && (
               <div className="col-span-2">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase">Specification / Notes</span>
-                <div className="mt-0.5 text-slate-600 dark:text-slate-400">
+                <span className="text-[11px] font-semibold text-muted uppercase">Specification / Notes</span>
+                <div className="mt-0.5 text-secondary text-muted">
                   {unit.description}
                 </div>
               </div>
@@ -107,17 +107,17 @@ export function UnitDetailsDialog({
           </div>
 
           {/* Statutory Status */}
-          <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-start gap-2.5">
+          <div className="p-3 rounded-xl border border border-strong bg-white bg-surface flex items-start gap-2.5">
             {unit.isCustom ? (
-              <Box className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+              <Box className="w-4 h-4 text-brand-text shrink-0 mt-0.5" />
             ) : (
-              <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <ShieldCheck className="w-4 h-4 text-status-success-text shrink-0 mt-0.5" />
             )}
             <div>
-              <div className="font-bold text-slate-900 dark:text-white">
+              <div className="font-bold text-primary dark:text-white">
                 {unit.isCustom ? 'Commercial Custom Measurement' : 'Statutory GST Portal Compliance'}
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-muted text-muted mt-0.5 leading-relaxed">
                 {unit.isCustom
                   ? 'Custom company unit for operational tracking. Mapped to statutory "OTH (Others)" or primary UQC during GST e-Invoicing & e-Way Bill generation.'
                   : `Standard statutory Unit Quantity Code (UQC: ${unit.code}) mandated by the Indian GST Council and fully compliant with e-Invoicing schemas.`}
@@ -128,7 +128,7 @@ export function UnitDetailsDialog({
           {/* Catalog Usage Breakdown */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <span className="text-xs font-bold uppercase tracking-wider text-secondary text-muted">
                 Catalog Items Using This Unit ({assignedItems.length})
               </span>
               <Badge variant={assignedItems.length > 0 ? 'success' : 'neutral'} size="xs">
@@ -137,28 +137,28 @@ export function UnitDetailsDialog({
             </div>
 
             {assignedItems.length === 0 ? (
-              <div className="p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400 text-xs">
+              <div className="p-3 rounded-xl border border-dashed border border-strong text-center text-muted text-xs">
                 No catalog goods or services are currently assigned to this measurement unit.
               </div>
             ) : (
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="max-h-40 overflow-y-auto rounded-xl border border border-strong divide-y divide-subtle divide-strong">
                 {assignedItems.map((it) => (
-                  <div key={it.id} className="p-2.5 flex items-center justify-between gap-3 bg-white dark:bg-slate-900">
+                  <div key={it.id} className="p-2.5 flex items-center justify-between gap-3 bg-white bg-surface">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
+                        <span className="font-mono font-bold text-xs text-brand-text text-brand">
                           {it.itemCode}
                         </span>
-                        <span className="font-medium text-slate-900 dark:text-white">
+                        <span className="font-medium text-primary dark:text-white">
                           {it.name}
                         </span>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+                      <div className="font-mono font-semibold text-primary text-primary-inverse">
                         ₹{Number(it.unitPrice).toLocaleString('en-IN')}
                       </div>
-                      <div className="text-[10px] text-slate-400">{it.gstRatePercent}% GST</div>
+                      <div className="text-[10px] text-muted">{it.gstRatePercent}% GST</div>
                     </div>
                   </div>
                 ))}

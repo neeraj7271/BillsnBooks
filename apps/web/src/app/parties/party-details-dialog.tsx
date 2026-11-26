@@ -48,11 +48,11 @@ export function PartyDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="xl" className="max-w-3xl overflow-hidden p-0 gap-0">
         {/* Header Banner */}
-        <div className="p-6 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
+        <div className="p-6 bg-canvas bg-surface border-b border border-strong">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 font-semibold">
+                <span className="font-mono text-xs px-2 py-0.5 rounded bg-brand-subtle bg-brand/60 text-brand-text text-brand font-semibold">
                   {party.partyCode || 'PRTY-MASTER'}
                 </span>
                 <Badge
@@ -76,18 +76,18 @@ export function PartyDetailsDialog({
                 </Badge>
               </div>
 
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+              <h2 className="text-xl font-bold text-primary dark:text-white mt-1">
                 {party.name}
               </h2>
               {party.tradeName && (
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Trade Name / DBA: <span className="font-medium text-slate-700 dark:text-slate-300">{party.tradeName}</span>
+                <p className="text-xs text-muted text-muted">
+                  Trade Name / DBA: <span className="font-medium text-secondary text-muted">{party.tradeName}</span>
                 </p>
               )}
             </div>
 
             <div className="text-right">
-              <span className="text-[11px] font-medium text-slate-500 uppercase tracking-wider block">
+              <span className="text-[11px] font-medium text-muted uppercase tracking-wider block">
                 Current Balance
               </span>
               <div className="text-lg font-bold">
@@ -100,15 +100,15 @@ export function PartyDetailsDialog({
         {/* Content Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Statutory & Tax Profile */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              <FileText className="w-4 h-4 text-blue-500" />
+          <div className="rounded-xl border border border-strong p-4 bg-white bg-surface space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary text-muted">
+              <FileText className="w-4 h-4 text-brand-text" />
               Statutory Tax & GST Profile
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
               <div>
-                <span className="text-[11px] text-slate-400 block">Registration Type</span>
+                <span className="text-[11px] text-muted block">Registration Type</span>
                 <div className="mt-1">
                   <Badge variant={identity.badgeVariant} size="xs">
                     {identity.badgeLabel}
@@ -117,15 +117,15 @@ export function PartyDetailsDialog({
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-400 block">Goods & Services Tax (GSTIN)</span>
-                <span className="font-mono text-xs font-semibold text-slate-900 dark:text-white mt-0.5 block">
+                <span className="text-[11px] text-muted block">Goods & Services Tax (GSTIN)</span>
+                <span className="font-mono text-xs font-semibold text-primary dark:text-white mt-0.5 block">
                   {identity.showGstin && party.gstin ? party.gstin : 'None (Unregistered / Exempt)'}
                 </span>
               </div>
 
               <div>
-                <span className="text-[11px] text-slate-400 block">Permanent Account Number (PAN)</span>
-                <span className="font-mono text-xs font-semibold text-slate-900 dark:text-white mt-0.5 block">
+                <span className="text-[11px] text-muted block">Permanent Account Number (PAN)</span>
+                <span className="font-mono text-xs font-semibold text-primary dark:text-white mt-0.5 block">
                   {party.pan || '—'}
                 </span>
               </div>
@@ -133,35 +133,35 @@ export function PartyDetailsDialog({
           </div>
 
           {/* Address & Jurisdiction */}
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              <MapPin className="w-4 h-4 text-emerald-500" />
+          <div className="rounded-xl border border border-strong p-4 bg-white bg-surface space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary text-muted">
+              <MapPin className="w-4 h-4 text-status-success-text" />
               Registered Billing Address & Jurisdiction
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1 text-xs">
               <div className="space-y-1">
-                <span className="text-[11px] text-slate-400 block">Address Line</span>
-                <p className="text-slate-800 dark:text-slate-200 font-medium">
+                <span className="text-[11px] text-muted block">Address Line</span>
+                <p className="text-primary text-primary-inverse font-medium">
                   {party.billingAddressLine1 || 'No address line specified'}
                   {party.billingAddressLine2 ? `, ${party.billingAddressLine2}` : ''}
                 </p>
-                <p className="text-slate-500">
+                <p className="text-muted">
                   {party.billingCity ? `${party.billingCity}, ` : ''}
                   {party.billingState || 'Maharashtra'} - {party.billingPincode || '—'}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-lg">
+              <div className="grid grid-cols-2 gap-2 bg-canvas bg-surface-raised p-3 rounded-lg">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">GST State Code</span>
-                  <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <span className="text-[10px] text-muted uppercase tracking-wider block">GST State Code</span>
+                  <span className="font-mono text-xs font-bold text-primary text-primary-inverse">
                     {party.billingStateCode || '27'} ({party.billingState || 'Maharashtra'})
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Currency</span>
-                  <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <span className="text-[10px] text-muted uppercase tracking-wider block">Currency</span>
+                  <span className="font-mono text-xs font-bold text-primary text-primary-inverse">
                     {party.currency || 'INR'}
                   </span>
                 </div>
@@ -171,24 +171,24 @@ export function PartyDetailsDialog({
 
           {/* Credit & Terms */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <CreditCard className="w-4 h-4 text-purple-500" />
+            <div className="rounded-xl border border border-strong p-4 bg-white bg-surface space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary text-muted">
+                <CreditCard className="w-4 h-4 text-brand-text" />
                 Credit & Payment Terms
               </div>
               <div className="pt-1 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[11px] text-slate-400 block">Credit Limit</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="text-[11px] text-muted block">Credit Limit</span>
+                  <span className="font-semibold text-primary text-primary-inverse">
                     {Number(party.creditLimit || 0) > 0
                       ? `₹${Number(party.creditLimit).toLocaleString('en-IN')}`
                       : 'None (No limit set)'}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[11px] text-slate-400 block">Payment Due Cadence</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-[11px] text-muted block">Payment Due Cadence</span>
+                  <span className="font-semibold text-primary text-primary-inverse flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-muted" />
                     {party.paymentTermsDays && Number(party.paymentTermsDays) > 0
                       ? `${party.paymentTermsDays} Days Net`
                       : 'Immediate / Due on Receipt'}
@@ -198,21 +198,21 @@ export function PartyDetailsDialog({
             </div>
 
             {/* Communication */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900/40 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Mail className="w-4 h-4 text-amber-500" />
+            <div className="rounded-xl border border border-strong p-4 bg-white bg-surface space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary text-muted">
+                <Mail className="w-4 h-4 text-status-warning-text" />
                 Contact Info
               </div>
               <div className="pt-1 text-xs space-y-1">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="text-slate-700 dark:text-slate-300">
+                  <Mail className="w-3.5 h-3.5 text-muted" />
+                  <span className="text-secondary text-muted">
                     {party.email || 'No email specified'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="text-slate-700 dark:text-slate-300 font-mono">
+                  <Phone className="w-3.5 h-3.5 text-muted" />
+                  <span className="text-secondary text-muted font-mono">
                     {party.phone || 'No phone specified'}
                   </span>
                 </div>
@@ -222,7 +222,7 @@ export function PartyDetailsDialog({
         </div>
 
         {/* Action Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-4 bg-canvas bg-surface border-t border border-strong flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
@@ -230,7 +230,7 @@ export function PartyDetailsDialog({
               onOpenChange(false);
               onDelete(party);
             }}
-            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+            className="text-status-danger-text hover:text-status-danger-text hover:bg-status-danger-subtle hover:bg-status-danger"
             leftIcon={<Trash2 className="w-4 h-4" />}
           >
             Deactivate / Delete
@@ -247,7 +247,7 @@ export function PartyDetailsDialog({
               <Button
                 variant="outline"
                 size="sm"
-                leftIcon={<FileText className="w-4 h-4 text-indigo-500" />}
+                leftIcon={<FileText className="w-4 h-4 text-brand-text" />}
               >
                 Statement of Account
               </Button>

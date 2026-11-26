@@ -52,7 +52,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // 1. Auth routes (/auth/login, /auth/signup) render completely standalone without Shell chrome
   if (isAuthRoute) {
     return (
-      <main className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <main className="min-h-screen w-full bg-canvas bg-surface text-primary text-primary-inverse">
         {children}
       </main>
     );
@@ -61,10 +61,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // 2. Prevent unauthenticated flash while checking auth
   if (!mounted || !isAuthenticated) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen w-full flex items-center justify-center bg-canvas bg-surface">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-          <p className="text-xs text-slate-500 font-medium">Verifying session...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-focus border-t-transparent" />
+          <p className="text-xs text-muted font-medium">Verifying session...</p>
         </div>
       </div>
     );
@@ -72,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // 3. Authenticated protected routes
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 print:bg-white print:text-slate-950 print:min-h-0 print:block">
+    <div className="flex min-h-screen bg-canvas bg-surface text-primary text-primary-inverse transition-colors duration-200 print:bg-white print:text-primary print:min-h-0 print:block">
       {/* Collapsible Left Sidebar */}
       <div className="print:hidden">
         <Sidebar

@@ -186,7 +186,7 @@ export function ItemDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}
@@ -254,8 +254,8 @@ export function ItemDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Unit of Measure (UOM) <span className="text-rose-500">*</span>
+              <label className="text-xs font-semibold text-secondary text-muted">
+                Unit of Measure (UOM) <span className="text-status-danger-text">*</span>
               </label>
               <Combobox
                 value={formData.uom}
