@@ -31,3 +31,4 @@ export * from './error-state';
 export * from './list-page';
 export * from './detail-page';
 export * from './form-page';
+export * from './report-page';

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Clock, FileText, Edit, CheckCircle2, Printer, Sliders } from 'lucide-react';
-import { Button, ConfirmDialog } from '@platform/ui';
+import { Button, ConfirmDialog, DetailPage, Card, CardHeader, CardTitle, CardContent, Badge, MoneyText, DateText } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { InvoiceHeaderBar } from './invoice-header-bar';
@@ -284,73 +284,101 @@ export default function InvoiceDetailsPage() {
         </div>
       )}
 
-      {/* Real A4 Print Preview Canvas / Desk Mat */}
-      <div className="preview-stage-mat relative rounded-3xl border border border-strong bg-surface-sunken/60 dark:bg-[#070b12] p-3 sm:p-6 md:p-10 shadow-inner flex flex-col items-center overflow-x-auto print:p-0 print:m-0 print:border-none print:bg-transparent print:shadow-none print:block">
-        {/* Document Preview Inspector / Header Strip */}
-        <div className="w-full max-w-[210mm] mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-secondary text-muted print:hidden select-none px-1">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="relative flex h-2.5 w-2.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-success-subtle opacity-75"></span>
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-status-success"></span>
-            </span>
-            <span className="font-bold text-primary text-primary-inverse text-xs tracking-wider uppercase whitespace-nowrap">
-              A4 Print Preview
-            </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/90 bg-surface-raised font-semibold text-secondary text-muted border border border-strong whitespace-nowrap shadow-2xs">
-              210 × 297 mm • ISO 216
-            </span>
-            <span className="text-[11px] text-muted text-muted hidden md:inline whitespace-nowrap">
-              • 100% Print Scale (WYSIWYG)
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[11px] font-mono font-medium text-secondary text-muted bg-white/90 bg-surface-raised px-2.5 py-1.5 rounded-lg border border border-strong whitespace-nowrap shadow-2xs">
-              Sheet 1 of 1
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCustomizerOpen(true)}
-              leftIcon={<Sliders className="h-3.5 w-3.5 text-brand-text shrink-0" />}
-              className="whitespace-nowrap px-3 py-1.5 text-xs font-semibold bg-white bg-surface-raised hover:bg-canvas hover:bg-surface-raised text-primary text-primary-inverse border border-strong shadow-2xs"
+      <DetailPage
+        header={null}
+        main={
+          <div className="preview-stage-mat relative rounded-xl border border-border bg-surface-sunken p-3 sm:p-5 flex flex-col items-center overflow-x-auto print:p-0 print:m-0 print:border-none print:bg-transparent print:block">
+            <div className="w-full max-w-[210mm] mb-3 flex flex-wrap items-center justify-between gap-2 text-caption text-secondary print:hidden">
+              <span className="font-semibold text-primary">A4 Print Preview (210 × 297 mm)</span>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setCustomizerOpen(true)} leftIcon={<Sliders className="h-3.5 w-3.5" />}>
+                  Branding &amp; QR
+                </Button>
+                <Button variant="primary" size="sm" onClick={handlePrint} leftIcon={<Printer className="h-3.5 w-3.5" />}>
+                  Print / Save PDF
+                </Button>
+              </div>
+            </div>
+            <div
+              id="printable-invoice"
+              className="printable-document w-full max-w-[210mm] min-h-[297mm] bg-white text-primary shadow-md rounded-sm px-[12mm] py-[10mm] box-border print:p-0 print:m-0 print:max-w-none print:w-full print:min-h-0 print:shadow-none"
             >
-              Branding & QR
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handlePrint}
-              leftIcon={<Printer className="h-3.5 w-3.5 shrink-0" />}
-              className="whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold bg-brand hover:bg-brand text-white shadow-xs"
-            >
-              Print / Save PDF
-            </Button>
+              {selectedTemplate === 'TALLY_CLASSIC' && (
+                <TallyClassicTemplate invoice={invoice} company={company} settings={settings} />
+              )}
+              {selectedTemplate === 'MODERN_BRAND' && (
+                <ModernBrandTemplate invoice={invoice} company={company} settings={settings} />
+              )}
+              {selectedTemplate === 'MINIMAL_COMPACT' && (
+                <MinimalCompactTemplate invoice={invoice} company={company} settings={settings} />
+              )}
+            </div>
           </div>
-        </div>
+        }
+        aside={
+          <div className="space-y-4 print:hidden">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-h3">Invoice Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2.5 text-body-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted">Customer</span>
+                  <span className="font-semibold text-primary text-right">{invoice.partyNameSnapshot || invoice.party?.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted">Status</span>
+                  <Badge variant={invoice.status === 'ISSUED' ? 'success' : invoice.status === 'CANCELLED' ? 'danger' : 'warning'} size="xs">
+                    {invoice.status}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted">Invoice Date</span>
+                  <DateText date={invoice.invoiceDate} />
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted">Due Date</span>
+                  <DateText date={invoice.dueDate} />
+                </div>
+                <div className="flex justify-between pt-2 border-t border-border-subtle">
+                  <span className="text-muted">Subtotal</span>
+                  <MoneyText amount={invoice.subtotalAmount} />
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted">GST</span>
+                  <MoneyText amount={Number(invoice.cgstAmount || 0) + Number(invoice.sgstAmount || 0) + Number(invoice.igstAmount || 0)} />
+                </div>
+                <div className="flex justify-between font-semibold text-primary pt-2 border-t border-border-subtle">
+                  <span>Total</span>
+                  <MoneyText amount={invoice.totalAmount} />
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Physical A4 Sheet Container */}
-        <div
-          id="printable-invoice"
-          className="printable-document w-full max-w-[210mm] min-h-[297mm] bg-white text-primary shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_25px_70px_-10px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.08)] rounded-[2px] px-[12mm] py-[10mm] box-border transition-all print:p-0 print:m-0 print:max-w-none print:w-full print:min-h-0 print:shadow-none print:border-none print:rounded-none"
-        >
-          {selectedTemplate === 'TALLY_CLASSIC' && (
-            <TallyClassicTemplate invoice={invoice} company={company} settings={settings} />
-          )}
-          {selectedTemplate === 'MODERN_BRAND' && (
-            <ModernBrandTemplate invoice={invoice} company={company} settings={settings} />
-          )}
-          {selectedTemplate === 'MINIMAL_COMPACT' && (
-            <MinimalCompactTemplate invoice={invoice} company={company} settings={settings} />
-          )}
-        </div>
-
-        {/* Preview Footer Cue */}
-        <div className="w-full max-w-[210mm] mt-3.5 flex items-center justify-between text-[11px] text-muted text-muted print:hidden select-none px-1">
-          <span>End of Sheet • A4 Standard Portrait (210 × 297 mm)</span>
-          <span className="font-mono text-[10px]">Exact Print Preview</span>
-        </div>
-      </div>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-h3">Accounting &amp; Audit</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-caption text-secondary">
+                {invoice.voucherId ? (
+                  <div className="flex items-center justify-between">
+                    <span>Canonical Voucher</span>
+                    <Link href="/vouchers" className="text-brand-text font-semibold hover:underline">
+                      View in Vouchers →
+                    </Link>
+                  </div>
+                ) : (
+                  <p className="text-muted">No voucher posted yet (Draft / Pending Approval).</p>
+                )}
+                <div className="pt-2 border-t border-border-subtle space-y-1">
+                  <div className="flex justify-between"><span>Created</span><DateText date={invoice.createdAt} variant="relative" /></div>
+                  {invoice.updatedAt && <div className="flex justify-between"><span>Updated</span><DateText date={invoice.updatedAt} variant="relative" /></div>}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        }
+      />
 
       <InvoiceCustomizerDialog
         open={customizerOpen}
