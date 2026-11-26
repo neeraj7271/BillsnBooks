@@ -411,8 +411,8 @@ function NewInvoiceContent() {
 
   // Shared Form Component
   const renderForm = () => (
-    <Card className="shadow-xs">
-      <CardContent className="p-6 space-y-6">
+    <Card className="shadow-xs overflow-hidden">
+      <CardContent className="p-6 space-y-6 overflow-hidden">
         <InvoiceHeaderFields
           parties={parties}
           branches={branches}
@@ -442,11 +442,11 @@ function NewInvoiceContent() {
           onRcmChange={setIsRcm}
         />
 
-        {/* Fieldset 3 — Line Items */}
-        <fieldset className="p-5 rounded-2xl bg-surface border border-default space-y-4">
-          <legend className="px-2 text-xs font-bold uppercase tracking-wider text-secondary">
-            3. Billable Line Items & HSN Classification
-          </legend>
+        {/* 3. Line Items Card */}
+        <div className="p-5 rounded-2xl bg-surface border border-default space-y-4 shadow-2xs overflow-hidden">
+          <div className="flex items-center justify-between pb-1 border-b border-subtle">
+            <h3 className="text-sm font-bold text-primary">Line Items</h3>
+          </div>
           <InvoiceLineItems
             items={items}
             lineItems={lineItems}
@@ -456,9 +456,9 @@ function NewInvoiceContent() {
             onAddLineItem={handleAddLineItem}
             onRemoveLineItem={handleRemoveLineItem}
           />
-        </fieldset>
+        </div>
 
-        {/* Fieldset 4 & 5 — Totals, Notes & Actions */}
+        {/* Totals, Notes & Actions */}
         <InvoiceSummary
           computedTotals={computedTotals}
           isIntraState={isIntraState}
@@ -614,7 +614,7 @@ function NewInvoiceContent() {
             <div className="flex items-start gap-0 w-full relative">
               <div
                 style={{ width: `${splitRatio}%` }}
-                className="shrink-0 pr-4 space-y-6"
+                className="shrink-0 min-w-0 pr-4 space-y-6"
               >
                 {renderForm()}
               </div>
@@ -632,7 +632,7 @@ function NewInvoiceContent() {
 
               <div
                 style={{ width: `${100 - splitRatio}%` }}
-                className="shrink-0 pl-4 sticky top-6 max-h-[calc(100vh-120px)] overflow-y-auto space-y-6"
+                className="shrink-0 min-w-0 pl-4 sticky top-6 max-h-[calc(100vh-120px)] overflow-y-auto space-y-6"
               >
                 {renderPreview(false)}
               </div>

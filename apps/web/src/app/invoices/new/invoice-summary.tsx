@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, Button, MoneyText, FormField, Badge } from '@platform/ui';
-import { CheckCircle2, Clock, FileText, Landmark, ShieldCheck } from 'lucide-react';
+import { Button, MoneyText, FormField, Badge } from '@platform/ui';
+import { CheckCircle2, Clock, FileText, Landmark, ShieldCheck, ChevronDown, HelpCircle } from 'lucide-react';
 import type { ComputedInvoiceTotals } from './invoice-math';
 
 interface InvoiceSummaryProps {
@@ -27,25 +27,28 @@ export function InvoiceSummary({
   onSaveDraft,
 }: InvoiceSummaryProps) {
   const [includeBankDetails, setIncludeBankDetails] = useState(true);
+  const [showAdditionalTerms, setShowAdditionalTerms] = useState(false);
+  const [additionalTerms, setAdditionalTerms] = useState('');
   const isHighValue = computedTotals.grandTotal > 50000;
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-6 pt-2" data-testid="invoice-summary-section">
+      {/* 2-Column Grid: Notes & Terms Left, Totals Right (max-w-sm) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Fieldset 5 — Notes & Terms */}
-        <fieldset className="lg:col-span-6 p-5 rounded-2xl bg-surface border border-default space-y-4">
-          <legend className="px-2 text-xs font-bold uppercase tracking-wider text-secondary">
-            5. Notes, Terms & Settlement Instructions
-          </legend>
+        {/* Left Side: Notes & Terms Card */}
+        <div className="lg:col-span-7 p-5 rounded-2xl bg-surface border border-default space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between pb-1 border-b border-subtle">
+            <h3 className="text-sm font-bold text-primary">Notes & Terms</h3>
+          </div>
 
           <FormField label="Invoice Notes / Terms & Conditions" id="inv-notes">
             <textarea
               id="inv-notes"
-              rows={3}
+              rows={6}
               value={notes}
               onChange={(e) => onNotesChange(e.target.value)}
               placeholder="e.g. Payment due within 30 days. Please quote invoice number on remittance..."
-              className="w-full rounded-xl border border-default bg-surface p-3 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring placeholder:text-muted"
+              className="w-full rounded-xl border border-default bg-surface p-3 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring placeholder:text-muted resize-y"
             />
           </FormField>
 
@@ -55,14 +58,48 @@ export function InvoiceSummary({
                 type="checkbox"
                 checked={includeBankDetails}
                 onChange={(e) => setIncludeBankDetails(e.target.checked)}
-                className="h-4 w-4 rounded border-default text-brand focus:ring-focus-ring"
+                className="h-4 w-4 rounded border-default text-brand focus:ring-focus-ring cursor-pointer"
               />
               <span className="font-semibold text-primary flex items-center gap-1.5">
                 <Landmark className="h-3.5 w-3.5 text-muted" />
                 Print Bank & Remittance Details on Invoice
               </span>
+              <span
+                className="text-muted hover:text-primary cursor-help"
+                title="Prints company account number, IFSC code, branch, and UPI QR code on the final statutory invoice per Rule 46(q)."
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+              </span>
             </label>
-            <span className="text-[11px] text-muted">Rule 46(q)</span>
+            <span className="text-[11px] text-muted font-mono font-medium">Rule 46(q)</span>
+          </div>
+
+          {/* Attach Additional Terms Disclosure */}
+          <div className="pt-2 border-t border-subtle">
+            <button
+              type="button"
+              onClick={() => setShowAdditionalTerms(!showAdditionalTerms)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-brand-text hover:opacity-85 transition-opacity"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                  showAdditionalTerms ? 'rotate-180' : ''
+                }`}
+              />
+              <span>Attach additional terms & statutory disclosures</span>
+            </button>
+
+            {showAdditionalTerms && (
+              <div className="mt-3 space-y-2">
+                <textarea
+                  rows={3}
+                  value={additionalTerms}
+                  onChange={(e) => setAdditionalTerms(e.target.value)}
+                  placeholder="Additional contractual terms, arbitration clauses, warranty clauses..."
+                  className="w-full rounded-xl border border-default bg-surface p-3 text-xs text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring placeholder:text-muted"
+                />
+              </div>
+            )}
           </div>
 
           {isHighValue && (
@@ -73,62 +110,81 @@ export function InvoiceSummary({
               </div>
             </div>
           )}
-        </fieldset>
+        </div>
 
-        {/* Fieldset 4 — Totals */}
-        <fieldset className="lg:col-span-6 p-5 rounded-2xl bg-surface-sunken border border-default space-y-3">
-          <legend className="px-2 text-xs font-bold uppercase tracking-wider text-secondary">
-            4. Statutory Tax & Value Breakdown
-          </legend>
+        {/* Right Side: Totals Card (max-w-sm on wide screens) */}
+        <div className="lg:col-span-5 max-w-sm ml-auto w-full p-5 rounded-2xl bg-surface-sunken border border-default space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between pb-1 border-b border-subtle">
+            <h3 className="text-sm font-bold text-primary">Totals</h3>
+            <Badge variant="brand" size="xs">
+              {isIntraState ? 'Intra-State' : 'Inter-State'}
+            </Badge>
+          </div>
 
-          <div className="space-y-2 text-xs">
+          <div className="space-y-2.5 text-xs">
             <div className="flex justify-between text-secondary">
-              <span>Taxable Value (Subtotal):</span>
-              <MoneyText amount={computedTotals.subtotal} className="tabular-nums font-mono" />
+              <span>Subtotal</span>
+              <MoneyText amount={computedTotals.subtotal} className="tabular-nums font-mono text-right" />
+            </div>
+
+            <div className="flex justify-between text-secondary">
+              <span>Discount (–)</span>
+              <span className="tabular-nums font-mono text-right text-muted">₹ 0.00</span>
+            </div>
+
+            <div className="flex justify-between text-secondary font-medium pt-1 border-t border-subtle">
+              <span>Taxable</span>
+              <MoneyText amount={computedTotals.subtotal} className="tabular-nums font-mono text-right" />
             </div>
 
             {isIntraState ? (
               <>
-                <div className="flex justify-between text-secondary">
-                  <span>Central GST (CGST):</span>
-                  <MoneyText amount={computedTotals.totalCgst} className="tabular-nums font-mono" />
+                <div className="flex justify-between text-secondary pl-2">
+                  <span>CGST</span>
+                  <MoneyText amount={computedTotals.totalCgst} className="tabular-nums font-mono text-right" />
                 </div>
-                <div className="flex justify-between text-secondary">
-                  <span>State GST (SGST):</span>
-                  <MoneyText amount={computedTotals.totalSgst} className="tabular-nums font-mono" />
+                <div className="flex justify-between text-secondary pl-2">
+                  <span>SGST</span>
+                  <MoneyText amount={computedTotals.totalSgst} className="tabular-nums font-mono text-right" />
                 </div>
               </>
             ) : (
-              <div className="flex justify-between text-secondary">
-                <span>Integrated GST (IGST):</span>
-                <MoneyText amount={computedTotals.totalIgst} className="tabular-nums font-mono" />
+              <div className="flex justify-between text-secondary pl-2">
+                <span>IGST</span>
+                <MoneyText amount={computedTotals.totalIgst} className="tabular-nums font-mono text-right" />
               </div>
             )}
 
             {computedTotals.roundOff !== 0 && (
-              <div className="flex justify-between text-muted text-[11px]">
-                <span>Round-off Adjustment:</span>
-                <MoneyText amount={computedTotals.roundOff} className="tabular-nums font-mono" />
+              <div className="flex justify-between text-muted text-[11px] pt-1 border-t border-subtle">
+                <span>Round Off</span>
+                <MoneyText amount={computedTotals.roundOff} className="tabular-nums font-mono text-right" />
               </div>
             )}
 
-            {/* Grand Total */}
-            <div className="mt-3 p-3.5 rounded-xl bg-surface border border-subtle flex justify-between items-baseline shadow-xs">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-secondary block">
-                  Total Amount Due
-                </span>
-                <span className="text-[10px] text-muted">Inclusive of all applicable GST</span>
-              </div>
-              <span className="text-xl font-black font-mono text-brand-text tabular-nums">
+            {/* Grand Total row separated by 1-px divider above */}
+            <div className="pt-3 border-t border-default flex justify-between items-baseline">
+              <span className="text-base font-bold text-primary">Grand Total</span>
+              <span className="text-base font-bold font-mono text-primary tabular-nums text-right">
                 <MoneyText amount={computedTotals.grandTotal} />
               </span>
             </div>
           </div>
-        </fieldset>
+
+          {/* Below the card: GST Rule 46 Compliant ✓ + shortcut hints */}
+          <div className="pt-3 border-t border-subtle space-y-1 text-center">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-status-success-text">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>GST Rule 46 Compliant ✓</span>
+            </div>
+            <div className="text-[11px] text-muted">
+              ⌘S to Save Draft · ⌘⏎ to Submit
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Sticky Action Bar at Bottom-Right */}
+      {/* Sticky Action Bar at Bottom */}
       <div className="sticky bottom-0 z-20 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 p-4 bg-surface/95 backdrop-blur-md border-t border-default flex flex-wrap items-center justify-between gap-3 shadow-lg">
         <div className="flex items-center gap-2 text-caption text-muted">
           <ShieldCheck className="w-4 h-4 text-status-success-text" />
@@ -167,4 +223,3 @@ export function InvoiceSummary({
     </div>
   );
 }
-

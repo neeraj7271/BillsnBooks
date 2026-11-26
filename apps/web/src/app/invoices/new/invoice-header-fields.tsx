@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FormField, Select, Input, Badge } from '@platform/ui';
 import { INDIAN_GST_STATES_LIST, formatPartyTaxIdentity } from '@platform/shared-types';
-import { Settings, Hash } from 'lucide-react';
+import { Settings, Hash, Copy, Check } from 'lucide-react';
 
 interface InvoiceHeaderFieldsProps {
   parties: any[];
@@ -63,26 +63,39 @@ export function InvoiceHeaderFields({
   onRcmChange,
 }: InvoiceHeaderFieldsProps) {
   const selectedParty = parties.find((p) => p.id === selectedPartyId);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = (text: string, fieldName: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
+
+  const identity = selectedParty
+    ? formatPartyTaxIdentity(selectedParty.registrationType, selectedParty.gstin)
+    : null;
 
   return (
     <div className="space-y-6">
-      {/* Fieldset 1 — Document */}
-      <fieldset className="p-5 rounded-2xl bg-surface-sunken border border-default space-y-4">
-        <legend className="px-2 text-xs font-bold uppercase tracking-wider text-secondary">
-          1. Document Configuration
-        </legend>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* 1. Document Card */}
+      <div className="p-5 rounded-2xl bg-surface-sunken border border-default space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between pb-1 border-b border-subtle">
+          <h3 className="text-sm font-bold text-primary">Document</h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <FormField label="Document Type" required>
             <Select
               value={documentType}
               onValueChange={onDocumentTypeChange}
               options={[
-                { label: 'Tax Invoice (Standard GST)', value: 'TAX_INVOICE' },
-                { label: 'Credit Note (Section 34)', value: 'CREDIT_NOTE' },
-                { label: 'Debit Note (Section 34)', value: 'DEBIT_NOTE' },
-                { label: 'Proforma Invoice (Estimate)', value: 'PROFORMA_INVOICE' },
-                { label: 'Delivery Challan (Jobwork/Logistics)', value: 'DELIVERY_CHALLAN' },
+                { label: 'Tax Invoice', value: 'TAX_INVOICE' },
+                { label: 'Credit Note', value: 'CREDIT_NOTE' },
+                { label: 'Debit Note', value: 'DEBIT_NOTE' },
+                { label: 'Proforma Invoice', value: 'PROFORMA_INVOICE' },
+                { label: 'Delivery Challan', value: 'DELIVERY_CHALLAN' },
               ]}
             />
           </FormField>
@@ -186,13 +199,20 @@ export function InvoiceHeaderFields({
             </Badge>
           )}
         </div>
-      </fieldset>
+      </div>
 
-      {/* Fieldset 2 — Party & Dates */}
-      <fieldset className="p-5 rounded-2xl bg-surface border border-default space-y-4">
-        <legend className="px-2 text-xs font-bold uppercase tracking-wider text-secondary">
-          2. Customer & Transaction Dates
-        </legend>
+      {/* 2. Party & Dates Card */}
+      <div className="p-5 rounded-2xl bg-surface border border-default space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between pb-1 border-b border-subtle">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-bold text-primary">Party</h3>
+            {identity && (
+              <Badge variant={identity.badgeVariant} size="xs">
+                {identity.badgeLabel}
+              </Badge>
+            )}
+          </div>
+        </div>
 
         <div className="space-y-4">
           <FormField label="Customer (Billed To)" required>
@@ -207,37 +227,65 @@ export function InvoiceHeaderFields({
             />
           </FormField>
 
-          {selectedParty && (() => {
-            const identity = formatPartyTaxIdentity(selectedParty.registrationType, selectedParty.gstin);
-            return (
-              <div className="p-3 rounded-xl bg-surface-sunken border border-subtle text-xs flex flex-wrap gap-4 items-center">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold">Tax Treatment:</span>
-                  <Badge variant={identity.badgeVariant} size="xs">
-                    {identity.badgeLabel}
-                  </Badge>
-                </div>
-                {identity.showGstin && selectedParty.gstin ? (
-                  <div>
-                    <span className="font-bold">GSTIN:</span>{' '}
-                    <span className="font-mono text-brand-text font-bold">{selectedParty.gstin}</span>
-                  </div>
-                ) : null}
-                {selectedParty.pan ? (
-                  <div>
-                    <span className="font-bold">PAN:</span>{' '}
-                    <span className="font-mono">{selectedParty.pan}</span>
-                  </div>
-                ) : null}
-                <div>
-                  <span className="font-bold">City:</span> {selectedParty.billingCity || '—'}
-                </div>
-                <div>
-                  <span className="font-bold">State:</span> {selectedParty.billingState || 'India'}
-                </div>
+          {/* Clean 2-Line Party Summary Chip Row */}
+          {selectedParty && identity && (
+            <div className="p-3.5 rounded-xl bg-surface-sunken border border-subtle text-xs space-y-2">
+              {/* Line 1: Party Name + Registration Badge */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-primary text-xs">
+                  {selectedParty.name} {selectedParty.tradeName ? `(${selectedParty.tradeName})` : ''}
+                </span>
+                <Badge variant={identity.badgeVariant} size="xs">
+                  {identity.badgeLabel}
+                </Badge>
               </div>
-            );
-          })()}
+
+              {/* Line 2: GSTIN, PAN, State as monospace chips with copy affordance */}
+              <div className="flex items-center gap-2 flex-wrap text-secondary">
+                {selectedParty.gstin && (
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(selectedParty.gstin, 'gstin')}
+                    className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2.5 py-1 rounded-lg bg-surface border border-default hover:bg-surface-sunken transition-colors cursor-pointer select-none"
+                    title="Click to copy GSTIN"
+                  >
+                    <span className="text-muted font-sans font-semibold text-[10px]">GSTIN</span>
+                    <span className="font-bold text-primary">{selectedParty.gstin}</span>
+                    {copiedField === 'gstin' ? (
+                      <Check className="h-3 w-3 text-status-success-text" />
+                    ) : (
+                      <Copy className="h-3 w-3 text-muted hover:text-primary" />
+                    )}
+                  </button>
+                )}
+
+                {selectedParty.pan && (
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(selectedParty.pan, 'pan')}
+                    className="inline-flex items-center gap-1.5 font-mono text-[11px] px-2.5 py-1 rounded-lg bg-surface border border-default hover:bg-surface-sunken transition-colors cursor-pointer select-none"
+                    title="Click to copy PAN"
+                  >
+                    <span className="text-muted font-sans font-semibold text-[10px]">PAN</span>
+                    <span className="font-bold text-primary">{selectedParty.pan}</span>
+                    {copiedField === 'pan' ? (
+                      <Check className="h-3 w-3 text-status-success-text" />
+                    ) : (
+                      <Copy className="h-3 w-3 text-muted hover:text-primary" />
+                    )}
+                  </button>
+                )}
+
+                <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg bg-surface border border-default">
+                  <span className="text-muted font-sans font-semibold text-[10px]">POS STATE</span>
+                  <span className="font-medium text-primary">
+                    {selectedParty.billingState || 'India'}
+                    {selectedParty.billingCity ? `, ${selectedParty.billingCity}` : ''}
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField label="Invoice Date" required id="inv-date">
@@ -264,7 +312,7 @@ export function InvoiceHeaderFields({
                   Place of Supply (POS) <span className="text-status-danger-text">*</span>
                 </label>
                 <Badge variant={isIntraState ? 'brand' : 'info'} size="xs">
-                  {isIntraState ? 'Intra-State (CGST+SGST)' : 'Inter-State (IGST)'}
+                  {isIntraState ? 'Intra-State' : 'Inter-State'}
                 </Badge>
               </div>
               <Select
@@ -279,8 +327,7 @@ export function InvoiceHeaderFields({
             </div>
           </div>
         </div>
-      </fieldset>
+      </div>
     </div>
   );
 }
-
