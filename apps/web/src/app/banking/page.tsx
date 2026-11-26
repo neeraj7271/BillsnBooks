@@ -96,8 +96,8 @@ export default function BankingOverviewPage() {
       header: 'Narrative & Reference',
       cell: (tx) => (
         <div>
-          <div className="font-semibold text-slate-900 dark:text-white">{tx.description}</div>
-          {tx.referenceNumber && <div className="font-mono text-[10px] text-slate-400">Ref: {tx.referenceNumber}</div>}
+          <div className="font-semibold text-primary">{tx.description}</div>
+          {tx.referenceNumber && <div className="font-mono text-[10px] text-muted">Ref: {tx.referenceNumber}</div>}
         </div>
       ),
     },
@@ -108,7 +108,7 @@ export default function BankingOverviewPage() {
       cell: (tx) => (
         <MoneyText
           amount={tx.amount}
-          className={tx.type === 'CREDIT' ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-900 dark:text-white font-bold'}
+          className={tx.type === 'CREDIT' ? 'text-status-success-text font-bold' : 'text-primary font-bold'}
         />
       ),
     },
@@ -130,12 +130,12 @@ export default function BankingOverviewPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Institutional Banking & BRS
             </h1>
             <Badge variant="brand" size="sm">Automated Feed</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             Statement ingestion and 2-way bank reconciliation against general ledger cash books.
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function BankingOverviewPage() {
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle border border-subtle text-xs text-status-danger-text font-medium">
           {error}
         </div>
       )}
@@ -169,19 +169,19 @@ export default function BankingOverviewPage() {
             <Card
               key={acc.id}
               onClick={() => setSelectedAccountId(acc.id)}
-              className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-slate-300'}`}
+              className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-focus-ring border-focus' : 'hover:border-strong'}`}
             >
               <CardContent className="p-4 space-y-2">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    <Landmark className="h-4 w-4 text-blue-600" />
-                    <span className="font-bold text-xs text-slate-900 dark:text-white">{acc.bankName}</span>
+                    <Landmark className="h-4 w-4 text-brand-text" />
+                    <span className="font-bold text-xs text-primary">{acc.bankName}</span>
                   </div>
                   <Badge variant={isSelected ? 'brand' : 'neutral'} size="xs">{acc.accountType}</Badge>
                 </div>
-                <div className="font-mono text-[11px] text-slate-500">A/C: {acc.accountNumber}</div>
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-baseline">
-                  <span className="text-[11px] text-slate-400">Ledger Balance:</span>
+                <div className="font-mono text-[11px] text-secondary">A/C: {acc.accountNumber}</div>
+                <div className="pt-2 border-t border-subtle flex justify-between items-baseline">
+                  <span className="text-[11px] text-muted">Ledger Balance:</span>
                   <MoneyText amount={acc.currentBalance || 0} className="font-bold text-sm" />
                 </div>
               </CardContent>
@@ -193,18 +193,18 @@ export default function BankingOverviewPage() {
       {/* Transactions Table */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-secondary">
             Statement Transactions ({transactions.length})
           </h3>
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-surface-sunken p-1 rounded-xl">
             {['ALL', 'MATCHED', 'UNMATCHED'].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                   statusFilter === st
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-surface text-primary shadow-xs'
+                    : 'text-secondary hover:text-primary'
                 }`}
               >
                 {st}

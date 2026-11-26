@@ -229,7 +229,7 @@ export default function VouchersPage() {
             setSelectedVoucher(v);
             setDetailsOpen(true);
           }}
-          className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+          className="font-mono font-bold text-xs text-brand-text hover:underline flex items-center gap-1 cursor-pointer"
         >
           <span>{v.voucherNumber}</span>
           <ExternalLink className="w-3 h-3 opacity-60" />
@@ -272,10 +272,10 @@ export default function VouchersPage() {
         const creditEntries = v.entries?.filter((e) => e.entryType === 'CREDIT') || [];
         return (
           <div className="text-xs space-y-0.5">
-            <div className="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-md">
+            <div className="font-semibold text-primary truncate max-w-md">
               Dr: {debitEntries.map((e) => e.ledger?.name || 'Debtor').join(', ')}
             </div>
-            <div className="text-slate-500 dark:text-slate-400 truncate max-w-md text-[11px]">
+            <div className="text-secondary truncate max-w-md text-[11px]">
               Cr: {creditEntries.map((e) => e.ledger?.name || 'Revenue/Tax').join(', ')}
             </div>
           </div>
@@ -291,7 +291,7 @@ export default function VouchersPage() {
         const total = (v.entries || [])
           .filter((e) => e.entryType === 'DEBIT')
           .reduce((sum, e) => sum + (parseFloat(String(e.amount)) || 0), 0);
-        return <MoneyText amount={total} className="font-bold text-slate-900 dark:text-white" />;
+        return <MoneyText amount={total} className="font-bold text-primary" />;
       },
     },
     {
@@ -334,7 +334,7 @@ export default function VouchersPage() {
                 setReversingVoucher(v);
                 setReverseOpen(true);
               }}
-              className="text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/50 hover:bg-rose-50"
+              className="text-status-danger-text border-default hover:bg-status-danger-subtle"
             >
               Reverse
             </Button>
@@ -350,12 +350,12 @@ export default function VouchersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               General Ledger Vouchers
             </h1>
             <Badge variant="brand" size="sm">Double-Entry Audit Trail</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             Immutable financial transaction register enforcing zero-variance mathematical invariants.
           </p>
         </div>
@@ -385,40 +385,40 @@ export default function VouchersPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between text-xs font-semibold text-secondary">
               <span>Total Posted Vouchers</span>
-              <FileText className="h-4 w-4 text-blue-500" />
+              <FileText className="h-4 w-4 text-brand-text" />
             </div>
-            <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+            <div className="mt-2 text-2xl font-black text-primary">
               {vouchers.filter((v) => v.status === 'POSTED').length}
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Committed double-entry records</p>
+            <p className="mt-1 text-[11px] text-muted">Committed double-entry records</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between text-xs font-semibold text-secondary">
               <span>Zero-Variance Invariant</span>
-              <Scale className="h-4 w-4 text-emerald-500" />
+              <Scale className="h-4 w-4 text-status-success-text" />
             </div>
-            <div className="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400">
+            <div className="mt-2 text-2xl font-black text-status-success-text">
               Δ ₹0.00
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">100% Balanced Debits = Credits</p>
+            <p className="mt-1 text-[11px] text-muted">100% Balanced Debits = Credits</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between text-xs font-semibold text-secondary">
               <span>Reversed / Cancelled</span>
-              <RotateCcw className="h-4 w-4 text-amber-500" />
+              <RotateCcw className="h-4 w-4 text-status-warning-text" />
             </div>
-            <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+            <div className="mt-2 text-2xl font-black text-primary">
               {vouchers.filter((v) => v.status === 'REVERSED').length}
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Contra-reversed transactions</p>
+            <p className="mt-1 text-[11px] text-muted">Contra-reversed transactions</p>
           </CardContent>
         </Card>
       </div>
@@ -426,7 +426,7 @@ export default function VouchersPage() {
       {/* Filters and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -435,15 +435,15 @@ export default function VouchersPage() {
           />
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-sunken rounded-xl overflow-x-auto">
           {['ALL', 'SALES', 'JOURNAL', 'PAYMENT', 'RECEIPT', 'CREDIT_NOTE'].map((t) => (
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                 typeFilter === t
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-surface text-primary shadow-xs'
+                  : 'text-secondary hover:text-primary'
               }`}
             >
               {t === 'ALL' ? 'All Types' : t}
@@ -487,15 +487,15 @@ export default function VouchersPage() {
 
             <div className="space-y-4 my-2">
               {selectedVoucher.narration && (
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
-                  <span className="font-bold text-slate-900 dark:text-white">Narration: </span>
+                <div className="p-3 rounded-xl bg-surface-sunken border border-default text-xs text-secondary">
+                  <span className="font-bold text-primary">Narration: </span>
                   {selectedVoucher.narration}
                 </div>
               )}
 
-              <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+              <div className="border border-default rounded-xl overflow-hidden">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-500 uppercase">
+                  <thead className="bg-surface-sunken border-b border-default text-[11px] font-bold text-secondary uppercase">
                     <tr>
                       <th className="p-2.5">Account Code</th>
                       <th className="p-2.5">Ledger Name</th>
@@ -503,29 +503,29 @@ export default function VouchersPage() {
                       <th className="p-2.5 text-right w-28">Credit (₹)</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="divide-y divide-subtle">
                     {selectedVoucher.entries?.map((e, idx) => (
                       <tr key={e.id || idx}>
-                        <td className="p-2.5 font-mono text-slate-500">{e.ledger?.code || '—'}</td>
-                        <td className="p-2.5 font-semibold text-slate-900 dark:text-white">
+                        <td className="p-2.5 font-mono text-secondary">{e.ledger?.code || '—'}</td>
+                        <td className="p-2.5 font-semibold text-primary">
                           {e.ledger?.name || 'Account'}
                           {e.narration && (
-                            <span className="block text-[10px] text-slate-400 font-normal">
+                            <span className="block text-[10px] text-muted font-normal">
                               {e.narration}
                             </span>
                           )}
                         </td>
-                        <td className="p-2.5 text-right font-mono font-bold text-slate-900 dark:text-white">
+                        <td className="p-2.5 text-right font-mono font-bold text-primary">
                           {e.entryType === 'DEBIT' ? <MoneyText amount={e.amount} /> : '—'}
                         </td>
-                        <td className="p-2.5 text-right font-mono font-bold text-slate-900 dark:text-white">
+                        <td className="p-2.5 text-right font-mono font-bold text-primary">
                           {e.entryType === 'CREDIT' ? <MoneyText amount={e.amount} /> : '—'}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-slate-50 dark:bg-slate-800/50 font-black border-t border-slate-200 dark:border-slate-700">
+                    <tr className="bg-surface-sunken font-black border-t border-default">
                       <td colSpan={2} className="p-2.5 uppercase text-right text-xs">
                         Total Balance:
                       </td>
@@ -612,7 +612,7 @@ export default function VouchersPage() {
             {/* Entry Rows */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold text-secondary">
                   Journal Legs (Debits & Credits)
                 </label>
                 <Button
@@ -626,7 +626,7 @@ export default function VouchersPage() {
                 </Button>
               </div>
 
-              <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="border border-default rounded-xl overflow-hidden divide-y divide-subtle">
                 {jvEntries.map((row, idx) => (
                   <div key={idx} className="p-2.5 flex items-center gap-2 text-xs">
                     <div className="w-24 shrink-0">
@@ -677,7 +677,7 @@ export default function VouchersPage() {
                       type="button"
                       disabled={jvEntries.length <= 2}
                       onClick={() => handleRemoveJvRow(idx)}
-                      className="text-slate-400 hover:text-rose-500 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                      className="text-muted hover:text-status-danger-text disabled:opacity-30 disabled:cursor-not-allowed p-1"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -686,14 +686,14 @@ export default function VouchersPage() {
               </div>
 
               {/* Zero-Variance Mathematical Bar */}
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
+              <div className="p-3 rounded-xl bg-surface-sunken border border-default flex items-center justify-between text-xs font-mono">
                 <div>
-                  <span className="text-slate-500">Total Debit: </span>
-                  <span className="font-bold text-slate-900 dark:text-white"><MoneyText amount={totalJvDebit} /></span>
+                  <span className="text-secondary">Total Debit: </span>
+                  <span className="font-bold text-primary"><MoneyText amount={totalJvDebit} /></span>
                 </div>
                 <div>
-                  <span className="text-slate-500">Total Credit: </span>
-                  <span className="font-bold text-slate-900 dark:text-white"><MoneyText amount={totalJvCredit} /></span>
+                  <span className="text-secondary">Total Credit: </span>
+                  <span className="font-bold text-primary"><MoneyText amount={totalJvCredit} /></span>
                 </div>
                 <div>
                   {isJvBalanced ? (
