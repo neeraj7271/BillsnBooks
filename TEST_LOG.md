@@ -64,3 +64,15 @@
 | **5.2** | Mobile 390×844 Viewport: Zero page-level horizontal scroll and all actions reachable. | **PASS** | `HEAD` | Verified in Playwright test `tests/e2e/mobile-390.spec.ts`. |
 | **6.1** | Screencast Demonstration: Full video demonstrating preview template switcher, line items typing, submission, and detail template cycling. | **PASS** | `HEAD` | Recorded and committed in `tests/e2e/screencasts/invoice-polish-v4.webm`. |
 
+
+
+---
+
+## UI_POLISH_V6 User Journey Verification Log
+
+| # | Acceptance Criterion | Status | Commit SHA | Verification Evidence / Log |
+|---|---|---|---|---|
+| **2.1** | Practice Clients Onboarding: 30 firm clients created via UI with legal names, valid GSTIN checksums, PAN, and primary contacts. | **PASS** | `HEAD` | Verified in Playwright journey `tests/e2e/journeys/practice.spec.ts`. Captured in `docs/ui-review-v5/populated/21-practice-clients.png` and `21-practice-clients-dark.png`. |
+| **2.2** | Compliance Tasks Creation: 200 tasks across statutory categories (GSTR-1, GSTR-3B, TDS, Advance Tax, ITR, Audit) interleaved between FIRM_PARTNER and STAFF_ACCOUNTANT. | **PASS** | `HEAD` | Verified 290 total tasks in DB. Captured in `docs/ui-review-v5/populated/22-practice-tasks.png` and `22-practice-tasks-dark.png`. |
+| **2.3** | Client Document Requests & Vault: 80 document requests created via UI, 30 uploaded via CLIENT_VIEWER context, 20 approved and 10 rejected via FIRM_PARTNER. | **PASS** | `HEAD` | Verified in Playwright journey. Captured in `docs/ui-review-v5/populated/24-practice-documents.png` and `24-practice-documents-dark.png`. |
+| **2.4** | Statutory Compliance Calendar: Calendar deadlines and scheduled milestones verified. | **PASS** | `HEAD` | Verified in Playwright journey. Captured in `docs/ui-review-v5/populated/23-practice-calendar.png` and `23-practice-calendar-dark.png`. Full Playwright trace saved to `tests/e2e/journeys/traces/practice.zip`. |

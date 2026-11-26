@@ -177,8 +177,9 @@ export default function ClientsDirectoryPage() {
             size="sm"
             onClick={() => setOpenOnboardModal(true)}
             leftIcon={<Plus className="h-3.5 w-3.5" />}
+            aria-label="New Client · Onboard Client"
           >
-            Onboard Client
+            New Client
           </Button>
         </div>
       </div>
