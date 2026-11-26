@@ -43,20 +43,20 @@ export function InvoiceLineItems({
       </div>
 
       <div className="rounded-xl border border-default overflow-x-auto max-h-[460px] shadow-2xs">
-        <table className="min-w-[948px] w-full text-left text-xs border-collapse">
+        <table className="min-w-[1016px] w-full text-left text-xs border-collapse">
           <thead className="bg-surface-sunken border-b border-default sticky top-0 z-20 font-semibold text-secondary text-[11px]">
             <tr>
-              <th className="py-2.5 px-3 min-w-[220px] sticky left-0 bg-surface-sunken z-30 shadow-[1px_0_0_0_var(--color-border)]">
+              <th className="py-2 px-2 min-w-[220px] sticky left-0 bg-surface-sunken z-30 shadow-[1px_0_0_0_var(--color-border)]">
                 Item / Service
               </th>
-              <th className="py-2.5 px-2 w-[96px]">HSN/SAC</th>
-              <th className="py-2.5 px-2 w-[72px] text-right">Qty</th>
-              <th className="py-2.5 px-2 w-[72px] text-center">UOM</th>
-              <th className="py-2.5 px-2 w-[140px] text-right">Rate</th>
-              <th className="py-2.5 px-2 w-[80px] text-right">Disc %</th>
-              <th className="py-2.5 px-2 w-[88px] text-right">GST %</th>
-              <th className="py-2.5 px-3 w-[140px] text-right">Amount</th>
-              <th className="py-2.5 px-1 w-[40px] text-center"></th>
+              <th className="py-2 px-1.5 w-[112px]">HSN/SAC</th>
+              <th className="py-2 px-1.5 w-[88px] text-right">Qty</th>
+              <th className="py-2 px-1.5 w-[80px] text-center">UOM</th>
+              <th className="py-2 px-1.5 w-[144px] text-right">Rate</th>
+              <th className="py-2 px-1.5 w-[80px] text-right">Disc %</th>
+              <th className="py-2 px-1.5 w-[88px] text-right">GST %</th>
+              <th className="py-2 px-2 w-[144px] text-right">Amount</th>
+              <th className="py-2 w-[40px] text-center"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle bg-surface">
@@ -67,7 +67,7 @@ export function InvoiceLineItems({
                   key={`line-${idx}`}
                   className="align-middle hover:bg-surface-sunken/40 transition-colors group"
                 >
-                  <td className="p-2 min-w-[220px] sticky left-0 bg-surface group-hover:bg-surface-sunken/40 transition-colors z-10 shadow-[1px_0_0_0_var(--color-border)]">
+                  <td className="py-1.5 px-2 min-w-[220px] sticky left-0 bg-surface group-hover:bg-surface-sunken/40 transition-colors z-10 shadow-[1px_0_0_0_var(--color-border)]">
                     <Select
                       size="sm"
                       className="w-full min-w-0"
@@ -78,22 +78,22 @@ export function InvoiceLineItems({
                       aria-label={`Item or service for row ${idx + 1}`}
                     />
                   </td>
-                  <td className="p-2 w-[96px]">
+                  <td className="py-1.5 px-1.5 w-[112px]">
                     <Input
                       size="sm"
-                      className="w-full min-w-0 font-mono text-xs tabular-nums"
+                      className="w-full min-w-0 font-mono text-xs tabular-nums px-2"
                       value={line.hsnSacCode}
                       aria-label={`HSN or SAC code for row ${idx + 1}`}
                       onChange={(e) => onUpdateLineItem(idx, 'hsnSacCode', e.target.value)}
                     />
                   </td>
-                  <td className="p-2 w-[72px]">
+                  <td className="py-1.5 px-1.5 w-[88px]">
                     <Input
                       size="sm"
                       type="number"
                       min="0"
                       step="any"
-                      className="w-full min-w-0 font-mono text-right text-xs font-bold tabular-nums"
+                      className="w-full min-w-0 font-mono text-right text-xs font-bold tabular-nums px-2"
                       value={line.quantity === 0 ? '' : line.quantity}
                       aria-label={`Quantity for row ${idx + 1}`}
                       onChange={(e) => {
@@ -103,10 +103,10 @@ export function InvoiceLineItems({
                       placeholder="1"
                     />
                   </td>
-                  <td className="p-2 w-[72px]">
+                  <td className="py-1.5 px-1.5 w-[80px]">
                     <Select
                       size="sm"
-                      className="w-full min-w-0 font-mono uppercase text-center text-xs px-1.5"
+                      className="w-full min-w-0 font-mono uppercase text-center text-xs px-2"
                       value={line.uom || 'NOS'}
                       onValueChange={(val) => onUpdateLineItem(idx, 'uom', val)}
                       options={[
@@ -120,17 +120,17 @@ export function InvoiceLineItems({
                       aria-label={`Unit of measure for row ${idx + 1}`}
                     />
                   </td>
-                  <td className="p-2 w-[140px]">
+                  <td className="py-1.5 px-1.5 w-[144px]">
                     <CurrencyInput
                       size="sm"
-                      className="w-full min-w-0 font-mono font-bold text-xs tabular-nums text-right"
+                      className="w-full min-w-0 font-mono font-bold text-xs tabular-nums text-right pl-6 pr-2"
                       value={line.unitPrice}
                       aria-label={`Unit rate for row ${idx + 1}`}
                       onChange={(val) => onUpdateLineItem(idx, 'unitPrice', val)}
                       placeholder="0.00"
                     />
                   </td>
-                  <td className="p-2 w-[80px]">
+                  <td className="py-1.5 px-1.5 w-[80px]">
                     <Input
                       size="sm"
                       type="number"
@@ -138,7 +138,7 @@ export function InvoiceLineItems({
                       max={100}
                       step="0.5"
                       rightAddon={<span className="text-[11px] text-muted font-bold">%</span>}
-                      className="w-full min-w-0 font-mono text-right text-xs tabular-nums pr-6"
+                      className="w-full min-w-0 font-mono text-right text-xs tabular-nums pr-5"
                       value={line.discountPercent === 0 ? '' : line.discountPercent}
                       aria-label={`Discount percentage for row ${idx + 1}`}
                       onChange={(e) => {
@@ -148,10 +148,10 @@ export function InvoiceLineItems({
                       placeholder="0"
                     />
                   </td>
-                  <td className="p-2 w-[88px]">
+                  <td className="py-1.5 px-1.5 w-[88px]">
                     <Select
                       size="sm"
-                      className="w-full min-w-0 font-mono text-right text-xs tabular-nums"
+                      className="w-full min-w-0 font-mono text-right text-xs tabular-nums px-2"
                       value={String(line.gstRatePercent)}
                       onValueChange={(val) => onUpdateLineItem(idx, 'gstRatePercent', parseFloat(val))}
                       aria-label={`GST tax slab for row ${idx + 1}`}
@@ -164,10 +164,10 @@ export function InvoiceLineItems({
                       ]}
                     />
                   </td>
-                  <td className="p-2 w-[140px] text-right font-bold text-primary tabular-nums text-xs">
+                  <td className="py-1.5 px-2 w-[144px] text-right font-bold text-primary tabular-nums text-xs">
                     <MoneyText amount={comp?.total || 0} />
                   </td>
-                  <td className="p-2 w-[40px] text-center">
+                  <td className="py-1.5 w-[40px] text-center">
                     <Button
                       type="button"
                       variant="ghost"
