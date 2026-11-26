@@ -1,17 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Eye, Edit3 } from 'lucide-react';
+import { ArrowLeft, Settings, Eye, Edit3, Columns, GripVertical } from 'lucide-react';
 import {
   FormPage,
   Button,
   Badge,
   Card,
   CardContent,
-  MoneyText,
-  DateText,
   LoadingState,
   ErrorState,
 } from '@platform/ui';
@@ -22,8 +20,9 @@ import { InvoiceHeaderFields } from './invoice-header-fields';
 import { InvoiceLineItems } from './invoice-line-items';
 import { InvoiceSummary } from './invoice-summary';
 import { InvoiceSettingsDialog } from './invoice-settings-dialog';
+import { InvoicePreviewCard, type TemplateStyle } from './invoice-preview-card';
 
-type TemplateStyle = 'Minimal' | 'Modern' | 'Tally';
+export type ViewMode = 'edit' | 'split' | 'preview';
 
 function NewInvoiceContent() {
   const router = useRouter();
@@ -42,8 +41,13 @@ function NewInvoiceContent() {
   const [submittingDraft, setSubmittingDraft] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 3-mode View Toggle: Edit (default), Split, Preview
+  const [viewMode, setViewMode] = useState<ViewMode>('edit');
+  const [splitRatio, setSplitRatio] = useState<number>(55);
+  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
+  const isDraggingRef = useRef<boolean>(false);
+
   const [templateStyle, setTemplateStyle] = useState<TemplateStyle>('Modern');
-  const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
 
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [selectedFyId, setSelectedFyId] = useState<string>('');
@@ -78,6 +82,47 @@ function NewInvoiceContent() {
       gstRatePercent: 18,
     },
   ]);
+
+  // Load view mode and split ratio preferences from localStorage
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem('antigravity_invoice_view_mode') as ViewMode | null;
+      if (savedMode && ['edit', 'split', 'preview'].includes(savedMode)) {
+        setViewMode(savedMode);
+      }
+      const savedRatio = localStorage.getItem('antigravity_invoice_split_ratio');
+      if (savedRatio) {
+        const parsed = parseInt(savedRatio, 10);
+        if (parsed >= 40 && parsed <= 70) setSplitRatio(parsed);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Monitor screen width (< 1280px disables split mode)
+  useEffect(() => {
+    const checkWidth = () => {
+      const small = window.innerWidth < 1280;
+      setIsSmallScreen(small);
+      if (small && viewMode === 'split') {
+        setViewMode('edit');
+      }
+    };
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, [viewMode]);
+
+  const handleSetViewMode = (newMode: ViewMode) => {
+    if (newMode === 'split' && isSmallScreen) return;
+    setViewMode(newMode);
+    try {
+      localStorage.setItem('antigravity_invoice_view_mode', newMode);
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     loadMasters();
@@ -295,29 +340,159 @@ function NewInvoiceContent() {
     }
   };
 
-  // Keyboard shortcuts: Cmd+S (draft), Cmd+Enter (submit), Alt+N (add row), Alt+D (remove last row)
+  // Keyboard shortcuts:
+  // Cmd+Shift+P -> Preview mode
+  // Cmd+Shift+E -> Edit mode
+  // Cmd+S -> save draft
+  // Cmd+Enter -> submit
+  // Alt+N -> add line item
+  // Alt+Backspace / Alt+D -> remove last line item
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
+      if (isCmdOrCtrl && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        handleSetViewMode('preview');
+      } else if (isCmdOrCtrl && e.shiftKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        handleSetViewMode('edit');
+      } else if (isCmdOrCtrl && e.key.toLowerCase() === 's') {
         e.preventDefault();
         void handleSubmit(true);
-      } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      } else if (isCmdOrCtrl && e.key === 'Enter') {
         e.preventDefault();
         void handleSubmit(false);
       } else if (e.altKey && e.key.toLowerCase() === 'n') {
         e.preventDefault();
         handleAddLineItem();
-      } else if (e.altKey && e.key.toLowerCase() === 'd') {
+      } else if (e.altKey && (e.key === 'Backspace' || e.key.toLowerCase() === 'd')) {
         e.preventDefault();
         if (lineItems.length > 1) handleRemoveLineItem(lineItems.length - 1);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  });
+  }, [lineItems, selectedPartyId, selectedBranchId, selectedFyId, invoiceDate, dueDate, posStateCode, documentType, taxClassification, customInvoiceNumber, isRcm, notes]);
+
+  // Resizer mouse drag for split mode
+  const handleMouseDownResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    const startX = e.clientX;
+    const startRatio = splitRatio;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const deltaX = moveEvent.clientX - startX;
+      const totalWidth = window.innerWidth;
+      const deltaPercent = (deltaX / totalWidth) * 100;
+      const newRatio = Math.max(40, Math.min(70, Math.round(startRatio + deltaPercent)));
+      setSplitRatio(newRatio);
+    };
+
+    const onMouseUp = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      try {
+        localStorage.setItem('antigravity_invoice_split_ratio', String(splitRatio));
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
 
   const selectedParty = parties.find((p) => p.id === selectedPartyId);
   const displayInvoiceNo = customInvoiceNumber.trim() || autoInvoiceNumber || 'INV-DRAFT';
+
+  // Shared Form Component
+  const renderForm = () => (
+    <Card className="shadow-xs">
+      <CardContent className="p-6 space-y-6">
+        <InvoiceHeaderFields
+          parties={parties}
+          branches={branches}
+          financialYears={financialYears}
+          selectedPartyId={selectedPartyId}
+          selectedBranchId={selectedBranchId}
+          selectedFyId={selectedFyId}
+          invoiceDate={invoiceDate}
+          dueDate={dueDate}
+          posStateCode={posStateCode}
+          isIntraState={isIntraState}
+          documentType={documentType}
+          taxClassification={taxClassification}
+          isRcm={isRcm}
+          customInvoiceNumber={customInvoiceNumber}
+          autoInvoiceNumber={autoInvoiceNumber}
+          fetchingNumber={fetchingNumber}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onPartyChange={handleSelectParty}
+          onBranchChange={setSelectedBranchId}
+          onFyChange={setSelectedFyId}
+          onInvoiceDateChange={setInvoiceDate}
+          onDueDateChange={setDueDate}
+          onPosChange={setPosStateCode}
+          onDocumentTypeChange={setDocumentType}
+          onTaxClassificationChange={setTaxClassification}
+          onRcmChange={setIsRcm}
+        />
+
+        {/* Fieldset 3 — Line Items */}
+        <fieldset className="p-5 rounded-2xl bg-surface border border-default space-y-4">
+          <legend className="px-2 text-xs font-bold uppercase tracking-wider text-secondary">
+            3. Billable Line Items & HSN Classification
+          </legend>
+          <InvoiceLineItems
+            items={items}
+            lineItems={lineItems}
+            computedTotals={computedTotals}
+            onSelectItemForLine={handleSelectItemForLine}
+            onUpdateLineItem={handleUpdateLineItem}
+            onAddLineItem={handleAddLineItem}
+            onRemoveLineItem={handleRemoveLineItem}
+          />
+        </fieldset>
+
+        {/* Fieldset 4 & 5 — Totals, Notes & Actions */}
+        <InvoiceSummary
+          computedTotals={computedTotals}
+          isIntraState={isIntraState}
+          notes={notes}
+          submitting={submitting}
+          submittingDraft={submittingDraft}
+          onNotesChange={setNotes}
+          onSubmit={() => handleSubmit(false)}
+          onSaveDraft={() => handleSubmit(true)}
+        />
+      </CardContent>
+    </Card>
+  );
+
+  // Shared Preview Component
+  const renderPreview = (showBack: boolean = false) => (
+    <InvoicePreviewCard
+      templateStyle={templateStyle}
+      setTemplateStyle={setTemplateStyle}
+      activeCompany={activeCompany}
+      activeBranch={activeBranch}
+      documentType={documentType}
+      displayInvoiceNo={displayInvoiceNo}
+      selectedParty={selectedParty}
+      invoiceDate={invoiceDate}
+      dueDate={dueDate}
+      posStateCode={posStateCode}
+      lineItems={lineItems}
+      computedTotals={computedTotals}
+      isIntraState={isIntraState}
+      notes={notes}
+      showBackToEdit={showBack}
+      onBackToEdit={() => handleSetViewMode('edit')}
+    />
+  );
 
   return (
     <FormPage
@@ -328,30 +503,59 @@ function NewInvoiceContent() {
             : cloneFrom
             ? 'Duplicate Tax Invoice'
             : 'New GST Tax Invoice',
-        subtitle: `Generate Rule 46 tax invoice for ${activeCompany?.legalName || 'Active Entity'} with live preview.`,
+        subtitle: `Generate Rule 46 tax invoice for ${activeCompany?.legalName || 'Active Entity'}.`,
         badge: <Badge variant="brand" size="sm">Rule 46</Badge>,
         actions: (
-          <div className="flex items-center gap-2">
-            <div className="lg:hidden inline-flex rounded-lg bg-surface-sunken p-0.5 border border-default">
+          <div className="flex items-center gap-3">
+            {/* 3-way Segmented View Mode Toggle: Edit / Split / Preview */}
+            <div className="inline-flex rounded-xl bg-surface-sunken p-1 border border-default shadow-2xs">
               <button
                 type="button"
-                onClick={() => setMobileTab('edit')}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium ${
-                  mobileTab === 'edit' ? 'bg-surface text-primary shadow-xs' : 'text-muted'
+                onClick={() => handleSetViewMode('edit')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  viewMode === 'edit'
+                    ? 'bg-surface text-primary shadow-xs'
+                    : 'text-muted hover:text-primary'
                 }`}
+                title="Edit Mode: Form centered at full width (⌘⇧E)"
               >
                 <Edit3 className="h-3.5 w-3.5" />
-                Edit
+                <span>Edit</span>
               </button>
+
               <button
                 type="button"
-                onClick={() => setMobileTab('preview')}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium ${
-                  mobileTab === 'preview' ? 'bg-surface text-primary shadow-xs' : 'text-muted'
+                disabled={isSmallScreen}
+                onClick={() => handleSetViewMode('split')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  viewMode === 'split'
+                    ? 'bg-surface text-primary shadow-xs'
+                    : isSmallScreen
+                    ? 'text-muted/40 cursor-not-allowed'
+                    : 'text-muted hover:text-primary'
                 }`}
+                title={
+                  isSmallScreen
+                    ? 'Enable wider viewport for Split view (≥1280px)'
+                    : 'Split View: 2 columns with draggable resizer'
+                }
+              >
+                <Columns className="h-3.5 w-3.5" />
+                <span>Split</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSetViewMode('preview')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  viewMode === 'preview'
+                    ? 'bg-surface text-primary shadow-xs'
+                    : 'text-muted hover:text-primary'
+                }`}
+                title="Preview Mode: Clean full preview with print actions (⌘⇧P)"
               >
                 <Eye className="h-3.5 w-3.5" />
-                Preview
+                <span>Preview</span>
               </button>
             </div>
 
@@ -370,32 +574,7 @@ function NewInvoiceContent() {
           </div>
         ),
       }}
-      footer={
-        <>
-          <span className="hidden sm:inline text-caption text-muted mr-auto">
-            Shortcuts: ⌘S Save Draft · ⌘↵ Submit · Alt+N Add Row · Alt+D Remove Row
-          </span>
-          <Button variant="outline" size="sm" onClick={() => router.push('/invoices')}>
-            Cancel
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            loading={submittingDraft}
-            onClick={() => handleSubmit(true)}
-          >
-            Save Draft
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            loading={submitting}
-            onClick={() => handleSubmit(false)}
-          >
-            Submit Invoice
-          </Button>
-        </>
-      }
+      footer={null}
     >
       {error && (
         <div className="mb-4">
@@ -406,208 +585,51 @@ function NewInvoiceContent() {
       {loading ? (
         <LoadingState rows={8} />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left 55%: Form */}
-          <div className={`lg:col-span-7 space-y-6 ${mobileTab === 'preview' ? 'hidden lg:block' : ''}`}>
-            <Card>
-              <CardContent className="p-6 space-y-6">
-                <InvoiceHeaderFields
-                  parties={parties}
-                  branches={branches}
-                  financialYears={financialYears}
-                  selectedPartyId={selectedPartyId}
-                  selectedBranchId={selectedBranchId}
-                  selectedFyId={selectedFyId}
-                  invoiceDate={invoiceDate}
-                  dueDate={dueDate}
-                  posStateCode={posStateCode}
-                  isIntraState={isIntraState}
-                  documentType={documentType}
-                  taxClassification={taxClassification}
-                  isRcm={isRcm}
-                  customInvoiceNumber={customInvoiceNumber}
-                  autoInvoiceNumber={autoInvoiceNumber}
-                  fetchingNumber={fetchingNumber}
-                  onOpenSettings={() => setSettingsOpen(true)}
-                  onPartyChange={handleSelectParty}
-                  onBranchChange={setSelectedBranchId}
-                  onFyChange={setSelectedFyId}
-                  onInvoiceDateChange={setInvoiceDate}
-                  onDueDateChange={setDueDate}
-                  onPosChange={setPosStateCode}
-                  onDocumentTypeChange={setDocumentType}
-                  onTaxClassificationChange={setTaxClassification}
-                  onRcmChange={setIsRcm}
-                />
+        <>
+          {/* MODE 1: EDIT MODE (Form full width at max-w-4xl, Preview completely unmounted) */}
+          {viewMode === 'edit' && (
+            <div className="max-w-4xl mx-auto w-full space-y-6">
+              {renderForm()}
+            </div>
+          )}
 
-                <InvoiceLineItems
-                  items={items}
-                  lineItems={lineItems}
-                  computedTotals={computedTotals}
-                  onSelectItemForLine={handleSelectItemForLine}
-                  onUpdateLineItem={handleUpdateLineItem}
-                  onAddLineItem={handleAddLineItem}
-                  onRemoveLineItem={handleRemoveLineItem}
-                />
+          {/* MODE 2: PREVIEW MODE (Preview centered at max-w-4xl, Form completely unmounted) */}
+          {viewMode === 'preview' && (
+            <div className="max-w-4xl mx-auto w-full space-y-6">
+              {renderPreview(true)}
+            </div>
+          )}
 
-                <InvoiceSummary
-                  computedTotals={computedTotals}
-                  isIntraState={isIntraState}
-                  notes={notes}
-                  submitting={submitting}
-                  submittingDraft={submittingDraft}
-                  onNotesChange={setNotes}
-                  onSubmit={() => handleSubmit(false)}
-                  onSaveDraft={() => handleSubmit(true)}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          {/* MODE 3: SPLIT MODE (2 columns with draggable divider, only on wide screens) */}
+          {viewMode === 'split' && (
+            <div className="flex items-start gap-0 w-full relative">
+              <div
+                style={{ width: `${splitRatio}%` }}
+                className="shrink-0 pr-4 space-y-6"
+              >
+                {renderForm()}
+              </div>
 
-          {/* Right 45%: Sticky Live Invoice Preview */}
-          <div className={`lg:col-span-5 lg:sticky lg:top-20 space-y-3 ${mobileTab === 'edit' ? 'hidden lg:block' : ''}`}>
-            <div className="flex items-center justify-between">
-              <span className="text-overline uppercase text-muted">Live PDF Preview</span>
-              <div className="inline-flex rounded-lg bg-surface-sunken p-0.5 border border-default">
-                {(['Minimal', 'Modern', 'Tally'] as TemplateStyle[]).map((tpl) => (
-                  <button
-                    key={tpl}
-                    type="button"
-                    onClick={() => setTemplateStyle(tpl)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                      templateStyle === tpl
-                        ? 'bg-surface text-primary shadow-xs'
-                        : 'text-muted hover:text-primary'
-                    }`}
-                  >
-                    {tpl}
-                  </button>
-                ))}
+              {/* Draggable Vertical Resizer */}
+              <div
+                onMouseDown={handleMouseDownResize}
+                className="w-4 shrink-0 flex items-center justify-center cursor-col-resize select-none group py-12"
+                title="Drag to resize form and preview"
+              >
+                <div className="w-1 h-32 rounded-full bg-border-strong group-hover:bg-brand group-hover:w-1.5 transition-all flex items-center justify-center">
+                  <GripVertical className="h-4 w-4 text-muted group-hover:text-inverse opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </div>
+
+              <div
+                style={{ width: `${100 - splitRatio}%` }}
+                className="shrink-0 pl-4 sticky top-6 space-y-6"
+              >
+                {renderPreview(false)}
               </div>
             </div>
-
-            <Card className="overflow-hidden">
-              <div
-                className={`p-5 border-b border-subtle flex items-start justify-between ${
-                  templateStyle === 'Modern'
-                    ? 'bg-brand-subtle'
-                    : templateStyle === 'Tally'
-                    ? 'bg-surface-sunken'
-                    : 'bg-surface'
-                }`}
-              >
-                <div>
-                  <div className="text-sm font-bold text-primary">
-                    {activeCompany?.legalName || 'Your Company'}
-                  </div>
-                  {(activeBranch?.gstin || activeCompany?.pan) && (
-                    <div className="font-mono text-[11px] text-secondary mt-0.5">
-                      {activeBranch?.gstin ? `GSTIN: ${activeBranch.gstin}` : `PAN: ${activeCompany?.pan}`}
-                    </div>
-                  )}
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold uppercase tracking-wide text-brand-text">
-                    {documentType.replace('_', ' ')}
-                  </div>
-                  <div className="font-mono text-xs font-semibold text-primary mt-0.5">
-                    {displayInvoiceNo}
-                  </div>
-                </div>
-              </div>
-
-              <CardContent className="p-5 space-y-4 text-xs">
-                <div className="grid grid-cols-2 gap-4 pb-3 border-b border-subtle">
-                  <div>
-                    <div className="text-overline uppercase text-muted">Billed To</div>
-                    <div className="font-semibold text-primary mt-1">
-                      {selectedParty?.name || 'Select a customer'}
-                    </div>
-                    {selectedParty?.gstin && (
-                      <div className="font-mono text-[11px] text-secondary">
-                        GSTIN: {selectedParty.gstin}
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right space-y-1">
-                    <div>
-                      <span className="text-muted">Date: </span>
-                      <DateText date={invoiceDate} className="text-primary" />
-                    </div>
-                    <div>
-                      <span className="text-muted">Due: </span>
-                      <DateText date={dueDate} className="text-primary" />
-                    </div>
-                    <div className="text-muted">
-                      POS: <span className="font-mono text-primary">{posStateCode}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="grid grid-cols-12 text-overline uppercase text-muted pb-1 border-b border-subtle">
-                    <span className="col-span-6">Item</span>
-                    <span className="col-span-2 text-right">Qty</span>
-                    <span className="col-span-4 text-right">Amount</span>
-                  </div>
-                  {lineItems.map((l, idx) => {
-                    const lineAmt =
-                      (Number(l.quantity) || 0) *
-                      (Number(l.unitPrice) || 0) *
-                      (1 - (Number(l.discountPercent) || 0) / 100);
-                    return (
-                      <div key={idx} className="grid grid-cols-12 items-center text-xs">
-                        <span className="col-span-6 truncate text-primary">
-                          {l.description || `Line ${idx + 1}`}
-                        </span>
-                        <span className="col-span-2 text-right font-mono tabular-nums text-secondary">
-                          {l.quantity}
-                        </span>
-                        <span className="col-span-4 text-right">
-                          <MoneyText amount={lineAmt} className="text-primary" />
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="pt-3 border-t border-default space-y-1.5">
-                  <div className="flex justify-between text-secondary">
-                    <span>Taxable Value</span>
-                    <MoneyText amount={computedTotals.subtotal} />
-                  </div>
-                  {isIntraState ? (
-                    <>
-                      <div className="flex justify-between text-secondary">
-                        <span>CGST</span>
-                        <MoneyText amount={computedTotals.totalCgst} />
-                      </div>
-                      <div className="flex justify-between text-secondary">
-                        <span>SGST</span>
-                        <MoneyText amount={computedTotals.totalSgst} />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between text-secondary">
-                      <span>IGST</span>
-                      <MoneyText amount={computedTotals.totalIgst} />
-                    </div>
-                  )}
-                  <div className="flex justify-between pt-2 border-t border-subtle text-sm font-bold text-primary">
-                    <span>Grand Total</span>
-                    <MoneyText amount={computedTotals.grandTotal} />
-                  </div>
-                </div>
-
-                {notes && (
-                  <div className="pt-2 border-t border-subtle text-[11px] text-muted">
-                    {notes}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
       <InvoiceSettingsDialog

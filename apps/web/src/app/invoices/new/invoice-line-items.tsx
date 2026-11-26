@@ -35,19 +35,18 @@ export function InvoiceLineItems({
         </Button>
       </div>
 
-      <div className="rounded-xl border border-default overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-surface-sunken border-b border-default font-semibold text-secondary text-[11px]">
+      <div className="rounded-xl border border-default overflow-x-auto max-h-[460px]">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead className="bg-surface-sunken border-b border-default sticky top-0 z-10 font-semibold text-secondary text-[11px]">
             <tr>
-              <th className="py-2.5 px-3 min-w-[200px]">Item / Service</th>
+              <th className="py-2.5 px-3 min-w-[220px]">Item / Service</th>
               <th className="py-2.5 px-2 w-24">HSN/SAC</th>
-              <th className="py-2.5 px-2 w-20 text-center">Qty</th>
-              <th className="py-2.5 px-2 w-24 text-center">UOM</th>
-              <th className="py-2.5 px-2 min-w-[140px] text-right">Rate</th>
-              <th className="py-2.5 px-2 w-24 text-right">Disc %</th>
-              <th className="py-2.5 px-2 w-24">GST Slab</th>
-              <th className="py-2.5 px-3 min-w-[110px] text-right">Taxable</th>
-              <th className="py-2.5 px-3 min-w-[110px] text-right">Total</th>
+              <th className="py-2.5 px-2 w-20 text-right">Qty</th>
+              <th className="py-2.5 px-2 w-16 text-center">UOM</th>
+              <th className="py-2.5 px-2 w-28 text-right">Rate</th>
+              <th className="py-2.5 px-2 w-16 text-right">Disc %</th>
+              <th className="py-2.5 px-2 w-16 text-right">GST %</th>
+              <th className="py-2.5 px-3 w-32 text-right">Amount</th>
               <th className="py-2.5 px-2 w-10 text-center"></th>
             </tr>
           </thead>
@@ -55,8 +54,8 @@ export function InvoiceLineItems({
             {lineItems.map((line, idx) => {
               const comp = computedTotals.computedLines[idx];
               return (
-                <tr key={`line-${idx}`} className="align-middle">
-                  <td className="p-2">
+                <tr key={`line-${idx}`} className="align-middle hover:bg-surface-sunken/40 transition-colors">
+                  <td className="p-2 min-w-[220px]">
                     <Select
                       size="sm"
                       value={line.itemId || ''}
@@ -66,10 +65,10 @@ export function InvoiceLineItems({
                       aria-label={`Item or service for row ${idx + 1}`}
                     />
                   </td>
-                  <td className="p-2">
+                  <td className="p-2 w-24">
                     <Input
                       size="sm"
-                      className="font-mono text-xs"
+                      className="font-mono text-xs tabular-nums"
                       value={line.hsnSacCode}
                       aria-label={`HSN or SAC code for row ${idx + 1}`}
                       onChange={(e) => onUpdateLineItem(idx, 'hsnSacCode', e.target.value)}
@@ -81,7 +80,7 @@ export function InvoiceLineItems({
                       type="number"
                       min="0"
                       step="any"
-                      className="font-mono text-center text-xs font-bold"
+                      className="font-mono text-right text-xs font-bold tabular-nums"
                       value={!line.quantity || line.quantity === 0 ? '' : line.quantity}
                       aria-label={`Quantity for row ${idx + 1}`}
                       onChange={(e) => {
@@ -91,7 +90,7 @@ export function InvoiceLineItems({
                       placeholder="1"
                     />
                   </td>
-                  <td className="p-2 w-24">
+                  <td className="p-2 w-16">
                     <Input
                       size="sm"
                       className="font-mono uppercase text-center text-xs"
@@ -100,38 +99,33 @@ export function InvoiceLineItems({
                       onChange={(e) => onUpdateLineItem(idx, 'uom', e.target.value.toUpperCase())}
                     />
                   </td>
-                  <td className="p-2 min-w-[140px]">
+                  <td className="p-2 w-28">
                     <CurrencyInput
                       size="sm"
-                      className="w-full font-mono font-bold text-xs"
+                      className="w-full font-mono font-bold text-xs tabular-nums text-right"
                       value={line.unitPrice}
                       aria-label={`Unit rate for row ${idx + 1}`}
                       onChange={(val) => onUpdateLineItem(idx, 'unitPrice', val)}
                     />
                   </td>
-                  <td className="p-2 w-24">
-                    <div className="relative">
-                      <Input
-                        size="sm"
-                        type="number"
-                        min={0}
-                        max={100}
-                        step="0.5"
-                        className="font-mono text-right text-xs pr-5"
-                        value={!line.discountPercent || line.discountPercent === 0 ? '' : line.discountPercent}
-                        aria-label={`Discount percentage for row ${idx + 1}`}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          onUpdateLineItem(idx, 'discountPercent', val === '' ? 0 : (parseFloat(val) || 0));
-                        }}
-                        placeholder="0"
-                      />
-                      <span className="absolute right-2 top-2 text-[10px] font-bold text-muted pointer-events-none">
-                        %
-                      </span>
-                    </div>
+                  <td className="p-2 w-16">
+                    <Input
+                      size="sm"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.5"
+                      className="font-mono text-right text-xs tabular-nums"
+                      value={!line.discountPercent || line.discountPercent === 0 ? '' : line.discountPercent}
+                      aria-label={`Discount percentage for row ${idx + 1}`}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        onUpdateLineItem(idx, 'discountPercent', val === '' ? 0 : (parseFloat(val) || 0));
+                      }}
+                      placeholder="0"
+                    />
                   </td>
-                  <td className="p-2">
+                  <td className="p-2 w-16">
                     <Select
                       size="sm"
                       value={String(line.gstRatePercent)}
@@ -146,13 +140,10 @@ export function InvoiceLineItems({
                       ]}
                     />
                   </td>
-                  <td className="p-2 text-right">
-                    <MoneyText amount={comp?.taxable || 0} />
-                  </td>
-                  <td className="p-2 text-right font-bold text-primary">
+                  <td className="p-2 w-32 text-right font-bold text-primary tabular-nums">
                     <MoneyText amount={comp?.total || 0} />
                   </td>
-                  <td className="p-2 text-center">
+                  <td className="p-2 w-10 text-center">
                     <Button
                       variant="ghost"
                       size="icon-sm"
