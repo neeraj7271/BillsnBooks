@@ -294,34 +294,34 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 bg-surface-overlay backdrop-blur-xs p-4 animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col max-h-[75vh]"
+        className="w-full max-w-xl rounded-2xl border border-default bg-surface shadow-2xl overflow-hidden flex flex-col max-h-[75vh]"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 px-4 py-3 bg-slate-50/50 dark:bg-slate-800/30">
-          <Search className="h-4.5 w-4.5 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-3 border-b border-subtle px-4 py-3 bg-surface-sunken">
+          <Search className="h-4 w-4 text-muted shrink-0" />
           <input
             ref={inputRef}
             type="text"
             placeholder="Type a command, page, or report to jump..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+            className="w-full bg-transparent text-sm text-primary placeholder:text-muted focus:outline-none"
           />
-          <kbd className="hidden sm:inline-block rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-400 shadow-xs">
+          <kbd className="hidden sm:inline-block rounded border border-default bg-surface px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted shadow-xs">
             ESC
           </kbd>
         </div>
 
         {/* Results List */}
-        <div className="overflow-y-auto p-2 divide-y divide-slate-100 dark:divide-slate-800/50">
+        <div className="overflow-y-auto p-2 divide-y divide-border-subtle">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-400">
+            <div className="py-12 text-center text-xs text-muted">
               No matching commands or pages found.
             </div>
           ) : (
@@ -335,16 +335,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                   type="button"
                   onClick={item.action}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition ${
+                  className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition-colors ${
                     isSelected
-                      ? 'bg-blue-600 text-white font-bold shadow-xs'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      ? 'bg-brand text-inverse font-semibold shadow-xs'
+                      : 'text-secondary hover:bg-surface-sunken hover:text-primary'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Icon
                       className={`h-4 w-4 shrink-0 ${
-                        isSelected ? 'text-white' : 'text-slate-400 dark:text-slate-500'
+                        isSelected ? 'text-inverse' : 'text-muted'
                       }`}
                     />
                     <span className="truncate">{item.title}</span>
@@ -352,17 +352,17 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <span
-                      className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] uppercase font-semibold tracking-wide px-1.5 py-0.5 rounded ${
                         isSelected
-                          ? 'bg-blue-700 text-blue-100'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                          ? 'bg-brand-hover text-inverse'
+                          : 'bg-surface-sunken text-muted'
                       }`}
                     >
                       {item.category}
                     </span>
                     <ArrowRight
                       className={`h-3 w-3 ${
-                        isSelected ? 'text-white' : 'text-slate-300 dark:text-slate-600'
+                        isSelected ? 'text-inverse' : 'text-muted'
                       }`}
                     />
                   </div>
@@ -373,13 +373,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         </div>
 
         {/* Footer shortcuts helper */}
-        <div className="border-t border-slate-100 dark:border-slate-800 px-4 py-2 bg-slate-50/50 dark:bg-slate-900 text-[11px] text-slate-400 flex items-center justify-between">
+        <div className="border-t border-subtle px-4 py-2 bg-surface-sunken text-[11px] text-muted flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>
             <span>ESC Close</span>
           </div>
-          <span className="font-mono text-[10px] text-slate-400">Antigravity Command Palette</span>
+          <span className="font-mono text-[10px] text-muted">Antigravity Command Palette</span>
         </div>
       </div>
     </div>
