@@ -55,9 +55,10 @@ export function Step2Mapping({
                     <td className="py-3 px-4 font-mono font-semibold text-primary">
                       {header}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 min-w-[260px]">
                       <Select
                         size="sm"
+                        className="w-full min-w-0"
                         value={mappedVal}
                         onValueChange={(val) => onMappingChange(header, val)}
                         options={canonicalOptions}

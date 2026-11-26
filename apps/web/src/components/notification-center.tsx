@@ -375,7 +375,7 @@ export function NotificationCenter() {
           setIsOpen((v) => !v);
           setFocusedIndex(0);
         }}
-        aria-label="Notifications"
+        aria-label={unreadCount > 0 ? `${unreadCount > 99 ? '99+' : unreadCount} Notifications` : 'Notifications'}
         aria-expanded={isOpen}
         className={cn(
           'relative h-9 w-9 flex items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface-sunken transition-colors',
@@ -384,7 +384,7 @@ export function NotificationCenter() {
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-brand text-inverse text-[10px] font-bold tabular-nums shadow-xs">
+          <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-brand text-inverse text-[10px] font-bold tabular-nums shadow-xs">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

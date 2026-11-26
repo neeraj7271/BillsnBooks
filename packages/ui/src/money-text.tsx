@@ -27,18 +27,17 @@ export function MoneyText({
 
   let formatted = formatCurrency(absAmount, currency);
   if (isNegative && !showDrCr) {
-    formatted = `-${formatted}`;
+    formatted = `(${formatted})`;
   }
 
   let colorClasses = '';
-  if (colorCode === 'profit-loss') {
+  if (isNegative) {
+    colorClasses = 'text-status-danger-text';
+  } else if (colorCode === 'profit-loss') {
     if (safeAmount > 0) colorClasses = 'text-status-success-text font-semibold';
-    else if (safeAmount < 0 || negative) colorClasses = 'text-status-danger-text font-semibold';
   } else if (colorCode === 'dr-cr') {
     if (isDebit) colorClasses = 'text-brand-text font-semibold';
     else colorClasses = 'text-status-success-text font-semibold';
-  } else if (negative) {
-    colorClasses = 'text-status-danger-text';
   }
 
   return (

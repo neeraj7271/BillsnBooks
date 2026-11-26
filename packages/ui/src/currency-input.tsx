@@ -45,7 +45,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
         type="text"
         inputMode="decimal"
         leftAddon={<span className="font-semibold text-xs text-muted">{currencySymbol}</span>}
-        className={cn('tabular-nums font-mono text-right', className)}
+        className={cn('w-full min-w-0 tabular-nums font-mono text-right', className)}
         value={displayVal}
         onChange={handleInputChange}
         placeholder={props.placeholder || '0.00'}

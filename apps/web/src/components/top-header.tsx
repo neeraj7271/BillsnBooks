@@ -201,7 +201,6 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <button
             type="button"
             onClick={() => setIsCommandPaletteOpen(true)}
-            aria-label="Open command search"
             className="flex items-center gap-2 h-9 px-3 rounded-lg text-xs text-secondary hover:text-primary hover:bg-surface-sunken transition-colors"
           >
             <Search className="h-4 w-4" />
@@ -226,7 +225,7 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
             <button
               type="button"
               onClick={() => setShowProfileMenu((v) => !v)}
-              aria-label="Account menu"
+              aria-label={`${initials} - Account menu`}
               className="h-9 px-2 flex items-center gap-2 rounded-lg hover:bg-surface-sunken transition-colors"
             >
               <div className="h-7 w-7 rounded-full bg-brand text-inverse flex items-center justify-center text-xs font-semibold">

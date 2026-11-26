@@ -646,8 +646,9 @@ export default function VouchersPage() {
               <div className="border border-default rounded-xl overflow-hidden divide-y divide-subtle">
                 {jvEntries.map((row, idx) => (
                   <div key={idx} className="p-2.5 flex items-center gap-2 text-xs">
-                    <div className="w-24 shrink-0">
+                    <div className="w-28 shrink-0">
                       <Select
+                        className="w-full min-w-0"
                         value={row.entryType}
                         onValueChange={(val) => {
                           const updated = [...jvEntries];
@@ -663,6 +664,7 @@ export default function VouchersPage() {
 
                     <div className="flex-1 min-w-0">
                       <Select
+                        className="w-full min-w-0"
                         value={row.ledgerId}
                         onValueChange={(val) => {
                           const updated = [...jvEntries];
@@ -686,7 +688,7 @@ export default function VouchersPage() {
                           updated[idx]!.amount = parseFloat(e.target.value) || 0;
                           setJvEntries(updated);
                         }}
-                        className="font-mono text-right text-xs"
+                        className="w-full min-w-0 font-mono text-right text-xs tabular-nums"
                       />
                     </div>
 
