@@ -1,0 +1,192 @@
+version: '3.8'
+
+services:
+  # --- Core Infrastructure ---
+  postgres:
+    image: postgres:16-alpine
+    container_name: accounting_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Set admin password in .env.production}
+      POSTGRES_DB: ${DATABASE_NAME:-accounting_platform}
+      APP_USER_PASSWORD: ${DATABASE_PASSWORD:?Set app user password in .env.production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - internal_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_ADMIN_USER:-postgres} -d ${DATABASE_NAME:-accounting_platform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:16-alpine
+    container_name: accounting_postgres_backup
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${DATABASE_NAME:-accounting_platform}
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      SCHEDULE: "@hourly"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+    volumes:
+      - backups:/backups
+    networks:
+      - internal_network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: accounting_redis_prod
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-""} --maxmemory 512mb --maxmemory-policy noeviction
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-05-01T01-11-10Z
+    container_name: accounting_minio_prod
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?Set S3_SECRET_KEY in .env.production}
+    volumes:
+      - minio_data:/data
+    networks:
+      - internal_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # --- Application Tier ---
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: accounting_api_prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    env_file:
+      - ../.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: app_user
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME:-accounting_platform}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      S3_ENDPOINT: http://minio:9000
+    networks:
+      - internal_network
+    expose:
+      - "4000"
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    container_name: accounting_web_prod
+    restart: always
+    depends_on:
+      api:
+        condition: service_started
+    env_file:
+      - ../.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_TELEMETRY_DISABLED: 1
+    networks:
+      - internal_network
+    expose:
+      - "3000"
+
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/worker/Dockerfile
+    container_name: accounting_worker_prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ../.env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: app_user
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME:-accounting_platform}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    networks:
+      - internal_network
+
+  # --- Reverse Proxy & TLS Automation ---
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: accounting_caddy_prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+      - minio
+    networks:
+      - internal_network
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:-admin@yourdomain.com}
+      APP_DOMAIN: ${APP_DOMAIN:-app.yourdomain.com}
+      API_DOMAIN: ${API_DOMAIN:-api.yourdomain.com}
+      STORAGE_DOMAIN: ${STORAGE_DOMAIN:-storage.yourdomain.com}
+
+networks:
+  internal_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  backups:
+  redis_data:
+  minio_data:
+  caddy_data:
+  caddy_config:
