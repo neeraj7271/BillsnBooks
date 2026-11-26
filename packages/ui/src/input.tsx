@@ -46,7 +46,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               inputVariants({ variant, size }),
-              leftAddon && (size === 'sm' ? 'pl-6' : 'pl-9'),
+              leftAddon && (size === 'sm' ? 'pl-7' : 'pl-9'),
               rightAddon && (size === 'sm' ? 'pr-6' : 'pr-9'),
               className
             )}
@@ -54,7 +54,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightAddon && (
-            <div className="absolute right-3 flex items-center pointer-events-none text-muted">
+            <div className={cn('absolute flex items-center pointer-events-none text-muted', size === 'sm' ? 'right-2' : 'right-3')}>
               {rightAddon}
             </div>
           )}
