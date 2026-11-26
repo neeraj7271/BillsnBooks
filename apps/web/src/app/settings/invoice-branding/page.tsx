@@ -218,6 +218,7 @@ export default function InvoiceBrandingSettingsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/invoices"
+            aria-label="Back to Invoices"
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-default bg-surface text-secondary hover:text-primary transition shadow-2xs"
           >
             <ArrowLeft className="h-4 w-4" />

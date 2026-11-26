@@ -63,6 +63,7 @@ export function InvoiceLineItems({
                       onValueChange={(val) => onSelectItemForLine(idx, val)}
                       options={items.map((it) => ({ label: it.name, value: it.id }))}
                       placeholder="Select item..."
+                      aria-label={`Item or service for row ${idx + 1}`}
                     />
                   </td>
                   <td className="p-2">
@@ -70,6 +71,7 @@ export function InvoiceLineItems({
                       size="sm"
                       className="font-mono text-xs"
                       value={line.hsnSacCode}
+                      aria-label={`HSN or SAC code for row ${idx + 1}`}
                       onChange={(e) => onUpdateLineItem(idx, 'hsnSacCode', e.target.value)}
                     />
                   </td>
@@ -81,6 +83,7 @@ export function InvoiceLineItems({
                       step="any"
                       className="font-mono text-center text-xs font-bold"
                       value={!line.quantity || line.quantity === 0 ? '' : line.quantity}
+                      aria-label={`Quantity for row ${idx + 1}`}
                       onChange={(e) => {
                         const val = e.target.value;
                         onUpdateLineItem(idx, 'quantity', val === '' ? 0 : (parseFloat(val) || 0));
@@ -93,6 +96,7 @@ export function InvoiceLineItems({
                       size="sm"
                       className="font-mono uppercase text-center text-xs"
                       value={line.uom}
+                      aria-label={`Unit of measure for row ${idx + 1}`}
                       onChange={(e) => onUpdateLineItem(idx, 'uom', e.target.value.toUpperCase())}
                     />
                   </td>
@@ -101,6 +105,7 @@ export function InvoiceLineItems({
                       size="sm"
                       className="w-full font-mono font-bold text-xs"
                       value={line.unitPrice}
+                      aria-label={`Unit rate for row ${idx + 1}`}
                       onChange={(val) => onUpdateLineItem(idx, 'unitPrice', val)}
                     />
                   </td>
@@ -114,6 +119,7 @@ export function InvoiceLineItems({
                         step="0.5"
                         className="font-mono text-right text-xs pr-5"
                         value={!line.discountPercent || line.discountPercent === 0 ? '' : line.discountPercent}
+                        aria-label={`Discount percentage for row ${idx + 1}`}
                         onChange={(e) => {
                           const val = e.target.value;
                           onUpdateLineItem(idx, 'discountPercent', val === '' ? 0 : (parseFloat(val) || 0));
@@ -130,6 +136,7 @@ export function InvoiceLineItems({
                       size="sm"
                       value={String(line.gstRatePercent)}
                       onValueChange={(val) => onUpdateLineItem(idx, 'gstRatePercent', parseFloat(val))}
+                      aria-label={`GST tax slab for row ${idx + 1}`}
                       options={[
                         { label: '0%', value: '0' },
                         { label: '5%', value: '5' },

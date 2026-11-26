@@ -48,7 +48,7 @@ export function MoneyText({
     >
       {formatted}
       {showDrCr && (
-        <span className="ml-1 text-[10px] uppercase font-bold tracking-wider opacity-75">
+        <span className="ml-1 text-[10px] uppercase font-bold tracking-wider">
           {safeAmount >= 0 ? 'Dr' : 'Cr'}
         </span>
       )}

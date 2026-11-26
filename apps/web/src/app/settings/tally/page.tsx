@@ -229,7 +229,11 @@ export default function TallySettingsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <pre className="p-4 rounded-xl bg-surface-sunken text-primary border border-default font-mono text-[11px] overflow-x-auto max-h-72">
+          <pre
+            tabIndex={0}
+            aria-label="Tally XML Payload"
+            className="p-4 rounded-xl bg-surface-sunken text-primary border border-default font-mono text-[11px] overflow-x-auto max-h-72 focus:outline-none focus:ring-1 focus:ring-focus-ring"
+          >
             {xmlPreview || '<ENVELOPE>\n  <HEADER>\n    <TALLYREQUEST>Import Data</TALLYREQUEST>\n  </HEADER>\n</ENVELOPE>'}
           </pre>
         </CardContent>

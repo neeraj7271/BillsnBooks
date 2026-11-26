@@ -48,17 +48,35 @@ export function DataTable<T extends Record<string, any>>({
   sortDirection,
   onSort,
   page,
-  pageSize = 10,
+  pageSize = 20,
   totalItems,
   onPageChange,
   className,
 }: DataTableProps<T>) {
+  const [internalPage, setInternalPage] = React.useState(1);
+  const activePage = page ?? (data.length > pageSize ? internalPage : undefined);
+  const effectivePageSize = pageSize ?? 20;
+  const isAutoPaginated = activePage !== undefined;
+  const effectiveTotal = totalItems ?? data.length;
+
+  const displayData = React.useMemo(() => {
+    if (!isAutoPaginated) return data;
+    if (totalItems !== undefined && data.length <= effectivePageSize) return data;
+    const start = (activePage - 1) * effectivePageSize;
+    return data.slice(start, start + effectivePageSize);
+  }, [data, isAutoPaginated, activePage, effectivePageSize, totalItems]);
+
   const cellPadding = density === 'compact' ? 'py-2 px-3 sm:px-4 text-xs' : 'py-3.5 px-4 sm:px-5 text-xs';
   const headerPadding = density === 'compact' ? 'py-2 px-3 sm:px-4 text-[11px]' : 'py-3 px-4 sm:px-5 text-xs';
 
-  const totalPages = totalItems ? Math.ceil(totalItems / pageSize) : 1;
-  const startItem = page && totalItems ? (page - 1) * pageSize + 1 : 1;
-  const endItem = page && totalItems ? Math.min(page * pageSize, totalItems) : data.length;
+  const totalPages = Math.max(1, Math.ceil(effectiveTotal / effectivePageSize));
+  const startItem = activePage ? (activePage - 1) * effectivePageSize + 1 : 1;
+  const endItem = activePage ? Math.min(activePage * effectivePageSize, effectiveTotal) : displayData.length;
+
+  const handlePage = (p: number) => {
+    if (onPageChange) onPageChange(p);
+    else setInternalPage(p);
+  };
 
   return (
     <div className={cn('flex flex-col w-full rounded-2xl border border-default bg-surface overflow-hidden shadow-xs', className)}>
@@ -121,7 +139,7 @@ export function DataTable<T extends Record<string, any>>({
                   ))}
                 </tr>
               ))
-            ) : data.length === 0 ? (
+            ) : displayData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="py-12 px-4 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
@@ -138,7 +156,7 @@ export function DataTable<T extends Record<string, any>>({
                 </td>
               </tr>
             ) : (
-              data.map((row, rIdx) => (
+              displayData.map((row, rIdx) => (
                 <tr
                   key={row.id || `row-${rIdx}`}
                   onClick={() => onRowClick?.(row)}
@@ -168,31 +186,31 @@ export function DataTable<T extends Record<string, any>>({
         </table>
       </div>
 
-      {page !== undefined && totalItems !== undefined && totalItems > 0 && (
+      {isAutoPaginated && effectiveTotal > 0 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-subtle bg-surface-sunken">
           <p className="text-xs text-muted">
             Showing <span className="font-semibold text-primary">{startItem}</span> to{' '}
             <span className="font-semibold text-primary">{endItem}</span> of{' '}
-            <span className="font-semibold text-primary">{totalItems}</span> results
+            <span className="font-semibold text-primary">{effectiveTotal}</span> results
           </p>
           <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
               size="icon-sm"
-              disabled={page <= 1}
-              onClick={() => onPageChange?.(page - 1)}
+              disabled={activePage <= 1}
+              onClick={() => handlePage(activePage - 1)}
               aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-xs font-semibold px-2 text-secondary">
-              Page {page} of {totalPages}
+              Page {activePage} of {totalPages}
             </span>
             <Button
               variant="outline"
               size="icon-sm"
-              disabled={page >= totalPages}
-              onClick={() => onPageChange?.(page + 1)}
+              disabled={activePage >= totalPages}
+              onClick={() => handlePage(activePage + 1)}
               aria-label="Next page"
             >
               <ChevronRight className="h-4 w-4" />

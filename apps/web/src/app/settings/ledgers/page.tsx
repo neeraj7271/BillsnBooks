@@ -333,6 +333,7 @@ export default function ChartOfAccountsPage() {
             <button
               type="button"
               onClick={() => toggleNode(node.id)}
+              aria-label={hasChildren ? (isExpanded ? `Collapse ${node.name}` : `Expand ${node.name}`) : `Group ${node.name}`}
               className="text-muted hover:text-primary p-0.5 rounded"
             >
               {hasChildren ? (

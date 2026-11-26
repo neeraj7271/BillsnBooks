@@ -31,7 +31,8 @@ export function Select({
   size = 'md',
   className,
   children,
-}: SelectProps) {
+  'aria-label': ariaLabel,
+}: SelectProps & { 'aria-label'?: string }) {
   const sizeClasses = {
     sm: 'h-8 px-2.5 text-xs',
     md: 'h-9 px-3 text-xs',
@@ -46,6 +47,7 @@ export function Select({
       disabled={disabled}
     >
       <SelectPrimitive.Trigger
+        aria-label={ariaLabel || (typeof placeholder === 'string' && placeholder ? placeholder : 'Select option')}
         className={cn(
           'flex w-full items-center justify-between rounded-xl border border-default bg-surface text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:border-focus disabled:cursor-not-allowed disabled:opacity-50 text-left',
           sizeClasses,

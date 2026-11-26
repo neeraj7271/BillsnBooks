@@ -67,28 +67,42 @@ test.describe('UX Refresh V3 Verification & Axe-Core Suite', () => {
       await page.waitForTimeout(100);
       await page.screenshot({ path: path.join(BASE_DIR, `${slug}-light-desktop.png`) });
 
-      const lightAxe = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa'])
-        .analyze();
-      for (const v of lightAxe.violations) {
-        if (v.impact === 'serious' || v.impact === 'critical') {
-          seriousAxeViolations.push({ route: r, theme: 'light', id: v.id, impact: v.impact, help: v.help });
+      const runAxe = async (theme: string) => {
+        try {
+          await page.waitForTimeout(300);
+          const axe = await new AxeBuilder({ page })
+            .withTags(['wcag2a', 'wcag2aa'])
+            .analyze();
+          for (const v of axe.violations) {
+            if (v.impact === 'serious' || v.impact === 'critical') {
+              seriousAxeViolations.push({ route: r, theme, id: v.id, impact: v.impact, help: v.help });
+            }
+          }
+        } catch (err: any) {
+          if (err.message?.includes('destroyed') || err.message?.includes('detached')) {
+            await page.waitForTimeout(600);
+            const axe = await new AxeBuilder({ page })
+              .withTags(['wcag2a', 'wcag2aa'])
+              .analyze();
+            for (const v of axe.violations) {
+              if (v.impact === 'serious' || v.impact === 'critical') {
+                seriousAxeViolations.push({ route: r, theme, id: v.id, impact: v.impact, help: v.help });
+              }
+            }
+          } else {
+            throw err;
+          }
         }
-      }
+      };
+
+      await runAxe('light');
 
       // 2. Dark Desktop (1440x900)
       await page.evaluate(() => document.documentElement.classList.add('dark'));
       await page.waitForTimeout(100);
       await page.screenshot({ path: path.join(BASE_DIR, `${slug}-dark-desktop.png`) });
 
-      const darkAxe = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa'])
-        .analyze();
-      for (const v of darkAxe.violations) {
-        if (v.impact === 'serious' || v.impact === 'critical') {
-          seriousAxeViolations.push({ route: r, theme: 'dark', id: v.id, impact: v.impact, help: v.help });
-        }
-      }
+      await runAxe('dark');
 
       // 3. Light Mobile (390x844)
       await page.evaluate(() => document.documentElement.classList.remove('dark'));

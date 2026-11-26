@@ -207,6 +207,7 @@ function ComplianceTasksContent() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
+            aria-label="Filter tasks by category"
             className="text-xs rounded-lg border border-default bg-surface text-primary px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-focus-ring"
           >
             <option value="ALL">All Categories</option>

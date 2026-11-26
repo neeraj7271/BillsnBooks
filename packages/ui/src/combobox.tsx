@@ -43,7 +43,8 @@ export function Combobox({
   size = 'md',
   className,
   id,
-}: ComboboxProps) {
+  'aria-label': ariaLabel,
+}: ComboboxProps & { 'aria-label'?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [internalValue, setInternalValue] = useState<string>(value || defaultValue || '');
   const [searchQuery, setSearchQuery] = useState('');
@@ -116,6 +117,7 @@ export function Combobox({
         id={id}
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
+        aria-label={ariaLabel || (selectedOption ? selectedOption.label : typeof placeholder === 'string' && placeholder ? placeholder : 'Select option')}
         className={cn(
           'flex w-full items-center justify-between rounded-xl border border-default bg-surface text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:border-focus disabled:cursor-not-allowed disabled:opacity-50 text-left cursor-pointer shadow-xs',
           sizeClasses,
