@@ -68,6 +68,7 @@ export default function VouchersPage() {
   const [branches, setBranches] = useState<any[]>([]);
   const [financialYears, setFinancialYears] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -99,6 +100,7 @@ export default function VouchersPage() {
 
   const loadData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const [vList, lList, cList] = await Promise.all([
         apiClient.listVouchers(activeCompanyId, {
@@ -123,7 +125,7 @@ export default function VouchersPage() {
         }
       }
     } catch (err: unknown) {
-      console.error('Failed to load vouchers:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load vouchers');
     } finally {
       setLoading(false);
     }
@@ -438,6 +440,7 @@ export default function VouchersPage() {
         columns={columns}
         data={filteredVouchers}
         loading={loading}
+        error={error}
         onRetry={loadData}
         empty={{
           title: 'No vouchers found',
