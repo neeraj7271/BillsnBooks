@@ -28,9 +28,13 @@ const TEXT_COLOR_TOKENS = new Set([
   'text-white', 'text-black', 'text-inherit', 'text-current',
 ]);
 
-function walk(dir) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
+function walk(target) {
+  if (fs.statSync(target).isFile()) {
+    if (/\.(ts|tsx)$/.test(target)) checkFile(target);
+    return;
+  }
+  for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
+    const full = path.join(target, entry.name);
     if (entry.isDirectory()) {
       if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.next') continue;
       walk(full);
