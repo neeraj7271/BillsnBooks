@@ -247,15 +247,15 @@ export default function ExpensesSuitePage() {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden space-y-2.5 animate-in fade-in duration-150">
       {/* 1. Modern Slim Top Bar: Navigation + FY + Date Presets + Quick Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white dark:bg-slate-900 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-surface px-3.5 py-2 rounded-lg border border-default shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <BackButton fallbackUrl="/reports" label="Back" />
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" />
+          <div className="h-4 w-px bg-border-default" />
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            <h1 className="text-sm font-bold text-primary">
               Purchases & Operational Expenses Suite
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 border border-orange-200/50">
+            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-status-warning-subtle text-status-warning-text border border-status-warning/30">
               FY {currentYear}-{currentYear + 1}
             </span>
           </div>
@@ -264,20 +264,20 @@ export default function ExpensesSuitePage() {
         {/* Date Selector & Action Buttons in One Sleek Row */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Date Picker */}
-          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-xs">
-            <Calendar className="h-3.5 w-3.5 text-slate-400" />
+          <div className="flex items-center gap-1.5 bg-surface-sunken border border-default rounded-md px-2 py-1 text-xs">
+            <Calendar className="h-3.5 w-3.5 text-muted" />
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none text-xs"
+              className="bg-transparent text-primary focus:outline-none text-xs"
             />
-            <span className="text-slate-400 text-[11px]">to</span>
+            <span className="text-muted text-[11px]">to</span>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none text-xs"
+              className="bg-transparent text-primary focus:outline-none text-xs"
             />
           </div>
 
@@ -286,50 +286,50 @@ export default function ExpensesSuitePage() {
             <button
               type="button"
               onClick={() => setPresetDate('THIS_MONTH')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               This Month
             </button>
             <button
               type="button"
               onClick={() => setPresetDate('LAST_MONTH')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               Last Month
             </button>
             <button
               type="button"
               onClick={() => setPresetDate('THIS_FY')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               This FY
             </button>
           </div>
 
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
+          <div className="h-4 w-px bg-border-default hidden sm:block" />
 
           {/* Actions */}
           <button
             type="button"
             onClick={() => setIsShareOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-default bg-surface text-primary hover:bg-surface-sunken"
           >
-            <Share2 className="h-3.5 w-3.5 text-indigo-500" />
+            <Share2 className="h-3.5 w-3.5 text-brand-text" />
             <span className="hidden sm:inline">Share</span>
           </button>
           <button
             type="button"
             onClick={handlePrintPdf}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-default bg-surface text-primary hover:bg-surface-sunken"
           >
-            <Printer className="h-3.5 w-3.5 text-slate-500" />
+            <Printer className="h-3.5 w-3.5 text-muted" />
             <span>Print / PDF</span>
           </button>
           <button
             type="button"
             disabled={exporting}
             onClick={handleExportExcel}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md bg-status-success hover:opacity-90 text-inverse shadow-sm disabled:opacity-50"
           >
             {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             <span>Export Excel (.xlsx)</span>
@@ -337,16 +337,16 @@ export default function ExpensesSuitePage() {
         </div>
       </div>
 
-      {/* 2. Unified Category Tab Bar + More Reports Dropdown (Matches Reference Image 1) */}
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 shrink-0">
+      {/* 2. Unified Category Tab Bar + More Reports Dropdown */}
+      <div className="flex items-center justify-between border-b border-default bg-surface px-3 shrink-0">
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
           <button
             type="button"
             onClick={() => setActiveTab('dashboard')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'dashboard'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Purchase Dashboard
@@ -356,8 +356,8 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('monthly')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'monthly'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Expenses Monthly
@@ -367,8 +367,8 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('vendor')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'vendor'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Expenses VendorWise
@@ -378,8 +378,8 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('category')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'category'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Expenses CategoryWise
@@ -389,8 +389,8 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('register')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'register'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Expenses Register
@@ -400,8 +400,8 @@ export default function ExpensesSuitePage() {
             onClick={() => setActiveTab('item')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'item'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Purchases ItemWise
@@ -413,23 +413,23 @@ export default function ExpensesSuitePage() {
           <button
             type="button"
             onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
-            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded border border-default bg-surface text-primary hover:bg-surface-sunken transition"
           >
             <span>More Reports</span>
-            <ChevronDown className="h-3 w-3 text-slate-500" />
+            <ChevronDown className="h-3 w-3 text-muted" />
           </button>
           {moreDropdownOpen && (
-            <div className="absolute right-0 mt-1.5 w-60 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl py-1 z-30">
+            <div className="absolute right-0 mt-1.5 w-60 rounded-lg border border-default bg-surface-overlay shadow-xl py-1 z-30">
               <button
                 type="button"
                 onClick={() => {
                   setActiveTab('voucher-type');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'voucher-type'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Expenses VoucherTypeWise
@@ -440,10 +440,10 @@ export default function ExpensesSuitePage() {
                   setActiveTab('negative');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'negative'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Ledgers-Negative Balance
@@ -453,56 +453,56 @@ export default function ExpensesSuitePage() {
         </div>
       </div>
 
-      {/* 3. Soft Peach / Blush Remarks & Action Bar with Purple Favorite Star (Matches Reference Image 1 & 2) */}
-      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-lg bg-[#fff7f6] dark:bg-[#2b161c] border border-[#fbd4d0] dark:border-[#52202b] text-xs shrink-0">
+      {/* 3. Remarks & Action Bar with Favorite Star */}
+      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-lg bg-brand-subtle border border-default text-xs shrink-0">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#551a3b] dark:text-[#f8b4be] shrink-0">Remarks :</span>
-            <span className="text-slate-800 dark:text-slate-200">{banner.remarks}</span>
+            <span className="font-bold text-brand-text shrink-0">Remarks :</span>
+            <span className="text-primary">{banner.remarks}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#551a3b] dark:text-[#f8b4be] shrink-0">Action :</span>
-            <span className="text-slate-700 dark:text-slate-300">{banner.action}</span>
+            <span className="font-bold text-brand-text shrink-0">Action :</span>
+            <span className="text-secondary">{banner.action}</span>
           </div>
         </div>
 
-        {/* Purple Favorite Star Button */}
+        {/* Favorite Star Button */}
         <button
           type="button"
           onClick={handleToggleFavorite}
           title={isFavorite ? 'Remove from Favorite Reports' : 'Add to Favorite Reports'}
-          className="shrink-0 p-1.5 rounded-md bg-[#6b21a8] hover:bg-[#581c87] text-white shadow-sm transition flex items-center justify-center"
+          className="shrink-0 p-1.5 rounded-md bg-brand hover:bg-brand-hover text-inverse shadow-sm transition flex items-center justify-center"
         >
-          <Star className={`h-3.5 w-3.5 ${isFavorite ? 'fill-amber-400 text-amber-400' : 'text-white'}`} />
+          <Star className={`h-3.5 w-3.5 ${isFavorite ? 'fill-current text-status-warning' : 'text-inverse'}`} />
         </button>
       </div>
 
       {/* 4. Filter Toolbar & Instant Search Bar */}
-      <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900 px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+      <div className="flex items-center justify-between gap-3 bg-surface px-3.5 py-1.5 rounded-lg border border-default shadow-sm shrink-0">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1.5 h-3.5 w-3.5 text-slate-400" />
+          <Search className="absolute left-2.5 top-1.5 h-3.5 w-3.5 text-muted" />
           <input
             type="text"
             placeholder="Search report rows (ledger, voucher, amount)..."
             value={tableSearch}
             onChange={(e) => setTableSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1 text-xs rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            className="w-full pl-8 pr-3 py-1 text-xs rounded-md border border-default bg-surface-sunken text-primary placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-focus-ring"
           />
         </div>
 
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-slate-500 dark:text-slate-400">Total Period Outflow:</span>
-          <span className="font-mono font-bold text-orange-600 dark:text-orange-400">
+          <span className="text-muted">Total Period Outflow:</span>
+          <span className="font-mono font-bold text-brand-text">
             ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </span>
         </div>
       </div>
 
-      {/* 5. Contained Data Grid with Sticky Blush/Peach Header (Matches Reference Image 3) */}
-      <div className="flex-1 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col">
+      {/* 5. Contained Data Grid with Sticky Header */}
+      <div className="flex-1 overflow-hidden rounded-lg border border-default bg-surface shadow-sm flex flex-col">
         <div className="overflow-auto flex-1">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="sticky top-0 z-10 bg-[#fce8e6] dark:bg-[#3d1922] text-[#601925] dark:text-[#ffb3c0] border-b border-[#f7c5cb] dark:border-[#5e222f] font-semibold">
+            <thead className="sticky top-0 z-10 bg-surface-sunken text-secondary border-b border-default font-semibold">
               {activeTab === 'monthly' || activeTab === 'dashboard' ? (
                 <tr>
                   <th className="py-2 px-3 w-12 text-center">Sr. No.</th>
@@ -599,13 +599,13 @@ export default function ExpensesSuitePage() {
                 </tr>
               )}
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-border-subtle">
               {filteredRows.map((r: any, idx: number) => (
-                <tr key={idx} className="hover:bg-orange-50/20 dark:hover:bg-slate-800/40 transition">
-                  <td className="py-2 px-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                <tr key={idx} className="hover:bg-row-hover transition">
+                  <td className="py-2 px-3 text-center text-muted font-mono text-[11px]">{idx + 1}</td>
                   {activeTab === 'monthly' || activeTab === 'dashboard' ? (
                     <>
-                      <td className="py-2 px-3 font-medium text-slate-900 dark:text-slate-100">{r.month}</td>
+                      <td className="py-2 px-3 font-medium text-primary">{r.month}</td>
                       <td className="py-2 px-3 text-center font-mono text-[11px]">{r.voucherCount}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
                         ₹{Number(r.directExpenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -613,7 +613,7 @@ export default function ExpensesSuitePage() {
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
                         ₹{Number(r.indirectExpenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-orange-600 dark:text-orange-400">
+                      <td className="py-2 px-3 text-right font-mono font-bold text-brand-text">
                         ₹{Number(r.totalExpenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2 px-3 text-right font-mono">
@@ -621,8 +621,8 @@ export default function ExpensesSuitePage() {
                           <span
                             className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                               r.variationPercentage > 0
-                                ? 'text-rose-600 bg-rose-50 dark:bg-rose-950/40'
-                                : 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40'
+                                ? 'text-status-danger-text bg-status-danger-subtle'
+                                : 'text-status-success-text bg-status-success-subtle'
                             }`}
                           >
                             {r.variationPercentage > 0 ? `+${r.variationPercentage}%` : `${r.variationPercentage}%`}
@@ -635,31 +635,31 @@ export default function ExpensesSuitePage() {
                   ) : activeTab === 'vendor' ? (
                     <>
                       <td className="py-2 px-3">
-                        <span className="text-[#ea580c] dark:text-[#fb923c] hover:underline font-medium cursor-pointer">
+                        <span className="text-brand-text hover:underline font-medium cursor-pointer">
                           {r.vendorName}
                         </span>
                       </td>
                       <td className="py-2 px-3 text-center font-mono text-[11px]">{r.voucherCount}</td>
-                      <td className="py-2 px-3 text-right font-mono font-semibold text-slate-900 dark:text-slate-100">
+                      <td className="py-2 px-3 text-right font-mono font-semibold text-primary">
                         ₹{Number(r.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">{r.percentageOfTotal}%</td>
                       <td className="py-2 px-3 text-center">
                         {r.tdsApplicable ? (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-status-warning-subtle text-status-warning-text border border-status-warning/30">
                             Check Sec 194C/J
                           </span>
                         ) : (
-                          <span className="text-slate-400 text-[10px]">Normal</span>
+                          <span className="text-muted text-[10px]">Normal</span>
                         )}
                       </td>
                     </>
                   ) : activeTab === 'category' ? (
                     <>
-                      <td className="py-2 px-3 font-medium text-slate-900 dark:text-slate-100">{r.categoryName}</td>
-                      <td className="py-2 px-3 font-mono text-slate-500 uppercase text-[10px]">{r.nature}</td>
+                      <td className="py-2 px-3 font-medium text-primary">{r.categoryName}</td>
+                      <td className="py-2 px-3 font-mono text-muted uppercase text-[10px]">{r.nature}</td>
                       <td className="py-2 px-3 text-center font-mono text-[11px]">{r.voucherCount}</td>
-                      <td className="py-2 px-3 text-right font-mono font-semibold text-slate-900 dark:text-slate-100">
+                      <td className="py-2 px-3 text-right font-mono font-semibold text-primary">
                         ₹{Number(r.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">{r.percentageOfTotal}%</td>
@@ -667,11 +667,11 @@ export default function ExpensesSuitePage() {
                   ) : activeTab === 'item' ? (
                     <>
                       <td className="py-2 px-3">
-                        <span className="text-[#ea580c] dark:text-[#fb923c] hover:underline font-medium cursor-pointer">
+                        <span className="text-brand-text hover:underline font-medium cursor-pointer">
                           {r.itemName}
                         </span>
                       </td>
-                      <td className="py-2 px-3 font-mono text-slate-500 text-[11px]">{r.hsnSacCode || '-'}</td>
+                      <td className="py-2 px-3 font-mono text-muted text-[11px]">{r.hsnSacCode || '-'}</td>
                       <td className="py-2 px-3 text-center uppercase font-mono text-[10px]">{r.uom}</td>
                       <td className="py-2 px-3 text-right font-mono font-semibold">{r.quantityPurchased}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
@@ -680,18 +680,18 @@ export default function ExpensesSuitePage() {
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
                         ₹{Number(r.taxableAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
+                      <td className="py-2 px-3 text-right font-mono font-bold text-primary">
                         ₹{Number(r.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                     </>
                   ) : (
                     <>
-                      <td className="py-2 px-3 font-mono text-slate-700 dark:text-slate-300 text-[11px]">{r.voucherDate}</td>
-                      <td className="py-2 px-3 font-mono font-semibold text-slate-900 dark:text-slate-100 text-[11px]">{r.voucherNumber}</td>
-                      <td className="py-2 px-3 font-mono text-[10px] text-slate-500 uppercase">{r.voucherType}</td>
-                      <td className="py-2 px-3 font-medium text-slate-800 dark:text-slate-200">{r.ledgerName}</td>
-                      <td className="py-2 px-3 text-slate-500 italic text-[11px] max-w-xs truncate">{r.narration || '-'}</td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-orange-600 dark:text-orange-400">
+                      <td className="py-2 px-3 font-mono text-secondary text-[11px]">{r.voucherDate}</td>
+                      <td className="py-2 px-3 font-mono font-semibold text-primary text-[11px]">{r.voucherNumber}</td>
+                      <td className="py-2 px-3 font-mono text-[10px] text-muted uppercase">{r.voucherType}</td>
+                      <td className="py-2 px-3 font-medium text-primary">{r.ledgerName}</td>
+                      <td className="py-2 px-3 text-muted italic text-[11px] max-w-xs truncate">{r.narration || '-'}</td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-brand-text">
                         ₹{Number(r.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                     </>
@@ -701,7 +701,7 @@ export default function ExpensesSuitePage() {
 
               {filteredRows.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={7} className="py-12 text-center text-muted text-xs">
                     No transactions found for the selected period / search filter.
                   </td>
                 </tr>
@@ -709,8 +709,8 @@ export default function ExpensesSuitePage() {
 
               {loading && (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 text-xs">
-                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-orange-500 mb-2" />
+                  <td colSpan={7} className="py-12 text-center text-muted text-xs">
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-brand-text mb-2" />
                     Loading expense records...
                   </td>
                 </tr>
@@ -720,13 +720,13 @@ export default function ExpensesSuitePage() {
         </div>
 
         {/* Compact Table Status Bar */}
-        <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-[11px] text-slate-500 shrink-0">
+        <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-default bg-surface-sunken text-[11px] text-muted shrink-0">
           <div>
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredRows.length}</span> records
+            Showing <span className="font-semibold text-secondary">{filteredRows.length}</span> records
             {tableSearch && <span> (filtered from {rawRows.length})</span>}
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-slate-400 uppercase">Double-entry verified</span>
+            <span className="font-mono text-[10px] text-muted uppercase">Double-entry verified</span>
           </div>
         </div>
       </div>

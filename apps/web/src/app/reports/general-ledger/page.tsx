@@ -92,15 +92,15 @@ function GeneralLedgerContent() {
         <div>
           <div className="flex items-center gap-3">
             <BackButton fallbackUrl="/reports" label="Back" />
-            <div className="h-5 w-px bg-slate-200 dark:bg-slate-700" />
+            <div className="h-5 w-px bg-border-default" />
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-primary">
                 General Ledger Account Statement
               </h1>
               <Badge variant="brand" size="sm">Audit Trail</Badge>
             </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-muted mt-1">
             Chronological audit trail of all debit and credit entries with real-time running balances.
           </p>
         </div>
@@ -126,7 +126,7 @@ function GeneralLedgerContent() {
               onChange={(e) => setFromDate(e.target.value)}
               className="w-36"
             />
-            <span className="text-xs text-slate-400">to</span>
+            <span className="text-xs text-muted">to</span>
             <Input
               type="date"
               size="sm"
@@ -139,7 +139,7 @@ function GeneralLedgerContent() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-900 flex items-center gap-3 text-rose-700 dark:text-rose-400">
+        <div className="p-4 rounded-xl bg-status-danger-subtle border border-status-danger/30 flex items-center gap-3 text-status-danger-text">
           <AlertCircle className="h-5 w-5 shrink-0" />
           <div className="text-sm font-semibold">{error}</div>
         </div>
@@ -150,11 +150,11 @@ function GeneralLedgerContent() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-4 pb-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Account Code & Name</div>
-              <div className="text-base font-black text-slate-900 dark:text-white mt-1 truncate">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Account Code & Name</div>
+              <div className="text-base font-black text-primary mt-1 truncate">
                 {report.ledger?.name || 'Selected Account'}
               </div>
-              <div className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 mt-0.5">
+              <div className="font-mono text-xs font-bold text-brand-text mt-0.5">
                 {report.ledger?.code}
               </div>
             </CardContent>
@@ -162,7 +162,7 @@ function GeneralLedgerContent() {
 
           <Card>
             <CardContent className="pt-4 pb-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Opening Balance</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Opening Balance</div>
               <div className="mt-1">
                 <MoneyText
                   amount={report.openingBalance || 0}
@@ -171,30 +171,30 @@ function GeneralLedgerContent() {
                   className="text-base font-black"
                 />
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">As of {fromDate}</div>
+              <div className="text-[10px] text-muted mt-0.5">As of {fromDate}</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-4 pb-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Period Net Movement</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Period Net Movement</div>
               <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-xs text-slate-500">Dr:</span>
-                <span className="font-mono text-xs font-bold text-emerald-600">
+                <span className="text-xs text-muted">Dr:</span>
+                <span className="font-mono text-xs font-bold text-status-success-text">
                   ₹{Number(report.totalDebit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
-                <span className="text-xs text-slate-500 ml-1">Cr:</span>
-                <span className="font-mono text-xs font-bold text-blue-600">
+                <span className="text-xs text-muted ml-1">Cr:</span>
+                <span className="font-mono text-xs font-bold text-status-info-text">
                   ₹{Number(report.totalCredit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Total {report.entries?.length || 0} line entries</div>
+              <div className="text-[10px] text-muted mt-0.5">Total {report.entries?.length || 0} line entries</div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent className="pt-4 pb-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Closing Balance</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Closing Balance</div>
               <div className="mt-1">
                 <MoneyText
                   amount={report.closingBalance || 0}
@@ -203,7 +203,7 @@ function GeneralLedgerContent() {
                   className="text-base font-black"
                 />
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">As of {toDate}</div>
+              <div className="text-[10px] text-muted mt-0.5">As of {toDate}</div>
             </CardContent>
           </Card>
         </div>
@@ -215,7 +215,7 @@ function GeneralLedgerContent() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 text-slate-500">
+                <tr className="border-b border-default bg-surface-sunken text-muted">
                   <th className="py-2.5 px-4 font-bold uppercase tracking-wider w-24">Date</th>
                   <th className="py-2.5 px-4 font-bold uppercase tracking-wider w-36">Voucher #</th>
                   <th className="py-2.5 px-4 font-bold uppercase tracking-wider w-24">Type</th>
@@ -225,11 +225,11 @@ function GeneralLedgerContent() {
                   <th className="py-2.5 px-4 font-bold uppercase tracking-wider text-right w-36">Running Balance</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-border-subtle">
                 {/* Opening Balance Row */}
-                <tr className="bg-slate-50/40 dark:bg-slate-900/20 font-semibold text-slate-600 dark:text-slate-400">
+                <tr className="bg-surface-sunken/60 font-semibold text-secondary">
                   <td className="py-2 px-4 font-mono text-[11px]">{fromDate}</td>
-                  <td className="py-2 px-4 font-mono text-[11px] text-slate-400">—</td>
+                  <td className="py-2 px-4 font-mono text-[11px] text-muted">—</td>
                   <td className="py-2 px-4">
                     <Badge variant="neutral" size="xs">OPN</Badge>
                   </td>
@@ -243,13 +243,13 @@ function GeneralLedgerContent() {
 
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-10 text-slate-400">
+                    <td colSpan={7} className="text-center py-10 text-muted">
                       Loading general ledger transactions...
                     </td>
                   </tr>
                 ) : !report?.entries || report.entries.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-10 text-slate-400 italic">
+                    <td colSpan={7} className="text-center py-10 text-muted italic">
                       No posted transactions recorded for this account in the selected date range.
                     </td>
                   </tr>
@@ -259,12 +259,12 @@ function GeneralLedgerContent() {
                     return (
                       <tr
                         key={entry.id || idx}
-                        className="hover:bg-slate-50/60 dark:hover:bg-slate-900/40 transition"
+                        className="hover:bg-row-hover transition"
                       >
-                        <td className="py-2 px-4 font-mono text-[11px] text-slate-600 dark:text-slate-400">
+                        <td className="py-2 px-4 font-mono text-[11px] text-secondary">
                           {entry.voucherDate ? String(entry.voucherDate).split('T')[0] : '—'}
                         </td>
-                        <td className="py-2 px-4 font-mono font-semibold text-blue-600 dark:text-blue-400">
+                        <td className="py-2 px-4 font-mono font-semibold text-brand-text">
                           {entry.voucherNumber || '—'}
                         </td>
                         <td className="py-2 px-4">
@@ -273,17 +273,17 @@ function GeneralLedgerContent() {
                           </Badge>
                         </td>
                         <td className="py-2 px-4">
-                          <div className="font-semibold text-slate-900 dark:text-slate-100">
+                          <div className="font-semibold text-primary">
                             {entry.particulars || entry.narration || 'Journal Entry'}
                           </div>
                           {entry.lineNarration && entry.lineNarration !== entry.particulars && (
-                            <div className="text-[11px] text-slate-400">{entry.lineNarration}</div>
+                            <div className="text-[11px] text-muted">{entry.lineNarration}</div>
                           )}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        <td className="py-2 px-4 text-right font-mono font-bold text-status-success-text">
                           {isDebit ? `₹${Number(entry.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}
                         </td>
-                        <td className="py-2 px-4 text-right font-mono font-bold text-blue-600 dark:text-blue-400">
+                        <td className="py-2 px-4 text-right font-mono font-bold text-status-info-text">
                           {!isDebit ? `₹${Number(entry.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}
                         </td>
                         <td className="py-2 px-4 text-right font-mono font-bold">
@@ -300,19 +300,19 @@ function GeneralLedgerContent() {
 
                 {/* Closing Balance Row */}
                 {report && (
-                  <tr className="bg-slate-50/80 dark:bg-slate-900/60 font-bold border-t-2 border-slate-300 dark:border-slate-700">
+                  <tr className="bg-surface-sunken font-bold border-t-2 border-strong">
                     <td className="py-2.5 px-4 font-mono text-[11px]">{toDate}</td>
-                    <td className="py-2.5 px-4 font-mono text-slate-400">—</td>
+                    <td className="py-2.5 px-4 font-mono text-muted">—</td>
                     <td className="py-2.5 px-4">
                       <Badge variant="brand" size="xs">CLS</Badge>
                     </td>
-                    <td className="py-2.5 px-4 font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    <td className="py-2.5 px-4 font-black text-primary uppercase tracking-wider">
                       Closing Balance c/f
                     </td>
-                    <td className="py-2.5 px-4 text-right font-mono font-black text-emerald-600">
+                    <td className="py-2.5 px-4 text-right font-mono font-black text-status-success-text">
                       ₹{Number(report.totalDebit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="py-2.5 px-4 text-right font-mono font-black text-blue-600">
+                    <td className="py-2.5 px-4 text-right font-mono font-black text-status-info-text">
                       ₹{Number(report.totalCredit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono font-black">
@@ -333,7 +333,7 @@ export default function GeneralLedgerPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-8 text-center text-sm text-slate-400">
+        <div className="p-8 text-center text-sm text-muted">
           Loading General Ledger...
         </div>
       }
