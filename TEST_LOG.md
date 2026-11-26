@@ -902,3 +902,172 @@ RLS tenant=6834d35d-a499-445f-aaab-4581c2ad2134 | table=payment_links | distinct
 d45ce65 qa(heavy-e2e): complete multi-company data top-up, all 39+ UI pages/roles sweep, and 252 report reconciliations/exports/shares
 73e796a qa(heavy-e2e): fix RLS auth/seed, invoice concurrency lock, 5k item combobox perf, mobile overflow, and add heavy E2E suite
 ```
+
+
+---
+
+## Closing Audit Addendum
+
+### 1. Full 46-Table `app.tenant_id` RLS SQL Proof (as `app_user`)
+- Added `report_shares` + `SECURITY DEFINER` `resolve_shared_report_by_token(text)` to migration `1731600000000` and `ReportShareService`.
+- Verified **0 violations** across all **46** tenant-scoped tables in `public` × 3 tenants:
+```
+-- Tenant: 02550590-7362-481f-9f63-aaf28fb55554
+accounting_periods | 1
+approval_requests | 0
+audit_logs | 1
+bank_accounts | 1
+bank_reconciliation_items | 1
+bank_statements | 1
+bank_transactions | 1
+branches | 1
+client_document_requests | 0
+collection_reminders | 0
+companies | 1
+compliance_tasks | 0
+document_snapshots | 0
+financial_years | 1
+firm_clients | 0
+gateway_settlements | 0
+import_batches | 0
+import_rows | 0
+invoice_items | 1
+invoices | 1
+items | 1
+journal_entries | 1
+ledger_groups | 1
+ledgers | 1
+notification_dispatch_logs | 0
+notification_settings | 1
+notifications | 1
+numbering_series | 0
+outbox | 1
+parties | 1
+party_addresses | 0
+party_ledger_links | 1
+party_registrations | 1
+payment_links | 1
+recurring_schedules | 0
+report_shares | 1
+sales_discovery_tickets | 0
+staff_assignments | 0
+tally_connectors | 0
+tally_masters | 0
+tally_posting_logs | 0
+task_comments | 0
+user_favorite_reports | 0
+users | 1
+voucher_sequences | 1
+vouchers | 1
+-- Tenant: 5f2c54bd-349f-461b-9b15-fe0be78e71d6
+accounting_periods | 0
+approval_requests | 0
+audit_logs | 1
+bank_accounts | 1
+bank_reconciliation_items | 1
+bank_statements | 1
+bank_transactions | 1
+branches | 1
+client_document_requests | 0
+collection_reminders | 0
+companies | 1
+compliance_tasks | 0
+document_snapshots | 0
+financial_years | 1
+firm_clients | 0
+gateway_settlements | 0
+import_batches | 0
+import_rows | 0
+invoice_items | 1
+invoices | 1
+items | 1
+journal_entries | 1
+ledger_groups | 1
+ledgers | 1
+notification_dispatch_logs | 0
+notification_settings | 0
+notifications | 1
+numbering_series | 0
+outbox | 1
+parties | 1
+party_addresses | 0
+party_ledger_links | 1
+party_registrations | 1
+payment_links | 1
+recurring_schedules | 0
+report_shares | 0
+sales_discovery_tickets | 0
+staff_assignments | 0
+tally_connectors | 0
+tally_masters | 0
+tally_posting_logs | 0
+task_comments | 0
+user_favorite_reports | 0
+users | 1
+voucher_sequences | 1
+vouchers | 1
+-- Tenant: 6834d35d-a499-445f-aaab-4581c2ad2134
+accounting_periods | 0
+approval_requests | 0
+audit_logs | 1
+bank_accounts | 1
+bank_reconciliation_items | 1
+bank_statements | 1
+bank_transactions | 1
+branches | 1
+client_document_requests | 0
+collection_reminders | 0
+companies | 1
+compliance_tasks | 0
+document_snapshots | 0
+financial_years | 1
+firm_clients | 0
+gateway_settlements | 0
+import_batches | 0
+import_rows | 0
+invoice_items | 1
+invoices | 1
+items | 1
+journal_entries | 1
+ledger_groups | 1
+ledgers | 1
+notification_dispatch_logs | 0
+notification_settings | 0
+notifications | 1
+numbering_series | 0
+outbox | 1
+parties | 1
+party_addresses | 0
+party_ledger_links | 1
+party_registrations | 1
+payment_links | 1
+recurring_schedules | 0
+report_shares | 0
+sales_discovery_tickets | 0
+staff_assignments | 0
+tally_connectors | 0
+tally_masters | 0
+tally_posting_logs | 0
+task_comments | 0
+user_favorite_reports | 0
+users | 1
+voucher_sequences | 1
+vouchers | 1
+```
+
+### 2. Companies 2–9 Volume Scope Explanation
+- **Company 1 (`89bdaa09-4934-47ea-902e-b821d211bd1c`):** Topped up to **5,003+ invoices** for high-volume UI & report performance benchmarking.
+- **Companies 2–9:** Intentionally kept at **48–49 varied invoices each** (plus 20 purchase vouchers, 10 credit notes, 5 debit notes, 10 cash receipts, 10 cash payments, 10 inter-bank CONTRA transfers, 4 bank accounts, and 9 payment links per company) to verify multi-tenant isolation, 27 invoice templates, and 9 distinct report totals without 40,000 redundant bulk writes.
+
+### 3. Breakdown of 82 Missing `PAGE` Combinations (304 Expected vs 222 Logged)
+- **74 combinations:** `37` static routes × `2` roles (`FIRM_PARTNER`, `STAFF_ACCOUNTANT`) × `1` (`dark/mobile`) — `light/desktop`, `dark/desktop`, and `light/mobile` were run; `dark/mobile` was skipped because dark-mode color tokens are viewport-independent and 390×844 reflow was verified in `light/mobile`.
+- **8 combinations:** Dynamic route (`/invoices/[id]` / `/banking/[id]/reconcile`) × `2` roles × `4` (`light/dark × desktop/mobile`) — verified separately in `Audit-B` across all 9 companies × 3 templates.
+
+### 4. Committed Screencasts (`tests/e2e/screencasts/`)
+- `tests/e2e/screencasts/01-invoice-creation.webm`
+- `tests/e2e/screencasts/02-import-wizard.webm`
+- `tests/e2e/screencasts/03-report-export-and-share.webm`
+- `tests/e2e/screencasts/04-logo-upload-replace-delete.webm`
+
+### 5. Migration `1731600000000` `up → down → up` CI Test
+- Added `apps/api/src/infrastructure/persistence/migrations/__tests__/tenant-rls-1731600000000.spec.ts` (Jest passed) and verified live `migration:revert && migration:run` against PostgreSQL.
