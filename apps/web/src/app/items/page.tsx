@@ -26,6 +26,7 @@ import {
   DialogDescription,
   DialogFooter,
   type ColumnDef,
+  toast,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -198,7 +199,7 @@ export default function ItemsPage() {
       let msg = 'Failed to delete unit';
       if (err instanceof Error) msg = err.message;
       else if (typeof err === 'object' && err !== null) msg = (err as any).message || JSON.stringify(err);
-      alert(msg);
+      toast.error(msg);
     }
   };
 

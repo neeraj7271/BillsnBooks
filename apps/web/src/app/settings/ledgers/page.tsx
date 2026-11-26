@@ -28,6 +28,8 @@ import {
   MoneyText,
   Card,
   type ColumnDef,
+  confirmDialog,
+  toast,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -153,33 +155,45 @@ export default function ChartOfAccountsPage() {
 
   const handleDeleteLedger = async (ledger: LedgerItem) => {
     if (ledger.currentBalance && Math.abs(ledger.currentBalance) > 0) {
-      if (
-        !confirm(
-          `WARNING: Ledger "${ledger.name}" has an active running balance of ₹${Math.abs(ledger.currentBalance).toLocaleString('en-IN')}.\n\nDeleting an account with posted voucher transactions will violate double-entry balancing invariants.\n\nAre you sure you want to attempt deletion?`
-        )
-      ) {
-        return;
-      }
-    } else if (!confirm(`Are you sure you want to delete ledger "${ledger.name}"?`)) {
-      return;
+      const confirmed = await confirmDialog({
+        title: 'Delete ledger with active balance',
+        description: `WARNING: Ledger "${ledger.name}" has an active running balance of ₹${Math.abs(ledger.currentBalance).toLocaleString('en-IN')}.\n\nDeleting an account with posted voucher transactions will violate double-entry balancing invariants.\n\nAre you sure you want to attempt deletion?`,
+        confirmLabel: 'Delete Anyway',
+        variant: 'danger',
+      });
+      if (!confirmed) return;
+    } else {
+      const confirmed = await confirmDialog({
+        title: 'Delete ledger',
+        description: `This will remove the ledger "${ledger.name}". This action cannot be undone.`,
+        confirmLabel: 'Delete',
+        variant: 'danger',
+      });
+      if (!confirmed) return;
     }
     try {
       await apiClient.deleteLedger(activeCompanyId, ledger.id);
-      setSuccess(`Ledger "${ledger.name}" deleted successfully.`);
+      toast.success(`Ledger "${ledger.name}" deleted successfully.`);
       loadData();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to delete ledger');
+      toast.error(err instanceof Error ? err.message : 'Failed to delete ledger');
     }
   };
 
   const handleDeleteGroup = async (group: TreeNode) => {
-    if (!confirm(`Are you sure you want to delete group "${group.name}"?`)) return;
+    const confirmed = await confirmDialog({
+      title: 'Delete ledger group',
+      description: `Are you sure you want to delete group "${group.name}"? Child ledgers must be reassigned first.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     try {
       await apiClient.deleteLedgerGroup(activeCompanyId, group.id);
-      setSuccess(`Group "${group.name}" deleted successfully.`);
+      toast.success(`Group "${group.name}" deleted successfully.`);
       loadData();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to delete group');
+      toast.error(err instanceof Error ? err.message : 'Failed to delete group');
     }
   };
 

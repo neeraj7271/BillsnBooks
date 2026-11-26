@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { toast } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -131,7 +132,7 @@ export default function CashBankAuditSuitePage() {
       const rKey = getCurrentReportKey();
       await apiClient.downloadReportExport(activeCompanyId, rKey, 'xlsx', fromDate, toDate);
     } catch (err: any) {
-      alert(`Export error: ${err.message}`);
+      toast.error(`Export failed: ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -142,7 +143,7 @@ export default function CashBankAuditSuitePage() {
       const rKey = getCurrentReportKey();
       await apiClient.downloadReportExport(activeCompanyId, rKey, 'pdf', fromDate, toDate);
     } catch (err: any) {
-      alert(`Print error: ${err.message}`);
+      toast.error(`Print failed: ${err.message}`);
     }
   };
 

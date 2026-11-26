@@ -4,6 +4,7 @@ import './globals.css';
 import { AppShell } from '../components/app-shell';
 import { ThemeProvider } from '../components/theme-provider';
 import { CompanyProvider } from '../lib/company-context';
+import { Toaster } from '../components/toaster';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -40,6 +41,7 @@ export default function RootLayout({
         <ThemeProvider>
           <CompanyProvider>
             <AppShell>{children}</AppShell>
+            <Toaster />
           </CompanyProvider>
         </ThemeProvider>
       </body>
