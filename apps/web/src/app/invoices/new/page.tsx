@@ -3,8 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Receipt, Settings, Hash, Copy, Edit } from 'lucide-react';
-import { Button, Badge, Card, CardContent } from '@platform/ui';
+import { ArrowLeft, Settings, Eye, Printer } from 'lucide-react';
+import { Button, Badge, Card, CardContent, LoadingState } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { calculateInvoiceTotals, type LineItem } from './invoice-math';
@@ -12,6 +12,12 @@ import { InvoiceHeaderFields } from './invoice-header-fields';
 import { InvoiceLineItems } from './invoice-line-items';
 import { InvoiceSummary } from './invoice-summary';
 import { InvoiceSettingsDialog } from './invoice-settings-dialog';
+import {
+  type InvoiceTemplateId,
+  TallyClassicTemplate,
+  ModernBrandTemplate,
+  MinimalCompactTemplate,
+} from '../[id]/templates';
 
 function NewInvoiceContent() {
   const router = useRouter();
@@ -29,6 +35,8 @@ function NewInvoiceContent() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submittingDraft, setSubmittingDraft] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<InvoiceTemplateId>('TALLY_CLASSIC');
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState<boolean>(false);
 
   // Form State
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
@@ -294,10 +302,65 @@ function NewInvoiceContent() {
     }
   };
 
+  const selectedPartyObj = parties.find((p) => p.id === selectedPartyId);
+  const previewInvoice = {
+    id: 'preview',
+    invoiceNumber: customInvoiceNumber.trim() || autoInvoiceNumber || 'INV-PREVIEW',
+    invoiceDate,
+    dueDate,
+    branchId: selectedBranchId,
+    documentType,
+    placeOfSupplyStateCode: posStateCode,
+    supplyType: isIntraState ? 'INTRA_STATE' : 'INTER_STATE',
+    status: 'DRAFT',
+    notes,
+    party: selectedPartyObj,
+    partyNameSnapshot: selectedPartyObj?.name || 'Select Customer',
+    partyGstinSnapshot: selectedPartyObj?.gstin,
+    subtotalAmount: computedTotals.subtotal,
+    cgstAmount: computedTotals.totalCgst,
+    sgstAmount: computedTotals.totalSgst,
+    igstAmount: computedTotals.totalIgst,
+    roundOffAmount: computedTotals.roundOff,
+    totalAmount: computedTotals.grandTotal,
+    items: lineItems.map((l, idx) => ({
+      id: `line-${idx}`,
+      description: l.description || 'Item',
+      hsnSacCode: l.hsnSacCode,
+      quantity: l.quantity,
+      uom: l.uom,
+      unitPrice: l.unitPrice,
+      discountPercent: l.discountPercent,
+      gstRatePercent: l.gstRatePercent,
+      taxableAmount: Number(l.quantity || 0) * Number(l.unitPrice || 0),
+      totalAmount: Number(l.quantity || 0) * Number(l.unitPrice || 0) * (1 + Number(l.gstRatePercent || 0) / 100),
+    })),
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        void handleSubmit(true);
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        void handleSubmit(false);
+      } else if (e.altKey && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        handleAddLineItem();
+      } else if (e.altKey && e.key.toLowerCase() === 'd' && lineItems.length > 1) {
+        e.preventDefault();
+        handleRemoveLineItem(lineItems.length - 1);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="space-y-6 pb-12">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon-sm" asChild aria-label="Back to invoices">
             <Link href="/invoices">
@@ -306,94 +369,160 @@ function NewInvoiceContent() {
           </Button>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-black text-primary dark:text-white">
+              <h1 className="text-h1 text-primary">
                 {mode === 'edit' ? 'Revise Tax Invoice' : cloneFrom ? 'Duplicate Tax Invoice' : 'New GST Tax Invoice'}
               </h1>
               <Badge variant="brand" size="sm">Rule 46</Badge>
               {activeCompany && (
-                <Badge variant="neutral" size="sm" className="font-semibold text-primary text-primary-inverse">
+                <Badge variant="neutral" size="sm" className="font-semibold text-primary">
                   {activeCompany.tradeName || activeCompany.legalName}
                 </Badge>
               )}
               {mode === 'edit' && <Badge variant="warning" size="sm">Revision Mode</Badge>}
               {!mode && cloneFrom && <Badge variant="info" size="sm">Duplicated Draft</Badge>}
             </div>
-            <p className="text-xs text-muted text-muted">
-              Generate statutory tax invoice for <strong className="text-secondary text-muted">{activeCompany?.legalName || 'Active Entity'}</strong> with automated Place of Supply determination.
+            <p className="text-caption text-muted">
+              Shortcuts: ⌘S Save Draft • ⌘↵ Submit • Alt+N Add Row • Alt+D Delete Row
             </p>
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          type="button"
-          onClick={() => setSettingsOpen(true)}
-          leftIcon={<Settings className="h-3.5 w-3.5 text-brand-text" />}
-        >
-          Invoice & Series Settings
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            className="xl:hidden"
+            onClick={() => setMobilePreviewOpen((v) => !v)}
+          >
+            <Eye className="h-3.5 w-3.5 mr-1.5" />
+            {mobilePreviewOpen ? 'Hide Preview' : 'Preview'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            leftIcon={<Settings className="h-3.5 w-3.5 text-brand-text" />}
+          >
+            Invoice &amp; Series Settings
+          </Button>
+        </div>
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger text-xs text-status-danger-text font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle border border-status-danger text-caption text-status-danger-text font-medium">
           {error}
         </div>
       )}
 
-      <Card>
-        <CardContent className="p-6 space-y-6">
-          <InvoiceHeaderFields
-            parties={parties}
-            branches={branches}
-            financialYears={financialYears}
-            selectedPartyId={selectedPartyId}
-            selectedBranchId={selectedBranchId}
-            selectedFyId={selectedFyId}
-            invoiceDate={invoiceDate}
-            dueDate={dueDate}
-            posStateCode={posStateCode}
-            isIntraState={isIntraState}
-            documentType={documentType}
-            taxClassification={taxClassification}
-            isRcm={isRcm}
-            customInvoiceNumber={customInvoiceNumber}
-            autoInvoiceNumber={autoInvoiceNumber}
-            fetchingNumber={fetchingNumber}
-            onOpenSettings={() => setSettingsOpen(true)}
-            onPartyChange={handleSelectParty}
-            onBranchChange={setSelectedBranchId}
-            onFyChange={setSelectedFyId}
-            onInvoiceDateChange={setInvoiceDate}
-            onDueDateChange={setDueDate}
-            onPosChange={setPosStateCode}
-            onDocumentTypeChange={setDocumentType}
-            onTaxClassificationChange={setTaxClassification}
-            onRcmChange={setIsRcm}
-          />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        <Card className="xl:col-span-7">
+          <CardContent className="p-5 sm:p-6 space-y-6">
+            <InvoiceHeaderFields
+              parties={parties}
+              branches={branches}
+              financialYears={financialYears}
+              selectedPartyId={selectedPartyId}
+              selectedBranchId={selectedBranchId}
+              selectedFyId={selectedFyId}
+              invoiceDate={invoiceDate}
+              dueDate={dueDate}
+              posStateCode={posStateCode}
+              isIntraState={isIntraState}
+              documentType={documentType}
+              taxClassification={taxClassification}
+              isRcm={isRcm}
+              customInvoiceNumber={customInvoiceNumber}
+              autoInvoiceNumber={autoInvoiceNumber}
+              fetchingNumber={fetchingNumber}
+              onOpenSettings={() => setSettingsOpen(true)}
+              onPartyChange={handleSelectParty}
+              onBranchChange={setSelectedBranchId}
+              onFyChange={setSelectedFyId}
+              onInvoiceDateChange={setInvoiceDate}
+              onDueDateChange={setDueDate}
+              onPosChange={setPosStateCode}
+              onDocumentTypeChange={setDocumentType}
+              onTaxClassificationChange={setTaxClassification}
+              onRcmChange={setIsRcm}
+            />
 
-          <InvoiceLineItems
-            items={items}
-            lineItems={lineItems}
-            computedTotals={computedTotals}
-            onSelectItemForLine={handleSelectItemForLine}
-            onUpdateLineItem={handleUpdateLineItem}
-            onAddLineItem={handleAddLineItem}
-            onRemoveLineItem={handleRemoveLineItem}
-          />
+            <InvoiceLineItems
+              items={items}
+              lineItems={lineItems}
+              computedTotals={computedTotals}
+              onSelectItemForLine={handleSelectItemForLine}
+              onUpdateLineItem={handleUpdateLineItem}
+              onAddLineItem={handleAddLineItem}
+              onRemoveLineItem={handleRemoveLineItem}
+            />
 
-          <InvoiceSummary
-            computedTotals={computedTotals}
-            isIntraState={isIntraState}
-            notes={notes}
-            submitting={submitting}
-            submittingDraft={submittingDraft}
-            onNotesChange={setNotes}
-            onSubmit={() => handleSubmit(false)}
-            onSaveDraft={() => handleSubmit(true)}
-          />
-        </CardContent>
-      </Card>
+            <InvoiceSummary
+              computedTotals={computedTotals}
+              isIntraState={isIntraState}
+              notes={notes}
+              submitting={submitting}
+              submittingDraft={submittingDraft}
+              onNotesChange={setNotes}
+              onSubmit={() => handleSubmit(false)}
+              onSaveDraft={() => handleSubmit(true)}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Live PDF Preview Pane (QuickBooks-style 45% split) */}
+        <div className={`xl:col-span-5 xl:sticky xl:top-20 space-y-3 ${mobilePreviewOpen ? 'block' : 'hidden xl:block'}`}>
+          <div className="flex items-center justify-between gap-2 p-2 rounded-xl border border-border bg-surface">
+            <span className="text-caption font-semibold text-secondary px-2">Live Preview</span>
+            <div className="flex items-center gap-1 bg-surface-sunken p-1 rounded-lg">
+              {([
+                { id: 'MINIMAL_COMPACT', label: 'Minimal' },
+                { id: 'MODERN_BRAND', label: 'Modern' },
+                { id: 'TALLY_CLASSIC', label: 'Tally' },
+              ] as const).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setPreviewTemplate(t.id)}
+                  className={`px-2.5 py-1 rounded-md text-caption font-medium transition ${
+                    previewTemplate === t.id ? 'bg-surface text-primary shadow-xs' : 'text-muted hover:text-primary'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface p-3 overflow-auto max-h-[72vh] shadow-xs">
+            <div className="origin-top-left scale-[0.72] w-[138%]">
+              {previewTemplate === 'TALLY_CLASSIC' && (
+                <TallyClassicTemplate invoice={previewInvoice} company={activeCompany} settings={{}} />
+              )}
+              {previewTemplate === 'MODERN_BRAND' && (
+                <ModernBrandTemplate invoice={previewInvoice} company={activeCompany} settings={{}} />
+              )}
+              {previewTemplate === 'MINIMAL_COMPACT' && (
+                <MinimalCompactTemplate invoice={previewInvoice} company={activeCompany} settings={{}} />
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>
+              <Printer className="h-3.5 w-3.5 mr-1.5" />
+              Print
+            </Button>
+            <Button type="button" variant="outline" size="sm" loading={submittingDraft} onClick={() => handleSubmit(true)}>
+              Save as Draft
+            </Button>
+            <Button type="button" variant="primary" size="sm" loading={submitting} onClick={() => handleSubmit(false)}>
+              Submit Invoice
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <InvoiceSettingsDialog
         open={settingsOpen}
@@ -418,13 +547,7 @@ function NewInvoiceContent() {
 
 export default function NewInvoicePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="p-12 text-center text-xs text-muted">
-          Loading invoice editor...
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingState variant="detail" />}>
       <NewInvoiceContent />
     </Suspense>
   );
