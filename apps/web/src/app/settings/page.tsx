@@ -35,6 +35,8 @@ import {
   CardContent,
   Input,
   QrCode,
+  toast,
+  confirmDialog,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -50,6 +52,42 @@ export default function GlobalSettingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'overview' | 'all_keys'>('overview');
   const [customizerOpen, setCustomizerOpen] = useState(false);
+  const [replayLoading, setReplayLoading] = useState(false);
+  const [clearLoading, setClearLoading] = useState(false);
+
+  const handleReplayJourneys = async () => {
+    setReplayLoading(true);
+    try {
+      const res = await apiClient.replayJourneys();
+      toast.success(res.message || 'Demo journeys replay runner launched.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to trigger replay journeys');
+    } finally {
+      setReplayLoading(false);
+    }
+  };
+
+  const handleClearTenant = async () => {
+    const confirmed = await confirmDialog({
+      title: 'Purge Tenant Operational Data?',
+      description: 'This will delete all transactions, invoices, bank records, compliance tasks, and master items for your current tenant. Your company and user accounts will remain intact.',
+      confirmLabel: 'Purge Data',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
+    setClearLoading(true);
+    try {
+      const res = await apiClient.clearTenant();
+      toast.success(res.message || 'Tenant operational records cleared successfully.');
+      await loadGlobalSettings();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to clear tenant data');
+    } finally {
+      setClearLoading(false);
+    }
+  };
 
   const activeCompany = companies.find((c) => c.id === activeCompanyId) || companies[0];
 
@@ -211,6 +249,50 @@ export default function GlobalSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Dev-Tool Panel (Gated by NEXT_PUBLIC_DEV_TOOLS) */}
+      {(process.env.NEXT_PUBLIC_DEV_TOOLS === 'true' || process.env.NODE_ENV !== 'production') && (
+        <Card className="border-status-warning/40 bg-surface shadow-2xs">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-status-warning" />
+                <CardTitle className="text-sm font-bold text-primary">
+                  Developer Operations & Journey Runner
+                </CardTitle>
+                <Badge variant="warning" size="xs">
+                  DEV TOOLS
+                </Badge>
+              </div>
+            </div>
+            <CardDescription className="text-xs text-secondary">
+              Control sandbox tenant state, replay automated UI journeys, or purge operational records for fresh runs.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0 flex flex-wrap items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              data-testid="dev-replay-journeys-btn"
+              disabled={replayLoading}
+              onClick={handleReplayJourneys}
+              className="text-xs"
+            >
+              {replayLoading ? 'Replaying...' : 'Replay demo journeys'}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              data-testid="dev-clear-tenant-btn"
+              disabled={clearLoading}
+              onClick={handleClearTenant}
+              className="text-xs"
+            >
+              {clearLoading ? 'Clearing...' : 'Clear my tenant'}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* View Toggle */}
       <div className="flex items-center gap-2 border-b border-default pb-2">

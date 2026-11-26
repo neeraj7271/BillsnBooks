@@ -1417,5 +1417,18 @@ export const apiClient = {
       body: JSON.stringify({ simulatedDate }),
     });
   },
+
+  // --- Developer Operations ---
+  async replayJourneys() {
+    return request<any>('/v1/dev/replay-journeys', {
+      method: 'POST',
+    });
+  },
+
+  async clearTenant() {
+    return request<any>('/v1/dev/clear-tenant', {
+      method: 'POST',
+    });
+  },
 };
 

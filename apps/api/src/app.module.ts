@@ -26,6 +26,7 @@ import { CollectionsModule } from './modules/collections/collections.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NumberingModule } from './modules/numbering/numbering.module';
+import { DevModule } from './modules/dev/dev.module';
 import { HealthController } from './modules/health/health.controller';
 
 @Module({
@@ -52,6 +53,7 @@ import { HealthController } from './modules/health/health.controller';
     MetricsModule,
     SettingsModule,
     NumberingModule,
+    DevModule,
   ],
   controllers: [HealthController],
   providers: [
