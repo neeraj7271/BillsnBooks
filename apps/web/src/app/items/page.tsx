@@ -1,30 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Boxes,
-  Plus,
-  RefreshCw,
-  Search,
-  Eye,
-  Edit,
-  Trash2,
-  AlertCircle,
-  Scale,
-  Lock,
-} from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Boxes, Plus, RefreshCw, Eye, Edit, Trash2, Scale } from 'lucide-react';
 import {
   Button,
   Badge,
-  Input,
-  DataTable,
   MoneyText,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+  ListPage,
+  ConfirmDialog,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -48,7 +31,6 @@ interface Item {
   unitPrice: number;
   gstRatePercent: number;
   cessRatePercent?: number;
-  isActive?: boolean;
 }
 
 interface UomRow {
@@ -63,55 +45,38 @@ interface UomRow {
 export default function ItemsPage() {
   const { activeCompanyId } = useCompany();
   const [mainView, setMainView] = useState<'ITEMS' | 'UNITS'>('ITEMS');
-
-  // Items State
   const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('ALL');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [itemsPage, setItemsPage] = useState<number>(1);
+  const [gstFilter, setGstFilter] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [itemsPage, setItemsPage] = useState(1);
 
-  // Units State
   const [units, setUnits] = useState<UomRow[]>([]);
-  const [unitsLoading, setUnitsLoading] = useState<boolean>(false);
-  const [unitFilter, setUnitFilter] = useState<'ALL' | 'CUSTOM' | 'STATUTORY'>('ALL');
-  const [unitSearch, setUnitSearch] = useState<string>('');
-  const [unitsPage, setUnitsPage] = useState<number>(1);
+  const [unitsLoading, setUnitsLoading] = useState(false);
+  const [unitSearch, setUnitSearch] = useState('');
+  const [unitsPage, setUnitsPage] = useState(1);
 
-  const pageSize = 10;
-
-  // Modals state
-  const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
+  const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [selectedItemForEdit, setSelectedItemForEdit] = useState<Item | null>(null);
   const [selectedItemForView, setSelectedItemForView] = useState<Item | null>(null);
-  const [showUnitModal, setShowUnitModal] = useState<boolean>(false);
-  const [lastCreatedUnit, setLastCreatedUnit] = useState<string | null>(null);
-
-  // Unit Modals state
+  const [showUnitModal, setShowUnitModal] = useState(false);
   const [selectedUnitForView, setSelectedUnitForView] = useState<UomRow | null>(null);
   const [selectedUnitForEdit, setSelectedUnitForEdit] = useState<UomRow | null>(null);
   const [selectedUnitForDelete, setSelectedUnitForDelete] = useState<UomRow | null>(null);
-
-  // Deletion modal state
   const [itemToDelete, setItemToDelete] = useState<Item | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAll();
-  }, [activeCompanyId]);
-
-  const loadAll = async () => {
-    await Promise.all([loadItems(), loadUnits()]);
-  };
+  const pageSize = 15;
 
   const loadItems = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await apiClient.listItems(activeCompanyId);
       setItems(data || []);
-    } catch (err: unknown) {
-      console.error('Failed to list items:', err);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load items');
     } finally {
       setLoading(false);
     }
@@ -120,672 +85,191 @@ export default function ItemsPage() {
   const loadUnits = async () => {
     setUnitsLoading(true);
     try {
-      const data = await apiClient.listUnits(activeCompanyId);
-      const customList = data?.custom || [];
-      const standardList = data?.standard || GST_STATUTORY_UOM_LIST;
-
-      const combined: UomRow[] = [
-        ...customList.map((c: any) => ({
-          code: c.code,
-          name: c.name,
-          category: 'CUSTOM',
-          isCustom: true,
-          description: c.description,
-          usageCount: items.filter((it) => it.uom === c.code).length,
-        })),
-        ...standardList.map((s: any) => ({
-          code: s.code,
-          name: s.name,
-          category: s.category || 'STANDARD',
-          isCustom: false,
-          description: 'Official statutory GST e-Invoicing UQC code',
-          usageCount: items.filter((it) => it.uom === s.code || normalizeGstUqc(it.uom) === s.code).length,
-        })),
-      ];
-      setUnits(combined);
-    } catch (err: unknown) {
-      console.error('Failed to list units:', err);
+      const unitsRes = await apiClient.listUnits(activeCompanyId);
+      const customList: UomRow[] = (unitsRes?.custom || []).map((u: any) => ({
+        code: u.code,
+        name: u.name,
+        category: u.category || 'Custom',
+        isCustom: true,
+        description: u.description,
+        usageCount: items.filter((it) => normalizeGstUqc(it.uom) === normalizeGstUqc(u.code)).length,
+      }));
+      const statutory: UomRow[] = GST_STATUTORY_UOM_LIST.map((u) => ({
+        code: u.code,
+        name: u.name,
+        category: u.category,
+        isCustom: false,
+        usageCount: items.filter((it) => normalizeGstUqc(it.uom) === u.code).length,
+      }));
+      setUnits([...customList, ...statutory]);
     } finally {
       setUnitsLoading(false);
     }
   };
 
-  const handleOpenCreate = () => {
-    setSelectedItemForEdit(null);
-    setShowAddEditModal(true);
-  };
+  useEffect(() => {
+    if (activeCompanyId) loadItems();
+  }, [activeCompanyId]);
 
-  const handleOpenEdit = (it: Item) => {
-    setSelectedItemForEdit(it);
-    setShowAddEditModal(true);
-  };
+  useEffect(() => {
+    if (mainView === 'UNITS' && activeCompanyId) loadUnits();
+  }, [mainView, activeCompanyId]);
 
-  const handleOpenDelete = (it: Item) => {
-    setItemToDelete(it);
-    setDeleteError(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
-    setDeleteLoading(true);
-    setDeleteError(null);
-    try {
-      await apiClient.deleteItem(activeCompanyId, itemToDelete.id);
-      setItemToDelete(null);
-      await loadItems();
-      await loadUnits();
-    } catch (err: unknown) {
-      let msg = 'Failed to delete item';
-      if (err instanceof Error) {
-        msg = err.message;
-      } else if (typeof err === 'object' && err !== null) {
-        msg = (err as any).message || (err as any).error || JSON.stringify(err);
+  const filteredItems = useMemo(() => {
+    return items.filter((it) => {
+      if (filterType !== 'ALL' && it.itemType !== filterType) return false;
+      if (gstFilter !== 'ALL' && String(it.gstRatePercent) !== gstFilter) return false;
+      if (searchTerm.trim()) {
+        const q = searchTerm.toLowerCase();
+        return (
+          it.name.toLowerCase().includes(q) ||
+          it.itemCode.toLowerCase().includes(q) ||
+          (it.hsnSacCode || '').toLowerCase().includes(q)
+        );
       }
-      setDeleteError(msg);
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
+      return true;
+    });
+  }, [items, filterType, gstFilter, searchTerm]);
 
-  const handleDeleteCustomUnit = async (code: string) => {
-    try {
-      await apiClient.deleteCustomUnit(activeCompanyId, code);
-      await loadUnits();
-    } catch (err: unknown) {
-      let msg = 'Failed to delete unit';
-      if (err instanceof Error) msg = err.message;
-      else if (typeof err === 'object' && err !== null) msg = (err as any).message || JSON.stringify(err);
-      alert(msg);
-    }
-  };
+  const filteredUnits = useMemo(() => {
+    if (!unitSearch.trim()) return units;
+    const q = unitSearch.toLowerCase();
+    return units.filter((u) => u.code.toLowerCase().includes(q) || u.name.toLowerCase().includes(q));
+  }, [units, unitSearch]);
 
-  // Filtered & Paginated Items
-  const filteredItems = items.filter((it) => {
-    if (filterType !== 'ALL' && it.itemType !== filterType) return false;
-    const term = searchTerm.toLowerCase();
-    return (
-      it.name.toLowerCase().includes(term) ||
-      it.itemCode.toLowerCase().includes(term) ||
-      it.hsnSacCode.toLowerCase().includes(term)
-    );
-  });
-
-  const paginatedItems = filteredItems.slice(
-    (itemsPage - 1) * pageSize,
-    itemsPage * pageSize
-  );
-
-  // Filtered & Paginated Units
-  const filteredUnits = units.filter((u) => {
-    if (unitFilter === 'CUSTOM' && !u.isCustom) return false;
-    if (unitFilter === 'STATUTORY' && u.isCustom) return false;
-    const term = unitSearch.toLowerCase();
-    return (
-      u.code.toLowerCase().includes(term) ||
-      u.name.toLowerCase().includes(term) ||
-      (u.description && u.description.toLowerCase().includes(term))
-    );
-  });
-
-  const paginatedUnits = filteredUnits.slice(
-    (unitsPage - 1) * pageSize,
-    unitsPage * pageSize
-  );
-
-  // Columns for Items Table
   const itemColumns: ColumnDef<Item>[] = [
-    {
-      key: 'itemCode',
-      header: 'SKU / Code',
-      width: '120px',
-      cell: (it) => (
-        <span className="font-mono font-bold text-xs text-brand-text text-brand">
-          {it.itemCode}
-        </span>
-      ),
-    },
-    {
-      key: 'name',
-      header: 'Item & Description',
-      cell: (it) => (
-        <div>
-          <div className="font-bold text-primary dark:text-white">{it.name}</div>
-          {it.description && (
-            <div className="text-[11px] text-muted truncate max-w-xs">{it.description}</div>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'itemType',
-      header: 'Classification',
-      cell: (it) => (
-        <Badge variant={it.itemType === 'SERVICES' ? 'brand' : 'neutral'} size="xs">
-          {it.itemType}
-        </Badge>
-      ),
-    },
-    {
-      key: 'hsnSacCode',
-      header: 'HSN / SAC',
-      cell: (it) => (
-        <span className="font-mono text-xs text-secondary text-muted font-medium">
-          {it.hsnSacCode}
-        </span>
-      ),
-    },
-    {
-      key: 'gstRatePercent',
-      header: 'GST Rate',
-      align: 'right',
-      cell: (it) => (
-        <span className="font-mono text-xs font-semibold">
-          {it.gstRatePercent}%
-        </span>
-      ),
-    },
-    {
-      key: 'unitPrice',
-      header: 'Rate / UOM',
-      align: 'right',
-      cell: (it) => (
-        <div className="text-right">
-          <MoneyText amount={it.unitPrice} />
-          <span className="text-[10px] text-muted ml-1 uppercase font-mono">/ {it.uom}</span>
-        </div>
-      ),
-    },
+    { key: 'itemCode', header: 'Code', sortable: true, cell: (r) => <span className="font-mono text-caption text-muted">{r.itemCode}</span> },
+    { key: 'name', header: 'Item Name', sortable: true, cell: (r) => <span className="font-semibold text-primary">{r.name}</span> },
+    { key: 'itemType', header: 'Type', cell: (r) => <Badge variant={r.itemType === 'GOODS' ? 'info' : 'brand'} size="xs">{r.itemType}</Badge> },
+    { key: 'hsnSacCode', header: 'HSN / SAC', cell: (r) => <span className="font-mono text-body-sm">{r.hsnSacCode}</span> },
+    { key: 'uom', header: 'UOM', cell: (r) => <Badge variant="neutral" size="xs">{r.uom}</Badge> },
+    { key: 'gstRatePercent', header: 'GST %', align: 'right', cell: (r) => <span className="font-mono tabular-nums">{r.gstRatePercent}%</span> },
+    { key: 'unitPrice', header: 'Price', align: 'right', sortable: true, cell: (r) => <MoneyText amount={r.unitPrice} /> },
     {
       key: 'actions',
       header: 'Actions',
       align: 'right',
-      cell: (it) => (
+      cell: (r) => (
         <div className="flex items-center justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-muted hover:text-brand-text hover:bg-brand-subtle hover:bg-brand/40"
-            title="View full item profile"
-            onClick={() => setSelectedItemForView(it)}
-          >
-            <Eye className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-muted hover:text-status-success-text hover:bg-status-success-subtle hover:bg-status-success"
-            title="Edit item"
-            onClick={() => handleOpenEdit(it)}
-          >
-            <Edit className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle hover:bg-status-danger"
-            title="Delete / Deactivate"
-            onClick={() => handleOpenDelete(it)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          <Button variant="ghost" size="xs" aria-label={`View ${r.name}`} onClick={() => setSelectedItemForView(r)}><Eye className="h-3.5 w-3.5" /></Button>
+          <Button variant="ghost" size="xs" aria-label={`Edit ${r.name}`} onClick={() => { setSelectedItemForEdit(r); setShowAddEditModal(true); }}><Edit className="h-3.5 w-3.5" /></Button>
+          <Button variant="ghost" size="xs" aria-label={`Delete ${r.name}`} onClick={() => setItemToDelete(r)}><Trash2 className="h-3.5 w-3.5 text-status-danger-text" /></Button>
         </div>
       ),
     },
   ];
 
-  // Columns for Units Table
   const unitColumns: ColumnDef<UomRow>[] = [
-    {
-      key: 'code',
-      header: 'Unit Code (UOM / UQC)',
-      width: '160px',
-      cell: (u) => (
-        <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-brand-subtle bg-brand text-brand-text text-brand">
-          {u.code}
-        </span>
-      ),
-    },
-    {
-      key: 'name',
-      header: 'Unit Description / Full Name',
-      cell: (u) => (
-        <div>
-          <span className="font-bold text-primary dark:text-white">{u.name}</span>
-          {u.description && <div className="text-[11px] text-muted">{u.description}</div>}
-        </div>
-      ),
-    },
-    {
-      key: 'origin',
-      header: 'Origin / Type',
-      cell: (u) => (
-        <Badge variant={u.isCustom ? 'brand' : 'neutral'} size="xs">
-          {u.isCustom ? 'Company Custom Unit' : 'Statutory GST UQC'}
-        </Badge>
-      ),
-    },
-    {
-      key: 'category',
-      header: 'Category',
-      cell: (u) => (
-        <span className="font-mono text-[11px] text-muted uppercase px-1.5 py-0.5 rounded bg-surface-sunken bg-surface-raised">
-          {u.category}
-        </span>
-      ),
-    },
-    {
-      key: 'usage',
-      header: 'Catalog Usage',
-      align: 'center',
-      cell: (u) => (
-        <Badge variant={u.usageCount > 0 ? 'success' : 'neutral'} size="xs">
-          {u.usageCount} {u.usageCount === 1 ? 'Item' : 'Items'} Using
-        </Badge>
-      ),
-    },
+    { key: 'code', header: 'UQC Code', cell: (u) => <span className="font-mono font-semibold text-primary">{u.code}</span> },
+    { key: 'name', header: 'Unit Name', cell: (u) => <span>{u.name}</span> },
+    { key: 'category', header: 'Category', cell: (u) => <Badge variant="neutral" size="xs">{u.category}</Badge> },
+    { key: 'usageCount', header: 'Items', align: 'right', cell: (u) => <span className="font-mono tabular-nums">{u.usageCount}</span> },
     {
       key: 'actions',
       header: 'Actions',
       align: 'right',
       cell: (u) => (
         <div className="flex items-center justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-muted hover:text-brand-text hover:bg-brand-subtle hover:bg-brand/40"
-            title="View unit details and catalog usage"
-            onClick={() => setSelectedUnitForView(u)}
-          >
-            <Eye className="h-3.5 w-3.5" />
-          </Button>
-
-          {u.isCustom ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-muted hover:text-status-success-text hover:bg-status-success-subtle hover:bg-status-success"
-              title={`Edit custom unit ${u.code}`}
-              onClick={() => setSelectedUnitForEdit(u)}
-            >
-              <Edit className="h-3.5 w-3.5" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled
-              className="h-8 w-8 p-0 text-muted text-secondary opacity-50 cursor-not-allowed"
-              title="Statutory GST standard units are system-locked and cannot be modified"
-            >
-              <Lock className="h-3 w-3" />
-            </Button>
-          )}
-
-          {u.isCustom ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle hover:bg-status-danger"
-              title={`Delete custom unit ${u.code}`}
-              onClick={() => setSelectedUnitForDelete(u)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled
-              className="h-8 w-8 p-0 text-muted text-secondary opacity-40 cursor-not-allowed"
-              title="Statutory GST standard units cannot be deleted"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+          <Button variant="ghost" size="xs" aria-label={`View unit ${u.code}`} onClick={() => setSelectedUnitForView(u)}><Eye className="h-3.5 w-3.5" /></Button>
+          {u.isCustom && (
+            <>
+              <Button variant="ghost" size="xs" aria-label={`Edit unit ${u.code}`} onClick={() => setSelectedUnitForEdit(u)}><Edit className="h-3.5 w-3.5" /></Button>
+              <Button variant="ghost" size="xs" aria-label={`Delete unit ${u.code}`} onClick={() => setSelectedUnitForDelete(u)}><Trash2 className="h-3.5 w-3.5 text-status-danger-text" /></Button>
+            </>
           )}
         </div>
       ),
     },
   ];
+
+  const pagedItems = filteredItems.slice((itemsPage - 1) * pageSize, itemsPage * pageSize);
+  const pagedUnits = filteredUnits.slice((unitsPage - 1) * pageSize, unitsPage * pageSize);
 
   return (
-    <div className="space-y-6">
-      {/* Top Main Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border border-strong pb-3">
-        <button
-          type="button"
-          onClick={() => {
-            setMainView('ITEMS');
-            setItemsPage(1);
-          }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${
-            mainView === 'ITEMS'
-              ? 'bg-brand-subtle bg-brand/60 text-brand-text text-brand shadow-xs'
-              : 'text-muted hover:text-primary dark:hover:text-white'
-          }`}
-        >
-          <Boxes className="h-4 w-4" />
-          <span>Products & Services Catalog</span>
-          <span className="text-xs px-1.5 py-0.2 rounded-full bg-brand-subtle/60 bg-brand text-brand-text text-brand font-semibold">
-            {items.length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setMainView('UNITS');
-            setUnitsPage(1);
-            loadUnits();
-          }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition ${
-            mainView === 'UNITS'
-              ? 'bg-brand-subtle bg-brand/60 text-brand-text text-brand shadow-xs'
-              : 'text-muted hover:text-primary dark:hover:text-white'
-          }`}
-        >
-          <Scale className="h-4 w-4" />
-          <span>Units of Measure (UOM Master)</span>
-          <span className="text-xs px-1.5 py-0.2 rounded-full bg-surface-sunken bg-surface-raised text-secondary text-muted font-semibold">
-            {units.length}
-          </span>
-        </button>
-      </div>
-
-      {mainView === 'ITEMS' ? (
-        /* ITEMS VIEW */
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
-                  Item & Service Master
-                </h1>
-                <Badge variant="neutral" size="sm">{filteredItems.length} Products</Badge>
-              </div>
-              <p className="mt-1 text-sm text-muted text-muted">
-                Catalog of billable goods and professional services with statutory HSN/SAC codes.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={loadItems} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
-                Refresh
+    <>
+      <ListPage
+        header={{
+          title: mainView === 'ITEMS' ? 'Items & Products' : 'Units of Measure',
+          subtitle: 'HSN/SAC catalog, GST slabs, and statutory UQC units.',
+          badge: <Badge variant="neutral" size="sm">{mainView === 'ITEMS' ? `${filteredItems.length} items` : `${filteredUnits.length} units`}</Badge>,
+          actions: (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setMainView(mainView === 'ITEMS' ? 'UNITS' : 'ITEMS')}>
+                <Scale className="h-3.5 w-3.5 mr-1.5" />
+                {mainView === 'ITEMS' ? 'Units View' : 'Items View'}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setMainView('UNITS')}
-                leftIcon={<Scale className="h-3.5 w-3.5" />}
-              >
-                View Units Table
+              <Button variant="outline" size="sm" onClick={() => setShowUnitModal(true)}>
+                Manage Units
               </Button>
-              <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-                Add Item
+              <Button variant="outline" size="sm" onClick={loadItems} aria-label="Refresh items">
+                <RefreshCw className="h-3.5 w-3.5" />
               </Button>
-            </div>
-          </div>
-
-          {/* Filter & Search Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-            <div className="w-full sm:w-72">
-              <Input
-                placeholder="Search by name, SKU or HSN..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setItemsPage(1);
-                }}
-                leftAddon={<Search className="h-3.5 w-3.5" />}
-                size="sm"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5 p-1 bg-surface-sunken bg-surface-raised rounded-xl">
-              {['ALL', 'SERVICES', 'GOODS'].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => {
-                    setFilterType(t);
-                    setItemsPage(1);
-                  }}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                    filterType === t
-                      ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
-                      : 'text-muted hover:text-primary dark:hover:text-white'
-                  }`}
-                >
-                  {t === 'ALL' ? 'All Items' : t === 'SERVICES' ? 'Services' : 'Goods'}
-                </button>
+            </>
+          ),
+        }}
+        toolbar={{
+          searchValue: mainView === 'ITEMS' ? searchTerm : unitSearch,
+          onSearchChange: mainView === 'ITEMS' ? (v) => { setSearchTerm(v); setItemsPage(1); } : (v) => { setUnitSearch(v); setUnitsPage(1); },
+          searchPlaceholder: mainView === 'ITEMS' ? 'Search code, name, or HSN...' : 'Search UQC code or unit...',
+          filters: mainView === 'ITEMS' ? (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {(['ALL', 'GOODS', 'SERVICES'] as const).map((t) => (
+                <Button key={t} size="xs" variant={filterType === t ? 'primary' : 'outline'} onClick={() => { setFilterType(t); setItemsPage(1); }}>{t}</Button>
+              ))}
+              {(['ALL', '0', '5', '12', '18', '28'] as const).map((g) => (
+                <Button key={g} size="xs" variant={gstFilter === g ? 'secondary' : 'ghost'} onClick={() => { setGstFilter(g); setItemsPage(1); }}>{g === 'ALL' ? 'All GST' : `${g}%`}</Button>
               ))}
             </div>
-          </div>
-
-          {/* Data Table with Pagination */}
-          <DataTable
-            columns={itemColumns}
-            data={paginatedItems}
-            loading={loading}
-            page={itemsPage}
-            pageSize={pageSize}
-            totalItems={filteredItems.length}
-            onPageChange={setItemsPage}
-            emptyTitle="No items in catalog"
-            emptyDescription="Create your first billable item or service to begin issuing invoices."
-          />
-        </div>
-      ) : (
-        /* UNITS VIEW */
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-black tracking-tight text-primary dark:text-white">
-                  Units of Measurement (UOM Master)
-                </h1>
-                <Badge variant="neutral" size="sm">{filteredUnits.length} Units</Badge>
-              </div>
-              <p className="mt-1 text-sm text-muted text-muted">
-                Official statutory GST e-Invoicing UQC codes and custom company units.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={loadUnits} loading={unitsLoading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
-                Refresh
-              </Button>
-              <Button variant="primary" size="sm" onClick={() => setShowUnitModal(true)} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-                Create New Unit
-              </Button>
-            </div>
-          </div>
-
-          {/* Filter & Search Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-            <div className="w-full sm:w-72">
-              <Input
-                placeholder="Search unit by code or name..."
-                value={unitSearch}
-                onChange={(e) => {
-                  setUnitSearch(e.target.value);
-                  setUnitsPage(1);
-                }}
-                leftAddon={<Search className="h-3.5 w-3.5" />}
-                size="sm"
-              />
-            </div>
-
-            <div className="flex items-center gap-1.5 p-1 bg-surface-sunken bg-surface-raised rounded-xl">
-              {[
-                { label: 'All Units', value: 'ALL' },
-                { label: 'Custom Units', value: 'CUSTOM' },
-                { label: 'Statutory GST', value: 'STATUTORY' },
-              ].map((t) => (
-                <button
-                  key={t.value}
-                  onClick={() => {
-                    setUnitFilter(t.value as any);
-                    setUnitsPage(1);
-                  }}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                    unitFilter === t.value
-                      ? 'bg-white bg-surface text-primary dark:text-white shadow-xs'
-                      : 'text-muted hover:text-primary dark:hover:text-white'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Data Table with Pagination */}
-          <DataTable
-            columns={unitColumns}
-            data={paginatedUnits}
-            loading={unitsLoading}
-            page={unitsPage}
-            pageSize={pageSize}
-            totalItems={filteredUnits.length}
-            onPageChange={setUnitsPage}
-            emptyTitle="No units found"
-            emptyDescription="No measurement units match your search criteria."
-          />
-        </div>
-      )}
-
-      {/* Create / Edit Dialog */}
-      <ItemDialog
-        open={showAddEditModal}
-        companyId={activeCompanyId}
-        initialData={selectedItemForEdit}
-        createdUnit={lastCreatedUnit}
-        onOpenChange={setShowAddEditModal}
-        onSuccess={loadAll}
-        onOpenUnitManager={() => setShowUnitModal(true)}
-      />
-
-      {/* Units of Measure Dialog */}
-      <UnitManagerDialog
-        open={showUnitModal}
-        onOpenChange={setShowUnitModal}
-        onUnitsUpdated={loadAll}
-        onUnitCreated={(code) => {
-          setLastCreatedUnit(code);
+          ) : undefined,
+          primaryAction: (
+            <Button variant="primary" size="sm" onClick={() => { setSelectedItemForEdit(null); setShowAddEditModal(true); }}>
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Add Item
+            </Button>
+          ),
+        }}
+        data={(mainView === 'ITEMS' ? pagedItems : pagedUnits) as any[]}
+        columns={(mainView === 'ITEMS' ? itemColumns : unitColumns) as any[]}
+        loading={mainView === 'ITEMS' ? loading : unitsLoading}
+        error={error}
+        onRetry={loadItems}
+        hasActiveFilters={Boolean(searchTerm || filterType !== 'ALL' || gstFilter !== 'ALL')}
+        empty={{ icon: <Boxes className="h-5 w-5" />, title: 'No items yet', description: 'Create your first product or service to bill faster.' }}
+        filteredEmpty={{ title: 'No matching items', description: 'Adjust your search or GST slab filters.' }}
+        tableProps={{
+          page: mainView === 'ITEMS' ? itemsPage : unitsPage,
+          pageSize,
+          totalItems: mainView === 'ITEMS' ? filteredItems.length : filteredUnits.length,
+          onPageChange: mainView === 'ITEMS' ? setItemsPage : setUnitsPage,
         }}
       />
 
-      {/* View Details Dialog */}
+      <ItemDialog open={showAddEditModal} onOpenChange={(o) => { setShowAddEditModal(o); if (!o) setSelectedItemForEdit(null); }} onSuccess={loadItems} companyId={activeCompanyId} initialData={selectedItemForEdit} />
       <ItemDetailsDialog
+        open={Boolean(selectedItemForView)}
+        onOpenChange={(o) => { if (!o) setSelectedItemForView(null); }}
         item={selectedItemForView}
-        open={!!selectedItemForView}
-        onOpenChange={(open) => !open && setSelectedItemForView(null)}
-        onEdit={(it) => {
-          setSelectedItemForView(null);
-          handleOpenEdit(it);
-        }}
-        onDelete={(it) => {
-          setSelectedItemForView(null);
-          handleOpenDelete(it);
-        }}
+        onEdit={(it) => { setSelectedItemForView(null); setSelectedItemForEdit(it); setShowAddEditModal(true); }}
+        onDelete={(it) => { setSelectedItemForView(null); setItemToDelete(it); }}
       />
-
-      {/* Delete / Deactivate Confirmation Dialog */}
-      <Dialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
-        <DialogContent size="md">
-          <DialogHeader>
-            <DialogTitle>Remove Catalog Item</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to remove &apos;{itemToDelete?.name}&apos; ({itemToDelete?.itemCode})?
-            </DialogDescription>
-          </DialogHeader>
-
-          {deleteError ? (
-            <div className="p-3.5 rounded-xl bg-status-danger-subtle bg-status-danger border border-status-danger border-status-danger text-xs text-status-danger-text text-status-danger-text space-y-1">
-              <div className="font-semibold flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4 text-status-danger-text" />
-                Accounting Protection Alert
-              </div>
-              <p>{deleteError}</p>
-            </div>
-          ) : (
-            <div className="p-3.5 rounded-xl bg-canvas bg-surface-raised border border border-strong text-xs text-secondary text-muted">
-              <span className="font-semibold text-primary text-primary-inverse block mb-1">
-                Double-Entry Accounting & Statutory Safeguard:
-              </span>
-              If this item has been used on issued invoices, deletion is safely blocked to protect billing registers. If unused, it will be deactivated and removed from active catalogs.
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => setItemToDelete(null)}
-              disabled={deleteLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              type="button"
-              loading={deleteLoading}
-              onClick={handleConfirmDelete}
-            >
-              Confirm Removal
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Unit Details Dialog (View) */}
-      <UnitDetailsDialog
-        open={!!selectedUnitForView}
-        onOpenChange={(open) => !open && setSelectedUnitForView(null)}
-        unit={selectedUnitForView}
-        assignedItems={
-          selectedUnitForView
-            ? items.filter(
-                (it) =>
-                  it.uom === selectedUnitForView.code ||
-                  normalizeGstUqc(it.uom) === selectedUnitForView.code,
-              )
-            : []
-        }
-        onEdit={(u) => setSelectedUnitForEdit(u)}
-      />
-
-      {/* Edit Unit Dialog */}
-      <EditUnitDialog
-        open={!!selectedUnitForEdit}
-        onOpenChange={(open) => !open && setSelectedUnitForEdit(null)}
-        unit={selectedUnitForEdit}
-        onSuccess={async () => {
-          await loadUnits();
-          await loadItems();
+      <UnitManagerDialog open={showUnitModal} onOpenChange={setShowUnitModal} onUnitCreated={() => { loadUnits(); }} />
+      <UnitDetailsDialog open={Boolean(selectedUnitForView)} onOpenChange={(o) => { if (!o) setSelectedUnitForView(null); }} unit={selectedUnitForView} />
+      <EditUnitDialog open={Boolean(selectedUnitForEdit)} onOpenChange={(o) => { if (!o) setSelectedUnitForEdit(null); }} onSuccess={loadUnits} unit={selectedUnitForEdit} />
+      <DeleteUnitDialog open={Boolean(selectedUnitForDelete)} onOpenChange={(o) => { if (!o) setSelectedUnitForDelete(null); }} onSuccess={loadUnits} unit={selectedUnitForDelete} />
+      <ConfirmDialog
+        open={Boolean(itemToDelete)}
+        onOpenChange={(o) => { if (!o) setItemToDelete(null); }}
+        onConfirm={async () => {
+          if (itemToDelete) {
+            await apiClient.deleteItem(activeCompanyId, itemToDelete.id);
+            setItemToDelete(null);
+            loadItems();
+          }
         }}
+        title="Delete Item"
+        description={`Delete "${itemToDelete?.name}"? This cannot be undone.`}
+        tone="danger"
       />
-
-      {/* Delete Unit Dialog */}
-      <DeleteUnitDialog
-        open={!!selectedUnitForDelete}
-        onOpenChange={(open) => !open && setSelectedUnitForDelete(null)}
-        unit={selectedUnitForDelete}
-        assignedItems={
-          selectedUnitForDelete
-            ? items.filter(
-                (it) =>
-                  it.uom === selectedUnitForDelete.code ||
-                  normalizeGstUqc(it.uom) === selectedUnitForDelete.code,
-              )
-            : []
-        }
-        onSuccess={async () => {
-          await loadUnits();
-          await loadItems();
-        }}
-      />
-    </div>
+    </>
   );
 }

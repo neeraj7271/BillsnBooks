@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { TopHeader } from './top-header';
+import { PageErrorBoundary } from './error-boundary';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -85,6 +86,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main View Area: Top Header + Page Content */}
       <div className="flex flex-1 flex-col min-w-0 print:block print:w-full print:p-0">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded-lg focus:bg-brand focus:text-primary-inverse focus:text-caption focus:font-semibold"
+        >
+          Skip to content
+        </a>
         <div className="print:hidden">
           <TopHeader
             isCollapsed={isCollapsed}
@@ -92,9 +99,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onOpenMobile={() => setMobileOpen(true)}
           />
         </div>
-        <main className="flex-1 w-full min-w-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible">
+        <main id="main-content" className="flex-1 w-full min-w-0 overflow-x-hidden overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible">
           <div className="max-w-7xl mx-auto w-full print:max-w-none print:w-full print:p-0">
-            {children}
+            <PageErrorBoundary>{children}</PageErrorBoundary>
           </div>
         </main>
       </div>
