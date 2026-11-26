@@ -29,6 +29,7 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { GST_STATUTORY_UOM_LIST, normalizeGstUqc } from '@platform/shared-types';
 import { ItemDialog } from './item-dialog';
 import { ItemDetailsDialog } from './item-details-dialog';
@@ -69,7 +70,11 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [itemsPage, setItemsPage] = useState<number>(1);
+
+  const { page: itemsPage, pageSize, setPage: setItemsPage, setPageSize } = useTablePagination({
+    storageKey: 'items',
+    defaultPageSize: 25,
+  });
 
   // Units State
   const [units, setUnits] = useState<UomRow[]>([]);
@@ -77,8 +82,6 @@ export default function ItemsPage() {
   const [unitFilter, setUnitFilter] = useState<'ALL' | 'CUSTOM' | 'STATUTORY'>('ALL');
   const [unitSearch, setUnitSearch] = useState<string>('');
   const [unitsPage, setUnitsPage] = useState<number>(1);
-
-  const pageSize = 10;
 
   // Modals state
   const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
@@ -564,12 +567,19 @@ export default function ItemsPage() {
           {/* Data Table with Pagination */}
           <DataTable
             columns={itemColumns}
-            data={paginatedItems}
+            data={filteredItems}
             loading={loading}
             page={itemsPage}
             pageSize={pageSize}
             totalItems={filteredItems.length}
             onPageChange={setItemsPage}
+            onPageSizeChange={setPageSize}
+            storageKey="items"
+            isFiltered={filterType !== 'ALL' || Boolean(searchTerm.trim())}
+            onClearFilters={() => {
+              setFilterType('ALL');
+              setSearchTerm('');
+            }}
             emptyTitle="No items in catalog"
             emptyDescription="Create your first billable item or service to begin issuing invoices."
           />
@@ -643,12 +653,18 @@ export default function ItemsPage() {
           {/* Data Table with Pagination */}
           <DataTable
             columns={unitColumns}
-            data={paginatedUnits}
+            data={filteredUnits}
             loading={unitsLoading}
             page={unitsPage}
             pageSize={pageSize}
             totalItems={filteredUnits.length}
             onPageChange={setUnitsPage}
+            storageKey="items_units"
+            isFiltered={unitFilter !== 'ALL' || Boolean(unitSearch.trim())}
+            onClearFilters={() => {
+              setUnitFilter('ALL');
+              setUnitSearch('');
+            }}
             emptyTitle="No units found"
             emptyDescription="No measurement units match your search criteria."
           />

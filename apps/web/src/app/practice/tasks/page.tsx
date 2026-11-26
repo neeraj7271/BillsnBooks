@@ -11,6 +11,7 @@ import {
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { TaskDialog } from './task-dialog';
 import { TaskStatusDialog } from './task-status-dialog';
 
@@ -37,6 +38,11 @@ function ComplianceTasksContent() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [openCreateModal, setOpenCreateModal] = useState(false);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'practice_tasks',
+    defaultPageSize: 25,
+  });
 
   // Status update modal state
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -225,6 +231,17 @@ function ComplianceTasksContent() {
         columns={columns}
         data={tasks}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={tasks.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="practice_tasks"
+        isFiltered={statusFilter !== 'ALL' || categoryFilter !== 'ALL'}
+        onClearFilters={() => {
+          setStatusFilter('ALL');
+          setCategoryFilter('ALL');
+        }}
         emptyTitle="No tasks matching criteria"
         emptyDescription="Create statutory compliance tasks or switch filters to view deliverables."
       />

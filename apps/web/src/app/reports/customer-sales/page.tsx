@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
-import { ReportPage, MoneyText } from '@platform/ui';
+import { ReportPage, MoneyText, DataTable, type ColumnDef } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 
 export default function CustomerSalesPage() {
   const { activeCompanyId } = useCompany();
@@ -15,6 +16,11 @@ export default function CustomerSalesPage() {
   const [fromDate, setFromDate] = useState<string>('2024-04-01');
   const [toDate, setToDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [compareMode, setCompareMode] = useState<boolean>(false);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'report_customer_sales',
+    defaultPageSize: 25,
+  });
 
   const loadData = async () => {
     setLoading(true);
@@ -50,6 +56,49 @@ export default function CustomerSalesPage() {
 
   const rows: any[] = data?.rows || [];
   const totalSales = Number(data?.totalAmount || rows.reduce((s, r) => s + Number(r.totalAmount || 0), 0));
+
+  const columns: ColumnDef<any>[] = [
+    {
+      key: 'partyName',
+      header: 'Customer',
+      cell: (r) => (
+        <Link
+          href={`/reports/general-ledger?partyName=${encodeURIComponent(r.partyName || '')}`}
+          className="font-semibold text-brand-text hover:underline"
+        >
+          {r.partyName}
+        </Link>
+      ),
+    },
+    {
+      key: 'invoiceCount',
+      header: 'Invoices',
+      align: 'right',
+      width: '120px',
+      cell: (r) => <span className="font-mono tabular-nums text-secondary">{r.invoiceCount || 0}</span>,
+    },
+    {
+      key: 'taxableAmount',
+      header: 'Taxable Value',
+      align: 'right',
+      width: '160px',
+      cell: (r) => <MoneyText amount={Number(r.taxableAmount || 0)} className="text-primary" />,
+    },
+    {
+      key: 'taxAmount',
+      header: 'GST',
+      align: 'right',
+      width: '140px',
+      cell: (r) => <MoneyText amount={Number(r.taxAmount || 0)} className="text-secondary" />,
+    },
+    {
+      key: 'totalAmount',
+      header: 'Total Sales',
+      align: 'right',
+      width: '180px',
+      cell: (r) => <MoneyText amount={Number(r.totalAmount || 0)} className="font-semibold text-primary" />,
+    },
+  ];
 
   const dateControls = (
     <div className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-xs">
@@ -95,47 +144,19 @@ export default function CustomerSalesPage() {
         )
       }
     >
-      <div className="rounded-xl border border-default bg-surface shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-surface-sunken border-b border-default sticky top-0 z-10">
-              <tr className="text-overline uppercase text-muted">
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4 text-right">Invoices</th>
-                <th className="py-3 px-4 text-right">Taxable Value</th>
-                <th className="py-3 px-4 text-right">GST</th>
-                <th className="py-3 px-4 text-right">Total Sales</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle text-xs">
-              {rows.map((r, idx) => (
-                <tr key={r.partyId || idx} className="hover:bg-row-hover transition-colors">
-                  <td className="py-2.5 px-4">
-                    <Link
-                      href={`/reports/general-ledger?partyName=${encodeURIComponent(r.partyName || '')}`}
-                      className="font-semibold text-brand-text hover:underline"
-                    >
-                      {r.partyName}
-                    </Link>
-                  </td>
-                  <td className="py-2.5 px-4 text-right font-mono tabular-nums text-secondary">
-                    {r.invoiceCount || 0}
-                  </td>
-                  <td className="py-2.5 px-4 text-right">
-                    <MoneyText amount={Number(r.taxableAmount || 0)} className="text-primary" />
-                  </td>
-                  <td className="py-2.5 px-4 text-right">
-                    <MoneyText amount={Number(r.taxAmount || 0)} className="text-secondary" />
-                  </td>
-                  <td className="py-2.5 px-4 text-right">
-                    <MoneyText amount={Number(r.totalAmount || 0)} className="font-semibold text-primary" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={rows}
+        loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={rows.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="report_customer_sales"
+        emptyTitle="No customer sales"
+        emptyDescription="No sales recorded for the selected date range."
+      />
     </ReportPage>
   );
 }

@@ -20,6 +20,7 @@ import {
 import { formatPartyTaxIdentity, PartyRegistrationType } from '@platform/shared-types';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { PartyDialog } from './party-dialog';
 import { PartyDetailsDialog } from './party-details-dialog';
 
@@ -54,8 +55,11 @@ export default function PartiesPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 10;
+
+  const { page: currentPage, pageSize, setPage: setCurrentPage, setPageSize } = useTablePagination({
+    storageKey: 'parties',
+    defaultPageSize: 25,
+  });
 
   // Modals state
   const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
@@ -318,12 +322,19 @@ export default function PartiesPage() {
       {/* Data Table */}
       <DataTable
         columns={columns}
-        data={paginatedParties}
+        data={filteredParties}
         loading={loading}
         page={currentPage}
         pageSize={pageSize}
         totalItems={filteredParties.length}
         onPageChange={setCurrentPage}
+        onPageSizeChange={setPageSize}
+        storageKey="parties"
+        isFiltered={filterType !== 'ALL' || Boolean(searchTerm.trim())}
+        onClearFilters={() => {
+          setFilterType('ALL');
+          setSearchTerm('');
+        }}
         emptyTitle="No counterparties registered"
         emptyDescription="Create your first customer or vendor to enable GST invoicing."
       />

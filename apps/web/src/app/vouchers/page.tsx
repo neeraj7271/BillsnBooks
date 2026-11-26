@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 
 interface JournalEntry {
   id: string;
@@ -73,6 +74,11 @@ export default function VouchersPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'vouchers',
+    defaultPageSize: 25,
+  });
 
   // Drilldown Modal
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
@@ -457,6 +463,17 @@ export default function VouchersPage() {
         columns={columns}
         data={filteredVouchers}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={filteredVouchers.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="vouchers"
+        isFiltered={typeFilter !== 'ALL' || Boolean(searchTerm.trim())}
+        onClearFilters={() => {
+          setTypeFilter('ALL');
+          setSearchTerm('');
+        }}
         emptyTitle="No vouchers found"
         emptyDescription="Post invoices or manual journal entries to populate the general ledger books."
       />

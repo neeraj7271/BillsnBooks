@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { RecurringScheduleDialog } from './recurring-schedule-dialog';
 import {
   RecurringScheduleStatus,
@@ -32,6 +33,11 @@ export default function RecurringSchedulesPage() {
   const [openModal, setOpenModal] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'recurring_schedules',
+    defaultPageSize: 25,
+  });
 
   const loadSchedules = async () => {
     setLoading(true);
@@ -260,6 +266,12 @@ export default function RecurringSchedulesPage() {
           columns={columns}
           data={schedules}
           loading={loading}
+          page={page}
+          pageSize={pageSize}
+          totalItems={schedules.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          storageKey="recurring_schedules"
           emptyTitle="No Recurring Schedules"
           emptyDescription="Click 'New Schedule' to set up recurring retainer invoicing."
         />

@@ -11,6 +11,7 @@ import {
 import { RefreshCw, Search, Send, Calendar, ArrowRight } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { AgeingSummaryCards } from './ageing-summary-cards';
 import { AgeingDistributionBar } from './ageing-distribution-bar';
 import { SendReminderDialog } from './send-reminder-dialog';
@@ -27,6 +28,11 @@ export default function ArAgeingPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedParty, setSelectedParty] = useState<PartyAgeingDto | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'ageing',
+    defaultPageSize: 25,
+  });
   const [openReminderModal, setOpenReminderModal] = useState(false);
   const [openPromiseModal, setOpenPromiseModal] = useState(false);
 
@@ -355,6 +361,14 @@ export default function ArAgeingPage() {
             columns={columns}
             data={filteredParties}
             loading={loading}
+            page={page}
+            pageSize={pageSize}
+            totalItems={filteredParties.length}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            storageKey="ageing_parties"
+            isFiltered={Boolean(searchTerm.trim())}
+            onClearFilters={() => setSearchTerm('')}
             emptyTitle="No Open Debtors"
             emptyDescription="No customer accounts with outstanding dues detected."
           />
@@ -363,6 +377,14 @@ export default function ArAgeingPage() {
             columns={invoiceColumns}
             data={filteredInvoices}
             loading={loading}
+            page={page}
+            pageSize={pageSize}
+            totalItems={filteredInvoices.length}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            storageKey="ageing_invoices"
+            isFiltered={Boolean(searchTerm.trim())}
+            onClearFilters={() => setSearchTerm('')}
             emptyTitle="No Open Invoices"
             emptyDescription="All issued customer documents have been fully reconciled."
           />

@@ -30,6 +30,7 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 
 interface Invoice {
   id: string;
@@ -60,6 +61,11 @@ export default function InvoicesPage() {
   const [cancellingInvoice, setCancellingInvoice] = useState<Invoice | null>(null);
   const [cancelOpen, setCancelOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'invoices',
+    defaultPageSize: 25,
+  });
 
   useEffect(() => {
     loadInvoices();
@@ -432,6 +438,18 @@ export default function InvoicesPage() {
         columns={columns}
         data={filteredInvoices}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={filteredInvoices.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="invoices"
+        isFiltered={statusFilter !== 'ALL' || docTypeFilter !== 'ALL' || Boolean(searchTerm.trim())}
+        onClearFilters={() => {
+          setStatusFilter('ALL');
+          setDocTypeFilter('ALL');
+          setSearchTerm('');
+        }}
         emptyTitle="No invoices found"
         emptyDescription="Create your first GST tax invoice to generate canonical vouchers."
       />

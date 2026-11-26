@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { CreateLinkDialog } from './create-link-dialog';
 import { ReconcileSettlementDialog } from './reconcile-settlement-dialog';
 import { UpiQrDialog } from './upi-qr-dialog';
@@ -35,6 +36,12 @@ export default function PaymentLinksPage() {
   const [links, setLinks] = useState<PaymentLinkDto[]>([]);
   const [settlements, setSettlements] = useState<GatewaySettlementDto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { page: linksPage, pageSize: linksPageSize, setPage: setLinksPage, setPageSize: setLinksPageSize } = useTablePagination({
+    storageKey: 'payment_links',
+    defaultPageSize: 25,
+  });
+
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openSettleModal, setOpenSettleModal] = useState(false);
   const [selectedQrLink, setSelectedQrLink] = useState<PaymentLinkDto | null>(null);
@@ -312,6 +319,12 @@ export default function PaymentLinksPage() {
           columns={linkColumns}
           data={links}
           loading={loading}
+          page={linksPage}
+          pageSize={linksPageSize}
+          totalItems={links.length}
+          onPageChange={setLinksPage}
+          onPageSizeChange={setLinksPageSize}
+          storageKey="payment_links"
           emptyTitle="No Payment Links"
           emptyDescription="Click 'Generate Link' to send an instant payment request."
         />

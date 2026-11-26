@@ -13,6 +13,7 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { ConversionDialog } from './conversion-dialog';
 
 interface Ticket {
@@ -38,6 +39,11 @@ export default function SalesDiscoveryCockpitPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'banking_discovery',
+    defaultPageSize: 25,
+  });
 
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [convertModalOpen, setConvertModalOpen] = useState(false);
@@ -211,6 +217,14 @@ export default function SalesDiscoveryCockpitPage() {
           columns={columns}
           data={tickets}
           loading={loading}
+          page={page}
+          pageSize={pageSize}
+          totalItems={tickets.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          storageKey="banking_discovery"
+          isFiltered={statusFilter !== 'ALL'}
+          onClearFilters={() => setStatusFilter('ALL')}
           emptyTitle="No discovery tickets found"
           emptyDescription="Run a discovery scan on new statement uploads to identify unbilled deposits."
         />

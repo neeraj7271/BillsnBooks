@@ -11,6 +11,7 @@ import {
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { ClientDialog } from './client-dialog';
 import { ClientStatsCards } from './client-stats-cards';
 
@@ -33,6 +34,11 @@ export default function ClientsDirectoryPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [openOnboardModal, setOpenOnboardModal] = useState(false);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'practice_clients',
+    defaultPageSize: 25,
+  });
 
   const loadClients = async () => {
     setLoading(true);
@@ -198,6 +204,14 @@ export default function ClientsDirectoryPage() {
         columns={columns}
         data={filteredClients}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={filteredClients.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="practice_clients"
+        isFiltered={Boolean(searchTerm.trim())}
+        onClearFilters={() => setSearchTerm('')}
         emptyTitle="No clients onboarded yet"
         emptyDescription="Onboard your first enterprise client entity to start managing statutory deadlines."
       />

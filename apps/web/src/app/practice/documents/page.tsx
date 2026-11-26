@@ -11,6 +11,7 @@ import {
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { RequestDocumentDialog } from './request-document-dialog';
 import { UploadClientDocDialog } from './upload-client-doc-dialog';
 
@@ -36,6 +37,11 @@ function ClientDocumentsPortalContent() {
   const [docs, setDocs] = useState<DocItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [openRequestModal, setOpenRequestModal] = useState(false);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'practice_documents',
+    defaultPageSize: 25,
+  });
 
   // Upload simulation modal
   const [selectedDoc, setSelectedDoc] = useState<DocItem | null>(null);
@@ -212,6 +218,12 @@ function ClientDocumentsPortalContent() {
         columns={columns}
         data={docs}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={docs.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="practice_documents"
         emptyTitle="No document requests active"
         emptyDescription="Request bank statements or sales registers from client finance teams."
       />

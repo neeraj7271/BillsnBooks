@@ -24,6 +24,7 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { UploadStatementDialog } from './upload-statement-dialog';
 import { NewAccountDialog } from './new-account-dialog';
 
@@ -46,6 +47,11 @@ export default function BankingOverviewPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'banking',
+    defaultPageSize: 25,
+  });
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [newAccModalOpen, setNewAccModalOpen] = useState(false);
@@ -217,6 +223,14 @@ export default function BankingOverviewPage() {
           columns={columns}
           data={transactions}
           loading={loading}
+          page={page}
+          pageSize={pageSize}
+          totalItems={transactions.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          storageKey="banking"
+          isFiltered={statusFilter !== 'ALL'}
+          onClearFilters={() => setStatusFilter('ALL')}
           emptyTitle="No statement transactions"
           emptyDescription="Upload an MT940 or CSV bank feed to begin reconciliation."
         />
