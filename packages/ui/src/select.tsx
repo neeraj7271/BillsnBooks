@@ -47,14 +47,14 @@ export function Select({
     >
       <SelectPrimitive.Trigger
         className={cn(
-          'flex w-full items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50 text-left',
+          'flex w-full items-center justify-between rounded-xl border border-default bg-surface text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:border-focus disabled:cursor-not-allowed disabled:opacity-50 text-left',
           sizeClasses,
           className
         )}
       >
         <SelectPrimitive.Value placeholder={placeholder} />
         <SelectPrimitive.Icon asChild>
-          <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 opacity-80" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted opacity-80" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
 
@@ -62,7 +62,7 @@ export function Select({
         <SelectPrimitive.Content
           position="popper"
           sideOffset={4}
-          className="z-50 min-w-[8rem] max-h-72 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1 text-slate-900 dark:text-slate-100 shadow-lg animate-in fade-in-80"
+          className="z-50 min-w-[8rem] max-h-72 overflow-y-auto rounded-xl border border-default bg-surface-raised p-1 text-primary shadow-lg animate-in fade-in-80"
         >
           <SelectPrimitive.Viewport className="p-1">
             {options
@@ -71,11 +71,11 @@ export function Select({
                     key={opt.value}
                     value={opt.value}
                     disabled={opt.disabled}
-                    className="relative flex w-full cursor-pointer select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:bg-slate-100 dark:focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                    className="relative flex w-full cursor-pointer select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:bg-surface-sunken data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                   >
                     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
                       <SelectPrimitive.ItemIndicator>
-                        <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                        <Check className="h-3.5 w-3.5 text-brand-text" />
                       </SelectPrimitive.ItemIndicator>
                     </span>
                     <SelectPrimitive.ItemText>{opt.label}</SelectPrimitive.ItemText>
@@ -96,14 +96,14 @@ export const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-pointer select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:bg-slate-100 dark:focus:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative flex w-full cursor-pointer select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-xs outline-none focus:bg-surface-sunken data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+        <Check className="h-3.5 w-3.5 text-brand-text" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
@@ -111,4 +111,3 @@ export const SelectItem = React.forwardRef<
 ));
 
 SelectItem.displayName = 'SelectItem';
-

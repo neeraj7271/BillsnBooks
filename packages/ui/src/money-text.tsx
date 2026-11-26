@@ -5,6 +5,7 @@ export interface MoneyTextProps extends React.HTMLAttributes<HTMLSpanElement> {
   amount: number | string;
   currency?: string;
   showDrCr?: boolean;
+  negative?: boolean;
   colorCode?: 'none' | 'profit-loss' | 'dr-cr';
 }
 
@@ -12,17 +13,16 @@ export function MoneyText({
   amount,
   currency = 'INR',
   showDrCr = false,
+  negative = false,
   colorCode = 'none',
   className,
   ...props
 }: MoneyTextProps) {
   const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-  const isNaNValue = isNaN(numericAmount);
-  const safeAmount = isNaNValue ? 0 : numericAmount;
+  const safeAmount = isNaN(numericAmount) ? 0 : numericAmount;
 
-  // Debit/Credit determination for double entry
   const isDebit = safeAmount > 0;
-  const isNegative = safeAmount < 0;
+  const isNegative = negative || safeAmount < 0;
   const absAmount = Math.abs(safeAmount);
 
   let formatted = formatCurrency(absAmount, currency);
@@ -32,11 +32,13 @@ export function MoneyText({
 
   let colorClasses = '';
   if (colorCode === 'profit-loss') {
-    if (safeAmount > 0) colorClasses = 'text-emerald-600 dark:text-emerald-400 font-semibold';
-    else if (safeAmount < 0) colorClasses = 'text-rose-600 dark:text-rose-400 font-semibold';
+    if (safeAmount > 0) colorClasses = 'text-status-success-text font-semibold';
+    else if (safeAmount < 0 || negative) colorClasses = 'text-status-danger-text font-semibold';
   } else if (colorCode === 'dr-cr') {
-    if (isDebit) colorClasses = 'text-blue-600 dark:text-blue-400 font-semibold';
-    else colorClasses = 'text-emerald-600 dark:text-emerald-400 font-semibold';
+    if (isDebit) colorClasses = 'text-brand-text font-semibold';
+    else colorClasses = 'text-status-success-text font-semibold';
+  } else if (negative) {
+    colorClasses = 'text-status-danger-text';
   }
 
   return (
@@ -53,4 +55,3 @@ export function MoneyText({
     </span>
   );
 }
-

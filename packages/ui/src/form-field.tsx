@@ -22,27 +22,26 @@ export function FormField({
   children,
 }: FormFieldProps) {
   return (
-    <div className={cn('flex flex-col space-y-1.5', className)}>
+    <div className={cn('flex flex-col space-y-2', className)}>
       {label && (
         <LabelPrimitive.Root
           htmlFor={id}
-          className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 select-none"
+          className="text-xs font-semibold text-secondary flex items-center gap-1 select-none"
         >
           {label}
-          {required && <span className="text-rose-500 font-bold">*</span>}
+          {required && <span className="text-status-danger-text font-bold">*</span>}
         </LabelPrimitive.Root>
       )}
 
       {children}
 
       {error ? (
-        <p className="text-[11px] font-medium text-rose-600 dark:text-rose-400 animate-in fade-in-50">
+        <p className="text-[11px] font-medium text-status-danger-text animate-in fade-in-50">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-[11px] text-slate-500 dark:text-slate-400">{hint}</p>
+        <p className="text-[11px] text-muted">{hint}</p>
       ) : null}
     </div>
   );
 }
-

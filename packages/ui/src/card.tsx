@@ -9,7 +9,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-200/80 bg-white shadow-xs transition-shadow dark:border-slate-800/80 dark:bg-slate-900',
+        'rounded-2xl border border-default bg-surface shadow-xs transition-shadow',
         className
       )}
       {...props}
@@ -26,7 +26,7 @@ export function CardHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('flex flex-col space-y-1.5 p-5 border-b border-slate-100 dark:border-slate-800/60', className)}
+      className={cn('flex flex-col space-y-1.5 p-5 border-b border-subtle', className)}
       {...props}
     >
       {children}
@@ -41,7 +41,7 @@ export function CardTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn('text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100', className)}
+      className={cn('text-sm font-semibold tracking-tight text-primary', className)}
       {...props}
     >
       {children}
@@ -56,7 +56,7 @@ export function CardDescription({
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn('text-xs text-slate-500 dark:text-slate-400', className)}
+      className={cn('text-xs text-muted', className)}
       {...props}
     >
       {children}
@@ -84,7 +84,7 @@ export function CardFooter({
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-4 border-t border-slate-100 bg-slate-50/50 dark:border-slate-800/60 dark:bg-slate-900/50 rounded-b-2xl',
+        'flex items-center justify-between p-4 border-t border-subtle bg-surface-sunken rounded-b-2xl',
         className
       )}
       {...props}

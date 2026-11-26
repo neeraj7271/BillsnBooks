@@ -23,7 +23,6 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
         const num = typeof value === 'string' ? parseFloat(value) : value;
         if (!isNaN(num)) {
           if (num === 0 && displayVal === '') {
-            // Keep empty while user has cleared the input
             return;
           }
           if (String(num) !== displayVal && parseFloat(displayVal) !== num) {
@@ -45,7 +44,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
         ref={ref}
         type="text"
         inputMode="decimal"
-        leftAddon={<span className="font-semibold text-xs text-slate-500">{currencySymbol}</span>}
+        leftAddon={<span className="font-semibold text-xs text-muted">{currencySymbol}</span>}
         className={cn('tabular-nums font-mono text-right', className)}
         value={displayVal}
         onChange={handleInputChange}
@@ -57,4 +56,3 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
 );
 
 CurrencyInput.displayName = 'CurrencyInput';
-

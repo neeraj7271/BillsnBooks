@@ -17,14 +17,14 @@ export const Switch = React.forwardRef<
       id={id}
       ref={ref}
       className={cn(
-        'peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-slate-300 dark:data-[state=unchecked]:bg-slate-700',
+        'peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-brand data-[state=unchecked]:bg-border-strong',
         className
       )}
       {...props}
     >
       <SwitchPrimitive.Thumb
         className={cn(
-          'pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0'
+          'pointer-events-none block h-4 w-4 rounded-full bg-surface shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0'
         )}
       />
     </SwitchPrimitive.Root>
@@ -41,13 +41,13 @@ export const Switch = React.forwardRef<
         {label && (
           <label
             htmlFor={id}
-            className="text-xs font-semibold text-slate-800 dark:text-slate-200 cursor-pointer select-none"
+            className="text-xs font-semibold text-primary cursor-pointer select-none"
           >
             {label}
           </label>
         )}
         {description && (
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] text-muted">
             {description}
           </p>
         )}
@@ -57,4 +57,3 @@ export const Switch = React.forwardRef<
 });
 
 Switch.displayName = 'Switch';
-
