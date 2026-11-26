@@ -25,7 +25,7 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 export interface DialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
 export const DialogContent = React.forwardRef<
@@ -33,10 +33,11 @@ export const DialogContent = React.forwardRef<
   DialogContentProps
 >(({ className, children, size = 'md', ...props }, ref) => {
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
+    sm: 'max-w-[400px]',
+    md: 'max-w-[560px]',
+    lg: 'max-w-[760px]',
+    xl: 'max-w-[960px]',
+    full: 'max-w-[95vw] h-[90vh]',
   }[size];
 
   return (
@@ -45,7 +46,7 @@ export const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border border border-strong bg-white bg-surface p-6 shadow-xl rounded-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto translate-x-[-50%] translate-y-[-50%] gap-4 border border-border-strong bg-surface p-6 shadow-lg rounded-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           sizeClasses,
           className
         )}

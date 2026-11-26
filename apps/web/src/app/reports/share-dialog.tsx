@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  X,
   Share2,
   Copy,
   Check,
@@ -15,6 +14,15 @@ import {
   ShieldCheck,
   Loader2,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Button,
+} from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 
 interface ShareDialogProps {
@@ -46,8 +54,6 @@ export function ShareDialog({
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
-
   const handleGenerateShare = async () => {
     setLoading(true);
     setError(null);
@@ -76,30 +82,23 @@ export function ShareDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg rounded-2xl bg-white bg-surface border border border-strong shadow-2xl p-6 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-subtle border-strong">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent size="md">
+        <DialogHeader className="pb-4 border-b border-border-subtle">
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-brand-subtle bg-brand/60 border border-focus border-focus flex items-center justify-center text-brand-text text-brand">
+            <div className="h-9 w-9 rounded-xl bg-brand-subtle border border-focus flex items-center justify-center text-brand-text">
               <Share2 className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-primary text-primary-inverse">
+              <DialogTitle className="text-base font-semibold text-primary">
                 Share Report
-              </h3>
-              <p className="text-xs text-muted text-muted">
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted">
                 {reportTitle}
-              </p>
+              </DialogDescription>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-muted hover:text-secondary hover:bg-surface-sunken hover:bg-surface-raised transition"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+        </DialogHeader>
 
         {/* Channels Tab Bar */}
         <div className="mt-5 grid grid-cols-3 gap-2 p-1 bg-surface-sunken bg-surface-raised rounded-xl">
@@ -296,42 +295,38 @@ export function ShareDialog({
           )}
         </div>
 
-        {/* Action Button */}
-        <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-subtle border-strong">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs font-medium rounded-lg text-secondary text-muted hover:bg-surface-sunken hover:bg-surface-raised transition"
-          >
+        <DialogFooter>
+          <Button type="button" variant="outline" size="sm" onClick={onClose}>
             Close
-          </button>
+          </Button>
           {!shareResult && (
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               disabled={loading || (channel === 'EMAIL' && !recipientEmail)}
               onClick={handleGenerateShare}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-brand hover:bg-brand text-white shadow-sm transition disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                   Generating...
                 </>
               ) : channel === 'EMAIL' ? (
                 <>
-                  <Send className="h-3.5 w-3.5" />
+                  <Send className="h-3.5 w-3.5 mr-1.5" />
                   Send Email
                 </>
               ) : (
                 <>
-                  <Share2 className="h-3.5 w-3.5" />
+                  <Share2 className="h-3.5 w-3.5 mr-1.5" />
                   Generate Link
                 </>
               )}
-            </button>
+            </Button>
           )}
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
