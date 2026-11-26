@@ -68,8 +68,8 @@ function ComplianceTasksContent() {
       key: 'title',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{row.title}</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="font-bold text-primary">{row.title}</div>
+          <div className="text-xs text-secondary">
             {row.clientName} | Period: <span className="font-mono">{row.statutoryPeriod}</span>
           </div>
         </div>
@@ -91,10 +91,10 @@ function ComplianceTasksContent() {
         const isPast = row.dueDate < new Date().toISOString().split('T')[0]! && row.status !== 'FILED';
         return (
           <div className="flex items-center gap-1.5">
-            <span className={isPast ? 'text-rose-600 dark:text-rose-400 font-bold' : ''}>
+            <span className={isPast ? 'text-status-danger-text font-bold' : ''}>
               <DateText date={row.dueDate} />
             </span>
-            {isPast && <AlertCircle className="h-3.5 w-3.5 text-rose-500" />}
+            {isPast && <AlertCircle className="h-3.5 w-3.5 text-status-danger-text" />}
           </div>
         );
       },
@@ -122,7 +122,7 @@ function ComplianceTasksContent() {
               {row.status.replace('_', ' ')}
             </Badge>
             {row.filingAcknowledgmentNumber && (
-              <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+              <span className="text-[10px] font-mono text-status-success-text">
                 ARN: {row.filingAcknowledgmentNumber}
               </span>
             )}
@@ -154,12 +154,12 @@ function ComplianceTasksContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Compliance & Statutory Tasks
             </h1>
             <Badge variant="brand" size="sm">Practice Workflow</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             Track GST, TDS, ROC, and bookkeeping deliverables across client entities.
           </p>
         </div>
@@ -186,7 +186,7 @@ function ComplianceTasksContent() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-default pb-3">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           {['ALL', 'NOT_STARTED', 'IN_PROGRESS', 'PENDING_REVIEW', 'FILED'].map((st) => (
             <button
@@ -194,8 +194,8 @@ function ComplianceTasksContent() {
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 statusFilter === st
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-brand text-inverse shadow-xs'
+                  : 'bg-surface-sunken text-secondary hover:text-primary'
               }`}
             >
               {st === 'ALL' ? 'All Tasks' : st.replace('_', ' ')}
@@ -207,7 +207,7 @@ function ComplianceTasksContent() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-blue-500"
+            className="text-xs rounded-lg border border-default bg-surface text-primary px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-focus-ring"
           >
             <option value="ALL">All Categories</option>
             <option value="GST">GST</option>
@@ -247,7 +247,7 @@ function ComplianceTasksContent() {
 
 export default function ComplianceTasksPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading compliance tasks...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-muted">Loading compliance tasks...</div>}>
       <ComplianceTasksContent />
     </Suspense>
   );

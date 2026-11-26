@@ -85,7 +85,7 @@ export function RequestDocumentDialog({
           </DialogHeader>
 
           {error && (
-            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <div className="p-3 rounded-lg bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium">
               {error}
             </div>
           )}

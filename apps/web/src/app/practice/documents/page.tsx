@@ -72,8 +72,8 @@ function ClientDocumentsPortalContent() {
       key: 'title',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{row.title}</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="font-bold text-primary">{row.title}</div>
+          <div className="text-xs text-secondary">
             {row.clientName} | Period: <span className="font-mono">{row.period}</span>
           </div>
         </div>
@@ -91,7 +91,7 @@ function ClientDocumentsPortalContent() {
     {
       header: 'Due Date',
       key: 'dueDate',
-      cell: (row) => (row.dueDate ? <DateText date={row.dueDate} /> : <span className="text-slate-400">—</span>),
+      cell: (row) => (row.dueDate ? <DateText date={row.dueDate} /> : <span className="text-muted">—</span>),
     },
     {
       header: 'Status',
@@ -111,7 +111,7 @@ function ClientDocumentsPortalContent() {
               {row.status}
             </Badge>
             {row.fileName && (
-              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
+              <span className="text-[10px] font-mono text-secondary truncate max-w-[120px]">
                 {row.fileName}
               </span>
             )}
@@ -160,7 +160,7 @@ function ClientDocumentsPortalContent() {
           )}
 
           {row.status === 'ACCEPTED' && (
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <span className="text-xs font-semibold text-status-success-text flex items-center gap-1">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Verified in Vault
             </span>
@@ -176,12 +176,12 @@ function ClientDocumentsPortalContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Client Document Vault & Requests
             </h1>
             <Badge variant="brand" size="sm">Client Portal</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             Request, collect, and verify monthly statements, sales registers, and tax challans.
           </p>
         </div>
@@ -235,7 +235,7 @@ function ClientDocumentsPortalContent() {
 
 export default function ClientDocumentsPortalPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading document requests...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-muted">Loading document requests...</div>}>
       <ClientDocumentsPortalContent />
     </Suspense>
   );

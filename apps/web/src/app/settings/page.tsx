@@ -120,17 +120,17 @@ export default function GlobalSettingsPage() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold shadow-md shadow-blue-500/20">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-inverse font-bold shadow-md">
               <Sliders className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <h1 className="text-xl font-black text-primary flex items-center gap-2">
                 <span>Global System Configuration & Governance</span>
                 <Badge variant="info" size="xs">
                   Central Registry
                 </Badge>
               </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-secondary">
                 Single pane of glass summarizing all system-wide parameters, invoice branding, numbering series, and statutory controls.
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function GlobalSettingsPage() {
             size="sm"
             onClick={() => setCustomizerOpen(true)}
             leftIcon={<Sliders className="h-3.5 w-3.5" />}
-            className="whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-xs"
+            className="whitespace-nowrap bg-brand hover:bg-brand-hover text-inverse font-semibold shadow-xs"
           >
             Quick Edit Branding & QR
           </Button>
@@ -161,66 +161,66 @@ export default function GlobalSettingsPage() {
 
       {/* KPI Summary Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-          <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+          <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             Active Operating Entity
           </div>
-          <div className="font-bold text-sm text-slate-900 dark:text-white truncate">
+          <div className="font-bold text-sm text-primary truncate">
             {activeCompany?.legalName || 'Acme Global Pvt Ltd'}
           </div>
-          <div className="text-[11px] font-mono text-slate-500 mt-0.5">
+          <div className="text-[11px] font-mono text-secondary mt-0.5">
             PAN: {activeCompany?.pan || 'AABCA1234F'}
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-          <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+          <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             Statutory Invoicing
           </div>
-          <div className="font-bold text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+          <div className="font-bold text-sm text-status-success-text flex items-center gap-1.5">
             <CheckCircle2 className="h-4 w-4" />
             Rule 46 Compliant
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-[11px] text-secondary mt-0.5">
             Original for Recipient Layout
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-          <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+          <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             Ledger & Accounting
           </div>
-          <div className="font-bold text-sm text-slate-900 dark:text-white">
+          <div className="font-bold text-sm text-primary">
             Accrual (Strict 0-Var)
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-[11px] text-secondary mt-0.5">
             Base: INR (₹) • 2 Decimals
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-          <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+          <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             System Modules
           </div>
-          <div className="font-bold text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+          <div className="font-bold text-sm text-brand-text flex items-center gap-1.5">
             <Sparkles className="h-4 w-4" />
             6/6 Modules Active
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-[11px] text-secondary mt-0.5">
             Branding, COA, BRS, Tally Bridge
           </div>
         </div>
       </div>
 
       {/* View Toggle */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-default pb-2">
         <button
           type="button"
           onClick={() => setActiveTab('overview')}
           className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
             activeTab === 'overview'
-              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'
-              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'bg-brand-subtle text-brand-text'
+              : 'text-secondary hover:text-primary'
           }`}
         >
           Visual Module Cards
@@ -230,8 +230,8 @@ export default function GlobalSettingsPage() {
           onClick={() => setActiveTab('all_keys')}
           className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
             activeTab === 'all_keys'
-              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400'
-              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'bg-brand-subtle text-brand-text'
+              : 'text-secondary hover:text-primary'
           }`}
         >
           All System Keys & Audit ({resolvedList.length})
@@ -245,7 +245,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-600 dark:text-blue-400">
+                  <div className="p-2 rounded-xl bg-status-info-subtle border border-default text-status-info-text">
                     <ImageIcon className="h-4 w-4" />
                   </div>
                   <div>
@@ -261,21 +261,21 @@ export default function GlobalSettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Company Logo:</span>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Company Logo:</span>
                 {logoUrl ? (
                   <div className="flex items-center gap-2">
                     <img src={logoUrl} alt="Logo" className="h-6 w-auto max-w-[80px] object-contain" />
-                    <span className="text-emerald-600 font-semibold text-[11px]">Configured</span>
+                    <span className="text-status-success-text font-semibold text-[11px]">Configured</span>
                   </div>
                 ) : (
-                  <span className="text-slate-400 font-medium">Default Monogram</span>
+                  <span className="text-muted font-medium">Default Monogram</span>
                 )}
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Signature Block:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Signature Block:</span>
+                <span className="font-semibold text-primary">
                   {showSignature
                     ? signatureType === 'DSC'
                       ? `DSC: ${dscSignerName}`
@@ -286,10 +286,10 @@ export default function GlobalSettingsPage() {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Dynamic Payment QR:</span>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Dynamic Payment QR:</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-[11px] text-blue-600 dark:text-blue-400 font-bold">
+                  <span className="font-mono text-[11px] text-brand-text font-bold">
                     {upiId}
                   </span>
                   <Badge variant={showQrCode ? 'success' : 'neutral'} size="xs">
@@ -298,17 +298,17 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500 block mb-1">Terms & Conditions:</span>
-                <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-2 italic">
+              <div className="p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary block mb-1">Terms & Conditions:</span>
+                <p className="text-[11px] text-primary line-clamp-2 italic">
                   "{terms}"
                 </p>
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-2 flex items-center justify-between border-t border-subtle">
                 <Link
                   href="/settings/invoice-branding"
-                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-text hover:underline flex items-center gap-1"
                 >
                   Manage Dedicated Page <ArrowRight className="h-3 w-3" />
                 </Link>
@@ -329,7 +329,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400">
+                  <div className="p-2 rounded-xl bg-brand-subtle border border-default text-brand-text">
                     <Hash className="h-4 w-4" />
                   </div>
                   <div>
@@ -350,36 +350,36 @@ export default function GlobalSettingsPage() {
                   seriesList.slice(0, 3).map((s: any) => (
                     <div
                       key={s.id}
-                      className="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800"
+                      className="flex items-center justify-between p-2 rounded-xl bg-surface-sunken border border-subtle"
                     >
                       <div>
-                        <div className="font-semibold text-slate-800 dark:text-slate-200">
+                        <div className="font-semibold text-primary">
                           {s.docType.replace('_', ' ')}
                         </div>
-                        <div className="text-[10px] text-slate-400 font-mono">
+                        <div className="text-[10px] text-muted font-mono">
                           Format: {s.prefix}&#123;seq&#125;{s.suffix || ''}
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-xs">
+                      <span className="font-mono font-bold text-brand-text text-xs">
                         Next: {s.nextSequence}
                       </span>
                     </div>
                   ))
                 ) : (
-                  <div className="p-3 text-center text-slate-400 text-xs">
+                  <div className="p-3 text-center text-muted text-xs">
                     Standard `INV-0000X-26-27` Active
                   </div>
                 )}
               </div>
 
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500">
+              <div className="p-2.5 rounded-xl bg-surface-sunken border border-subtle text-[11px] text-secondary">
                 Strict sequential numbering enforced. Gaps and resets are blocked for GST compliance.
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-2 flex items-center justify-between border-t border-subtle">
                 <Link
                   href="/settings/numbering"
-                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-text hover:underline flex items-center gap-1"
                 >
                   Manage All Series <ArrowRight className="h-3 w-3" />
                 </Link>
@@ -392,7 +392,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400">
+                  <div className="p-2 rounded-xl bg-status-success-subtle border border-default text-status-success-text">
                     <CalendarClock className="h-4 w-4" />
                   </div>
                   <div>
@@ -408,38 +408,38 @@ export default function GlobalSettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Accounting Basis:</span>
-                <span className="font-bold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Accounting Basis:</span>
+                <span className="font-bold text-primary">
                   Accrual Basis (Statutory Standard)
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Operating Currency:</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Operating Currency:</span>
+                <span className="font-mono font-bold text-primary">
                   {settingsMap['financial.base_currency'] || 'INR'} (₹ Indian Rupee)
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Period Lock Cutoff Date:</span>
-                <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Period Lock Cutoff Date:</span>
+                <span className="font-mono font-semibold text-primary">
                   {settingsMap['financial.fy_lock_date'] || 'No Cutoff (All Periods Open)'}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Double-Entry Enforcement:</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Double-Entry Enforcement:</span>
+                <span className="font-semibold text-status-success-text flex items-center gap-1">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Strict Zero-Variance
                 </span>
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-2 flex items-center justify-between border-t border-subtle">
                 <Link
                   href="/settings/periods"
-                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-text hover:underline flex items-center gap-1"
                 >
                   Manage Period Locks <ArrowRight className="h-3 w-3" />
                 </Link>
@@ -452,7 +452,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900 text-amber-600 dark:text-amber-400">
+                  <div className="p-2 rounded-xl bg-status-warning-subtle border border-default text-status-warning-text">
                     <ShieldCheck className="h-4 w-4" />
                   </div>
                   <div>
@@ -468,36 +468,36 @@ export default function GlobalSettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">E-Invoice Turnover Threshold:</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">E-Invoice Turnover Threshold:</span>
+                <span className="font-mono font-bold text-primary">
                   ₹5,00,00,000 (5 Cr Rule 48(4))
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">E-Way Bill Mandatory Limit:</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">E-Way Bill Mandatory Limit:</span>
+                <span className="font-mono font-bold text-primary">
                   ₹50,000 (Rule 138)
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Default Place of Supply:</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Default Place of Supply:</span>
+                <span className="font-mono font-bold text-primary">
                   State Code {settingsMap['tax.default_place_of_supply'] || '27'} (Maharashtra)
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Reverse Charge (RCM):</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Reverse Charge (RCM):</span>
+                <span className="font-semibold text-primary">
                   {settingsMap['tax.rcm_applicable'] ? 'Enabled' : 'Disabled (Standard)'}
                 </span>
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
-                <span className="text-[11px] text-slate-400">
+              <div className="pt-2 flex items-center justify-between border-t border-subtle">
+                <span className="text-[11px] text-muted">
                   Enforced on all invoice creation pipelines
                 </span>
               </div>
@@ -509,7 +509,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400">
+                  <div className="p-2 rounded-xl bg-status-danger-subtle border border-default text-status-danger-text">
                     <BookOpen className="h-4 w-4" />
                   </div>
                   <div>
@@ -525,31 +525,31 @@ export default function GlobalSettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Architecture Template:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Architecture Template:</span>
+                <span className="font-semibold text-primary">
                   Standard Indian Statutory COA
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Template Version:</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Template Version:</span>
+                <span className="font-mono font-bold text-primary">
                   {(activeCompany as any)?.coaSeedVersion || 'v1.0.0'}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                <span className="text-slate-500">Core Ledger Classifications:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                <span className="text-secondary">Core Ledger Classifications:</span>
+                <span className="font-semibold text-primary">
                   Assets, Liabilities, Equity, Revenue, Expense
                 </span>
               </div>
 
-              <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-2 flex items-center justify-between border-t border-subtle">
                 <Link
                   href="/settings/ledgers"
-                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-brand-text hover:underline flex items-center gap-1"
                 >
                   View Ledgers Directory <ArrowRight className="h-3 w-3" />
                 </Link>
@@ -565,8 +565,8 @@ export default function GlobalSettingsPage() {
                   <div
                     className={`p-2 rounded-xl border ${
                       Boolean(settingsMap['integration.tally_enabled'])
-                        ? 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-900 text-amber-600 dark:text-amber-400'
-                        : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+                        ? 'bg-status-warning-subtle border-default text-status-warning-text'
+                        : 'bg-surface-sunken border-default text-secondary'
                     }`}
                   >
                     <Server className="h-4 w-4" />
@@ -587,10 +587,10 @@ export default function GlobalSettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken border border-default">
                 <div>
-                  <div className="font-bold text-slate-900 dark:text-white">Tally Prime Synchronization</div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <div className="font-bold text-primary">Tally Prime Synchronization</div>
+                  <div className="text-[11px] text-secondary">
                     {Boolean(settingsMap['integration.tally_enabled'])
                       ? 'Tally bridge, XML push/pull & ledger alias inputs are active.'
                       : 'Tally UI, connectors & technical aliases are hidden from view.'}
@@ -608,31 +608,31 @@ export default function GlobalSettingsPage() {
 
               {Boolean(settingsMap['integration.tally_enabled']) ? (
                 <>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                    <span className="text-slate-500">Gateway URL:</span>
-                    <span className="font-mono text-slate-800 dark:text-slate-200">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                    <span className="text-secondary">Gateway URL:</span>
+                    <span className="font-mono text-primary">
                       http://localhost:9000
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800">
-                    <span className="text-slate-500">Sync Pipeline:</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-subtle">
+                    <span className="text-secondary">Sync Pipeline:</span>
+                    <span className="font-semibold text-primary">
                       Zero-Variance Canonical Sales Voucher Mapping
                     </span>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                  <div className="pt-2 flex items-center justify-between border-t border-subtle">
                     <Link
                       href="/settings/tally"
-                      className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                      className="text-xs font-semibold text-brand-text hover:underline flex items-center gap-1"
                     >
                       Open Tally Console <ArrowRight className="h-3 w-3" />
                     </Link>
                   </div>
                 </>
               ) : (
-                <div className="p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 text-[11px] leading-relaxed">
+                <div className="p-3 rounded-xl bg-status-info-subtle border border-default text-status-info-text text-[11px] leading-relaxed">
                   ✨ Operating in <strong>Standalone Cloud Mode</strong>. All invoices, GST reports, and double-entry accounts run smoothly without any Tally dependencies or desktop agents.
                 </div>
               )}
@@ -663,9 +663,9 @@ export default function GlobalSettingsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
+            <div className="rounded-xl border border-default overflow-x-auto">
               <table className="w-full text-xs text-left">
-                <thead className="bg-slate-50 dark:bg-slate-850 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
+                <thead className="bg-surface-sunken text-secondary font-semibold border-b border-default">
                   <tr>
                     <th className="py-2.5 px-3">Setting Key</th>
                     <th className="py-2.5 px-3">Category</th>
@@ -674,24 +674,24 @@ export default function GlobalSettingsPage() {
                     <th className="py-2.5 px-3">State</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-[11px]">
+                <tbody className="divide-y divide-border-subtle font-mono text-[11px]">
                   {filteredResolved.length > 0 ? (
                     filteredResolved.map((s) => (
-                      <tr key={s.key} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/50">
-                        <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white">
+                      <tr key={s.key} className="hover:bg-row-hover">
+                        <td className="py-2 px-3 font-semibold text-primary">
                           <div>{s.key}</div>
                           {s.definition?.description && (
-                            <div className="font-sans font-normal text-[10px] text-slate-400 line-clamp-1">
+                            <div className="font-sans font-normal text-[10px] text-muted line-clamp-1">
                               {s.definition.description}
                             </div>
                           )}
                         </td>
                         <td className="py-2 px-3">
-                          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-sans text-[10px]">
+                          <span className="px-2 py-0.5 rounded bg-surface-sunken text-secondary font-sans text-[10px]">
                             {s.definition?.category || 'SYSTEM'}
                           </span>
                         </td>
-                        <td className="py-2 px-3 font-bold text-blue-600 dark:text-blue-400 max-w-xs truncate">
+                        <td className="py-2 px-3 font-bold text-brand-text max-w-xs truncate">
                           {s.value === null || s.value === undefined
                             ? '<null>'
                             : typeof s.value === 'boolean'
@@ -700,7 +700,7 @@ export default function GlobalSettingsPage() {
                             ? JSON.stringify(s.value)
                             : String(s.value)}
                         </td>
-                        <td className="py-2 px-3 font-sans text-slate-500">
+                        <td className="py-2 px-3 font-sans text-secondary">
                           {s.resolvedScope}
                         </td>
                         <td className="py-2 px-3">
@@ -712,7 +712,7 @@ export default function GlobalSettingsPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-slate-400 font-sans">
+                      <td colSpan={5} className="py-8 text-center text-muted font-sans">
                         No settings matching "{searchQuery}"
                       </td>
                     </tr>
