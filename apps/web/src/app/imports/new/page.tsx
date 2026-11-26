@@ -176,12 +176,12 @@ export default function NewImportWizardPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-slate-900 dark:text-white">
+              <h1 className="text-xl font-black text-primary">
                 Bulk Ingestion Engine
               </h1>
               <Badge variant="brand" size="sm">Step {currentStep} of 4</Badge>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted">
               CSV/Excel bank and invoice import with statutory GST checks and missing master resolution.
             </p>
           </div>

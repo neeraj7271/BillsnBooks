@@ -85,7 +85,7 @@ export function PromiseToPayDialog({
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand-text">
               <Calendar className="h-5 w-5" />
             </div>
             <div>
@@ -122,7 +122,7 @@ export function PromiseToPayDialog({
               <Button
                 type="button"
                 variant="outline"
-                className="text-rose-600 border-rose-200 hover:bg-rose-50"
+                className="text-status-danger-text border-status-danger hover:bg-status-danger-subtle"
                 onClick={handleClear}
                 disabled={loading}
               >

@@ -116,23 +116,23 @@ export function RecurringScheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+      <DialogContent className="max-w-lg bg-surface border border-default rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CalendarClock className="h-5 w-5 text-blue-600" />
+          <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
+            <CalendarClock className="h-5 w-5 text-brand-text" />
             Create Recurring Invoicing Schedule
           </DialogTitle>
         </DialogHeader>
 
         {error && (
-          <div className="mt-3 p-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs rounded-lg border border-rose-200 dark:border-rose-900">
+          <div className="mt-3 p-2 bg-status-danger-subtle text-status-danger-text text-xs rounded-lg border border-status-danger">
             {error}
           </div>
         )}
 
         <div className="mt-4 space-y-3.5">
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-secondary">
               Customer Account
             </label>
             <div className="mt-1">
@@ -146,7 +146,7 @@ export function RecurringScheduleDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Frequency
               </label>
               <div className="mt-1">
@@ -159,7 +159,7 @@ export function RecurringScheduleDialog({
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Start Date
               </label>
               <Input
@@ -173,7 +173,7 @@ export function RecurringScheduleDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Max Invoices to Generate
               </label>
               <Input
@@ -185,7 +185,7 @@ export function RecurringScheduleDialog({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 End Date (Optional)
               </label>
               <Input
@@ -198,8 +198,8 @@ export function RecurringScheduleDialog({
           </div>
 
           {/* Line Item Template */}
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-100 dark:border-slate-800">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div className="p-3 bg-surface-sunken rounded-xl space-y-2 border border-subtle">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Template Line Item
             </span>
             <div className="space-y-2">
@@ -207,28 +207,28 @@ export function RecurringScheduleDialog({
                 placeholder="Item / Service description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="text-xs bg-white dark:bg-slate-900"
+                className="text-xs bg-surface"
               />
               <div className="grid grid-cols-3 gap-2">
                 <Input
                   placeholder="SAC / HSN"
                   value={hsnSacCode}
                   onChange={(e) => setHsnSacCode(e.target.value)}
-                  className="text-xs bg-white dark:bg-slate-900"
+                  className="text-xs bg-surface"
                 />
                 <Input
                   placeholder="Unit Price"
                   type="number"
                   value={unitPrice}
                   onChange={(e) => setUnitPrice(e.target.value)}
-                  className="text-xs bg-white dark:bg-slate-900"
+                  className="text-xs bg-surface"
                 />
                 <Input
                   placeholder="GST %"
                   type="number"
                   value={gstRatePercent}
                   onChange={(e) => setGstRatePercent(e.target.value)}
-                  className="text-xs bg-white dark:bg-slate-900"
+                  className="text-xs bg-surface"
                 />
               </div>
             </div>

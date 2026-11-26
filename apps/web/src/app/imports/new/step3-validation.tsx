@@ -57,7 +57,7 @@ export function Step3Validation({
                 variant="outline"
                 size="sm"
                 onClick={onOpenMissingMasters}
-                leftIcon={<Users className="h-3.5 w-3.5 text-blue-500" />}
+                leftIcon={<Users className="h-3.5 w-3.5 text-brand-text" />}
               >
                 Missing Masters ({missingMastersCount})
               </Button>
@@ -69,7 +69,7 @@ export function Step3Validation({
                 size="sm"
                 loading={fixing}
                 onClick={onAutoFixGst}
-                leftIcon={<Sparkles className="h-3.5 w-3.5 text-indigo-500" />}
+                leftIcon={<Sparkles className="h-3.5 w-3.5 text-status-info-text" />}
               >
                 Auto-Fix Tax Splits
               </Button>
@@ -81,7 +81,7 @@ export function Step3Validation({
                 size="sm"
                 loading={fixing}
                 onClick={onAutoFix}
-                leftIcon={<RotateCw className="h-3.5 w-3.5 text-amber-500" />}
+                leftIcon={<RotateCw className="h-3.5 w-3.5 text-status-warning-text" />}
               >
                 Auto-Resolve Ambiguities ({yellowCount})
               </Button>
@@ -92,40 +92,40 @@ export function Step3Validation({
 
       <CardContent className="space-y-4">
         {/* Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-sunken rounded-xl w-fit">
           <button
             onClick={() => onTabChange('ALL')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${activeTab === 'ALL' ? 'bg-white dark:bg-slate-900 shadow-xs' : 'text-slate-500'}`}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${activeTab === 'ALL' ? 'bg-surface text-primary shadow-xs' : 'text-muted'}`}
           >
             All Rows ({stagedRows.length})
           </button>
           <button
             onClick={() => onTabChange('GREEN')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${activeTab === 'GREEN' ? 'bg-white dark:bg-slate-900 text-emerald-600 shadow-xs' : 'text-slate-500'}`}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${activeTab === 'GREEN' ? 'bg-surface text-status-success-text shadow-xs' : 'text-muted'}`}
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="h-2 w-2 rounded-full bg-status-success" />
             Clean ({greenCount})
           </button>
           <button
             onClick={() => onTabChange('YELLOW')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${activeTab === 'YELLOW' ? 'bg-white dark:bg-slate-900 text-amber-600 shadow-xs' : 'text-slate-500'}`}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${activeTab === 'YELLOW' ? 'bg-surface text-status-warning-text shadow-xs' : 'text-muted'}`}
           >
-            <span className="h-2 w-2 rounded-full bg-amber-500" />
+            <span className="h-2 w-2 rounded-full bg-status-warning" />
             Warning ({yellowCount})
           </button>
           <button
             onClick={() => onTabChange('RED')}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${activeTab === 'RED' ? 'bg-white dark:bg-slate-900 text-rose-600 shadow-xs' : 'text-slate-500'}`}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${activeTab === 'RED' ? 'bg-surface text-status-danger-text shadow-xs' : 'text-muted'}`}
           >
-            <span className="h-2 w-2 rounded-full bg-rose-500" />
+            <span className="h-2 w-2 rounded-full bg-status-danger" />
             Blocked ({redCount})
           </button>
         </div>
 
         {/* Rows Table */}
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto max-h-96">
+        <div className="rounded-xl border border-default overflow-x-auto max-h-96">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 font-semibold text-slate-500 sticky top-0">
+            <thead className="bg-surface-sunken border-b border-default font-semibold text-muted sticky top-0">
               <tr>
                 <th className="py-2.5 px-3">#</th>
                 <th className="py-2.5 px-3">Status</th>
@@ -135,10 +135,10 @@ export function Step3Validation({
                 <th className="py-2.5 px-3">Errors / Rule Violations</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-subtle">
               {filteredRows.map((r, idx) => (
                 <tr key={r.id || idx}>
-                  <td className="py-2 px-3 text-slate-400">{idx + 1}</td>
+                  <td className="py-2 px-3 text-muted">{idx + 1}</td>
                   <td className="py-2 px-3">
                     <Badge
                       variant={getStatus(r) === 'GREEN' ? 'success' : getStatus(r) === 'YELLOW' ? 'warning' : 'danger'}
@@ -151,14 +151,14 @@ export function Step3Validation({
                   <td className="py-2 px-3 font-mono font-semibold">{r.parsedData?.voucherNumber || r.parsedData?.invoiceNumber || '—'}</td>
                   <td className="py-2 px-3 font-medium">{r.parsedData?.partyName || '—'}</td>
                   <td className="py-2 px-3 font-mono text-[11px]">{r.parsedData?.partyGstin || r.parsedData?.gstin || '—'}</td>
-                  <td className="py-2 px-3 text-[11px] text-slate-500">
+                  <td className="py-2 px-3 text-[11px] text-muted">
                     {(r.errorReasons || r.errors || []).map((err: any, eIdx: number) => (
-                      <span key={eIdx} className="block text-rose-600 dark:text-rose-400 font-medium">
+                      <span key={eIdx} className="block text-status-danger-text font-medium">
                         • {typeof err === 'string' ? err : err.message || JSON.stringify(err)}
                       </span>
                     ))}
                     {(!r.errorReasons || r.errorReasons.length === 0) && (!r.errors || r.errors.length === 0) && (
-                      <span className="text-emerald-600">Passed audit</span>
+                      <span className="text-status-success-text">Passed audit</span>
                     )}
                   </td>
                 </tr>

@@ -26,7 +26,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       value: formatInr(summary?.totalOutstanding),
       sub: `${summary?.partiesCount || 0} active debtors`,
       badge: 'Total AR',
-      border: 'border-l-4 border-l-blue-500',
+      border: 'border-l-4 border-l-brand',
       icon: Users,
     },
     {
@@ -34,7 +34,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       value: formatInr(summary?.current0To30),
       sub: 'Within regular payment terms',
       badge: 'Healthy',
-      border: 'border-l-4 border-l-emerald-500',
+      border: 'border-l-4 border-l-status-success',
       icon: ArrowUpRight,
     },
     {
@@ -42,7 +42,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       value: formatInr(summary?.days31To60),
       sub: 'Follow-up recommended',
       badge: 'Moderate',
-      border: 'border-l-4 border-l-amber-500',
+      border: 'border-l-4 border-l-status-warning',
       icon: Clock,
     },
     {
@@ -52,7 +52,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       ),
       sub: `DSO: ${summary?.dsoDays || 0} days avg`,
       badge: 'Attention',
-      border: 'border-l-4 border-l-rose-500',
+      border: 'border-l-4 border-l-status-danger',
       icon: Clock,
     },
   ];
@@ -62,19 +62,19 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       {cards.map((c, i) => (
         <Card
           key={i}
-          className={`p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs ${c.border}`}
+          className={`p-4 bg-surface border border-default rounded-xl shadow-xs ${c.border}`}
         >
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between text-xs font-semibold text-muted">
             <span>{c.title}</span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-surface-sunken text-secondary">
               {c.badge}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-black tracking-tight text-slate-900 dark:text-white tabular-nums">
+          <div className="mt-2 text-2xl font-black tracking-tight text-primary tabular-nums">
             {loading ? '...' : c.value}
           </div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-            <c.icon className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+            <c.icon className="h-3.5 w-3.5 text-muted" />
             <span>{c.sub}</span>
           </div>
         </Card>

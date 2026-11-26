@@ -90,16 +90,16 @@ export function ReconcileSettlementDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+      <DialogContent className="max-w-md bg-surface border border-default rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Scale className="h-5 w-5 text-indigo-600" />
+          <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
+            <Scale className="h-5 w-5 text-brand-text" />
             Reconcile Gateway Settlement
           </DialogTitle>
         </DialogHeader>
 
         {error && (
-          <div className="mt-3 p-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs rounded-lg border border-rose-200 dark:border-rose-900">
+          <div className="mt-3 p-2 bg-status-danger-subtle text-status-danger-text text-xs rounded-lg border border-status-danger">
             {error}
           </div>
         )}
@@ -107,7 +107,7 @@ export function ReconcileSettlementDialog({
         <div className="mt-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Gateway Provider
               </label>
               <div className="mt-1">
@@ -119,7 +119,7 @@ export function ReconcileSettlementDialog({
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Settlement ID
               </label>
               <Input
@@ -132,7 +132,7 @@ export function ReconcileSettlementDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Settlement Date
               </label>
               <Input
@@ -143,7 +143,7 @@ export function ReconcileSettlementDialog({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-secondary">
                 Bank UTR / Ref
               </label>
               <Input
@@ -154,53 +154,53 @@ export function ReconcileSettlementDialog({
             </div>
           </div>
 
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-2 border border-slate-100 dark:border-slate-800">
+          <div className="p-3 bg-surface-sunken rounded-xl space-y-2 border border-subtle">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                <label className="text-[11px] font-semibold text-muted">
                   Gross Collections (₹)
                 </label>
                 <Input
                   type="number"
                   value={grossAmount}
                   onChange={(e) => setGrossAmount(e.target.value)}
-                  className="mt-1 text-xs bg-white dark:bg-slate-900"
+                  className="mt-1 text-xs bg-surface"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                <label className="text-[11px] font-semibold text-muted">
                   Processing Fee (₹)
                 </label>
                 <Input
                   type="number"
                   value={feeAmount}
                   onChange={(e) => handleAutoCalculateTax(e.target.value)}
-                  className="mt-1 text-xs bg-white dark:bg-slate-900"
+                  className="mt-1 text-xs bg-surface"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                <label className="text-[11px] font-semibold text-muted">
                   GST on Fee (18%) (₹)
                 </label>
                 <Input
                   type="number"
                   value={taxOnFee}
                   onChange={(e) => setTaxOnFee(e.target.value)}
-                  className="mt-1 text-xs bg-white dark:bg-slate-900"
+                  className="mt-1 text-xs bg-surface"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                <label className="text-[11px] font-semibold text-muted">
                   Net Bank Credit (₹)
                 </label>
                 <Input
                   type="number"
                   value={netCreditAmount}
                   onChange={(e) => setNetCreditAmount(e.target.value)}
-                  className="mt-1 text-xs bg-white dark:bg-slate-900 font-bold"
+                  className="mt-1 text-xs bg-surface font-bold"
                 />
               </div>
             </div>
@@ -208,17 +208,17 @@ export function ReconcileSettlementDialog({
             {/* Validation Indicator */}
             <div className={`mt-2 p-2 rounded-lg text-xs flex items-center gap-2 ${
               isBalanced
-                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300'
+                ? 'bg-status-success-subtle text-status-success-text'
+                : 'bg-status-warning-subtle text-status-warning-text'
             }`}>
               {isBalanced ? (
                 <>
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success-text" />
                   <span>Double-entry balanced: Gross = Fee + GST + Net Credit.</span>
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-status-warning-text" />
                   <span>Imbalance: Gross - Fee - GST = ₹{expectedNet} (Diff: ₹{(expectedNet - net).toFixed(2)})</span>
                 </>
               )}
