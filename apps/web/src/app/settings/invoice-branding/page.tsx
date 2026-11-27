@@ -144,6 +144,13 @@ export default function InvoiceBrandingSettingsPage() {
     }
   };
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+  const resolveAssetSrc = (val: string) => {
+    if (!val) return '';
+    if (val.startsWith('/v1/')) return `${API_BASE_URL}${val}`;
+    return val;
+  };
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -155,10 +162,15 @@ export default function InvoiceBrandingSettingsPage() {
 
     try {
       setError(null);
-      const dataUri = await processImageFile(file, 1200);
-      setLogoUrl(dataUri);
+      const uploaded = await apiClient.uploadBrandingAsset(activeCompanyId, 'branding.logo_url', file);
+      setLogoUrl(uploaded.url);
     } catch {
-      setError('Failed to process logo image file');
+      try {
+        const dataUri = await processImageFile(file, 1200);
+        setLogoUrl(dataUri);
+      } catch {
+        setError('Failed to process logo image file');
+      }
     }
   };
 
@@ -173,10 +185,15 @@ export default function InvoiceBrandingSettingsPage() {
 
     try {
       setError(null);
-      const dataUri = await processImageFile(file, 800);
-      setSignatureUrl(dataUri);
+      const uploaded = await apiClient.uploadBrandingAsset(activeCompanyId, 'branding.signature_url', file);
+      setSignatureUrl(uploaded.url);
     } catch {
-      setError('Failed to process signature image');
+      try {
+        const dataUri = await processImageFile(file, 800);
+        setSignatureUrl(dataUri);
+      } catch {
+        setError('Failed to process signature image');
+      }
     }
   };
 
@@ -290,7 +307,7 @@ export default function InvoiceBrandingSettingsPage() {
             <div className="h-24 w-28 rounded-xl border-2 border-dashed border-strong bg-surface-sunken flex items-center justify-center p-2 shrink-0">
               {logoUrl ? (
                 <img
-                  src={logoUrl}
+                  src={resolveAssetSrc(logoUrl)}
                   alt="Company Logo"
                   className="max-h-full max-w-full object-contain"
                 />
@@ -419,7 +436,7 @@ export default function InvoiceBrandingSettingsPage() {
                 <div className="h-16 w-32 rounded border border-strong bg-surface flex items-center justify-center p-1.5 shrink-0">
                   {signatureUrl ? (
                     <img
-                      src={signatureUrl}
+                      src={resolveAssetSrc(signatureUrl)}
                       alt="Signature"
                       className="max-h-full max-w-full object-contain"
                     />
