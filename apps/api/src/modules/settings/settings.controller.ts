@@ -7,9 +7,15 @@ import {
   Body,
   Query,
   Request,
+  Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { SettingsService } from './settings.service';
 import { requireContext } from '../../common/http/request-context';
+import { Public } from '../../common/decorators/public.decorator';
 import { SettingScope, SettingResolutionContext } from '@platform/shared-types';
 
 @Controller('v1/companies/:companyId/settings')
@@ -146,6 +152,36 @@ export class SettingsController {
     @Param('docId') docId: string,
   ) {
     return this.settingsService.getDocumentSnapshot(docType, docId);
+  }
+
+  @Post('branding/upload')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  async uploadBrandingAsset(
+    @Param('companyId') companyId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('key') key: string,
+    @Request() req?: any,
+  ) {
+    const { userId } = this.getContext(req);
+    return this.settingsService.uploadBrandingAsset(companyId, key || 'invoice.logo_url', file, userId);
+  }
+
+  @Public()
+  @Get('branding/asset')
+  async getBrandingAsset(
+    @Param('companyId') companyId: string,
+    @Query('key') key: string,
+    @Res() res: Response,
+  ) {
+    const result = await this.settingsService.getBrandingAsset(companyId, key);
+    res.setHeader('Content-Type', result.contentType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return res.send(result.body);
+  }
+
+  @Post('branding/migrate')
+  async migrateBranding(@Param('companyId') companyId: string) {
+    return this.settingsService.migrateBrandingBase64ToStorage(companyId);
   }
 }
 

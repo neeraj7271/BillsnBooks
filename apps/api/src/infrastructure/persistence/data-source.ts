@@ -34,6 +34,8 @@ import { StaffAssignmentOrmEntity } from './entities/staff-assignment.orm-entity
 import { ComplianceTaskOrmEntity } from './entities/compliance-task.orm-entity';
 import { TaskCommentOrmEntity } from './entities/task-comment.orm-entity';
 import { ClientDocumentRequestOrmEntity } from './entities/client-document-request.orm-entity';
+import { DocumentFolderOrmEntity } from './entities/document-folder.orm-entity';
+import { DocumentFileOrmEntity } from './entities/document-file.orm-entity';
 import { RecurringScheduleOrmEntity } from './entities/recurring-schedule.orm-entity';
 import { PaymentLinkOrmEntity } from './entities/payment-link.orm-entity';
 import { GatewaySettlementOrmEntity } from './entities/gateway-settlement.orm-entity';
@@ -64,6 +66,7 @@ import { PartyMasterGstIntegrityAndSnapshots1731300000000 } from './migrations/1
 import { TenantRlsWithCheckAndAuditAppendOnly1731400000000 } from './migrations/1731400000000-TenantRlsWithCheckAndAuditAppendOnly';
 import { AuthSecurityDefinerHelpers1731500000000 } from './migrations/1731500000000-AuthSecurityDefinerHelpers';
 import { TenantRlsCollectionsAndRemainingTables1731600000000 } from './migrations/1731600000000-TenantRlsCollectionsAndRemainingTables';
+import { DocumentVaultAndStorage1731700000000 } from './migrations/1731700000000-DocumentVaultAndStorage';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -113,6 +116,8 @@ export const AppDataSource = new DataSource({
     ComplianceTaskOrmEntity,
     TaskCommentOrmEntity,
     ClientDocumentRequestOrmEntity,
+    DocumentFolderOrmEntity,
+    DocumentFileOrmEntity,
     RecurringScheduleOrmEntity,
     PaymentLinkOrmEntity,
     GatewaySettlementOrmEntity,
@@ -141,6 +146,7 @@ export const AppDataSource = new DataSource({
     TenantRlsWithCheckAndAuditAppendOnly1731400000000,
     AuthSecurityDefinerHelpers1731500000000,
     TenantRlsCollectionsAndRemainingTables1731600000000,
+    DocumentVaultAndStorage1731700000000,
   ],
   migrationsRun: false,
 });

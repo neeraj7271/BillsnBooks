@@ -2,12 +2,17 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PracticeController } from './practice.controller';
 import { PracticeService } from './practice.service';
+import { DocumentVaultService } from './document-vault.service';
 import { PersistenceModule } from '../../infrastructure/persistence/persistence.module';
 import { FirmClientOrmEntity } from '../../infrastructure/persistence/entities/firm-client.orm-entity';
 import { StaffAssignmentOrmEntity } from '../../infrastructure/persistence/entities/staff-assignment.orm-entity';
 import { ComplianceTaskOrmEntity } from '../../infrastructure/persistence/entities/compliance-task.orm-entity';
 import { TaskCommentOrmEntity } from '../../infrastructure/persistence/entities/task-comment.orm-entity';
 import { ClientDocumentRequestOrmEntity } from '../../infrastructure/persistence/entities/client-document-request.orm-entity';
+import { DocumentFolderOrmEntity } from '../../infrastructure/persistence/entities/document-folder.orm-entity';
+import { DocumentFileOrmEntity } from '../../infrastructure/persistence/entities/document-file.orm-entity';
+import { AuditLogOrmEntity } from '../../infrastructure/persistence/entities/audit-log.orm-entity';
+import { UserOrmEntity } from '../../infrastructure/persistence/entities/user.orm-entity';
 
 @Module({
   imports: [
@@ -18,11 +23,15 @@ import { ClientDocumentRequestOrmEntity } from '../../infrastructure/persistence
       ComplianceTaskOrmEntity,
       TaskCommentOrmEntity,
       ClientDocumentRequestOrmEntity,
+      DocumentFolderOrmEntity,
+      DocumentFileOrmEntity,
+      AuditLogOrmEntity,
+      UserOrmEntity,
     ]),
   ],
   controllers: [PracticeController],
-  providers: [PracticeService],
-  exports: [PracticeService],
+  providers: [PracticeService, DocumentVaultService],
+  exports: [PracticeService, DocumentVaultService],
 })
 export class PracticeModule {}
 
