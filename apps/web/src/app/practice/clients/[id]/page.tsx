@@ -30,6 +30,7 @@ import { DocumentVaultView } from '../../documents/document-vault-view';
 type TabKey =
   | 'OVERVIEW'
   | 'SERVICES'
+  | 'TEAM'
   | 'JOBS'
   | 'DOCUMENTS'
   | 'CREDENTIALS'
@@ -50,6 +51,9 @@ export default function Client360Page() {
   const [credentials, setCredentials] = useState<any[]>([]);
   const [credAudit, setCredAudit] = useState<any[]>([]);
   const [revealedMap, setRevealedMap] = useState<Record<string, string>>({});
+  const [clientTeam, setClientTeam] = useState<any>({ members: [], jobRoleAssignments: [], jobRoles: [], colleagues: [] });
+  const [teamUserId, setTeamUserId] = useState('');
+  const [teamJobRoleId, setTeamJobRoleId] = useState('');
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -118,7 +122,7 @@ export default function Client360Page() {
         });
       }
 
-      // Load credentials silently (will return 403 for CLIENT_VIEWER, which is expected)
+      // Load credentials & client team silently
       try {
         const [creds, audit] = await Promise.all([
           apiClient.listClientCredentials(clientId),
@@ -129,6 +133,12 @@ export default function Client360Page() {
       } catch {
         setCredentials([]);
       }
+      try {
+        const tm = await apiClient.getClientTeam(clientId);
+        setClientTeam(tm || { members: [], jobRoleAssignments: [], jobRoles: [], colleagues: [] });
+        if (!teamUserId && tm?.colleagues?.length > 0) setTeamUserId(tm.colleagues[0].id);
+        if (!teamJobRoleId && tm?.jobRoles?.length > 0) setTeamJobRoleId(tm.jobRoles[0].id);
+      } catch {}
     } finally {
       setLoading(false);
     }
@@ -280,6 +290,7 @@ export default function Client360Page() {
             [
               { key: 'OVERVIEW', label: 'Overview', icon: Building2 },
               { key: 'SERVICES', label: `Services (${data?.clientServices?.length || 0})`, icon: Boxes },
+              { key: 'TEAM', label: `Team (${clientTeam?.members?.length || 0})`, icon: Users },
               { key: 'JOBS', label: `Jobs (${data?.jobs?.length || 0})`, icon: Briefcase },
               { key: 'DOCUMENTS', label: 'Documents Vault', icon: FolderOpen },
               { key: 'CREDENTIALS', label: `Credentials (${credentials.length})`, icon: KeyRound },
@@ -676,6 +687,107 @@ export default function Client360Page() {
             </form>
           </CardContent>
         </Card>
+      )}
+
+      {/* TEAM & JOB ROLE ASSIGNMENTS */}
+      {tab === 'TEAM' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-base">Client Team &amp; Job Role Assignments</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="text-[11px] font-bold uppercase text-muted mb-2">Job Role Owners (Auto-assigned on Job Spawn)</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(clientTeam.jobRoles || []).map((jr: any) => {
+                    const current = (clientTeam.jobRoleAssignments || []).find((a: any) => a.jobRoleId === jr.id);
+                    return (
+                      <div key={jr.id} className="p-3 rounded-xl border border-default bg-surface-sunken/30 space-y-1.5">
+                        <div className="text-xs font-bold text-primary">{jr.name}</div>
+                        <select
+                          value={current?.userId || ''}
+                          onChange={async (e) => {
+                            if (!e.target.value) return;
+                            await apiClient.assignClientJobRole(clientId, { jobRoleId: jr.id, userId: e.target.value });
+                            await load360();
+                          }}
+                          aria-label={`Assign ${jr.name}`}
+                          className="w-full rounded-lg border border-default bg-surface px-2.5 py-1.5 text-xs text-primary"
+                        >
+                          <option value="">Unassigned</option>
+                          {(clientTeam.colleagues || []).map((col: any) => (
+                            <option key={col.id} value={col.id}>{col.name} ({col.role})</option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-default space-y-2">
+                <div className="text-[11px] font-bold uppercase text-muted">Client Team Members</div>
+                {(clientTeam.members || []).length === 0 ? (
+                  <p className="text-xs text-muted">No team members assigned yet.</p>
+                ) : (
+                  clientTeam.members.map((m: any) => (
+                    <div key={m.id} className="flex items-center justify-between p-2.5 rounded-xl border border-default text-xs">
+                      <div>
+                        <span className="font-bold text-primary">{m.user?.name || m.userId}</span>
+                        {m.jobRole && <Badge className="ml-2" variant="brand" size="xs">{m.jobRole.name}</Badge>}
+                      </div>
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        onClick={async () => {
+                          await apiClient.removeClientTeamMember(clientId, m.userId);
+                          await load360();
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-status-danger-text" />
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base">Add Colleague to Client</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <FormField label="Colleague">
+                <select value={teamUserId} onChange={(e) => setTeamUserId(e.target.value)} className="w-full rounded-xl border border-default bg-surface px-3 py-2 text-xs text-primary">
+                  {(clientTeam.colleagues || []).map((c: any) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.role})</option>
+                  ))}
+                </select>
+              </FormField>
+              <FormField label="Job Role">
+                <select value={teamJobRoleId} onChange={(e) => setTeamJobRoleId(e.target.value)} className="w-full rounded-xl border border-default bg-surface px-3 py-2 text-xs text-primary">
+                  {(clientTeam.jobRoles || []).map((r: any) => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
+              </FormField>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                className="w-full"
+                onClick={async () => {
+                  if (!teamUserId) return;
+                  await apiClient.addClientTeamMember(clientId, { userId: teamUserId, jobRoleId: teamJobRoleId || null });
+                  setNotice('Colleague added to client team.');
+                  await load360();
+                }}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" /> Assign to Client
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* JOBS */}
