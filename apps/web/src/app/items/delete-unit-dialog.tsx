@@ -75,14 +75,14 @@ export function DeleteUnitDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm" className="max-w-md">
+      <DialogContent size="xs">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
             <div
-              className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+              className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border ${
                 hasUsage
-                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
-                  : 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                  ? 'bg-status-warning-subtle text-status-warning-text border-default'
+                  : 'bg-status-danger-subtle text-status-danger-text border-default'
               }`}
             >
               {hasUsage ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
@@ -99,7 +99,7 @@ export function DeleteUnitDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-400 flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -107,7 +107,7 @@ export function DeleteUnitDialog({
 
         <div className="py-2 text-xs space-y-3">
           {hasUsage ? (
-            <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-300 space-y-2">
+            <div className="p-3 rounded-xl bg-status-warning-subtle border border-default text-status-warning-text space-y-2">
               <p className="font-medium">
                 This unit is currently assigned to{' '}
                 <strong>
@@ -115,17 +115,17 @@ export function DeleteUnitDialog({
                 </strong>
                 .
               </p>
-              <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
+              <p className="text-[11px] text-status-warning-text leading-relaxed">
                 To protect data integrity across your accounting catalog, please edit the item(s) below and assign them to a different unit before deleting this unit.
               </p>
               {assignedItems.length > 0 && (
-                <div className="mt-2 max-h-28 overflow-y-auto rounded-lg bg-white/70 dark:bg-slate-900/60 p-2 border border-amber-200/60 dark:border-amber-800/60 divide-y divide-amber-100 dark:divide-slate-800 text-[11px]">
+                <div className="mt-2 max-h-28 overflow-y-auto rounded-lg bg-surface p-2 border border-subtle divide-y divide-border-subtle text-[11px]">
                   {assignedItems.map((it) => (
                     <div key={it.id} className="py-1 flex items-center justify-between">
-                      <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                      <span className="font-mono font-bold text-primary">
                         {it.itemCode}
                       </span>
-                      <span className="text-slate-600 dark:text-slate-400 truncate max-w-[180px]">
+                      <span className="text-secondary truncate max-w-[180px]">
                         {it.name}
                       </span>
                     </div>
@@ -134,9 +134,9 @@ export function DeleteUnitDialog({
               )}
             </div>
           ) : (
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-secondary leading-relaxed">
               Are you sure you want to delete custom unit{' '}
-              <strong className="text-slate-900 dark:text-white font-mono">{unit.code}</strong> (
+              <strong className="text-primary font-mono">{unit.code}</strong> (
               {unit.name})? This unit will be removed from your company&apos;s active measurement units.
             </p>
           )}

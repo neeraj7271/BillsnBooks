@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -30,6 +31,7 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 
 interface Invoice {
   id: string;
@@ -61,6 +63,11 @@ export default function InvoicesPage() {
   const [cancelOpen, setCancelOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'invoices',
+    defaultPageSize: 25,
+  });
+
   useEffect(() => {
     loadInvoices();
   }, [statusFilter, activeCompanyId]);
@@ -73,7 +80,7 @@ export default function InvoicesPage() {
       const data = await apiClient.listInvoices(activeCompanyId, params);
       setInvoices(data || []);
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setLoading(false);
     }
@@ -85,7 +92,7 @@ export default function InvoicesPage() {
       await apiClient.convertToTaxInvoice(activeCompanyId, invoiceId);
       await loadInvoices();
     } catch (err: unknown) {
-      console.error('Failed to convert to tax invoice', err);
+      logger.error('Failed to convert to tax invoice', err);
     } finally {
       setConvertingId(null);
     }
@@ -103,7 +110,7 @@ export default function InvoicesPage() {
       setCancellingInvoice(null);
       await loadInvoices();
     } catch (err: unknown) {
-      console.error('Failed to cancel invoice', err);
+      logger.error('Failed to cancel invoice', err);
     }
   };
 
@@ -134,7 +141,7 @@ export default function InvoicesPage() {
         <div>
           <Link
             href={`/invoices/${inv.id}`}
-            className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+            className="font-mono font-bold text-xs text-brand-text hover:underline inline-flex items-center gap-1"
           >
             {inv.invoiceNumber}
             <ExternalLink className="h-3 w-3 opacity-60" />
@@ -171,8 +178,8 @@ export default function InvoicesPage() {
       header: 'Customer Party',
       cell: (inv) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{inv.party?.name || 'Customer'}</div>
-          {inv.party?.gstin && <div className="font-mono text-[10px] text-slate-400">{inv.party.gstin}</div>}
+          <div className="font-bold text-primary">{inv.party?.name || 'Customer'}</div>
+          {inv.party?.gstin && <div className="font-mono text-[10px] text-muted">{inv.party.gstin}</div>}
         </div>
       ),
     },
@@ -195,7 +202,7 @@ export default function InvoicesPage() {
       key: 'totalAmount',
       header: 'Total Amount',
       align: 'right',
-      cell: (inv) => <MoneyText amount={inv.totalAmount} className="font-bold text-slate-900 dark:text-white" />,
+      cell: (inv) => <MoneyText amount={inv.totalAmount} className="font-bold text-primary" />,
     },
     {
       key: 'status',
@@ -224,7 +231,7 @@ export default function InvoicesPage() {
               size="icon"
               onClick={() => handleConvertToTaxInvoice(inv.id)}
               loading={convertingId === inv.id}
-              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-lg transition"
+              className="h-8 w-8 text-brand-text hover:bg-brand-subtle rounded-lg transition"
               title="Convert to Tax Invoice"
               aria-label="Convert to Tax Invoice"
             >
@@ -237,7 +244,7 @@ export default function InvoicesPage() {
               variant="ghost"
               size="icon"
               asChild
-              className="h-8 w-8 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/50 rounded-lg transition"
+              className="h-8 w-8 text-secondary hover:text-status-warning-text hover:bg-status-warning-subtle rounded-lg transition"
               title="Edit Invoice"
             >
               <Link
@@ -254,7 +261,7 @@ export default function InvoicesPage() {
             variant="ghost"
             size="icon"
             asChild
-            className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-lg transition"
+            className="h-8 w-8 text-secondary hover:text-brand-text hover:bg-brand-subtle rounded-lg transition"
             title="View & Print Invoice"
           >
             <Link
@@ -270,7 +277,7 @@ export default function InvoicesPage() {
             variant="ghost"
             size="icon"
             asChild
-            className="h-8 w-8 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition"
+            className="h-8 w-8 text-secondary hover:text-brand-text hover:bg-brand-subtle rounded-lg transition"
             title="Duplicate / Copy to New"
           >
             <Link
@@ -290,7 +297,7 @@ export default function InvoicesPage() {
                 setCancellingInvoice(inv);
                 setCancelOpen(true);
               }}
-              className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition"
+              className="h-8 w-8 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle rounded-lg transition"
               title="Cancel Invoice (Rule 46)"
               aria-label="Cancel Invoice"
             >
@@ -308,12 +315,12 @@ export default function InvoicesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               GST Tax Invoices
             </h1>
             <Badge variant="brand" size="sm">Rule 46 Compliant</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             GST compliant billing with automated double-entry ledger posting and maker-checker approvals.
           </p>
         </div>
@@ -322,13 +329,11 @@ export default function InvoicesPage() {
           <Button variant="outline" size="sm" onClick={loadInvoices} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
-          <Link
-            href="/invoices/new"
-            className="h-8 px-3.5 rounded-lg bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] text-white font-semibold text-xs shadow-sm hover:shadow-md hover:shadow-blue-500/20 transition-all inline-flex items-center gap-1.5 cursor-pointer select-none"
-          >
-            <Plus className="h-3.5 w-3.5 text-blue-200" />
-            <span>Create Tax Invoice</span>
-          </Link>
+          <Button variant="primary" size="sm" asChild leftIcon={<Plus className="h-3.5 w-3.5" />}>
+            <Link href="/invoices/new">
+              Create Tax Invoice
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -336,40 +341,40 @@ export default function InvoicesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between text-xs font-semibold text-secondary">
               <span>Total Invoiced</span>
-              <Receipt className="h-4 w-4 text-blue-500" />
+              <Receipt className="h-4 w-4 text-brand-text" />
             </div>
-            <div className="mt-2 text-xl font-black text-slate-900 dark:text-white">
+            <div className="mt-2 text-xl font-black text-primary">
               <MoneyText amount={totalBilled} />
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">{invoices.length} invoices generated</p>
+            <p className="mt-1 text-[11px] text-muted">{invoices.length} invoices generated</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between text-xs font-semibold text-secondary">
               <span>Issued & Posted</span>
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              <CheckCircle2 className="h-4 w-4 text-status-success-text" />
             </div>
-            <div className="mt-2 text-xl font-black text-emerald-600 dark:text-emerald-400">
+            <div className="mt-2 text-xl font-black text-status-success-text">
               {issuedCount}
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Posted directly to double-entry ledger</p>
+            <p className="mt-1 text-[11px] text-muted">Posted directly to double-entry ledger</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between text-xs font-semibold text-secondary">
               <span>Awaiting Approval</span>
-              <Clock className="h-4 w-4 text-amber-500" />
+              <Clock className="h-4 w-4 text-status-warning-text" />
             </div>
-            <div className="mt-2 text-xl font-black text-amber-600 dark:text-amber-400">
+            <div className="mt-2 text-xl font-black text-status-warning-text">
               {pendingCount}
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Maker-checker approval queue</p>
+            <p className="mt-1 text-[11px] text-muted">Maker-checker approval queue</p>
           </CardContent>
         </Card>
       </div>
@@ -388,7 +393,7 @@ export default function InvoicesPage() {
           </div>
 
           {/* Document Type Selector */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto w-full sm:w-auto">
+          <div className="flex items-center gap-1 p-1 bg-surface-sunken rounded-xl overflow-x-auto w-full sm:w-auto">
             {[
               { id: 'ALL', label: 'All' },
               { id: 'TAX_INVOICE', label: 'Tax Invoices' },
@@ -400,8 +405,8 @@ export default function InvoicesPage() {
                 onClick={() => setDocTypeFilter(dt.id)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                   docTypeFilter === dt.id
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-brand text-inverse shadow-xs'
+                    : 'text-secondary hover:text-primary'
                 }`}
               >
                 {dt.label}
@@ -410,15 +415,15 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-sunken rounded-xl overflow-x-auto">
           {['ALL', 'ISSUED', 'PENDING_APPROVAL', 'CANCELLED', 'DRAFT'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                 statusFilter === st
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-surface text-primary shadow-xs'
+                  : 'text-secondary hover:text-primary'
               }`}
             >
               {st === 'ALL' ? 'All Invoices' : st === 'PENDING_APPROVAL' ? 'Pending Approval' : st}
@@ -432,51 +437,64 @@ export default function InvoicesPage() {
         columns={columns}
         data={filteredInvoices}
         loading={loading}
-        emptyTitle="No invoices found"
-        emptyDescription="Create your first GST tax invoice to generate canonical vouchers."
+        page={page}
+        pageSize={pageSize}
+        totalItems={filteredInvoices.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="invoices"
+        isFiltered={statusFilter !== 'ALL' || docTypeFilter !== 'ALL' || Boolean(searchTerm.trim())}
+        onClearFilters={() => {
+          setStatusFilter('ALL');
+          setDocTypeFilter('ALL');
+          setSearchTerm('');
+        }}
+        emptyTitle="No invoices yet"
+        emptyDescription="Create your first GST invoice."
+        emptyAction={{ label: 'New Invoice', onClick: () => window.location.href = '/invoices/new' }}
       />
 
       {/* Table Actions Legend */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl text-xs text-slate-500 dark:text-slate-400">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-surface-sunken border border-subtle rounded-2xl text-xs text-secondary">
         <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            Showing <strong className="text-slate-700 dark:text-slate-200">{filteredInvoices.length}</strong> of{' '}
-            <strong className="text-slate-700 dark:text-slate-200">{invoices.length}</strong> document{invoices.length === 1 ? '' : 's'}
+          <span className="h-1.5 w-1.5 rounded-full bg-border-strong" />
+          <span className="text-[11px] font-medium text-secondary">
+            Showing <strong className="text-primary">{filteredInvoices.length}</strong> of{' '}
+            <strong className="text-primary">{invoices.length}</strong> document{invoices.length === 1 ? '' : 's'}
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-          <span className="font-semibold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">
+          <span className="font-semibold text-secondary text-[11px] uppercase tracking-wider">
             Quick Actions:
           </span>
 
           <div className="inline-flex items-center gap-2">
-            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/50 shadow-2xs">
+            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-brand-subtle text-brand-text border border-subtle shadow-2xs">
               <Eye className="h-3.5 w-3.5" />
             </span>
-            <span className="font-medium text-slate-600 dark:text-slate-300">View / Print</span>
+            <span className="font-medium text-secondary">View / Print</span>
           </div>
 
           <div className="inline-flex items-center gap-2">
-            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-amber-50 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/50 shadow-2xs">
+            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-status-warning-subtle text-status-warning-text border border-subtle shadow-2xs">
               <Pencil className="h-3.5 w-3.5" />
             </span>
-            <span className="font-medium text-slate-600 dark:text-slate-300">Edit Draft</span>
+            <span className="font-medium text-secondary">Edit Draft</span>
           </div>
 
           <div className="inline-flex items-center gap-2">
-            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-900/50 shadow-2xs">
+            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-brand-subtle text-brand-text border border-subtle shadow-2xs">
               <Copy className="h-3.5 w-3.5" />
             </span>
-            <span className="font-medium text-slate-600 dark:text-slate-300">Duplicate</span>
+            <span className="font-medium text-secondary">Duplicate</span>
           </div>
 
           <div className="inline-flex items-center gap-2">
-            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 border border-rose-200/50 dark:border-rose-900/50 shadow-2xs">
+            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-status-danger-subtle text-status-danger-text border border-subtle shadow-2xs">
               <Ban className="h-3.5 w-3.5" />
             </span>
-            <span className="font-medium text-slate-600 dark:text-slate-300">Cancel (Rule 46)</span>
+            <span className="font-medium text-secondary">Cancel (Rule 46)</span>
           </div>
         </div>
       </div>

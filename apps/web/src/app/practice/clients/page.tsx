@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import {
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { ClientDialog } from './client-dialog';
 import { ClientStatsCards } from './client-stats-cards';
 
@@ -34,13 +36,18 @@ export default function ClientsDirectoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [openOnboardModal, setOpenOnboardModal] = useState(false);
 
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'practice_clients',
+    defaultPageSize: 25,
+  });
+
   const loadClients = async () => {
     setLoading(true);
     try {
       const data = await apiClient.listPracticeClients();
       setClients(data || []);
     } catch (err: unknown) {
-      console.error('Failed to load practice clients', err);
+      logger.error('Failed to load practice clients', err);
     } finally {
       setLoading(false);
     }
@@ -65,8 +72,15 @@ export default function ClientsDirectoryPage() {
       key: 'companyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{row.companyName}</div>
-          <div className="text-[11px] font-mono text-slate-400 dark:text-slate-500">{row.clientCode}</div>
+          <Link href={`/practice/clients/${row.id}`} className="font-bold text-brand-text hover:underline">
+            {row.companyName}
+          </Link>
+          <div className="text-[11px] font-mono text-muted flex items-center gap-2">
+            <span>{row.clientCode}</span>
+            <Link href={`/practice/clients/${row.id}/vault`} className="text-secondary hover:text-primary underline">
+              Vault
+            </Link>
+          </div>
         </div>
       ),
     },
@@ -75,8 +89,8 @@ export default function ClientsDirectoryPage() {
       key: 'primaryContactName',
       cell: (row) => (
         <div>
-          <div className="font-medium text-slate-800 dark:text-slate-200">{row.primaryContactName}</div>
-          <div className="text-xs text-slate-400 dark:text-slate-500">{row.primaryContactEmail}</div>
+          <div className="font-medium text-primary">{row.primaryContactName}</div>
+          <div className="text-xs text-muted">{row.primaryContactEmail}</div>
         </div>
       ),
     },
@@ -85,10 +99,10 @@ export default function ClientsDirectoryPage() {
       key: 'engagementType',
       cell: (row) => (
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <span className="text-xs font-semibold text-secondary">
             {row.engagementType.replace('_', ' ')}
           </span>
-          <span className="text-[10px] font-mono uppercase text-slate-400">
+          <span className="text-[10px] font-mono uppercase text-muted">
             Tier: {row.serviceTier}
           </span>
         </div>
@@ -118,7 +132,7 @@ export default function ClientsDirectoryPage() {
       cell: (row) => (
         <Link
           href={`/practice/tasks?clientId=${row.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-text hover:underline"
         >
           <CheckSquare className="h-3.5 w-3.5" />
           {row.openTaskCount} Open
@@ -131,7 +145,7 @@ export default function ClientsDirectoryPage() {
       cell: (row) => (
         <Link
           href={`/practice/documents?clientId=${row.id}`}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-secondary hover:text-primary"
         >
           <FileSpreadsheet className="h-3.5 w-3.5" />
           {row.pendingDocCount} Pending
@@ -146,12 +160,12 @@ export default function ClientsDirectoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               CA Firm Practice Command
             </h1>
             <Badge variant="brand" size="sm">CA Practice</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             Multi-client governance, statutory task allocation, and client document portal.
           </p>
         </div>
@@ -171,8 +185,9 @@ export default function ClientsDirectoryPage() {
             size="sm"
             onClick={() => setOpenOnboardModal(true)}
             leftIcon={<Plus className="h-3.5 w-3.5" />}
+            aria-label="New Client · Onboard Client"
           >
-            Onboard Client
+            New Client
           </Button>
         </div>
       </div>
@@ -183,7 +198,7 @@ export default function ClientsDirectoryPage() {
       {/* Search Bar */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
           <Input
             placeholder="Search by client name, code, contact..."
             value={searchTerm}
@@ -198,8 +213,17 @@ export default function ClientsDirectoryPage() {
         columns={columns}
         data={filteredClients}
         loading={loading}
-        emptyTitle="No clients onboarded yet"
-        emptyDescription="Onboard your first enterprise client entity to start managing statutory deadlines."
+        page={page}
+        pageSize={pageSize}
+        totalItems={filteredClients.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="practice_clients"
+        isFiltered={Boolean(searchTerm.trim())}
+        onClearFilters={() => setSearchTerm('')}
+        emptyTitle="No clients yet"
+        emptyDescription="Invite a client to start their file."
+        emptyAction={{ label: 'New Client', onClick: () => setOpenOnboardModal(true) }}
       />
 
       <ClientDialog

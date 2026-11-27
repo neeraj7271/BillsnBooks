@@ -7,6 +7,20 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['var(--font-jetbrains-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      fontSize: {
+        display: ['1.75rem', { lineHeight: '2.125rem', letterSpacing: '-0.02em', fontWeight: '700' }],
+        h1: ['1.375rem', { lineHeight: '1.75rem', letterSpacing: '-0.015em', fontWeight: '700' }],
+        h2: ['1.125rem', { lineHeight: '1.5rem', letterSpacing: '-0.01em', fontWeight: '600' }],
+        h3: ['0.9375rem', { lineHeight: '1.375rem', fontWeight: '600' }],
+        body: ['0.875rem', { lineHeight: '1.3125rem' }],
+        'body-sm': ['0.8125rem', { lineHeight: '1.1875rem' }],
+        caption: ['0.75rem', { lineHeight: '1rem' }],
+        overline: ['0.6875rem', { lineHeight: '0.875rem', letterSpacing: '0.06em', fontWeight: '600' }],
+      },
       colors: {
         canvas: 'var(--color-bg)',
         surface: {
@@ -18,6 +32,7 @@ module.exports = {
         border: {
           subtle: 'var(--color-border-subtle)',
           DEFAULT: 'var(--color-border)',
+          default: 'var(--color-border)',
           strong: 'var(--color-border-strong)',
           focus: 'var(--color-border-focus)',
         },
@@ -27,17 +42,16 @@ module.exports = {
         },
         secondary: 'var(--color-text-secondary)',
         muted: 'var(--color-text-muted)',
+        inverse: 'var(--color-text-inverse)',
+        'row-hover': 'var(--color-row-hover)',
+        'row-stripe': 'var(--color-row-stripe)',
+        'focus-ring': 'var(--color-focus-ring)',
+        skeleton: 'var(--color-skeleton)',
         brand: {
           DEFAULT: 'var(--color-brand)',
           hover: 'var(--color-brand-hover)',
           subtle: 'var(--color-brand-subtle)',
           text: 'var(--color-brand-text)',
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          900: '#312e81',
         },
         status: {
           success: 'var(--color-success)',

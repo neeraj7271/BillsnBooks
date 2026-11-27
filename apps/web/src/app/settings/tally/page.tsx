@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,6 +10,7 @@ import {
   CardContent,
   Button,
   Badge,
+  LoadingState,
 } from '@platform/ui';
 import {
   Server,
@@ -45,7 +47,7 @@ export default function TallySettingsPage() {
       setMasters(m || []);
       setXmlPreview(xmlRes?.xml || '');
     } catch (err: unknown) {
-      console.error('Tally fetch error:', err);
+      logger.error('Tally fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -83,18 +85,26 @@ export default function TallySettingsPage() {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6 pb-12 pt-4">
+        <LoadingState variant="cards" rows={4} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               TallyPrime Connector Bridge
             </h1>
             <Badge variant="brand" size="sm">Gateway</Badge>
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-secondary mt-1">
             Real-time bridge linking cloud operations with on-premise Windows TallyPrime installations.
           </p>
         </div>
@@ -125,8 +135,8 @@ export default function TallySettingsPage() {
         <div
           className={`p-3 rounded-xl border text-xs font-medium ${
             message.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 text-emerald-700 dark:text-emerald-300'
-              : 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 text-rose-700 dark:text-rose-300'
+              ? 'bg-status-success-subtle border-default text-status-success-text'
+              : 'bg-status-danger-subtle border-default text-status-danger-text'
           }`}
         >
           {message.text}
@@ -138,11 +148,11 @@ export default function TallySettingsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Connector Agent Status</span>
-              <Radio className="h-4 w-4 text-emerald-500 animate-pulse" />
+              <span className="text-xs font-semibold text-secondary">Connector Agent Status</span>
+              <Radio className="h-4 w-4 text-status-success-text animate-pulse" />
             </div>
             <CardTitle className="text-lg flex items-center gap-2 mt-1">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+              <span className="h-2 w-2 rounded-full bg-status-success inline-block" />
               {connector?.status || 'ONLINE'}
             </CardTitle>
             <CardDescription className="text-xs">
@@ -151,12 +161,12 @@ export default function TallySettingsPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-slate-500">Target Tally Version:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">TallyPrime 4.1</span>
+              <span className="text-secondary">Target Tally Version:</span>
+              <span className="font-semibold text-primary">TallyPrime 4.1</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Sync Port:</span>
-              <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">9000 (XML Server)</span>
+              <span className="text-secondary">Sync Port:</span>
+              <span className="font-mono font-semibold text-primary">9000 (XML Server)</span>
             </div>
           </CardContent>
         </Card>
@@ -164,8 +174,8 @@ export default function TallySettingsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Mapped Masters</span>
-              <Building className="h-4 w-4 text-blue-500" />
+              <span className="text-xs font-semibold text-secondary">Mapped Masters</span>
+              <Building className="h-4 w-4 text-brand-text" />
             </div>
             <CardTitle className="text-lg mt-1">{masters.length} Entities</CardTitle>
             <CardDescription className="text-xs">
@@ -174,12 +184,12 @@ export default function TallySettingsPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-slate-500">GUID Read-Back:</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">100% Verified</span>
+              <span className="text-secondary">GUID Read-Back:</span>
+              <span className="font-semibold text-status-success-text">100% Verified</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Deduplication:</span>
-              <span className="font-semibold text-blue-600 dark:text-blue-400">Zero Duplicates</span>
+              <span className="text-secondary">Deduplication:</span>
+              <span className="font-semibold text-brand-text">Zero Duplicates</span>
             </div>
           </CardContent>
         </Card>
@@ -187,8 +197,8 @@ export default function TallySettingsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Audit Protocol</span>
-              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              <span className="text-xs font-semibold text-secondary">Audit Protocol</span>
+              <ShieldCheck className="h-4 w-4 text-status-success-text" />
             </div>
             <CardTitle className="text-lg mt-1">Biometric Handshake</CardTitle>
             <CardDescription className="text-xs">
@@ -197,12 +207,12 @@ export default function TallySettingsPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-slate-500">TLS Gateway:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">mTLS Enforced</span>
+              <span className="text-secondary">TLS Gateway:</span>
+              <span className="font-semibold text-primary">mTLS Enforced</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Sync Frequency:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">Real-Time Event Stream</span>
+              <span className="text-secondary">Sync Frequency:</span>
+              <span className="font-semibold text-primary">Real-Time Event Stream</span>
             </div>
           </CardContent>
         </Card>
@@ -222,14 +232,18 @@ export default function TallySettingsPage() {
               variant="outline"
               size="xs"
               onClick={handleCopyXml}
-              leftIcon={copied ? <Check className="h-3 w-3 text-emerald-500" /> : <FileCode className="h-3 w-3" />}
+              leftIcon={copied ? <Check className="h-3 w-3 text-status-success-text" /> : <FileCode className="h-3 w-3" />}
             >
               {copied ? 'Copied XML' : 'Copy Payload'}
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <pre className="p-4 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] overflow-x-auto max-h-72">
+          <pre
+            tabIndex={0}
+            aria-label="Tally XML Payload"
+            className="p-4 rounded-xl bg-surface-sunken text-primary border border-default font-mono text-[11px] overflow-x-auto max-h-72 focus:outline-none focus:ring-1 focus:ring-focus-ring"
+          >
             {xmlPreview || '<ENVELOPE>\n  <HEADER>\n    <TALLYREQUEST>Import Data</TALLYREQUEST>\n  </HEADER>\n</ENVELOPE>'}
           </pre>
         </CardContent>

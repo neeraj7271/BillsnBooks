@@ -1,14 +1,16 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users, Plus, RefreshCw, Search, Eye, Edit, Trash2, AlertCircle, FileText } from 'lucide-react';
+import { Users, Plus, RefreshCw, Search, Eye, Edit, Trash2, AlertCircle, FileText, UploadCloud } from 'lucide-react';
 import {
   Button,
   Badge,
   Input,
   DataTable,
   MoneyText,
+  MonoCopyable,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -20,8 +22,10 @@ import {
 import { formatPartyTaxIdentity, PartyRegistrationType } from '@platform/shared-types';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { PartyDialog } from './party-dialog';
 import { PartyDetailsDialog } from './party-details-dialog';
+import { ImportPartiesModal } from './import-parties-modal';
 
 interface Party {
   id: string;
@@ -54,11 +58,23 @@ export default function PartiesPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 10;
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUserRole(localStorage.getItem('antigravity_user_role') || '');
+    }
+  }, []);
+  const isReadOnly = userRole === 'CLIENT_VIEWER';
+
+  const { page: currentPage, pageSize, setPage: setCurrentPage, setPageSize } = useTablePagination({
+    storageKey: 'parties',
+    defaultPageSize: 25,
+  });
 
   // Modals state
   const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [selectedPartyForEdit, setSelectedPartyForEdit] = useState<Party | null>(null);
   const [selectedPartyForView, setSelectedPartyForView] = useState<Party | null>(null);
 
@@ -78,7 +94,7 @@ export default function PartiesPage() {
       const data = await apiClient.listParties(activeCompanyId, typeParam);
       setParties(data || []);
     } catch (err: unknown) {
-      console.error('Failed to list parties:', err);
+      logger.error('Failed to list parties:', err);
     } finally {
       setLoading(false);
     }
@@ -142,14 +158,14 @@ export default function PartiesPage() {
       cell: (p) => (
         <div>
           <div className="flex items-center gap-1.5">
-            <span className="font-bold text-slate-900 dark:text-white">{p.name}</span>
+            <span className="font-bold text-primary">{p.name}</span>
             {p.partyCode && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-sunken text-muted font-medium">
                 {p.partyCode}
               </span>
             )}
           </div>
-          {p.tradeName && <div className="text-[11px] text-slate-400">{p.tradeName}</div>}
+          {p.tradeName && <div className="text-[11px] text-muted">{p.tradeName}</div>}
         </div>
       ),
     },
@@ -176,13 +192,14 @@ export default function PartiesPage() {
               {identity.badgeLabel}
             </Badge>
             {identity.showGstin && p.gstin ? (
-              <div className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
-                {p.gstin}
+              <div>
+                <MonoCopyable value={p.gstin} label="GSTIN" />
               </div>
             ) : null}
             {p.pan && (
-              <div className="text-[10px] font-mono text-slate-400">
-                PAN: {p.pan}
+              <div className="text-[10px] text-muted flex items-center gap-1">
+                <span>PAN:</span>
+                <MonoCopyable value={p.pan} label="PAN" className="text-[10px]" />
               </div>
             )}
           </div>
@@ -193,9 +210,9 @@ export default function PartiesPage() {
       key: 'location',
       header: 'Location / State',
       cell: (p) => (
-        <div className="text-xs text-slate-600 dark:text-slate-400">
+        <div className="text-xs text-secondary">
           <div>{p.billingCity || '—'}</div>
-          <div className="text-[10px] text-slate-400">{p.billingState || 'India'} ({p.billingStateCode || '27'})</div>
+          <div className="text-[10px] text-muted">{p.billingState || 'India'} ({p.billingStateCode || '27'})</div>
         </div>
       ),
     },
@@ -217,7 +234,7 @@ export default function PartiesPage() {
                 ? `/reports/general-ledger?ledgerId=${p.ledgerId}`
                 : `/reports/general-ledger?partyName=${encodeURIComponent(p.name)}`
             }
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition"
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-muted hover:text-brand-text hover:bg-brand-subtle transition"
             title="View Statement of Account / General Ledger"
           >
             <FileText className="h-3.5 w-3.5" />
@@ -225,7 +242,7 @@ export default function PartiesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-status-info-text hover:bg-status-info-subtle"
             title="View full party profile"
             onClick={() => setSelectedPartyForView(p)}
           >
@@ -234,7 +251,7 @@ export default function PartiesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-status-success-text hover:bg-status-success-subtle"
             title="Edit counterparty"
             onClick={() => handleOpenEdit(p)}
           >
@@ -243,7 +260,7 @@ export default function PartiesPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+            className="h-8 w-8 p-0 text-muted hover:text-status-danger-text hover:bg-status-danger-subtle"
             title="Delete / Deactivate"
             onClick={() => handleOpenDelete(p)}
           >
@@ -260,12 +277,12 @@ export default function PartiesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Parties & Counterparties
             </h1>
             <Badge variant="neutral" size="sm">{filteredParties.length} Entities</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted">
             Customers (Debtors) and Vendors (Creditors) master ledger with statutory GSTIN validation.
           </p>
         </div>
@@ -274,9 +291,16 @@ export default function PartiesPage() {
           <Button variant="outline" size="sm" onClick={loadParties} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
-          <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-            New Party
-          </Button>
+          {!isReadOnly && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)} leftIcon={<UploadCloud className="h-3.5 w-3.5" />}>
+                Import
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
+                New Party
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -295,7 +319,7 @@ export default function PartiesPage() {
           />
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-sunken rounded-xl">
           {['ALL', 'CUSTOMER', 'VENDOR'].map((t) => (
             <button
               key={t}
@@ -305,8 +329,8 @@ export default function PartiesPage() {
               }}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
                 filterType === t
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-surface text-primary shadow-xs'
+                  : 'text-muted hover:text-primary'
               }`}
             >
               {t === 'ALL' ? 'All Counterparties' : t === 'CUSTOMER' ? 'Customers' : 'Vendors'}
@@ -318,14 +342,22 @@ export default function PartiesPage() {
       {/* Data Table */}
       <DataTable
         columns={columns}
-        data={paginatedParties}
+        data={filteredParties}
         loading={loading}
         page={currentPage}
         pageSize={pageSize}
         totalItems={filteredParties.length}
         onPageChange={setCurrentPage}
-        emptyTitle="No counterparties registered"
-        emptyDescription="Create your first customer or vendor to enable GST invoicing."
+        onPageSizeChange={setPageSize}
+        storageKey="parties"
+        emptyTitle="No parties yet"
+        emptyDescription="Add a customer or vendor to start billing."
+        emptyAction={{ label: 'Add Party', onClick: () => setShowAddEditModal(true) }}
+        isFiltered={filterType !== 'ALL' || Boolean(searchTerm.trim())}
+        onClearFilters={() => {
+          setFilterType('ALL');
+          setSearchTerm('');
+        }}
       />
 
       {/* Create / Edit Dialog */}
@@ -363,16 +395,16 @@ export default function PartiesPage() {
           </DialogHeader>
 
           {deleteError ? (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-400 space-y-1">
+            <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text space-y-1">
               <div className="font-semibold flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4 text-rose-600" />
+                <AlertCircle className="w-4 h-4 text-status-danger-text" />
                 Accounting Protection Alert
               </div>
               <p>{deleteError}</p>
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-400">
-              <span className="font-semibold text-slate-800 dark:text-slate-200 block mb-1">
+            <div className="p-3.5 rounded-xl bg-surface-sunken border border-default text-xs text-secondary">
+              <span className="font-semibold text-primary block mb-1">
                 Double-Entry Accounting Safeguard:
               </span>
               If this party has posted vouchers or invoices, removal is safely blocked to protect ledger integrity. If no transactions exist, it will be deactivated and removed from active directories.
@@ -399,6 +431,12 @@ export default function PartiesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ImportPartiesModal
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onSuccess={loadParties}
+      />
     </div>
   );
 }

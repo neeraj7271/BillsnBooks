@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -16,9 +17,11 @@ import {
   Pause,
   CheckCircle2,
   AlertCircle,
+  Edit,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { RecurringScheduleDialog } from './recurring-schedule-dialog';
 import {
   RecurringScheduleStatus,
@@ -30,8 +33,14 @@ export default function RecurringSchedulesPage() {
   const [schedules, setSchedules] = useState<RecurringScheduleDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<RecurringScheduleDto | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'recurring_schedules',
+    defaultPageSize: 25,
+  });
 
   const loadSchedules = async () => {
     setLoading(true);
@@ -39,7 +48,7 @@ export default function RecurringSchedulesPage() {
       const data = await apiClient.listRecurringSchedules(activeCompanyId);
       setSchedules(data || []);
     } catch (err: unknown) {
-      console.error('Failed to load recurring schedules', err);
+      logger.error('Failed to load recurring schedules', err);
     } finally {
       setLoading(false);
     }
@@ -59,7 +68,7 @@ export default function RecurringSchedulesPage() {
       await apiClient.updateRecurringScheduleStatus(undefined, schedule.id, newStatus);
       await loadSchedules();
     } catch (err: unknown) {
-      console.error('Failed to update status', err);
+      logger.error('Failed to update status', err);
     } finally {
       setActionLoadingId(null);
     }
@@ -75,7 +84,7 @@ export default function RecurringSchedulesPage() {
       );
       await loadSchedules();
     } catch (err: unknown) {
-      console.error('Failed to trigger recurring run', err);
+      logger.error('Failed to trigger recurring run', err);
     } finally {
       setActionLoadingId(null);
     }
@@ -91,8 +100,8 @@ export default function RecurringSchedulesPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{row.partyName || 'Customer'}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="font-bold text-primary">{row.partyName || 'Customer'}</div>
+          <div className="text-[11px] text-muted">
             {row.templatePayload.items[0]?.description || 'Billing Template'}
           </div>
         </div>
@@ -102,7 +111,7 @@ export default function RecurringSchedulesPage() {
       header: 'Cadence',
       key: 'frequency',
       cell: (row) => (
-        <span className="font-semibold text-slate-700 dark:text-slate-300 capitalize text-xs">
+        <span className="font-semibold text-secondary capitalize text-xs">
           {row.frequency.toLowerCase()}
         </span>
       ),
@@ -111,7 +120,7 @@ export default function RecurringSchedulesPage() {
       header: 'Next Run Date',
       key: 'nextRunDate',
       cell: (row) => (
-        <span className="font-mono text-xs font-semibold text-blue-600 dark:text-blue-400">
+        <span className="font-mono text-xs font-semibold text-brand-text">
           {row.nextRunDate}
         </span>
       ),
@@ -120,7 +129,7 @@ export default function RecurringSchedulesPage() {
       header: 'Last Run Date',
       key: 'lastRunDate',
       cell: (row) => (
-        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+        <span className="font-mono text-xs text-muted">
           {row.lastRunDate || 'Never'}
         </span>
       ),
@@ -129,7 +138,7 @@ export default function RecurringSchedulesPage() {
       header: 'Runs Executed',
       key: 'totalRuns',
       cell: (row) => (
-        <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">
+        <span className="text-xs font-bold text-primary tabular-nums">
           {row.totalRuns} {row.maxRuns ? `/ ${row.maxRuns}` : ''}
         </span>
       ),
@@ -160,10 +169,21 @@ export default function RecurringSchedulesPage() {
           <Button
             variant="outline"
             size="sm"
+            onClick={() => {
+              setSelectedSchedule(row);
+              setOpenModal(true);
+            }}
+            leftIcon={<Edit className="h-3 w-3" />}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handleTriggerRun(row)}
             loading={actionLoadingId === row.id}
             disabled={row.status !== RecurringScheduleStatus.ACTIVE}
-            leftIcon={<Play className="h-3 w-3 text-emerald-600" />}
+            leftIcon={<Play className="h-3 w-3 text-status-success-text" />}
           >
             Run Now
           </Button>
@@ -174,9 +194,9 @@ export default function RecurringSchedulesPage() {
             loading={actionLoadingId === row.id}
           >
             {row.status === RecurringScheduleStatus.ACTIVE ? (
-              <Pause className="h-3 w-3 text-amber-600" />
+              <Pause className="h-3 w-3 text-status-warning-text" />
             ) : (
-              <Play className="h-3 w-3 text-blue-600" />
+              <Play className="h-3 w-3 text-brand-text" />
             )}
           </Button>
         </div>
@@ -190,12 +210,12 @@ export default function RecurringSchedulesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Recurring Invoicing Schedules
             </h1>
             <Badge variant="brand" size="sm">Automation</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted">
             Automated recurring invoice generators with statutory GST rule verification on execution dates.
           </p>
         </div>
@@ -213,7 +233,10 @@ export default function RecurringSchedulesPage() {
           <Button
             variant="primary"
             size="sm"
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setSelectedSchedule(null);
+              setOpenModal(true);
+            }}
             leftIcon={<Plus className="h-3.5 w-3.5" />}
           >
             New Schedule
@@ -222,53 +245,64 @@ export default function RecurringSchedulesPage() {
       </div>
 
       {successMessage && (
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <div className="p-3 bg-status-success-subtle border border-status-success rounded-xl text-status-success-text text-xs flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success-text" />
           <span>{successMessage}</span>
         </div>
       )}
 
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs border-l-4 border-l-emerald-500">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Active Schedules</div>
-          <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+        <Card className="p-4 bg-surface border border-default rounded-xl shadow-xs border-l-4 border-l-status-success">
+          <div className="text-xs font-semibold text-muted">Active Schedules</div>
+          <div className="mt-1 text-2xl font-black text-primary tabular-nums">
             {activeCount}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">Executing automatically</div>
+          <div className="text-[11px] text-muted">Executing automatically</div>
         </Card>
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs border-l-4 border-l-amber-500">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Paused Schedules</div>
-          <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+        <Card className="p-4 bg-surface border border-default rounded-xl shadow-xs border-l-4 border-l-status-warning">
+          <div className="text-xs font-semibold text-muted">Paused Schedules</div>
+          <div className="mt-1 text-2xl font-black text-primary tabular-nums">
             {pausedCount}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">On-hold billing</div>
+          <div className="text-[11px] text-muted">On-hold billing</div>
         </Card>
-        <Card className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs border-l-4 border-l-blue-500">
-          <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Generated Invoices</div>
-          <div className="mt-1 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
+        <Card className="p-4 bg-surface border border-default rounded-xl shadow-xs border-l-4 border-l-brand">
+          <div className="text-xs font-semibold text-muted">Generated Invoices</div>
+          <div className="mt-1 text-2xl font-black text-primary tabular-nums">
             {totalInvoicesGen}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">Total automated cycles</div>
+          <div className="text-[11px] text-muted">Total automated cycles</div>
         </Card>
       </div>
 
       {/* DataTable */}
       <div className="space-y-3">
-        <div className="text-sm font-bold text-slate-900 dark:text-white">Active Recurring Pipelines</div>
+        <div className="text-sm font-bold text-primary">Active Recurring Pipelines</div>
         <DataTable
           columns={columns}
           data={schedules}
           loading={loading}
-          emptyTitle="No Recurring Schedules"
-          emptyDescription="Click 'New Schedule' to set up recurring retainer invoicing."
+          page={page}
+          pageSize={pageSize}
+          totalItems={schedules.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          storageKey="recurring_schedules"
+          emptyTitle="No recurring schedules"
+          emptyDescription="Set up automatic subscription invoices for retainers or recurring services."
+          emptyAction={{ label: 'New Schedule', onClick: () => setOpenModal(true) }}
         />
       </div>
 
       {/* Modal */}
       <RecurringScheduleDialog
         open={openModal}
-        onOpenChange={setOpenModal}
+        onOpenChange={(isOpen) => {
+          setOpenModal(isOpen);
+          if (!isOpen) setSelectedSchedule(null);
+        }}
+        initialSchedule={selectedSchedule}
         onSuccess={loadSchedules}
       />
     </div>

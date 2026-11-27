@@ -78,11 +78,11 @@ export function CompanyDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg" className="max-w-2xl max-h-[88vh] overflow-y-auto">
+      <DialogContent size="md" className="max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-xl bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold shadow-xs">
+              <div className="h-11 w-11 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text font-bold shadow-xs">
                 <Building2 className="h-6 w-6" />
               </div>
               <div>
@@ -104,10 +104,10 @@ export function CompanyDetailsDialog({
                 <DialogDescription className="text-xs">
                   {company.tradeName && company.tradeName !== company.legalName ? (
                     <>
-                      Trade Name: <strong className="text-slate-700 dark:text-slate-300">{company.tradeName}</strong> •{' '}
+                      Trade Name: <strong className="text-primary">{company.tradeName}</strong> •{' '}
                     </>
                   ) : null}
-                  Entity Reference: <span className="font-mono text-slate-500">{company.id.slice(0, 18)}...</span>
+                  Entity Reference: <span className="font-mono text-muted">{company.id.slice(0, 18)}...</span>
                 </DialogDescription>
               </div>
             </div>
@@ -116,30 +116,30 @@ export function CompanyDetailsDialog({
 
         <div className="space-y-4 py-2 text-xs">
           {/* Statutory Credentials Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-surface-sunken border border-default">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
                 Permanent Account No (PAN)
               </span>
-              <div className="mt-1 font-mono font-bold text-slate-900 dark:text-white text-sm">
+              <div className="mt-1 font-mono font-bold text-primary text-sm">
                 {panValue}
               </div>
             </div>
 
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
                 Operating Base Currency
               </span>
-              <div className="mt-1 font-semibold text-slate-800 dark:text-slate-200">
+              <div className="mt-1 font-semibold text-primary">
                 {company.defaultCurrency || 'INR'} (Indian Rupee)
               </div>
             </div>
 
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
                 Multi-Tenant Isolation
               </span>
-              <div className="mt-1 font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <div className="mt-1 font-semibold text-status-success-text flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" /> Isolated Ledger
               </div>
             </div>
@@ -148,15 +148,15 @@ export function CompanyDetailsDialog({
           {/* Operating Branches & GSTIN Units */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-blue-500" />
+              <span className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-brand-text" />
                 Operating Branches & GSTIN Units ({branches.length})
               </span>
-              <span className="text-[11px] text-slate-400">Independent state tax filing nodes</span>
+              <span className="text-[11px] text-muted">Independent state tax filing nodes</span>
             </div>
 
             {branches.length === 0 ? (
-              <div className="p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400">
+              <div className="p-3 rounded-xl border border-dashed border-default text-center text-muted">
                 No branches configured.
               </div>
             ) : (
@@ -166,11 +166,11 @@ export function CompanyDetailsDialog({
                   return (
                     <div
                       key={b.id}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                      className="p-3 rounded-xl border border-default bg-surface flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-slate-900 dark:text-white">
+                          <span className="font-bold text-primary">
                             {b.branchName || b.name || 'Head Office'}
                           </span>
                           {b.isHeadOffice && (
@@ -178,12 +178,12 @@ export function CompanyDetailsDialog({
                               Head Office
                             </Badge>
                           )}
-                          <span className="text-[11px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
+                          <span className="text-[11px] px-1.5 py-0.2 rounded bg-surface-sunken text-secondary font-medium">
                             {stateInfo?.name || 'State'} (Code {b.stateCode})
                           </span>
                         </div>
                         {b.addressLine1 && (
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <div className="text-[11px] text-secondary">
                             {b.addressLine1}
                             {b.pincode ? ` - ${b.pincode}` : ''}
                           </div>
@@ -191,9 +191,9 @@ export function CompanyDetailsDialog({
                       </div>
 
                       <div className="sm:text-right shrink-0">
-                        <div className="text-[10px] text-slate-400 uppercase font-semibold">GSTIN</div>
-                        <div className="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-                          {b.gstin || <span className="text-slate-400 font-normal">Unregistered</span>}
+                        <div className="text-[10px] text-muted uppercase font-semibold">GSTIN</div>
+                        <div className="font-mono font-bold text-primary text-xs">
+                          {b.gstin || <span className="text-muted font-normal">Unregistered</span>}
                         </div>
                       </div>
                     </div>
@@ -206,26 +206,26 @@ export function CompanyDetailsDialog({
           {/* Accounting Configuration & Financial Years */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-blue-500" />
+              <span className="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-brand-text" />
                 Accounting Periods & Financial Years ({financialYears.length})
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {financialYears.length === 0 ? (
-                <div className="col-span-2 p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-slate-400">
+                <div className="col-span-2 p-3 rounded-xl border border-dashed border-default text-center text-muted">
                   Standard Indian Financial Year (April 1 to March 31) auto-provisioned.
                 </div>
               ) : (
                 financialYears.map((fy) => (
                   <div
                     key={fy.id}
-                    className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between"
+                    className="p-3 rounded-xl border border-default bg-surface flex items-center justify-between"
                   >
                     <div>
-                      <div className="font-bold text-slate-900 dark:text-white">{fy.name}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">
+                      <div className="font-bold text-primary">{fy.name}</div>
+                      <div className="text-[10px] text-muted font-mono">
                         {fy.startDate} → {fy.endDate}
                       </div>
                     </div>
@@ -245,7 +245,7 @@ export function CompanyDetailsDialog({
               <Button
                 variant="outline"
                 size="sm"
-                className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-950/50"
+                className="text-brand-text border-default hover:bg-brand-subtle"
                 leftIcon={<ArrowRightLeft className="w-3.5 h-3.5" />}
                 onClick={() => {
                   onSwitchCompany(company.id);

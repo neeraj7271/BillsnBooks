@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import * as React from 'react';
 import {
@@ -11,6 +12,7 @@ import {
   Button,
   Input,
   FormField,
+  DatePicker,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { Calendar, Clock } from 'lucide-react';
@@ -56,7 +58,7 @@ export function PromiseToPayDialog({
       onSuccess();
       onOpenChange(false);
     } catch (err) {
-      console.error('Failed to update promise to pay', err);
+      logger.error('Failed to update promise to pay', err);
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ export function PromiseToPayDialog({
       onSuccess();
       onOpenChange(false);
     } catch (err) {
-      console.error('Failed to clear promise to pay', err);
+      logger.error('Failed to clear promise to pay', err);
     } finally {
       setLoading(false);
     }
@@ -82,10 +84,10 @@ export function PromiseToPayDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent size="xs">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-subtle text-brand-text">
               <Calendar className="h-5 w-5" />
             </div>
             <div>
@@ -99,11 +101,10 @@ export function PromiseToPayDialog({
 
         <form onSubmit={handleSave} className="space-y-4 py-2">
           <FormField label="Promised Payment Date" required id="promise-date">
-            <Input
+            <DatePicker
               id="promise-date"
-              type="date"
               value={promiseDate}
-              onChange={(e) => setPromiseDate(e.target.value)}
+              onChange={setPromiseDate}
               required
             />
           </FormField>
@@ -122,7 +123,7 @@ export function PromiseToPayDialog({
               <Button
                 type="button"
                 variant="outline"
-                className="text-rose-600 border-rose-200 hover:bg-rose-50"
+                className="text-status-danger-text border-status-danger hover:bg-status-danger-subtle"
                 onClick={handleClear}
                 disabled={loading}
               >

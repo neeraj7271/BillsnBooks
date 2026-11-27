@@ -49,6 +49,21 @@ export class AuthController {
     };
   }
 
+  @Public()
+  @Get('invite-info')
+  async getInviteInfo(@Request() req: any) {
+    const token = String(req.query?.token || '');
+    const info = await this.authService.getInviteInfo(token);
+    return { success: true, data: info };
+  }
+
+  @Public()
+  @Post('accept-invite')
+  async acceptInvite(@Body() body: { token: string; firstName: string; lastName: string; password: string }) {
+    const result = await this.authService.acceptInvite(body);
+    return { success: true, data: result };
+  }
+
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Request() req: any) {

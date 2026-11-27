@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
-import { Button, Badge } from '@platform/ui';
+import { Button, Badge, LoadingState } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { BankStatementFeed } from './bank-statement-feed';
@@ -108,12 +108,12 @@ function ReconciliationWorkbenchContent() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-slate-900 dark:text-white">
+              <h1 className="text-xl font-black text-primary">
                 Bank Reconciliation Workbench (BRS)
               </h1>
               <Badge variant="brand" size="sm">2-Way Match</Badge>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-secondary">
               Interactive matching engine comparing statement feeds against general ledger cash vouchers.
             </p>
           </div>
@@ -125,38 +125,42 @@ function ReconciliationWorkbenchContent() {
       </div>
 
       {actionSuccess && (
-        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 text-xs text-emerald-700 font-medium">
+        <div className="p-3 rounded-xl bg-status-success-subtle border border-subtle text-xs text-status-success-text font-medium">
           {actionSuccess}
         </div>
       )}
 
       {actionError && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle border border-subtle text-xs text-status-danger-text font-medium">
           {actionError}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5">
-          <BankStatementFeed
-            transactions={transactions}
-            selectedTxnId={selectedTxn?.id || null}
-            filter={filter}
-            onFilterChange={setFilter}
-            onSelectTxn={setSelectedTxn}
-          />
-        </div>
+      {loading ? (
+        <LoadingState rows={8} />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5">
+            <BankStatementFeed
+              transactions={transactions}
+              selectedTxnId={selectedTxn?.id || null}
+              filter={filter}
+              onFilterChange={setFilter}
+              onSelectTxn={setSelectedTxn}
+            />
+          </div>
 
-        <div className="lg:col-span-7">
-          <MatchCandidates
-            selectedTxn={selectedTxn}
-            suggestions={suggestions}
-            loadingSuggestions={loadingSuggestions}
-            onMatch={handleMatch}
-            onUnmatch={handleUnmatch}
-          />
+          <div className="lg:col-span-7">
+            <MatchCandidates
+              selectedTxn={selectedTxn}
+              suggestions={suggestions}
+              loadingSuggestions={loadingSuggestions}
+              onMatch={handleMatch}
+              onUnmatch={handleUnmatch}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -165,8 +169,8 @@ export default function ReconciliationWorkbenchPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-8 text-center text-sm text-slate-400">
-          Loading reconciliation workbench...
+        <div className="p-4 space-y-4">
+          <LoadingState rows={8} />
         </div>
       }
     >

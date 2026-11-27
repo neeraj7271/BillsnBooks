@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -6,6 +7,7 @@ import {
   Badge,
   DataTable,
   Card,
+  formatMoney,
   type ColumnDef,
 } from '@platform/ui';
 import {
@@ -21,6 +23,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { CreateLinkDialog } from './create-link-dialog';
 import { ReconcileSettlementDialog } from './reconcile-settlement-dialog';
 import { UpiQrDialog } from './upi-qr-dialog';
@@ -35,6 +38,12 @@ export default function PaymentLinksPage() {
   const [links, setLinks] = useState<PaymentLinkDto[]>([]);
   const [settlements, setSettlements] = useState<GatewaySettlementDto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { page: linksPage, pageSize: linksPageSize, setPage: setLinksPage, setPageSize: setLinksPageSize } = useTablePagination({
+    storageKey: 'payment_links',
+    defaultPageSize: 25,
+  });
+
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openSettleModal, setOpenSettleModal] = useState(false);
   const [selectedQrLink, setSelectedQrLink] = useState<PaymentLinkDto | null>(null);
@@ -51,7 +60,7 @@ export default function PaymentLinksPage() {
       setLinks(lData || []);
       setSettlements(sData || []);
     } catch (err: unknown) {
-      console.error('Failed to load payment links & settlements', err);
+      logger.error('Failed to load payment links & settlements', err);
     } finally {
       setLoading(false);
     }
@@ -73,18 +82,13 @@ export default function PaymentLinksPage() {
       await apiClient.simulatePaymentCallback(undefined, link.linkId);
       await loadData();
     } catch (err: unknown) {
-      console.error('Payment callback failed', err);
+      logger.error('Payment callback failed', err);
     } finally {
       setActionLoadingId(null);
     }
   };
 
-  const formatInr = (val: string | number) =>
-    Number(val || 0).toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2,
-    });
+  const formatInr = (val: string | number) => formatMoney(val);
 
   const linkColumns: ColumnDef<PaymentLinkDto>[] = [
     {
@@ -92,10 +96,10 @@ export default function PaymentLinksPage() {
       key: 'invoiceNumber',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">
+          <div className="font-bold text-primary">
             {row.invoiceNumber || 'INV-DIRECT'}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="text-[11px] text-muted">
             {row.partyName || 'Customer'}
           </div>
         </div>
@@ -105,7 +109,7 @@ export default function PaymentLinksPage() {
       header: 'Amount',
       key: 'amount',
       cell: (row) => (
-        <span className="font-extrabold text-slate-900 dark:text-white tabular-nums">
+        <span className="font-extrabold text-primary tabular-nums">
           {formatInr(row.amount)}
         </span>
       ),
@@ -124,7 +128,7 @@ export default function PaymentLinksPage() {
       key: 'shortUrl',
       cell: (row) => (
         <div className="flex items-center gap-1.5">
-          <span className="font-mono text-xs text-blue-600 dark:text-blue-400 truncate max-w-[160px]">
+          <span className="font-mono text-xs text-brand-text truncate max-w-[160px]">
             {row.shortUrl}
           </span>
           <Button
@@ -134,9 +138,9 @@ export default function PaymentLinksPage() {
             className="h-6 w-6 p-0"
           >
             {copiedId === row.id ? (
-              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+              <CheckCircle2 className="h-3 w-3 text-status-success-text" />
             ) : (
-              <Copy className="h-3 w-3 text-slate-400" />
+              <Copy className="h-3 w-3 text-muted" />
             )}
           </Button>
         </div>
@@ -163,7 +167,7 @@ export default function PaymentLinksPage() {
             variant="outline"
             size="sm"
             onClick={() => setSelectedQrLink(row)}
-            className="h-7 px-2 text-xs gap-1 border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10"
+            className="h-7 px-2 text-xs gap-1 border-brand text-brand-text hover:bg-brand-subtle"
             title="Scan UPI QR Code"
           >
             <QrIcon className="h-3 w-3" />
@@ -176,13 +180,13 @@ export default function PaymentLinksPage() {
               size="sm"
               onClick={() => handleSimulatePayment(row)}
               loading={actionLoadingId === row.id}
-              leftIcon={<CreditCard className="h-3 w-3 text-emerald-600" />}
+              leftIcon={<CreditCard className="h-3 w-3 text-status-success-text" />}
               className="h-7 text-xs"
             >
               Simulate Pay
             </Button>
           ) : (
-            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+            <span className="text-xs text-status-success-text font-medium flex items-center gap-1">
               <CheckCircle2 className="h-3.5 w-3.5" /> Paid
             </span>
           )}
@@ -197,10 +201,10 @@ export default function PaymentLinksPage() {
       key: 'settlementId',
       cell: (row) => (
         <div>
-          <div className="font-mono font-bold text-slate-900 dark:text-white text-xs">
+          <div className="font-mono font-bold text-primary text-xs">
             {row.settlementId}
           </div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="text-[11px] text-muted">
             {row.settlementDate} • {row.provider}
           </div>
         </div>
@@ -210,7 +214,7 @@ export default function PaymentLinksPage() {
       header: 'Gross Collections',
       key: 'grossAmount',
       cell: (row) => (
-        <span className="font-bold text-slate-900 dark:text-white tabular-nums text-xs">
+        <span className="font-bold text-primary tabular-nums text-xs">
           {formatInr(row.grossAmount)}
         </span>
       ),
@@ -219,7 +223,7 @@ export default function PaymentLinksPage() {
       header: 'Fee & GST',
       key: 'feeAmount',
       cell: (row) => (
-        <span className="text-rose-600 dark:text-rose-400 font-medium tabular-nums text-xs">
+        <span className="text-status-danger-text font-medium tabular-nums text-xs">
           -{formatInr(Number(row.feeAmount) + Number(row.taxOnFee))}
         </span>
       ),
@@ -228,7 +232,7 @@ export default function PaymentLinksPage() {
       header: 'Net Bank Payout',
       key: 'netCreditAmount',
       cell: (row) => (
-        <span className="font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums text-xs">
+        <span className="font-extrabold text-status-success-text tabular-nums text-xs">
           {formatInr(row.netCreditAmount)}
         </span>
       ),
@@ -237,7 +241,7 @@ export default function PaymentLinksPage() {
       header: 'Bank Ref (UTR)',
       key: 'bankReference',
       cell: (row) => (
-        <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+        <span className="font-mono text-xs text-muted">
           {row.bankReference || '—'}
         </span>
       ),
@@ -259,12 +263,12 @@ export default function PaymentLinksPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Payment Links & Gateway Settlements
             </h1>
             <Badge variant="brand" size="sm">Collections</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted">
             Instant UPI & Card payment links with automated gross vs fee vs net double-entry reconciliations.
           </p>
         </div>
@@ -301,10 +305,10 @@ export default function PaymentLinksPage() {
       {/* Payment Links Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+          <h2 className="text-sm font-bold text-primary">
             Active & Settled Payment Links
           </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-muted">
             {links.length} total generated
           </span>
         </div>
@@ -312,23 +316,30 @@ export default function PaymentLinksPage() {
           columns={linkColumns}
           data={links}
           loading={loading}
-          emptyTitle="No Payment Links"
-          emptyDescription="Click 'Generate Link' to send an instant payment request."
+          page={linksPage}
+          pageSize={linksPageSize}
+          totalItems={links.length}
+          onPageChange={setLinksPage}
+          onPageSizeChange={setLinksPageSize}
+          storageKey="payment_links"
+          emptyTitle="No payment links"
+          emptyDescription="Create a payment link from an open invoice to collect via UPI or card."
+          emptyAction={{ label: 'Generate Link', onClick: () => setOpenCreateModal(true) }}
         />
       </div>
 
       {/* Gateway Settlement Reconciliation Log */}
-      <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+      <div className="space-y-3 pt-4 border-t border-subtle">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h2 className="text-sm font-bold text-primary">
               Gateway Settlement Ledger Log
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted">
               Balanced canonical vouchers booked into Bank, Gateway Clearing, and Processing Charges
             </p>
           </div>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-muted">
             {settlements.length} reconciled payouts
           </span>
         </div>

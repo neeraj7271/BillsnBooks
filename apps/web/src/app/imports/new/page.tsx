@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -92,12 +93,12 @@ export default function NewImportWizardPage() {
           setMissingMastersOpen(true);
         }
       } catch (scanErr) {
-        console.warn('Pre-flight master scan error:', scanErr);
+        logger.warn('Pre-flight master scan error:', scanErr);
       }
 
       setCurrentStep(3);
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setMappingSaving(false);
     }
@@ -114,7 +115,7 @@ export default function NewImportWizardPage() {
       const rowsRes = await apiClient.getImportRows(activeCompanyId, batchData.id);
       setStagedRows(rowsRes?.rows || []);
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setFixing(false);
     }
@@ -128,7 +129,7 @@ export default function NewImportWizardPage() {
       const rowsRes = await apiClient.getImportRows(activeCompanyId, batchData.id);
       setStagedRows(rowsRes?.rows || []);
     } catch (err: unknown) {
-      console.error('Failed to auto-fix GST tax splits:', err);
+      logger.error('Failed to auto-fix GST tax splits:', err);
     } finally {
       setFixing(false);
     }
@@ -142,7 +143,7 @@ export default function NewImportWizardPage() {
       const scan = await apiClient.scanImportMasters(activeCompanyId, batchData.id);
       setScanData(scan);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   };
 
@@ -154,7 +155,7 @@ export default function NewImportWizardPage() {
       const res = await apiClient.postBatchToLedger(activeCompanyId, batchData.id);
       setPostResult(res);
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setPosting(false);
     }
@@ -176,12 +177,12 @@ export default function NewImportWizardPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black text-slate-900 dark:text-white">
+              <h1 className="text-xl font-black text-primary">
                 Bulk Ingestion Engine
               </h1>
               <Badge variant="brand" size="sm">Step {currentStep} of 4</Badge>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted">
               CSV/Excel bank and invoice import with statutory GST checks and missing master resolution.
             </p>
           </div>

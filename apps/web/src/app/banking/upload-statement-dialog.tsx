@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -36,7 +37,7 @@ export function UploadStatementDialog({
       setDownloading(true);
       await apiClient.downloadImportTemplate('bank-statement');
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setDownloading(false);
     }
@@ -86,7 +87,7 @@ export function UploadStatementDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle border border-subtle text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}

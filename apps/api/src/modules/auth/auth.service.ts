@@ -77,10 +77,11 @@ export class AuthService {
     await queryRunner.startTransaction();
 
     try {
-      const existingUser = await queryRunner.manager.findOne(UserOrmEntity, {
-        where: { email: dto.email.toLowerCase() },
-      });
-      if (existingUser) {
+      const [{ exists }] = await queryRunner.query(
+        `SELECT auth_email_exists($1) AS exists`,
+        [dto.email.toLowerCase()],
+      );
+      if (exists) {
         throw new ConflictException('User with this email already exists');
       }
 
@@ -115,6 +116,9 @@ export class AuthService {
       tenant.plan = 'PRO';
       await queryRunner.manager.save(tenant);
 
+      // Bind RLS tenant context before inserting/updating the user row
+      await queryRunner.query(`SELECT set_config('app.tenant_id', $1, true)`, [tenant.id]);
+
       // 2. Hash password with Argon2id
       const passwordHash = await argon2.hash(dto.password, {
         type: argon2.argon2id,
@@ -127,7 +131,7 @@ export class AuthService {
       user.passwordHash = passwordHash;
       user.firstName = dto.firstName;
       user.lastName = dto.lastName;
-      user.role = UserRole.SUPER_ADMIN;
+      user.role = UserRole.FIRM_PARTNER;  // tenant owner, NOT platform SUPER_ADMIN
       user.isActive = true;
       await queryRunner.manager.save(user);
 
@@ -157,14 +161,61 @@ export class AuthService {
     }
   }
 
+  private mapRawUser(row: any): UserOrmEntity {
+    const user = new UserOrmEntity();
+    user.id = row.id;
+    user.tenantId = row.tenant_id;
+    user.email = row.email;
+    user.passwordHash = row.password_hash;
+    user.firstName = row.first_name;
+    user.lastName = row.last_name;
+    user.role = row.role;
+    user.isActive = row.is_active;
+    user.refreshTokenHash = row.refresh_token_hash;
+    return user;
+  }
+
+  private async findUserByEmailCrossTenant(email: string): Promise<UserOrmEntity | null> {
+    const rows = await this.dataSource.query(
+      `SELECT * FROM auth_find_user_by_email($1)`,
+      [email.toLowerCase()],
+    );
+    return rows.length > 0 ? this.mapRawUser(rows[0]) : null;
+  }
+
+  private async findUserByIdCrossTenant(userId: string): Promise<UserOrmEntity | null> {
+    const rows = await this.dataSource.query(
+      `SELECT * FROM auth_find_user_by_id($1)`,
+      [userId],
+    );
+    return rows.length > 0 ? this.mapRawUser(rows[0]) : null;
+  }
+
+  private async updateRefreshTokenForTenant(
+    tenantId: string,
+    userId: string,
+    refreshTokenHash: string | null,
+  ): Promise<void> {
+    const qr = this.dataSource.createQueryRunner();
+    await qr.connect();
+    await qr.startTransaction();
+    try {
+      await qr.query(`SELECT set_config('app.tenant_id', $1, true)`, [tenantId]);
+      await qr.manager.update(UserOrmEntity, { id: userId }, { refreshTokenHash });
+      await qr.commitTransaction();
+    } catch (err) {
+      await qr.rollbackTransaction();
+      throw err;
+    } finally {
+      await qr.release();
+    }
+  }
+
   async login(dto: LoginDto): Promise<{ user: Partial<UserOrmEntity>; tokens: AuthTokens }> {
     const email = dto.email.toLowerCase();
     this.assertLoginAllowed(email);
 
-    const userRepo = this.dataSource.getRepository(UserOrmEntity);
-    const user = await userRepo.findOne({
-      where: { email },
-    });
+    const user = await this.findUserByEmailCrossTenant(email);
 
     if (!user || !user.isActive) {
       this.recordLoginFailure(email);
@@ -180,8 +231,8 @@ export class AuthService {
     this.clearLoginFailures(email);
 
     const tokens = await this.generateTokens(user);
-    user.refreshTokenHash = await argon2.hash(tokens.refreshToken);
-    await userRepo.save(user);
+    const refreshHash = await argon2.hash(tokens.refreshToken);
+    await this.updateRefreshTokenForTenant(user.tenantId, user.id, refreshHash);
 
     return {
       user: {
@@ -197,8 +248,7 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, refreshToken: string): Promise<AuthTokens> {
-    const userRepo = this.dataSource.getRepository(UserOrmEntity);
-    const user = await userRepo.findOne({ where: { id: userId } });
+    const user = await this.findUserByIdCrossTenant(userId);
 
     if (!user || !user.refreshTokenHash) {
       throw new UnauthorizedException('Access denied');
@@ -210,8 +260,8 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user);
-    user.refreshTokenHash = await argon2.hash(tokens.refreshToken);
-    await userRepo.save(user);
+    const refreshHash = await argon2.hash(tokens.refreshToken);
+    await this.updateRefreshTokenForTenant(user.tenantId, user.id, refreshHash);
 
     return tokens;
   }
@@ -232,8 +282,72 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    const userRepo = this.dataSource.getRepository(UserOrmEntity);
-    await userRepo.update({ id: userId }, { refreshTokenHash: null });
+    const user = await this.findUserByIdCrossTenant(userId);
+    if (user) {
+      await this.updateRefreshTokenForTenant(user.tenantId, user.id, null);
+    }
+  }
+
+  async getInviteInfo(token: string) {
+    const rows = await this.dataSource.query(
+      `SELECT * FROM auth_find_invite_by_token($1)`,
+      [token],
+    );
+    const inv = rows[0];
+    if (!inv) throw new UnauthorizedException('Invalid invitation link.');
+    if (inv.status !== 'PENDING') throw new ConflictException(`Invitation is already ${inv.status.toLowerCase()}.`);
+    if (new Date(inv.expiresAt) < new Date()) throw new UnauthorizedException('Invitation has expired.');
+    return inv;
+  }
+
+  async acceptInvite(dto: { token: string; firstName: string; lastName: string; password: string }) {
+    const inv = await this.getInviteInfo(dto.token);
+    const passwordHash = await argon2.hash(dto.password);
+
+    const savedUser = await this.dataSource.transaction(async (manager) => {
+      await manager.query(`SELECT set_config('app.tenant_id', $1, true)`, [inv.tenantId]);
+      const existing = await manager.findOne(UserOrmEntity, { where: { email: inv.email } });
+      if (existing) {
+        throw new ConflictException('A user with this email already exists.');
+      }
+
+      const userRepo = manager.getRepository(UserOrmEntity);
+      const user = await userRepo.save(
+        userRepo.create({
+          tenantId: inv.tenantId,
+          email: inv.email,
+          firstName: dto.firstName?.trim() || inv.name || 'Team',
+          lastName: dto.lastName?.trim() || 'Member',
+          passwordHash,
+          role: (inv.invitedRole || 'STAFF_ACCOUNTANT') as any,
+          permissionRoleId: inv.permissionRoleId || null,
+          userKind: 'FIRM_COLLEAGUE',
+          isActive: true,
+        }),
+      );
+
+      await manager.query(
+        `UPDATE team_invitations SET status = 'ACCEPTED', accepted_at = now() WHERE id = $1`,
+        [inv.id],
+      );
+      return user;
+    });
+
+    const tokens = await this.generateTokens(savedUser);
+    const refreshHash = await argon2.hash(tokens.refreshToken);
+    await this.updateRefreshTokenForTenant(savedUser.tenantId, savedUser.id, refreshHash);
+
+    return {
+      user: {
+        id: savedUser.id,
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        role: savedUser.role,
+        tenantId: savedUser.tenantId,
+      },
+      tokens,
+    };
   }
 
   private async generateTokens(user: UserOrmEntity): Promise<AuthTokens> {

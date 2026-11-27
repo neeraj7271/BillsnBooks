@@ -1,4 +1,6 @@
 import { Controller, Get, Post, Put, Param, Body, Request } from '@nestjs/common';
+import { UserRole } from '@platform/shared-types';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { requireContext } from '../../common/http/request-context';
 import { CompanyService, CreateCompanyDto, UpdateCompanyDto, AddBranchDto } from './company.service';
 
@@ -16,6 +18,7 @@ export class CompanyController {
     return await this.companyService.listCompanies(tenantId);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER)
   @Post()
   async createCompany(@Body() dto: CreateCompanyDto, @Request() req: any) {
     const tenantId = this.getTenantId(req);
@@ -28,6 +31,7 @@ export class CompanyController {
     return await this.companyService.getCompanyById(tenantId, id);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER)
   @Put(':id')
   async updateCompany(
     @Param('id') id: string,
@@ -44,6 +48,7 @@ export class CompanyController {
     return await this.companyService.listBranches(tenantId, companyId);
   }
 
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER)
   @Post(':id/branches')
   async addBranch(
     @Param('id') companyId: string,

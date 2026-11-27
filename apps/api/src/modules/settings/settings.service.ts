@@ -11,6 +11,7 @@ import { SettingValueOrmEntity } from '../../infrastructure/persistence/entities
 import { SettingHistoryOrmEntity } from '../../infrastructure/persistence/entities/setting-history.orm-entity';
 import { DocumentSnapshotOrmEntity } from '../../infrastructure/persistence/entities/document-snapshot.orm-entity';
 import { SettingsRegistry } from './settings.registry';
+import { FileStorageService } from '../storage/file-storage.service';
 
 @Injectable()
 export class SettingsService {
@@ -21,6 +22,7 @@ export class SettingsService {
     private readonly settingHistoryRepo: Repository<SettingHistoryOrmEntity>,
     @InjectRepository(DocumentSnapshotOrmEntity)
     private readonly snapshotRepo: Repository<DocumentSnapshotOrmEntity>,
+    private readonly storage: FileStorageService,
   ) {}
 
   /**
@@ -379,6 +381,65 @@ export class SettingsService {
       }
     }
     return { importedCount: count };
+  }
+
+  async uploadBrandingAsset(
+    companyId: string,
+    key: string,
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<{ key: string; storageKey: string; url: string }> {
+    if (!file || !file.buffer) {
+      throw new BadRequestException('Branding image file is required.');
+    }
+    const allowed = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp']);
+    if (!allowed.has((file.mimetype || '').toLowerCase())) {
+      throw new BadRequestException('Only PNG, JPG, or WebP images are allowed for branding assets.');
+    }
+    if (file.buffer.length > 5 * 1024 * 1024) {
+      throw new BadRequestException('Branding image must be under 5 MB.');
+    }
+    const ext = file.mimetype.includes('jpeg') || file.mimetype.includes('jpg') ? 'jpg' : file.mimetype.includes('webp') ? 'webp' : 'png';
+    const cleanKeyName = key.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const storageKey = `branding/${companyId}/${cleanKeyName}-${crypto.randomUUID()}.${ext}`;
+    await this.storage.put(storageKey, file.buffer, file.mimetype, { companyId, settingKey: key });
+
+    const assetUrl = `/v1/companies/${companyId}/settings/branding/asset?key=${encodeURIComponent(storageKey)}`;
+    await this.set(key, assetUrl, SettingScope.COMPANY, companyId, userId, 'Uploaded branding asset to object storage');
+    return { key, storageKey, url: assetUrl };
+  }
+
+  async getBrandingAsset(companyId: string, storageKey: string) {
+    if (!storageKey || !storageKey.startsWith(`branding/${companyId}/`)) {
+      throw new BadRequestException('Invalid branding asset key.');
+    }
+    return await this.storage.get(storageKey);
+  }
+
+  async migrateBrandingBase64ToStorage(companyId?: string): Promise<{ migrated: number }> {
+    const targetKeys = ['branding.logo_url', 'branding.signature_url', 'invoice.logo_url', 'invoice.signature_url'];
+    const rows = await this.settingValueRepo.find({
+      where: {
+        settingKey: In(targetKeys),
+        ...(companyId ? { scope: SettingScope.COMPANY, scopeId: companyId } : {}),
+      },
+    });
+    let migrated = 0;
+    for (const row of rows) {
+      const val = typeof row.value === 'string' ? row.value : '';
+      const match = val.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+      if (!match) continue;
+      const mime = match[1];
+      const buf = Buffer.from(match[2], 'base64');
+      const cid = row.scopeId || 'global';
+      const ext = mime.includes('jpeg') || mime.includes('jpg') ? 'jpg' : mime.includes('svg') ? 'svg' : 'png';
+      const storageKey = `branding/${cid}/${row.settingKey.replace(/[^a-zA-Z0-9_.-]/g, '_')}-${crypto.randomUUID()}.${ext}`;
+      await this.storage.put(storageKey, buf, mime, { companyId: cid, migratedFrom: 'base64' });
+      row.value = `/v1/companies/${cid}/settings/branding/asset?key=${encodeURIComponent(storageKey)}`;
+      await this.settingValueRepo.save(row);
+      migrated++;
+    }
+    return { migrated };
   }
 }
 

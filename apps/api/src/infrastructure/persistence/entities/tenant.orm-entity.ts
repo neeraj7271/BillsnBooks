@@ -23,6 +23,12 @@ export class TenantOrmEntity {
   @Column({ type: 'varchar', length: 50, default: 'STARTER' })
   plan!: string;
 
+  @Column({ name: 'practice_mode', type: 'varchar', length: 20, default: 'FIRM' })
+  practiceMode!: 'FIRM' | 'BUSINESS';
+
+  @Column({ name: 'review_mode', type: 'varchar', length: 20, default: 'ENFORCED' })
+  reviewMode!: 'OFF' | 'SELF_SIGNOFF' | 'ENFORCED';
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

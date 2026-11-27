@@ -1,3 +1,4 @@
+import '../../common/config/load-env';
 import { DataSource } from 'typeorm';
 import { TenantOrmEntity } from './entities/tenant.orm-entity';
 import { UserOrmEntity } from './entities/user.orm-entity';
@@ -33,6 +34,31 @@ import { StaffAssignmentOrmEntity } from './entities/staff-assignment.orm-entity
 import { ComplianceTaskOrmEntity } from './entities/compliance-task.orm-entity';
 import { TaskCommentOrmEntity } from './entities/task-comment.orm-entity';
 import { ClientDocumentRequestOrmEntity } from './entities/client-document-request.orm-entity';
+import { DocumentFolderOrmEntity } from './entities/document-folder.orm-entity';
+import { DocumentFileOrmEntity } from './entities/document-file.orm-entity';
+import { WorkflowTemplateOrmEntity } from './entities/workflow-template.orm-entity';
+import { PracticeJobOrmEntity } from './entities/practice-job.orm-entity';
+import { PracticeJobCommentOrmEntity } from './entities/practice-job-comment.orm-entity';
+import { ClientContactOrmEntity } from './entities/client-contact.orm-entity';
+import { PracticeTimeEntryOrmEntity } from './entities/practice-time-entry.orm-entity';
+import { ServiceTypeOrmEntity } from './entities/service-type.orm-entity';
+import { ClientServiceOrmEntity } from './entities/client-service.orm-entity';
+import { ClientCredentialOrmEntity } from './entities/client-credential.orm-entity';
+import { PracticeCustomFieldOrmEntity } from './entities/practice-custom-field.orm-entity';
+import { PracticeLabelOrmEntity } from './entities/practice-label.orm-entity';
+import { PracticeProposalOrmEntity, PracticeProposalLineOrmEntity } from './entities/practice-proposal.orm-entity';
+import { PracticeEngagementTemplateOrmEntity, PracticeEngagementOrmEntity } from './entities/practice-engagement.orm-entity';
+import { PracticeBillOrmEntity, PracticeBillLineOrmEntity } from './entities/practice-bill.orm-entity';
+import { PracticeNoticeOrmEntity } from './entities/practice-notice.orm-entity';
+import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } from './entities/practice-reminder.orm-entity';
+import {
+  TeamInvitationOrmEntity,
+  PermissionRoleOrmEntity,
+  JobRoleOrmEntity,
+  ClientJobRoleAssignmentOrmEntity,
+  ClientTeamMemberOrmEntity,
+  PracticeJobReviewOrmEntity,
+} from './entities/team-and-review.orm-entity';
 import { RecurringScheduleOrmEntity } from './entities/recurring-schedule.orm-entity';
 import { PaymentLinkOrmEntity } from './entities/payment-link.orm-entity';
 import { GatewaySettlementOrmEntity } from './entities/gateway-settlement.orm-entity';
@@ -61,6 +87,13 @@ import { NumberingSeriesAndAllocations1731100000000 } from './migrations/1731100
 import { ChartOfAccountsMetadataAndProtection1731200000000 } from './migrations/1731200000000-ChartOfAccountsMetadataAndProtection';
 import { PartyMasterGstIntegrityAndSnapshots1731300000000 } from './migrations/1731300000000-PartyMasterGstIntegrityAndSnapshots';
 import { TenantRlsWithCheckAndAuditAppendOnly1731400000000 } from './migrations/1731400000000-TenantRlsWithCheckAndAuditAppendOnly';
+import { AuthSecurityDefinerHelpers1731500000000 } from './migrations/1731500000000-AuthSecurityDefinerHelpers';
+import { TenantRlsCollectionsAndRemainingTables1731600000000 } from './migrations/1731600000000-TenantRlsCollectionsAndRemainingTables';
+import { DocumentVaultAndStorage1731700000000 } from './migrations/1731700000000-DocumentVaultAndStorage';
+import { PracticeJobsWorkflowAndClient3601731800000 } from './migrations/1731800000000-PracticeJobsWorkflowAndClient360';
+import { PracticePlatformV2Core1731900000000 } from './migrations/1731900000000-PracticePlatformV2Core';
+import { PracticePlatformV2Phase21732000000000 } from './migrations/1732000000000-PracticePlatformV2Phase2';
+import { TeamAndReviewEngine1732100000000 } from './migrations/1732100000000-TeamAndReviewEngine';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -110,6 +143,33 @@ export const AppDataSource = new DataSource({
     ComplianceTaskOrmEntity,
     TaskCommentOrmEntity,
     ClientDocumentRequestOrmEntity,
+    DocumentFolderOrmEntity,
+    DocumentFileOrmEntity,
+    WorkflowTemplateOrmEntity,
+    PracticeJobOrmEntity,
+    PracticeJobCommentOrmEntity,
+    ClientContactOrmEntity,
+    PracticeTimeEntryOrmEntity,
+    ServiceTypeOrmEntity,
+    ClientServiceOrmEntity,
+    ClientCredentialOrmEntity,
+    PracticeCustomFieldOrmEntity,
+    PracticeLabelOrmEntity,
+    PracticeProposalOrmEntity,
+    PracticeProposalLineOrmEntity,
+    PracticeEngagementTemplateOrmEntity,
+    PracticeEngagementOrmEntity,
+    PracticeBillOrmEntity,
+    PracticeBillLineOrmEntity,
+    PracticeNoticeOrmEntity,
+    PracticeReminderTemplateOrmEntity,
+    PracticeNotificationRuleOrmEntity,
+    TeamInvitationOrmEntity,
+    PermissionRoleOrmEntity,
+    JobRoleOrmEntity,
+    ClientJobRoleAssignmentOrmEntity,
+    ClientTeamMemberOrmEntity,
+    PracticeJobReviewOrmEntity,
     RecurringScheduleOrmEntity,
     PaymentLinkOrmEntity,
     GatewaySettlementOrmEntity,
@@ -136,6 +196,13 @@ export const AppDataSource = new DataSource({
     ChartOfAccountsMetadataAndProtection1731200000000,
     PartyMasterGstIntegrityAndSnapshots1731300000000,
     TenantRlsWithCheckAndAuditAppendOnly1731400000000,
+    AuthSecurityDefinerHelpers1731500000000,
+    TenantRlsCollectionsAndRemainingTables1731600000000,
+    DocumentVaultAndStorage1731700000000,
+    PracticeJobsWorkflowAndClient3601731800000,
+    PracticePlatformV2Core1731900000000,
+    PracticePlatformV2Phase21732000000000,
+    TeamAndReviewEngine1732100000000,
   ],
   migrationsRun: false,
 });

@@ -10,13 +10,9 @@ import {
   CardContent,
   Button,
   Badge,
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Skeleton,
+  DataTable,
+  formatDate,
+  type ColumnDef,
 } from '@platform/ui';
 import {
   FileSpreadsheet,
@@ -30,6 +26,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 
 export default function ImportsDashboardPage() {
   const { activeCompanyId } = useCompany();
@@ -37,14 +34,19 @@ export default function ImportsDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'imports',
+    defaultPageSize: 25,
+  });
+
   const loadBatches = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await apiClient.listImportBatches(activeCompanyId);
       setBatches(data || []);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load import batches from backend API');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to retrieve batches');
     } finally {
       setLoading(false);
     }
@@ -54,273 +56,206 @@ export default function ImportsDashboardPage() {
     loadBatches();
   }, [activeCompanyId]);
 
+  const totalBatches = batches.length;
   const totalRows = batches.reduce((acc, b) => acc + (b.totalRows || 0), 0);
-  const totalValid = batches.reduce((acc, b) => acc + (b.validRows || 0), 0);
-  const totalBlocked = batches.reduce((acc, b) => acc + (b.blockedRows || 0), 0);
-  const totalCompleted = batches.filter((b) => b.status === 'COMPLETED').length;
+  const totalCompleted = batches.filter(
+    (b) => b.status === 'POSTED' || b.status === 'COMPLETED'
+  ).length;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'PENDING':
+        return <Badge variant="warning" size="xs">Processing</Badge>;
+      case 'PARSED':
+        return <Badge variant="info" size="xs">Ready for Review</Badge>;
+      case 'CLARIFICATION_NEEDED':
+        return <Badge variant="danger" size="xs">Clarifications</Badge>;
+      case 'POSTED':
       case 'COMPLETED':
-        return <Badge variant="success">Completed &amp; Posted</Badge>;
-      case 'APPROVED':
-        return <Badge variant="info">Approved for Posting</Badge>;
-      case 'READY_FOR_APPROVAL':
-        return <Badge variant="info">Ready for Approval</Badge>;
-      case 'MAPPING':
-      case 'VALIDATING':
-        return <Badge variant="warning">Needs Resolution</Badge>;
+        return <Badge variant="success" size="xs">Posted</Badge>;
       case 'FAILED':
-        return <Badge variant="danger">Failed</Badge>;
+        return <Badge variant="danger" size="xs">Failed</Badge>;
       default:
-        return <Badge variant="neutral">{status}</Badge>;
+        return <Badge variant="neutral" size="xs">{status}</Badge>;
     }
   };
 
+  const columns: ColumnDef<any>[] = [
+    {
+      key: 'file',
+      header: 'File / Session',
+      cell: (batch) => (
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-subtle text-brand-text border border-subtle shrink-0">
+            <FileSpreadsheet className="h-4 w-4" />
+          </div>
+          <div>
+            <span className="block font-semibold text-primary">{batch.fileName}</span>
+            <span className="block text-[11px] font-mono text-muted">
+              ID: {batch.id.substring(0, 8)}... | {Math.round(parseInt(batch.fileSizeBytes || '0') / 1024)} KB
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      width: '140px',
+      cell: (batch) => (
+        <span className="text-xs text-secondary font-medium">
+          {batch.importType?.replace('_', ' ')}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: '140px',
+      cell: (batch) => getStatusBadge(batch.status),
+    },
+    {
+      key: 'breakdown',
+      header: 'Row Breakdown',
+      cell: (batch) => (
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 text-xs">
+            <span className="h-2 w-2 rounded-full bg-status-success" />
+            <span className="text-status-success-text font-semibold">{batch.validRows}</span>
+          </div>
+          {batch.clarificationRows > 0 && (
+            <div className="flex items-center gap-1 text-xs">
+              <span className="h-2 w-2 rounded-full bg-status-warning" />
+              <span className="text-status-warning-text font-semibold">{batch.clarificationRows}</span>
+            </div>
+          )}
+          {batch.blockedRows > 0 && (
+            <div className="flex items-center gap-1 text-xs">
+              <span className="h-2 w-2 rounded-full bg-status-danger" />
+              <span className="text-status-danger-text font-semibold">{batch.blockedRows}</span>
+            </div>
+          )}
+          <span className="text-xs text-muted">/ {batch.totalRows}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Uploaded At',
+      width: '160px',
+      cell: (batch) => (
+        <span className="text-xs text-muted">
+          {formatDate(batch.createdAt, 'short')}
+        </span>
+      ),
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      align: 'right',
+      width: '150px',
+      cell: (batch) => (
+        <Link href={`/imports/${batch.id}/review`}>
+          <Button variant="outline" size="sm" className="h-8 text-xs shadow-2xs">
+            Review Cockpit
+            <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+          </Button>
+        </Link>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Bulk Import Registers
-            </h1>
-            <Badge variant="info">GST Register Wizard</Badge>
-          </div>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Ingest high-volume Excel &amp; CSV registers with automated GST rule verification &amp; zero-duplicate Tally bridge.
+          <h1 className="text-2xl font-bold tracking-tight text-primary">GST Import Verification Engine</h1>
+          <p className="text-xs text-secondary mt-1">
+            Reconcile external spreadsheets into validated canonical invoices with sub-penny GST parity.
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="sm"
             onClick={loadBatches}
-            disabled={loading}
-            className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800"
+            loading={loading}
+            leftIcon={<RefreshCw className="h-4 w-4" />}
           >
-            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-
           <Link href="/imports/new">
-            <Button
-              variant="primary"
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-500/20 text-white text-xs font-semibold"
-            >
-              <Plus className="h-4 w-4 mr-1.5" />
-              New Import Session
+            <Button variant="primary" size="sm" leftIcon={<UploadCloud className="h-4 w-4" />}>
+              Upload Register
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* KPI Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm">
-          <CardContent className="p-5">
+      {/* Summary KPI Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="border border-default bg-surface shadow-2xs">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Total Sessions
-              </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+              <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Total Batches</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-sunken text-muted">
                 <FileSpreadsheet className="h-4 w-4" />
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-slate-900 dark:text-white">{batches.length}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">batches</span>
+              <span className="text-2xl font-bold text-primary">{totalBatches}</span>
+              <span className="text-xs text-muted">uploads</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm">
-          <CardContent className="p-5">
+        <Card className="border border-default bg-surface shadow-2xs">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Clean Vouchers
-              </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Rows Ingested</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-sunken text-muted">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{totalValid.toLocaleString()}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">of {totalRows.toLocaleString()} rows</span>
+              <span className="text-2xl font-bold text-primary">{totalRows.toLocaleString('en-IN')}</span>
+              <span className="text-xs text-muted">lines parsed</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm">
-          <CardContent className="p-5">
+        <Card className="border border-default bg-surface shadow-2xs">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Blocked Rows
-              </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
-                <AlertTriangle className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-rose-600 dark:text-rose-400">{totalBlocked.toLocaleString()}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">exceptions</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Tally Synced
-              </span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+              <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Completed Sessions</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-status-info-subtle text-status-info-text">
                 <Server className="h-4 w-4" />
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{totalCompleted}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">posted</span>
+              <span className="text-2xl font-bold text-status-info-text">{totalCompleted}</span>
+              <span className="text-xs text-muted">posted</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Batches Table */}
-      <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 shadow-sm overflow-hidden">
-        <CardHeader className="border-b border-slate-200 dark:border-slate-800/80 px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base font-bold text-slate-900 dark:text-white">Import Ingestion History</CardTitle>
-              <CardDescription className="text-xs text-slate-600 dark:text-slate-400">
-                Audited ingestion sessions with SHA-256 deduplication and line-level verification
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="p-6 space-y-3">
-              <Skeleton className="h-10 w-full bg-slate-100 dark:bg-slate-800/50" />
-              <Skeleton className="h-10 w-full bg-slate-100 dark:bg-slate-800/50" />
-              <Skeleton className="h-10 w-full bg-slate-100 dark:bg-slate-800/50" />
-            </div>
-          ) : error ? (
-            <div className="p-8 text-center">
-              <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-              <p className="text-sm text-slate-800 dark:text-slate-200 font-medium">{error}</p>
-              <Button variant="outline" size="sm" onClick={loadBatches} className="mt-4">
-                Retry Fetching Batches
-              </Button>
-            </div>
-          ) : batches.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 mb-4 shadow-sm">
-                <UploadCloud className="h-6 w-6" />
-              </div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">No import batches uploaded yet</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-                Begin verification by uploading your first Excel or CSV sales register.
-              </p>
-              <div className="mt-6">
-                <Link href="/imports/new">
-                  <Button variant="primary" size="sm" className="bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-500/20 text-white font-semibold">
-                    <Plus className="h-4 w-4 mr-1.5" />
-                    Launch Import Wizard
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:bg-transparent">
-                    <TableHead className="text-slate-600 dark:text-slate-400 font-semibold text-xs">File / Session</TableHead>
-                    <TableHead className="text-slate-600 dark:text-slate-400 font-semibold text-xs">Type</TableHead>
-                    <TableHead className="text-slate-600 dark:text-slate-400 font-semibold text-xs">Status</TableHead>
-                    <TableHead className="text-slate-600 dark:text-slate-400 font-semibold text-xs">Row Breakdown</TableHead>
-                    <TableHead className="text-slate-600 dark:text-slate-400 font-semibold text-xs">Uploaded At</TableHead>
-                    <TableHead className="text-right text-slate-600 dark:text-slate-400 font-semibold text-xs">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {batches.map((batch) => (
-                    <TableRow key={batch.id} className="border-b border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 shrink-0">
-                            <FileSpreadsheet className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <span className="block font-semibold text-slate-900 dark:text-slate-100">{batch.fileName}</span>
-                            <span className="block text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                              ID: {batch.id.substring(0, 8)}... | {Math.round(parseInt(batch.fileSizeBytes || '0') / 1024)} KB
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="text-xs text-slate-700 dark:text-slate-300 font-medium">
-                        {batch.importType.replace('_', ' ')}
-                      </TableCell>
-
-                      <TableCell>{getStatusBadge(batch.status)}</TableCell>
-
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1 text-xs">
-                            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{batch.validRows}</span>
-                          </div>
-                          {batch.clarificationRows > 0 && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="h-2 w-2 rounded-full bg-amber-500" />
-                              <span className="text-amber-700 dark:text-amber-400 font-semibold">{batch.clarificationRows}</span>
-                            </div>
-                          )}
-                          {batch.blockedRows > 0 && (
-                            <div className="flex items-center gap-1 text-xs">
-                              <span className="h-2 w-2 rounded-full bg-rose-500" />
-                              <span className="text-rose-700 dark:text-rose-400 font-semibold">{batch.blockedRows}</span>
-                            </div>
-                          )}
-                          <span className="text-xs text-slate-400">/ {batch.totalRows}</span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="text-xs text-slate-500 dark:text-slate-400">
-                        {new Date(batch.createdAt).toLocaleDateString('en-IN', {
-                          day: '2-digit',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </TableCell>
-
-                      <TableCell className="text-right">
-                        <Link href={`/imports/${batch.id}/review`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 text-xs border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm"
-                          >
-                            Review Cockpit
-                            <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Main Batches DataTable */}
+      <DataTable
+        columns={columns}
+        data={batches}
+        loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={batches.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="imports"
+        emptyTitle="No import batches"
+        emptyDescription="Upload a Tally XML or CSV register to stage transactions."
+        emptyAction={{ label: 'New Import', onClick: () => { window.location.href = '/imports/new'; } }}
+      />
     </div>
   );
 }

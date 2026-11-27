@@ -12,7 +12,9 @@ import {
   Input,
   Select,
   Button,
+  DatePicker,
 } from '@platform/ui';
+import { Plus } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
 interface TaskDialogProps {
@@ -29,11 +31,16 @@ export function TaskDialog({
   defaultClientId,
 }: TaskDialogProps) {
   const [clients, setClients] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showInlineService, setShowInlineService] = useState(false);
+  const [newSvcName, setNewSvcName] = useState('');
+  const [newSvcCategory, setNewSvcCategory] = useState('Advisory');
 
   const [formData, setFormData] = useState({
     clientId: defaultClientId || '',
+    serviceTypeId: '',
     title: '',
     description: '',
     category: 'GST',
@@ -44,14 +51,53 @@ export function TaskDialog({
 
   useEffect(() => {
     if (open) {
-      apiClient.listPracticeClients().then((data) => {
-        setClients(data || []);
-        if (data?.length > 0 && !formData.clientId) {
-          setFormData((prev) => ({ ...prev, clientId: defaultClientId || data[0].id }));
-        }
+      Promise.all([
+        apiClient.listPracticeClients(),
+        apiClient.listPracticeServices(),
+      ]).then(([cData, sData]) => {
+        setClients(cData || []);
+        setServices(sData || []);
+        setFormData((prev) => ({
+          ...prev,
+          clientId: prev.clientId || defaultClientId || cData?.[0]?.id || '',
+          serviceTypeId: prev.serviceTypeId || sData?.[0]?.id || '',
+          category: prev.serviceTypeId ? prev.category : sData?.[0]?.category || prev.category,
+        }));
       });
     }
   }, [open, defaultClientId]);
+
+  const handleSelectService = (svcId: string) => {
+    const svc = services.find((s) => s.id === svcId);
+    setFormData((prev) => ({
+      ...prev,
+      serviceTypeId: svcId,
+      category: svc?.category || prev.category,
+      title: prev.title || (svc ? `${svc.name}` : ''),
+    }));
+  };
+
+  const handleCreateInlineService = async () => {
+    if (!newSvcName.trim()) return;
+    try {
+      const created = await apiClient.createPracticeService({
+        name: newSvcName.trim(),
+        category: newSvcCategory.trim() || 'General',
+        frequency: 'MONTHLY',
+      });
+      setServices((prev) => [...prev, created]);
+      setFormData((prev) => ({
+        ...prev,
+        serviceTypeId: created.id,
+        category: created.category,
+        title: prev.title || created.name,
+      }));
+      setNewSvcName('');
+      setShowInlineService(false);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to create custom service');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,12 +127,12 @@ export function TaskDialog({
           <DialogHeader>
             <DialogTitle>Create Compliance Task</DialogTitle>
             <DialogDescription>
-              Assign a statutory deadline or bookkeeping workflow to a client account.
+              Assign a firm service deliverable or compliance task to a client account.
             </DialogDescription>
           </DialogHeader>
 
           {error && (
-            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-600 dark:text-rose-400 font-medium">
+            <div className="p-3 rounded-lg bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium">
               {error}
             </div>
           )}
@@ -103,6 +149,57 @@ export function TaskDialog({
               />
             </FormField>
 
+            <FormField label="Service Type (Work Type)" required>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select
+                    value={formData.serviceTypeId}
+                    onValueChange={handleSelectService}
+                    options={services.map((s) => ({
+                      value: s.id,
+                      label: `${s.name} (${s.category})`,
+                    }))}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowInlineService((v) => !v)}
+                  title="Add custom service"
+                >
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Custom
+                </Button>
+              </div>
+            </FormField>
+
+            {showInlineService && (
+              <div className="p-3 rounded-lg border border-default bg-surface-muted space-y-2">
+                <div className="text-xs font-semibold text-text-primary">Quick Add Custom Service</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    value={newSvcName}
+                    onChange={(e) => setNewSvcName(e.target.value)}
+                    placeholder="Service name (e.g. FEMA ODI)"
+                  />
+                  <Input
+                    value={newSvcCategory}
+                    onChange={(e) => setNewSvcCategory(e.target.value)}
+                    placeholder="Category (e.g. FEMA)"
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setShowInlineService(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="button" size="sm" variant="primary" onClick={handleCreateInlineService}>
+                    Save Service
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <FormField label="Task Title" required>
               <Input
                 value={formData.title}
@@ -112,21 +209,6 @@ export function TaskDialog({
             </FormField>
 
             <div className="grid grid-cols-2 gap-3">
-              <FormField label="Category" required>
-                <Select
-                  value={formData.category}
-                  onValueChange={(val) => setFormData({ ...formData, category: val })}
-                  options={[
-                    { value: 'GST', label: 'GST Return' },
-                    { value: 'TDS', label: 'TDS / TCS' },
-                    { value: 'INCOME_TAX', label: 'Income Tax' },
-                    { value: 'ROC', label: 'ROC / MCA' },
-                    { value: 'AUDIT', label: 'Audit' },
-                    { value: 'ACCOUNTING', label: 'Bookkeeping / Close' },
-                  ]}
-                />
-              </FormField>
-
               <FormField label="Priority" required>
                 <Select
                   value={formData.priority}
@@ -139,9 +221,7 @@ export function TaskDialog({
                   ]}
                 />
               </FormField>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
               <FormField label="Statutory Period" required hint="e.g. 2026-10">
                 <Input
                   value={formData.statutoryPeriod}
@@ -149,15 +229,15 @@ export function TaskDialog({
                   placeholder="2026-10"
                 />
               </FormField>
-
-              <FormField label="Statutory Due Date" required>
-                <Input
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                />
-              </FormField>
             </div>
+
+            <FormField label="Statutory Due Date" required>
+              <DatePicker
+                value={formData.dueDate}
+                onChange={(d) => setFormData({ ...formData, dueDate: d })}
+                required
+              />
+            </FormField>
 
             <FormField label="Scope & Instructions">
               <Input

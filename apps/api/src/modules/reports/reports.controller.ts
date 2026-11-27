@@ -15,6 +15,7 @@ import { requireContext } from '../../common/http/request-context';
 import { ReportsService } from './reports.service';
 import { ReportExportService } from './report-export.service';
 import { ReportShareService } from './report-share.service';
+import { PdfRenderService } from './pdf-render.service';
 import { ReportShareRequestDto } from '@platform/shared-types';
 
 @Controller('v1')
@@ -23,6 +24,7 @@ export class ReportsController {
     private readonly reportsService: ReportsService,
     private readonly exportService: ReportExportService,
     private readonly shareService: ReportShareService,
+    private readonly pdfRenderService: PdfRenderService,
   ) {}
 
   private getContext(req: any) {
@@ -249,7 +251,27 @@ export class ReportsController {
     return await this.reportsService.getBalanceSheet(tenantId, companyId, date);
   }
 
-  // --- Export (Excel / HTML-PDF) ---
+  private async sendPrintResponse(
+    res: Response,
+    html: string,
+    format: string,
+    fileBase: string,
+    branding: { legalName: string },
+  ) {
+    if ((format || '').toLowerCase() === 'pdf') {
+      const pdfHtml = html.replace('</head>', '<style>.no-print{display:none!important;}body{background:#fff!important;padding:0!important;}.report-paper{border:none!important;box-shadow:none!important;padding:0!important;margin:0!important;max-width:100%!important;}</style></head>');
+      const pdfBuffer = await this.pdfRenderService.renderHtmlToPdf(pdfHtml, {
+        firmName: branding.legalName,
+      });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileBase}_${Date.now()}.pdf"`);
+      return res.send(pdfBuffer);
+    }
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(html);
+  }
+
+  // --- Export (Excel / Real PDF / HTML) ---
 
   @Get('companies/:companyId/reports/:reportKey/export')
   async exportReport(
@@ -258,13 +280,125 @@ export class ReportsController {
     @Query('format') format: string,
     @Query('fromDate') fromDate: string,
     @Query('toDate') toDate: string,
+    @Query('watermark') watermark: string,
     @Request() req: any,
     @Res() res: Response,
   ) {
     const { tenantId } = this.getContext(req);
     const branding = await this.reportsService.getCompanyBranding(tenantId, companyId);
-    const isExcel = (format || 'xlsx').toLowerCase().includes('xls');
+    const fmt = (format || 'xlsx').toLowerCase();
+    const isExcel = fmt.includes('xls');
+    const isPdf = fmt === 'pdf';
+    const printOpts = { forPdf: isPdf, watermark: watermark || undefined };
     const rKeyUpper = reportKey.toUpperCase();
+
+    // 0. Core Financial Statements (Trial Balance, P&L, Balance Sheet, General Ledger)
+    if (rKeyUpper === 'TRIAL_BALANCE') {
+      const data = await this.reportsService.getTrialBalance(tenantId, companyId, toDate);
+      if (isExcel) {
+        const headers = ['Code', 'Ledger Name', 'Group', 'Nature', 'Opening Dr (₹)', 'Opening Cr (₹)', 'Period Dr (₹)', 'Period Cr (₹)', 'Closing Dr (₹)', 'Closing Cr (₹)'];
+        const rows = (data.rows || []).map((r: any) => [
+          r.ledgerCode, r.ledgerName, r.groupName, r.nature,
+          r.openingDebit, r.openingCredit, r.periodDebit, r.periodCredit, r.closingDebit, r.closingCredit,
+        ]);
+        const totals = ['', 'GRAND TOTAL', '', '', '', '', data.totalPeriodDebit || 0, data.totalPeriodCredit || 0, data.totalClosingDebit || 0, data.totalClosingCredit || 0];
+        const buffer = await this.exportService.exportGenericReportExcel('Trial Balance (ICAI Standard)', `As at ${data.asOfDate}`, branding, headers, rows, totals);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="Trial_Balance_${Date.now()}.xlsx"`);
+        return res.send(buffer);
+      }
+      const html = this.exportService.generateTrialBalancePrintHtml(data, branding, printOpts);
+      return this.sendPrintResponse(res, html, fmt, 'Trial_Balance', branding);
+    }
+
+    if (rKeyUpper === 'PROFIT_LOSS' || rKeyUpper === 'PROFIT_AND_LOSS') {
+      const from = fromDate || '2024-04-01';
+      const to = toDate || new Date().toISOString().split('T')[0];
+      const data = await this.reportsService.getProfitAndLoss(tenantId, companyId, from, to);
+      if (isExcel) {
+        const headers = ['Section', 'Particulars', 'Group', 'Amount (₹)'];
+        const rows: (string | number)[][] = [
+          ...(data.incomes || []).map((i: any) => ['Income', i.ledgerName, i.groupName, i.amount]),
+          ...(data.expenses || []).map((e: any) => ['Expense', e.ledgerName, e.groupName, e.amount]),
+        ];
+        const totals = ['', 'NET PROFIT / (LOSS)', '', data.netProfit || 0];
+        const buffer = await this.exportService.exportGenericReportExcel('Statement of Profit & Loss', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="Profit_and_Loss_${Date.now()}.xlsx"`);
+        return res.send(buffer);
+      }
+      const html = this.exportService.generateProfitAndLossPrintHtml(data, branding, printOpts);
+      return this.sendPrintResponse(res, html, fmt, 'Profit_and_Loss', branding);
+    }
+
+    if (rKeyUpper === 'BALANCE_SHEET') {
+      const data = await this.reportsService.getBalanceSheet(tenantId, companyId, toDate);
+      if (isExcel) {
+        const headers = ['Section', 'Particulars', 'Group', 'Amount (₹)'];
+        const rows: (string | number)[][] = [
+          ...(data.equity || []).map((e: any) => ['Equity', e.ledgerName, e.groupName || 'Equity', e.amount]),
+          ...(data.liabilities || []).map((l: any) => ['Liability', l.ledgerName, l.groupName || 'Liability', l.amount]),
+          ...(data.assets || []).map((a: any) => ['Asset', a.ledgerName, a.groupName || 'Asset', a.amount]),
+        ];
+        const totals = ['', 'TOTAL ASSETS', '', data.totalAssets || 0];
+        const buffer = await this.exportService.exportGenericReportExcel('Balance Sheet (Schedule III)', `As at ${data.asOfDate}`, branding, headers, rows, totals);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="Balance_Sheet_${Date.now()}.xlsx"`);
+        return res.send(buffer);
+      }
+      const html = this.exportService.generateBalanceSheetPrintHtml(data, branding, printOpts);
+      return this.sendPrintResponse(res, html, fmt, 'Balance_Sheet', branding);
+    }
+
+    if (rKeyUpper === 'GENERAL_LEDGER') {
+      const from = fromDate || '2024-04-01';
+      const to = toDate || new Date().toISOString().split('T')[0];
+      const tb = await this.reportsService.getTrialBalance(tenantId, companyId, to);
+      const headers = ['Code', 'Ledger Account', 'Group', 'Opening (₹)', 'Debit (₹)', 'Credit (₹)', 'Closing Dr (₹)', 'Closing Cr (₹)'];
+      const rows = (tb.rows || []).map((r: any) => [
+        r.ledgerCode, r.ledgerName, r.groupName, Number(r.openingDebit || 0) - Number(r.openingCredit || 0),
+        r.periodDebit, r.periodCredit, r.closingDebit, r.closingCredit,
+      ]);
+      const totals = ['', 'TOTALS', '', '', tb.totalPeriodDebit || 0, tb.totalPeriodCredit || 0, tb.totalClosingDebit || 0, tb.totalClosingCredit || 0];
+      if (isExcel) {
+        const buffer = await this.exportService.exportGenericReportExcel('General Ledger Summary', `${from} to ${to}`, branding, headers, rows, totals);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="General_Ledger_${Date.now()}.xlsx"`);
+        return res.send(buffer);
+      }
+      const html = this.exportService.generateBrandedReportHtml('General Ledger Summary', `${from} to ${to}`, branding, headers, rows, totals, printOpts);
+      return this.sendPrintResponse(res, html, fmt, 'General_Ledger', branding);
+    }
+
+    if (rKeyUpper === 'AR_AGEING') {
+      const data = await this.reportsService.getCustomerSalesReport(tenantId, companyId, fromDate, toDate);
+      const headers = ['#', 'Customer Name', 'GSTIN', 'Invoices', 'Total Sales (₹)', 'Outstanding (₹)'];
+      const rows = data.rows.map((r, i) => [i + 1, r.partyName, r.gstin || 'Unregistered', r.invoiceCount, r.totalAmount, r.outstandingBalance]);
+      const totals = ['', 'TOTAL RECEIVABLES', '', data.totalInvoices, data.totalSales, data.totalOutstanding];
+      if (isExcel) {
+        const buffer = await this.exportService.exportGenericReportExcel('AR Ageing & Receivables Summary', `As at ${toDate || new Date().toISOString().split('T')[0]}`, branding, headers, rows, totals);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="AR_Ageing_${Date.now()}.xlsx"`);
+        return res.send(buffer);
+      }
+      const html = this.exportService.generateBrandedReportHtml('AR Ageing & Receivables Summary', `As at ${toDate || new Date().toISOString().split('T')[0]}`, branding, headers, rows, totals, printOpts);
+      return this.sendPrintResponse(res, html, fmt, 'AR_Ageing', branding);
+    }
+
+    if (rKeyUpper === 'BRS_STATEMENT') {
+      const data = await this.reportsService.getCashBankAuditReport(tenantId, companyId, 'inter-bank', fromDate, toDate);
+      const headers = ['Date', 'Voucher #', 'Account', 'Counterparty / Narration', 'Type', 'Amount (₹)'];
+      const rows: (string | number)[][] = data.rows.map((r) => [r.date, r.voucherNumber, r.accountName, r.particulars || '-', r.voucherType, r.amount]);
+      const totals = ['', '', '', 'TOTALS', '', data.totalAmount];
+      if (isExcel) {
+        const buffer = await this.exportService.exportGenericReportExcel('Bank Reconciliation Statement (BRS)', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="BRS_Statement_${Date.now()}.xlsx"`);
+        return res.send(buffer);
+      }
+      const html = this.exportService.generateBrandedReportHtml('Bank Reconciliation Statement (BRS)', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals, printOpts);
+      return this.sendPrintResponse(res, html, fmt, 'BRS_Statement', branding);
+    }
 
     // 1. Customer-Wise Sales Report
     if (rKeyUpper === 'CUSTOMER_SALES') {
@@ -288,9 +422,8 @@ export class ReportsController {
           r.outstandingBalance,
         ]);
         const totals = ['', 'TOTALS', '', '', data.totalInvoices, data.totalTaxable, data.totalTax, data.totalSales, data.totalOutstanding];
-        const html = this.exportService.generateBrandedReportHtml('Customer-Wise Sales Analysis Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        const html = this.exportService.generateBrandedReportHtml('Customer-Wise Sales Analysis Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals, printOpts);
+        return this.sendPrintResponse(res, html, fmt, 'Customer_Sales', branding);
       }
     }
 
@@ -318,8 +451,7 @@ export class ReportsController {
         ]);
         const totals = ['', 'TOTALS', '', '', '', data.totalQuantity, '', data.totalTaxable, data.totalTax, data.totalSales];
         const html = this.exportService.generateBrandedReportHtml('Product & Item-Wise Sales Analysis Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -344,8 +476,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Expenses Monthly Trend Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -369,8 +500,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Expenses Vendor-Wise Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -394,8 +524,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Expenses Category-Wise Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -420,8 +549,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Expenses Register Audit Trail', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -447,13 +575,12 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Purchases Item-Wise Analysis Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
-    // 8. Vendor Payables Summary
-    if (rKeyUpper === 'PAYABLES_SUMMARY') {
+    // 8. Vendor Payables Summary & Advances
+    if (rKeyUpper === 'PAYABLES_SUMMARY' || rKeyUpper === 'ADVANCE_TO_VENDORS') {
       const data = await this.reportsService.getPayablesSummaryReport(tenantId, companyId, fromDate, toDate);
       const headers = ['#', 'Vendor / Creditor Name', 'Primary Group', 'PAN', 'GSTIN', 'Opening Balance (₹)', 'Debit Paid (₹)', 'Credit Bills (₹)', 'Closing Balance (₹)', 'Net Due (₹)'];
       const rows = data.rows.map((r, i) => [
@@ -476,8 +603,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Vendor Payables Summary Report', `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -503,8 +629,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml('Vendor Payables Ageing Report', `As of ${toDate || 'today'}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -560,8 +685,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml(cleanTitle, `${data.fromDate} to ${data.toDate}`, branding, headers, rows, totals);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 
@@ -587,8 +711,7 @@ export class ReportsController {
         return res.send(buffer);
       } else {
         const html = this.exportService.generateBrandedReportHtml(cleanTitle, 'Current Financial Year', branding, headers, rows);
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.send(html);
+        return this.sendPrintResponse(res, html, fmt, reportKey, branding);
       }
     }
 

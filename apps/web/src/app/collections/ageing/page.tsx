@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -6,11 +7,13 @@ import {
   Input,
   Badge,
   DataTable,
+  formatMoney,
   type ColumnDef,
 } from '@platform/ui';
 import { RefreshCw, Search, Send, Calendar, ArrowRight } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 import { AgeingSummaryCards } from './ageing-summary-cards';
 import { AgeingDistributionBar } from './ageing-distribution-bar';
 import { SendReminderDialog } from './send-reminder-dialog';
@@ -27,6 +30,11 @@ export default function ArAgeingPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedParty, setSelectedParty] = useState<PartyAgeingDto | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'ageing',
+    defaultPageSize: 25,
+  });
   const [openReminderModal, setOpenReminderModal] = useState(false);
   const [openPromiseModal, setOpenPromiseModal] = useState(false);
 
@@ -42,7 +50,7 @@ export default function ArAgeingPage() {
       setParties(list || []);
       setInvoices(invs || []);
     } catch (err: unknown) {
-      console.error('Failed to load AR Ageing data', err);
+      logger.error('Failed to load AR Ageing data', err);
     } finally {
       setLoading(false);
     }
@@ -52,14 +60,7 @@ export default function ArAgeingPage() {
     loadData();
   }, [activeCompanyId]);
 
-  const formatInr = (val: string | number) => {
-    const num = Number(val || 0);
-    return num.toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatInr = (val: string | number) => formatMoney(val);
 
   const filteredParties = parties.filter((p) => {
     const term = searchTerm.toLowerCase();
@@ -76,8 +77,8 @@ export default function ArAgeingPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white">{row.partyName}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+          <div className="font-bold text-primary">{row.partyName}</div>
+          <div className="text-[11px] text-muted font-mono">
             {row.gstin || 'Unregistered B2C'}
           </div>
         </div>
@@ -87,7 +88,7 @@ export default function ArAgeingPage() {
       header: 'Total Outstanding',
       key: 'totalDue',
       cell: (row) => (
-        <span className="font-extrabold text-slate-900 dark:text-white tabular-nums">
+        <span className="font-extrabold text-primary tabular-nums">
           {formatInr(row.totalDue)}
         </span>
       ),
@@ -96,7 +97,7 @@ export default function ArAgeingPage() {
       header: '0–30 Days',
       key: 'current0To30',
       cell: (row) => (
-        <span className="text-emerald-600 dark:text-emerald-400 font-medium tabular-nums">
+        <span className="text-status-success-text font-medium tabular-nums">
           {Number(row.current0To30) > 0 ? formatInr(row.current0To30) : '—'}
         </span>
       ),
@@ -105,7 +106,7 @@ export default function ArAgeingPage() {
       header: '31–60 Days',
       key: 'days31To60',
       cell: (row) => (
-        <span className="text-amber-600 dark:text-amber-400 font-medium tabular-nums">
+        <span className="text-status-warning-text font-medium tabular-nums">
           {Number(row.days31To60) > 0 ? formatInr(row.days31To60) : '—'}
         </span>
       ),
@@ -114,7 +115,7 @@ export default function ArAgeingPage() {
       header: '61–90 Days',
       key: 'days61To90',
       cell: (row) => (
-        <span className="text-orange-600 dark:text-orange-400 font-medium tabular-nums">
+        <span className="text-status-info-text font-medium tabular-nums">
           {Number(row.days61To90) > 0 ? formatInr(row.days61To90) : '—'}
         </span>
       ),
@@ -123,7 +124,7 @@ export default function ArAgeingPage() {
       header: '90+ Days',
       key: 'days90Plus',
       cell: (row) => (
-        <span className="text-rose-600 dark:text-rose-400 font-bold tabular-nums">
+        <span className="text-status-danger-text font-bold tabular-nums">
           {Number(row.days90Plus) > 0 ? formatInr(row.days90Plus) : '—'}
         </span>
       ),
@@ -171,7 +172,7 @@ export default function ArAgeingPage() {
       key: 'invoiceNumber',
       cell: (row) => (
         <div>
-          <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
+          <span className="font-mono font-bold text-xs text-brand-text">
             {row.invoiceNumber}
           </span>
           <div className="mt-0.5">
@@ -187,8 +188,8 @@ export default function ArAgeingPage() {
       key: 'partyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-slate-900 dark:text-white text-xs">{row.partyName}</div>
-          <div className="text-[10px] text-slate-500 font-mono">{row.partyGstin || 'Unregistered'}</div>
+          <div className="font-bold text-primary text-xs">{row.partyName}</div>
+          <div className="text-[10px] text-muted font-mono">{row.partyGstin || 'Unregistered'}</div>
         </div>
       ),
     },
@@ -198,7 +199,7 @@ export default function ArAgeingPage() {
       cell: (row) => (
         <div>
           <div className="text-xs">{row.dueDate || row.invoiceDate}</div>
-          <span className={`text-[10px] font-semibold ${row.overdueDays > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+          <span className={`text-[10px] font-semibold ${row.overdueDays > 0 ? 'text-status-danger-text' : 'text-status-success-text'}`}>
             {row.overdueDays > 0 ? `${row.overdueDays}d overdue` : 'Current'}
           </span>
         </div>
@@ -208,7 +209,7 @@ export default function ArAgeingPage() {
       header: 'Amount',
       key: 'totalAmount',
       cell: (row) => (
-        <span className="font-extrabold text-slate-900 dark:text-white tabular-nums text-xs">
+        <span className="font-extrabold text-primary tabular-nums text-xs">
           {formatInr(row.totalAmount)}
         </span>
       ),
@@ -234,10 +235,10 @@ export default function ArAgeingPage() {
             </Badge>
           )}
           {row.promiseStatus === 'NO_PROMISE' && (
-            <span className="text-xs text-slate-400 italic">No promise recorded</span>
+            <span className="text-xs text-muted italic">No promise recorded</span>
           )}
           {row.promiseToPayNotes && (
-            <p className="text-[11px] text-slate-500 italic mt-0.5 max-w-[220px] truncate">
+            <p className="text-[11px] text-muted italic mt-0.5 max-w-[220px] truncate">
               {row.promiseToPayNotes}
             </p>
           )}
@@ -269,12 +270,12 @@ export default function ArAgeingPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Accounts Receivable Ageing
             </h1>
             <Badge variant="brand" size="sm">AR Intelligence</Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted">
             Real-time aging horizons (0-30, 31-60, 61-90, 90+ days), DSO metrics, and automated debtor follow-ups.
           </p>
         </div>
@@ -303,7 +304,7 @@ export default function ArAgeingPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
             <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
               <Input
                 placeholder={
                   viewMode === 'PARTIES'
@@ -317,14 +318,14 @@ export default function ArAgeingPage() {
             </div>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-full sm:w-auto">
+            <div className="flex items-center gap-1 p-1 bg-surface-sunken rounded-xl w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setViewMode('PARTIES')}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                   viewMode === 'PARTIES'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-surface text-primary shadow-xs'
+                    : 'text-muted hover:text-primary'
                 }`}
               >
                 By Customer ({parties.length})
@@ -334,8 +335,8 @@ export default function ArAgeingPage() {
                 onClick={() => setViewMode('INVOICES')}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
                   viewMode === 'INVOICES'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-brand text-inverse shadow-xs'
+                    : 'text-muted hover:text-primary'
                 }`}
               >
                 By Invoice & Promises ({invoices.length})
@@ -343,7 +344,7 @@ export default function ArAgeingPage() {
             </div>
           </div>
 
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="text-xs text-muted">
             {viewMode === 'PARTIES'
               ? `Showing ${filteredParties.length} of ${parties.length} customer accounts`
               : `Showing ${filteredInvoices.length} of ${invoices.length} open documents`}
@@ -355,14 +356,30 @@ export default function ArAgeingPage() {
             columns={columns}
             data={filteredParties}
             loading={loading}
-            emptyTitle="No Open Debtors"
-            emptyDescription="No customer accounts with outstanding dues detected."
+            page={page}
+            pageSize={pageSize}
+            totalItems={filteredParties.length}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            storageKey="ageing_parties"
+            isFiltered={Boolean(searchTerm.trim())}
+            onClearFilters={() => setSearchTerm('')}
+            emptyTitle="No overdue receivables"
+            emptyDescription="All customer accounts are currently settled within terms."
           />
         ) : (
           <DataTable
             columns={invoiceColumns}
             data={filteredInvoices}
             loading={loading}
+            page={page}
+            pageSize={pageSize}
+            totalItems={filteredInvoices.length}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            storageKey="ageing_invoices"
+            isFiltered={Boolean(searchTerm.trim())}
+            onClearFilters={() => setSearchTerm('')}
             emptyTitle="No Open Invoices"
             emptyDescription="All issued customer documents have been fully reconciled."
           />

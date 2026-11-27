@@ -3,14 +3,14 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from './utils';
 
 export const inputVariants = cva(
-  'flex w-full rounded-xl border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+  'flex w-full rounded-xl border bg-surface text-primary placeholder:text-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
   {
     variants: {
       variant: {
         default:
-          'border-slate-200 dark:border-slate-800 focus-visible:border-blue-500 focus-visible:ring-blue-500/20',
+          'border-default focus-visible:border-focus focus-visible:ring-border-focus',
         error:
-          'border-rose-400 dark:border-rose-600 focus-visible:border-rose-500 focus-visible:ring-rose-500/20 text-rose-900 dark:text-rose-100',
+          'border-status-danger focus-visible:border-status-danger focus-visible:ring-status-danger text-status-danger-text',
       },
       size: {
         sm: 'h-8 px-2.5 text-xs',
@@ -38,7 +38,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       return (
         <div className="relative flex items-center w-full">
           {leftAddon && (
-            <div className={cn("absolute flex items-center pointer-events-none text-slate-400", size === 'sm' ? 'left-2' : 'left-3')}>
+            <div className={cn('absolute flex items-center pointer-events-none text-muted', size === 'sm' ? 'left-2' : 'left-3')}>
               {leftAddon}
             </div>
           )}
@@ -46,7 +46,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               inputVariants({ variant, size }),
-              leftAddon && (size === 'sm' ? 'pl-6' : 'pl-9'),
+              leftAddon && (size === 'sm' ? 'pl-7' : 'pl-9'),
               rightAddon && (size === 'sm' ? 'pr-6' : 'pr-9'),
               className
             )}
@@ -54,7 +54,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightAddon && (
-            <div className="absolute right-3 flex items-center pointer-events-none text-slate-400">
+            <div className={cn('absolute flex items-center pointer-events-none text-muted', size === 'sm' ? 'right-2' : 'right-3')}>
               {rightAddon}
             </div>
           )}

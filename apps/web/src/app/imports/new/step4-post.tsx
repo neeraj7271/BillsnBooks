@@ -26,11 +26,11 @@ export function Step4Post({
     return (
       <Card>
         <CardContent className="p-8 text-center space-y-4">
-          <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+          <div className="h-12 w-12 rounded-full bg-status-success-subtle text-status-success-text flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-6 w-6" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Batch Ingestion Complete</h2>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <h2 className="text-lg font-bold text-primary">Batch Ingestion Complete</h2>
+          <p className="text-xs text-muted max-w-md mx-auto">
             Successfully posted {postResult.postedCount || greenCount} verified vouchers directly to the canonical general ledger.
           </p>
           <div className="pt-4 flex justify-center gap-3">
@@ -56,19 +56,19 @@ export function Step4Post({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900/40 flex items-start gap-3">
-          <ShieldCheck className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-xl bg-brand-subtle border border-default flex items-start gap-3">
+          <ShieldCheck className="h-5 w-5 text-brand-text shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
-            <div className="font-bold text-blue-900 dark:text-blue-200">
+            <div className="font-bold text-primary">
               Double-Entry Immutability Guarantee
             </div>
-            <p className="text-blue-700 dark:text-blue-300">
+            <p className="text-secondary">
               Posting will generate sequential voucher numbers and update general ledger balances for {greenCount} clean entries.
             </p>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="p-4 rounded-xl border border-default">
           <Switch
             id="maker-checker-confirm"
             checked={approved}

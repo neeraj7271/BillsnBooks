@@ -6,6 +6,7 @@ import { TenantContextInterceptor } from './common/interceptors/tenant-context.i
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './infrastructure/persistence/data-source';
 import { PersistenceModule } from './infrastructure/persistence/persistence.module';
+import { StorageModule } from './modules/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { VoucherModule } from './modules/voucher/voucher.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
@@ -22,16 +23,19 @@ import { InvoiceModule } from './modules/invoice/invoice.module';
 import { ApprovalModule } from './modules/approval/approval.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PracticeModule } from './modules/practice/practice.module';
+import { TeamModule } from './modules/team/team.module';
 import { CollectionsModule } from './modules/collections/collections.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NumberingModule } from './modules/numbering/numbering.module';
+import { DevModule } from './modules/dev/dev.module';
 import { HealthController } from './modules/health/health.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(AppDataSource.options),
     PersistenceModule,
+    StorageModule,
     AuthModule,
     VoucherModule,
     IntelligenceModule,
@@ -48,10 +52,12 @@ import { HealthController } from './modules/health/health.controller';
     ApprovalModule,
     NotificationModule,
     PracticeModule,
+    TeamModule,
     CollectionsModule,
     MetricsModule,
     SettingsModule,
     NumberingModule,
+    DevModule,
   ],
   controllers: [HealthController],
   providers: [

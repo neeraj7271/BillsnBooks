@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateText, Badge } from '@platform/ui';
+import { DateText, Badge, MonoCopyable } from '@platform/ui';
 import { formatPartyTaxIdentity, INDIAN_GST_STATES } from '@platform/shared-types';
 
 interface InvoicePartyDetailsProps {
@@ -36,78 +36,83 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
 
   return (
     <>
-      <div className="border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-6 flex justify-between items-start">
+      <div className="border-b border-default pb-6 flex justify-between items-start">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 print:text-black">
+            <span className="text-xs font-black uppercase tracking-widest text-brand-text print:text-black">
               {isCompanyGstRegistered ? 'TAX INVOICE' : 'INVOICE'}
             </span>
-            <span className="text-[10px] text-slate-400 print:text-slate-600 font-semibold">
+            <span className="text-[10px] text-muted print:text-black font-semibold">
               {isCompanyGstRegistered ? '(Original for Recipient — GST Rule 46)' : '(Commercial Invoice)'}
             </span>
           </div>
-          <h2 className="text-xl font-black mt-1 text-slate-900 dark:text-white print:text-black">
+          <h2 className="text-xl font-black mt-1 text-primary print:text-black">
             {companyName}
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 print:text-slate-700 mt-0.5">
+          <p className="text-xs text-secondary print:text-black mt-0.5">
             {companyAddr}
           </p>
-          <div className="mt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-600 dark:text-slate-400 print:text-black">
-            <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 print:text-black">GSTIN:</span>{' '}
-              {companyGstin || <span className="italic font-sans text-slate-400">Unregistered</span>}
+          <div className="mt-2 flex flex-wrap gap-4 text-xs font-mono text-secondary print:text-black">
+            <div className="flex items-center gap-1">
+              <span className="font-bold text-primary print:text-black">GSTIN:</span>{' '}
+              {companyGstin ? (
+                <MonoCopyable value={companyGstin} label="GSTIN" />
+              ) : (
+                <span className="italic font-sans text-muted">Unregistered</span>
+              )}
             </div>
             {companyPan && (
-              <div>
-                <span className="font-bold text-slate-800 dark:text-slate-200 print:text-black">PAN:</span> {companyPan}
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-primary print:text-black">PAN:</span>{' '}
+                <MonoCopyable value={companyPan} label="PAN" />
               </div>
             )}
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 print:text-black">State Code:</span> {companyStateCode} ({companyStateName})
+              <span className="font-bold text-primary print:text-black">State Code:</span> {companyStateCode} ({companyStateName})
             </div>
           </div>
         </div>
 
         <div className="text-right">
-          <div className="text-xs text-slate-400 print:text-slate-600 uppercase font-bold tracking-wider">
+          <div className="text-xs text-muted print:text-black uppercase font-bold tracking-wider">
             Invoice Number
           </div>
-          <div className="text-lg font-black font-mono text-slate-900 dark:text-white print:text-black">
+          <div className="text-lg font-black font-mono text-primary print:text-black">
             {invoice.invoiceNumber}
           </div>
-          <div className="mt-2 text-xs space-y-0.5 text-slate-600 dark:text-slate-400 print:text-slate-800">
+          <div className="mt-2 text-xs space-y-0.5 text-secondary print:text-black">
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300 print:text-black">Invoice Date:</span> <DateText date={invoice.invoiceDate} />
+              <span className="font-bold text-primary print:text-black">Invoice Date:</span> <DateText date={invoice.invoiceDate} />
             </div>
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300 print:text-black">Payment Due:</span> <DateText date={invoice.dueDate} />
+              <span className="font-bold text-primary print:text-black">Payment Due:</span> <DateText date={invoice.dueDate} />
             </div>
             <div>
-              <span className="font-bold text-slate-700 dark:text-slate-300 print:text-black">Place of Supply:</span> State Code {invoice.placeOfSupplyStateCode}
+              <span className="font-bold text-primary print:text-black">Place of Supply:</span> State Code {invoice.placeOfSupplyStateCode}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="py-6 border-b border-slate-200 dark:border-slate-800 print:border-slate-300 grid grid-cols-2 gap-8 text-xs">
+      <div className="py-6 border-b border-default grid grid-cols-2 gap-8 text-xs">
         <div>
-          <div className="font-bold uppercase tracking-wider text-slate-400 print:text-slate-600 text-[10px] mb-1">
+          <div className="font-bold uppercase tracking-wider text-muted print:text-black text-[10px] mb-1">
             Billed To (Customer):
           </div>
-          <div className="text-sm font-bold text-slate-900 dark:text-white print:text-black">
+          <div className="text-sm font-bold text-primary print:text-black">
             {partyName}
           </div>
           {partyTradeName && (
-            <div className="text-xs text-slate-500 print:text-slate-600">
+            <div className="text-xs text-secondary print:text-black">
               Trade Name: {partyTradeName}
             </div>
           )}
-          <div className="text-slate-600 dark:text-slate-400 print:text-slate-800 mt-1">
+          <div className="text-secondary print:text-black mt-1">
             {billingAddr}
             {billingCity && `, ${billingCity}`}
             {billingPincode && ` - ${billingPincode}`}
           </div>
-          <div className="mt-2 font-mono text-slate-700 dark:text-slate-300 print:text-black space-y-1">
+          <div className="mt-2 font-mono text-primary print:text-black space-y-1">
             <div className="flex items-center gap-1.5">
               <span className="font-bold">Tax Treatment:</span>
               <Badge variant={identity.badgeVariant} size="xs">
@@ -115,8 +120,9 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
               </Badge>
             </div>
             {identity.showGstin && partyGstin ? (
-              <div>
-                <span className="font-bold">GSTIN:</span> {partyGstin}
+              <div className="flex items-center gap-1">
+                <span className="font-bold">GSTIN:</span>{' '}
+                <MonoCopyable value={partyGstin} label="Customer GSTIN" />
               </div>
             ) : null}
             <div>
@@ -126,21 +132,21 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
         </div>
 
         <div>
-          <div className="font-bold uppercase tracking-wider text-slate-400 print:text-slate-600 text-[10px] mb-1">
+          <div className="font-bold uppercase tracking-wider text-muted print:text-black text-[10px] mb-1">
             Remittance Bank Details:
           </div>
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 print:bg-slate-50 border border-slate-100 dark:border-slate-800 print:border-slate-300 text-xs space-y-1">
-            <div className="font-bold text-slate-900 dark:text-white print:text-black">HDFC Bank Limited</div>
-            <div className="text-slate-700 dark:text-slate-300 print:text-black">
-              <span className="text-slate-500 print:text-slate-600">Current A/c:</span>{' '}
+          <div className="p-3 rounded-xl bg-surface-sunken print:bg-white border border-subtle text-xs space-y-1">
+            <div className="font-bold text-primary print:text-black">HDFC Bank Limited</div>
+            <div className="text-primary print:text-black">
+              <span className="text-secondary print:text-black">Current A/c:</span>{' '}
               <span className="font-mono font-bold">50200012345678</span>
             </div>
-            <div className="text-slate-700 dark:text-slate-300 print:text-black">
-              <span className="text-slate-500 print:text-slate-600">IFSC Code:</span>{' '}
+            <div className="text-primary print:text-black">
+              <span className="text-secondary print:text-black">IFSC Code:</span>{' '}
               <span className="font-mono font-bold">HDFC0000060</span>
             </div>
-            <div className="text-slate-700 dark:text-slate-300 print:text-black">
-              <span className="text-slate-500 print:text-slate-600">Branch:</span> Nariman Point Commercial Hub
+            <div className="text-primary print:text-black">
+              <span className="text-secondary print:text-black">Branch:</span> Nariman Point Commercial Hub
             </div>
           </div>
         </div>

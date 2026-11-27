@@ -16,6 +16,8 @@ export async function runSeed() {
     const branchId = 'd0000000-0000-4000-8000-000000000001';
     const fyId = 'e0000000-0000-4000-8000-000000000001';
 
+    await queryRunner.query(`SELECT set_config('app.tenant_id', $1, true)`, [tenantId]);
+
     // 1. Tenant
     await queryRunner.query(
       `INSERT INTO tenants (id, name, slug, plan)

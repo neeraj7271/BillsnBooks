@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { toast, DateRangePicker, formatMoney } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -100,7 +102,7 @@ export default function PayablesSuitePage() {
     try {
       await apiClient.toggleFavoriteReport(activeCompanyId, key);
     } catch (err) {
-      console.error('Failed to toggle favorite', err);
+      logger.error('Failed to toggle favorite', err);
     }
   };
 
@@ -118,7 +120,7 @@ export default function PayablesSuitePage() {
         setData(res);
       }
     } catch (err) {
-      console.error('Failed to load payables report', err);
+      logger.error('Failed to load payables report', err);
     } finally {
       setLoading(false);
     }
@@ -134,7 +136,7 @@ export default function PayablesSuitePage() {
       const rKey = getCurrentReportKey();
       await apiClient.downloadReportExport(activeCompanyId, rKey, 'xlsx', fromDate, toDate);
     } catch (err: any) {
-      alert(`Export error: ${err.message}`);
+      toast.error(`Export failed: ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -145,7 +147,7 @@ export default function PayablesSuitePage() {
       const rKey = getCurrentReportKey();
       await apiClient.downloadReportExport(activeCompanyId, rKey, 'pdf', fromDate, toDate);
     } catch (err: any) {
-      alert(`Print error: ${err.message}`);
+      toast.error(`Print failed: ${err.message}`);
     }
   };
 
@@ -248,15 +250,15 @@ export default function PayablesSuitePage() {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden space-y-2.5 animate-in fade-in duration-150">
       {/* 1. Slim Top Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white dark:bg-slate-900 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-surface px-3.5 py-2 rounded-lg border border-default shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <BackButton fallbackUrl="/reports" label="Back" />
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" />
+          <div className="h-4 w-px bg-border-default" />
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            <h1 className="text-sm font-bold text-primary">
               Vendor Payables & Master Hygiene Suite
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200/50">
+            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-subtle text-brand-text border border-brand/20">
               FY {currentYear}-{currentYear + 1}
             </span>
           </div>
@@ -264,70 +266,63 @@ export default function PayablesSuitePage() {
 
         {/* Date Selector & Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-xs">
-            <Calendar className="h-3.5 w-3.5 text-slate-400" />
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none text-xs"
-            />
-            <span className="text-slate-400 text-[11px]">to</span>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none text-xs"
-            />
-          </div>
+          <DateRangePicker
+            from={fromDate}
+            to={toDate}
+            onChange={({ from: f, to: t }) => {
+              setFromDate(f);
+              setToDate(t);
+            }}
+            size="sm"
+          />
 
           <div className="hidden lg:flex items-center gap-1">
             <button
               type="button"
               onClick={() => setPresetDate('THIS_MONTH')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               This Month
             </button>
             <button
               type="button"
               onClick={() => setPresetDate('LAST_MONTH')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               Last Month
             </button>
             <button
               type="button"
               onClick={() => setPresetDate('THIS_FY')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               This FY
             </button>
           </div>
 
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
+          <div className="h-4 w-px bg-border-default hidden sm:block" />
 
           <button
             type="button"
             onClick={() => setIsShareOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-default bg-surface text-primary hover:bg-surface-sunken"
           >
-            <Share2 className="h-3.5 w-3.5 text-indigo-500" />
+            <Share2 className="h-3.5 w-3.5 text-brand-text" />
             <span className="hidden sm:inline">Share Report</span>
           </button>
           <button
             type="button"
             onClick={handlePrintPdf}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-default bg-surface text-primary hover:bg-surface-sunken"
           >
-            <Printer className="h-3.5 w-3.5 text-slate-500" />
+            <Printer className="h-3.5 w-3.5 text-muted" />
             <span>Print / PDF</span>
           </button>
           <button
             type="button"
             disabled={exporting}
             onClick={handleExportExcel}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md bg-status-success hover:opacity-90 text-inverse shadow-sm disabled:opacity-50"
           >
             {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             <span>Export Excel (.xlsx)</span>
@@ -335,16 +330,16 @@ export default function PayablesSuitePage() {
         </div>
       </div>
 
-      {/* 2. Unified Category Tab Bar + More Reports Dropdown (Matches Reference Image 3) */}
-      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 shrink-0">
+      {/* 2. Unified Category Tab Bar + More Reports Dropdown */}
+      <div className="flex items-center justify-between border-b border-default bg-surface px-3 shrink-0">
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
           <button
             type="button"
             onClick={() => setActiveTab('summary')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'summary'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Payables Summary
@@ -354,8 +349,8 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('ageing-tally')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'ageing-tally'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Payables Ageing - Tally
@@ -365,8 +360,8 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('ageing-fifo')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'ageing-fifo'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Payables Ageing - FIFO
@@ -376,8 +371,8 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('advances')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'advances'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Advance to Vendors
@@ -387,8 +382,8 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('receipts')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'receipts'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Receipts from Vendors
@@ -398,8 +393,8 @@ export default function PayablesSuitePage() {
             onClick={() => setActiveTab('non-purchase')}
             className={`px-3 py-2 text-xs transition border-b-2 whitespace-nowrap ${
               activeTab === 'non-purchase'
-                ? 'border-orange-500 text-slate-900 dark:text-white font-bold'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+                ? 'border-brand text-primary font-bold'
+                : 'border-transparent text-secondary hover:text-primary font-medium'
             }`}
           >
             Vendors booked through vouchers other than Purchase
@@ -411,23 +406,23 @@ export default function PayablesSuitePage() {
           <button
             type="button"
             onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
-            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded border border-default bg-surface text-primary hover:bg-surface-sunken transition"
           >
             <span>More Reports</span>
-            <ChevronDown className="h-3 w-3 text-slate-500" />
+            <ChevronDown className="h-3 w-3 text-muted" />
           </button>
           {moreDropdownOpen && (
-            <div className="absolute right-0 mt-1.5 w-72 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl py-1 z-30">
+            <div className="absolute right-0 mt-1.5 w-72 rounded-lg border border-default bg-surface-overlay shadow-xl py-1 z-30">
               <button
                 type="button"
                 onClick={() => {
                   setActiveTab('squared-off');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'squared-off'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Ledgers - Squared Off
@@ -438,10 +433,10 @@ export default function PayablesSuitePage() {
                   setActiveTab('same-balance');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'same-balance'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Ledgers - Same Opening & Closing Balance
@@ -452,10 +447,10 @@ export default function PayablesSuitePage() {
                   setActiveTab('unused');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'unused'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Ledgers - Not Used
@@ -466,10 +461,10 @@ export default function PayablesSuitePage() {
                   setActiveTab('missing-pan');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'missing-pan'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Ledgers - PAN Unavailable
@@ -480,10 +475,10 @@ export default function PayablesSuitePage() {
                   setActiveTab('missing-gstin');
                   setMoreDropdownOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition ${
+                className={`w-full text-left px-4 py-2 text-xs hover:bg-surface-sunken transition ${
                   activeTab === 'missing-gstin'
-                    ? 'font-bold text-orange-600 bg-orange-50/50'
-                    : 'text-slate-700 dark:text-slate-300'
+                    ? 'font-bold text-brand-text bg-brand-subtle'
+                    : 'text-secondary'
                 }`}
               >
                 Ledgers - GSTIN Unavailable
@@ -493,56 +488,56 @@ export default function PayablesSuitePage() {
         </div>
       </div>
 
-      {/* 3. Peach / Blush Remarks & Action Bar with Purple Favorite Star (Matches Reference Image 3) */}
-      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-lg bg-[#fff7f6] dark:bg-[#2b161c] border border-[#fbd4d0] dark:border-[#52202b] text-xs shrink-0">
+      {/* 3. Remarks & Action Bar with Favorite Star */}
+      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-lg bg-brand-subtle border border-default text-xs shrink-0">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#551a3b] dark:text-[#f8b4be] shrink-0">Remarks :</span>
-            <span className="text-slate-800 dark:text-slate-200">{banner.remarks}</span>
+            <span className="font-bold text-brand-text shrink-0">Remarks :</span>
+            <span className="text-primary">{banner.remarks}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#551a3b] dark:text-[#f8b4be] shrink-0">Action :</span>
-            <span className="text-slate-700 dark:text-slate-300">{banner.action}</span>
+            <span className="font-bold text-brand-text shrink-0">Action :</span>
+            <span className="text-secondary">{banner.action}</span>
           </div>
         </div>
 
-        {/* Purple Favorite Star Button */}
+        {/* Favorite Star Button */}
         <button
           type="button"
           onClick={handleToggleFavorite}
           title={isFavorite ? 'Remove from Favorite Reports' : 'Add to Favorite Reports'}
-          className="shrink-0 p-1.5 rounded-md bg-[#6b21a8] hover:bg-[#581c87] text-white shadow-sm transition flex items-center justify-center"
+          className="shrink-0 p-1.5 rounded-md bg-brand hover:bg-brand-hover text-inverse shadow-sm transition flex items-center justify-center"
         >
-          <Star className={`h-3.5 w-3.5 ${isFavorite ? 'fill-amber-400 text-amber-400' : 'text-white'}`} />
+          <Star className={`h-3.5 w-3.5 ${isFavorite ? 'fill-current text-status-warning' : 'text-inverse'}`} />
         </button>
       </div>
 
       {/* 4. Instant Search Toolbar */}
-      <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900 px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+      <div className="flex items-center justify-between gap-3 bg-surface px-3.5 py-1.5 rounded-lg border border-default shadow-sm shrink-0">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1.5 h-3.5 w-3.5 text-slate-400" />
+          <Search className="absolute left-2.5 top-1.5 h-3.5 w-3.5 text-muted" />
           <input
             type="text"
             placeholder="Search vendor name, PAN, group, or amounts..."
             value={tableSearch}
             onChange={(e) => setTableSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1 text-xs rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+            className="w-full pl-8 pr-3 py-1 text-xs rounded-md border border-default bg-surface-sunken text-primary placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-focus-ring"
           />
         </div>
 
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-slate-500 dark:text-slate-400">Total Outstanding Payable:</span>
-          <span className="font-mono font-bold text-rose-600 dark:text-rose-400">
-            ₹{totalOutstanding.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          <span className="text-muted">Total Outstanding Payable:</span>
+          <span className="font-mono font-bold text-status-danger-text">
+            {formatMoney(totalOutstanding)}
           </span>
         </div>
       </div>
 
-      {/* 5. Contained Table with Exact Sticky Blush/Peach Header (Matches Reference Image 3) */}
-      <div className="flex-1 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col">
+      {/* 5. Contained Table with Sticky Header */}
+      <div className="flex-1 overflow-hidden rounded-lg border border-default bg-surface shadow-sm flex flex-col">
         <div className="overflow-auto flex-1">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="sticky top-0 z-10 bg-[#fce8e6] dark:bg-[#3d1922] text-[#601925] dark:text-[#ffb3c0] border-b border-[#f7c5cb] dark:border-[#5e222f] font-semibold">
+            <thead className="sticky top-0 z-10 bg-surface-sunken text-secondary border-b border-default font-semibold">
               {activeTab === 'summary' || activeTab === 'advances' || activeTab === 'receipts' || activeTab === 'non-purchase' ? (
                 <tr>
                   <th className="py-2 px-3 w-12 text-center">Sr. No.</th>
@@ -576,7 +571,7 @@ export default function PayablesSuitePage() {
                   </th>
                   <th className="py-2 px-3 text-right">Credit(Purchase) Amount</th>
                   <th className="py-2 px-3 text-right">Closing Balance</th>
-                  <th className="py-2 px-3 text-right font-bold text-rose-700 dark:text-rose-300">Net Due (₹)</th>
+                  <th className="py-2 px-3 text-right font-bold text-status-danger-text">Net Due (₹)</th>
                 </tr>
               ) : activeTab.startsWith('ageing') ? (
                 <tr>
@@ -592,7 +587,7 @@ export default function PayablesSuitePage() {
                   <th className="py-2 px-3 text-right">0 - 30 Days (₹)</th>
                   <th className="py-2 px-3 text-right">31 - 60 Days (₹)</th>
                   <th className="py-2 px-3 text-right">61 - 90 Days (₹)</th>
-                  <th className="py-2 px-3 text-right text-rose-600">&gt;90 Days Overdue (₹)</th>
+                  <th className="py-2 px-3 text-right text-status-danger-text">&gt;90 Days Overdue (₹)</th>
                   <th className="py-2 px-3 text-right font-bold">Total Due (₹)</th>
                 </tr>
               ) : (
@@ -614,18 +609,18 @@ export default function PayablesSuitePage() {
                 </tr>
               )}
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-border-subtle">
               {filteredRows.map((r: any, idx: number) => (
-                <tr key={idx} className="hover:bg-orange-50/20 dark:hover:bg-slate-800/40 transition">
-                  <td className="py-2 px-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                <tr key={idx} className="hover:bg-row-hover transition">
+                  <td className="py-2 px-3 text-center text-muted font-mono text-[11px]">{idx + 1}</td>
                   {activeTab === 'summary' || activeTab === 'advances' || activeTab === 'receipts' || activeTab === 'non-purchase' ? (
                     <>
                       <td className="py-2 px-3">
-                        <span className="text-[#ea580c] dark:text-[#fb923c] hover:underline font-medium cursor-pointer">
+                        <span className="text-brand-text hover:underline font-medium cursor-pointer">
                           {r.ledgerName}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{r.primaryGroup || 'Sundry Creditors'}</td>
+                      <td className="py-2 px-3 text-secondary">{r.primaryGroup || 'Sundry Creditors'}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
                         {Number(r.openingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
@@ -638,42 +633,42 @@ export default function PayablesSuitePage() {
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
                         {Number(r.closingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-rose-600 dark:text-rose-400">
-                        ₹{Number(r.netPayable || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      <td className="py-2 px-3 text-right font-mono font-bold text-status-danger-text">
+                        {formatMoney(r.netPayable || 0)}
                       </td>
                     </>
                   ) : activeTab.startsWith('ageing') ? (
                     <>
                       <td className="py-2 px-3">
-                        <span className="text-[#ea580c] dark:text-[#fb923c] hover:underline font-medium cursor-pointer">
+                        <span className="text-brand-text hover:underline font-medium cursor-pointer">
                           {r.vendorName}
                         </span>
                       </td>
-                      <td className="py-2 px-3 font-mono text-[11px] text-slate-500">{r.pan || 'N/A'}</td>
+                      <td className="py-2 px-3 font-mono text-[11px] text-muted">{r.pan || 'N/A'}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.current_0_30 || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.bracket_31_60 || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.current_0_30 || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.bracket_61_90 || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.bracket_31_60 || 0)}
                       </td>
-                      <td className="py-2 px-3 text-right font-mono text-[11px] font-semibold text-rose-600 dark:text-rose-400">
-                        ₹{Number(r.bracket_90_plus || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      <td className="py-2 px-3 text-right font-mono text-[11px]">
+                        {formatMoney(r.bracket_61_90 || 0)}
                       </td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
-                        ₹{Number(r.totalOutstanding || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      <td className="py-2 px-3 text-right font-mono text-[11px] font-semibold text-status-danger-text">
+                        {formatMoney(r.bracket_90_plus || 0)}
+                      </td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-primary">
+                        {formatMoney(r.totalOutstanding || 0)}
                       </td>
                     </>
                   ) : (
                     <>
                       <td className="py-2 px-3">
-                        <span className="text-[#ea580c] dark:text-[#fb923c] hover:underline font-medium cursor-pointer">
+                        <span className="text-brand-text hover:underline font-medium cursor-pointer">
                           {r.ledgerName}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{r.groupName || '-'}</td>
+                      <td className="py-2 px-3 text-secondary">{r.groupName || '-'}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
                         {Number(r.openingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
@@ -687,7 +682,7 @@ export default function PayablesSuitePage() {
                         {Number(r.closingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2 px-3 text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-status-warning-subtle text-status-warning-text border border-status-warning/30">
                           {r.issueType || 'AUDIT_FLAG'}
                         </span>
                       </td>
@@ -698,7 +693,7 @@ export default function PayablesSuitePage() {
 
               {filteredRows.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={8} className="py-12 text-center text-muted text-xs">
                     No vendor payables or master records found for this parameter.
                   </td>
                 </tr>
@@ -706,8 +701,8 @@ export default function PayablesSuitePage() {
 
               {loading && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 text-xs">
-                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-purple-500 mb-2" />
+                  <td colSpan={8} className="py-12 text-center text-muted text-xs">
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-brand-text mb-2" />
                     Calculating vendor dues and aging brackets...
                   </td>
                 </tr>
@@ -716,12 +711,12 @@ export default function PayablesSuitePage() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-[11px] text-slate-500 shrink-0">
+        <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-default bg-surface-sunken text-[11px] text-muted shrink-0">
           <div>
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredRows.length}</span> creditor ledgers
+            Showing <span className="font-semibold text-secondary">{filteredRows.length}</span> creditor ledgers
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-slate-400 uppercase">MSME Samadhaan & Sec 43B(h) Audit Tracked</span>
+            <span className="font-mono text-[10px] text-muted uppercase">MSME Samadhaan & Sec 43B(h) Audit Tracked</span>
           </div>
         </div>
       </div>

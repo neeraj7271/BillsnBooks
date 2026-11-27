@@ -64,6 +64,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = exception.message;
       code = 'DOMAIN_RULE_VIOLATION';
     } else if (exception instanceof Error) {
+      const httpStatus = (exception as { status?: number; statusCode?: number }).status
+        ?? (exception as { status?: number; statusCode?: number }).statusCode;
+      if (typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500) {
+        status = httpStatus;
+        code = (exception as { type?: string }).type === 'entity.too.large'
+          ? 'PAYLOAD_TOO_LARGE'
+          : exception.name || 'BAD_REQUEST';
+      }
       message = exception.message;
     }
 

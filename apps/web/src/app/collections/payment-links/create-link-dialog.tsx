@@ -9,6 +9,7 @@ import {
   DialogFooter,
   Button,
   Select,
+  formatMoney,
   type SelectOption,
 } from '@platform/ui';
 import { Link2, CreditCard } from 'lucide-react';
@@ -50,7 +51,7 @@ export function CreateLinkDialog({
   ];
 
   const invoiceOptions: SelectOption[] = invoices.map((inv) => ({
-    label: `${inv.invoiceNumber} - ${inv.party?.name || 'Customer'} (₹${Number(inv.totalAmount).toLocaleString('en-IN')})`,
+    label: `${inv.invoiceNumber} - ${inv.party?.name || 'Customer'} (${formatMoney(inv.totalAmount)})`,
     value: inv.id,
   }));
 
@@ -80,23 +81,23 @@ export function CreateLinkDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+      <DialogContent size="sm">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Link2 className="h-5 w-5 text-blue-600" />
+          <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
+            <Link2 className="h-5 w-5 text-brand-text" />
             Generate Instant Payment Link
           </DialogTitle>
         </DialogHeader>
 
         {error && (
-          <div className="mt-3 p-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs rounded-lg border border-rose-200 dark:border-rose-900">
+          <div className="mt-3 p-2 bg-status-danger-subtle text-status-danger-text text-xs rounded-lg border border-status-danger">
             {error}
           </div>
         )}
 
         <div className="mt-4 space-y-3.5">
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-secondary">
               Select Outstanding Invoice
             </label>
             <div className="mt-1">
@@ -109,7 +110,7 @@ export function CreateLinkDialog({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-secondary">
               Gateway Provider
             </label>
             <div className="mt-1">

@@ -10,18 +10,19 @@ export function cn(...inputs: ClassValue[]): string {
  */
 export function formatCurrency(amount: number | string, currency: string = 'INR'): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num)) return `${currency === 'INR' ? '₹' : currency}0.00`;
+  if (isNaN(num)) return currency === 'INR' ? '₹ 0.00' : `${currency} 0.00`;
 
   const curr = currency.toUpperCase();
   const locale = curr === 'INR' ? 'en-IN' : 'en-US';
 
   try {
-    return new Intl.NumberFormat(locale, {
+    const formatted = new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: curr,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);
+    return formatted.replace(/^₹(?=\d)/, '₹ ');
   } catch {
     return `${curr} ${num.toFixed(2)}`;
   }

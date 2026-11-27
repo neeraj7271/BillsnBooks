@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { apiClient, DEFAULT_COMPANY_ID } from './api-client';
@@ -49,16 +50,29 @@ const CompanyContext = createContext<CompanyContextType>({
 
 export function CompanyProvider({ children }: { children: React.ReactNode }) {
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [activeCompanyId, setActiveCompanyIdState] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('antigravity_active_company_id') || DEFAULT_COMPANY_ID;
-    }
-    return DEFAULT_COMPANY_ID;
-  });
+  const [activeCompanyId, setActiveCompanyIdState] = useState<string>(DEFAULT_COMPANY_ID);
   const [activeSettings, setActiveSettings] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
+  // Sync activeCompanyId from localStorage on mount to avoid hydration mismatches
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('antigravity_active_company_id');
+      if (stored) {
+        setActiveCompanyIdState(stored);
+      }
+    }
+  }, []);
+
   const fetchSettings = useCallback(async (targetCompanyId: string) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('antigravity_access_token');
+      const isAuthPage = window.location.pathname.startsWith('/auth');
+      if (!token || isAuthPage) {
+        setActiveSettings({});
+        return;
+      }
+    }
     try {
       const settings = await apiClient.getCompanySettings(targetCompanyId);
       setActiveSettings(settings || {});
@@ -68,6 +82,15 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchCompanies = async () => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('antigravity_access_token');
+      const isAuthPage = window.location.pathname.startsWith('/auth');
+      if (!token || isAuthPage) {
+        setCompanies([]);
+        setLoading(false);
+        return;
+      }
+    }
     try {
       const data = await apiClient.listCompanies();
       const companyList = data || [];
@@ -87,7 +110,7 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
       }
       await fetchSettings(currentId);
     } catch (err: unknown) {
-      console.error('Failed to load companies in CompanyProvider', err);
+      logger.error('Failed to load companies in CompanyProvider', err);
     } finally {
       setLoading(false);
     }

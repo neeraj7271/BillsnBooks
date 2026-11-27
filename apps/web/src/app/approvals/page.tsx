@@ -11,16 +11,19 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import {
+  PageHeader,
   Button,
   Badge,
   MoneyText,
   DateText,
   ConfirmDialog,
-  Card,
-  CardContent,
+  DataTable,
+  ErrorState,
+  type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { useTablePagination } from '@/hooks/use-table-pagination';
 
 interface ApprovalRequest {
   id: string;
@@ -43,7 +46,11 @@ export default function ApprovalsPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-  // Reject Dialog state
+  const { page, pageSize, setPage, setPageSize } = useTablePagination({
+    storageKey: 'approvals',
+    defaultPageSize: 25,
+  });
+
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -58,8 +65,7 @@ export default function ApprovalsPage() {
       const data = await apiClient.listApprovals(activeCompanyId);
       setApprovals(data || []);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load approvals';
-      setError(msg);
+      setError(err instanceof Error ? err.message : 'Failed to load approvals');
     } finally {
       setLoading(false);
     }
@@ -71,16 +77,10 @@ export default function ApprovalsPage() {
       await apiClient.approveRequest(activeCompanyId, id, 'Approved by partner review');
       await loadApprovals();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to approve request';
-      setError(msg);
+      setError(err instanceof Error ? err.message : 'Failed to approve request');
     } finally {
       setActionLoadingId(null);
     }
-  };
-
-  const triggerReject = (id: string) => {
-    setRejectId(id);
-    setRejectOpen(true);
   };
 
   const handleConfirmReject = async (reason?: string) => {
@@ -92,149 +92,156 @@ export default function ApprovalsPage() {
       setRejectId(null);
       await loadApprovals();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to reject request';
-      setError(msg);
+      setError(err instanceof Error ? err.message : 'Failed to reject request');
     } finally {
       setActionLoadingId(null);
     }
   };
 
+  const columns: ColumnDef<ApprovalRequest>[] = [
+    {
+      key: 'request',
+      header: 'Request',
+      cell: (req) => (
+        <div className="flex items-start gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-status-warning-subtle text-status-warning-text shrink-0 mt-0.5">
+            <Clock className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5 font-semibold text-primary text-xs">
+              <span>{req.entityType === 'INVOICE' ? 'High-Value Invoice Sign-Off' : req.requestType}</span>
+              <Badge variant="warning" size="xs" dot>Pending</Badge>
+            </div>
+            <p className="text-[11px] text-muted line-clamp-1 mt-0.5">
+              {req.comments || 'Requires maker-checker sign-off.'}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'requester',
+      header: 'Requester',
+      width: '180px',
+      cell: (req) => (
+        <div className="flex items-center gap-1.5 text-xs text-secondary">
+          <User className="h-3.5 w-3.5 text-muted shrink-0" />
+          <span className="truncate">{req.requesterName}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'invoice',
+      header: 'Reference',
+      width: '160px',
+      cell: (req) =>
+        req.metadata?.invoiceNumber ? (
+          <Link
+            href={`/invoices/${req.entityId}`}
+            className="font-mono text-xs font-semibold text-brand-text hover:underline inline-flex items-center gap-1"
+          >
+            {req.metadata.invoiceNumber}
+            <ExternalLink className="h-3 w-3 opacity-60" />
+          </Link>
+        ) : (
+          <span className="text-xs text-muted font-mono">{req.entityId.slice(0, 8)}…</span>
+        ),
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      align: 'right',
+      width: '130px',
+      cell: (req) =>
+        req.metadata?.totalAmount !== undefined ? (
+          <MoneyText amount={req.metadata.totalAmount} className="text-xs font-semibold text-primary" />
+        ) : (
+          <span className="text-xs text-muted">—</span>
+        ),
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      width: '140px',
+      cell: (req) => <DateText date={req.createdAt} showTime className="text-xs text-secondary" />,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      width: '190px',
+      cell: (req) => (
+        <div className="flex items-center justify-end gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setRejectId(req.id);
+              setRejectOpen(true);
+            }}
+            disabled={actionLoadingId === req.id}
+          >
+            Reject
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => handleApprove(req.id)}
+            loading={actionLoadingId === req.id}
+            leftIcon={<CheckCircle2 className="h-3.5 w-3.5" />}
+          >
+            Approve
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-              Approval Inbox
-            </h1>
-            <Badge variant="brand" size="sm">Maker-Checker</Badge>
-          </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Senior accountant and CA partner governance queue. High-value transactions requiring authorized sign-off.
-          </p>
-        </div>
+      <PageHeader
+        title="Approval Inbox"
+        subtitle="Senior accountant and CA partner governance queue for high-value transactions."
+        badge={<Badge variant="brand" size="sm">Maker-Checker</Badge>}
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadApprovals}
+            loading={loading}
+            leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+          >
+            Refresh Inbox
+          </Button>
+        }
+      />
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={loadApprovals}
-          loading={loading}
-          leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
-        >
-          Refresh Inbox
-        </Button>
-      </div>
-
-      {/* Governance Banner */}
-      <div className="rounded-2xl border border-blue-200/60 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 p-4 flex items-start gap-3">
-        <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-        <div className="text-xs">
-          <div className="font-bold text-blue-900 dark:text-blue-200">
-            Maker-Checker Posting Guarantee
-          </div>
-          <div className="mt-0.5 text-blue-700 dark:text-blue-300">
-            Invoices exceeding ₹50,000 or marked for escalation are quarantined. Approving posts the double-entry voucher to general ledger.
+      <div className="rounded-2xl border border-focus bg-brand-subtle p-4 flex items-start gap-3">
+        <ShieldCheck className="h-5 w-5 text-brand-text shrink-0 mt-0.5" />
+        <div className="text-xs text-brand-text">
+          <div className="font-semibold">Maker-Checker Posting Guarantee</div>
+          <div className="mt-0.5">
+            Invoices exceeding ₹50,000 or marked for escalation are quarantined until partner sign-off.
           </div>
         </div>
       </div>
 
-      {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-xs text-rose-600 dark:text-rose-400 font-medium">
-          {error}
-        </div>
-      )}
+      {error && <ErrorState error={error} onRetry={loadApprovals} />}
 
-      {/* Queue Card */}
-      <Card>
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="p-12 text-center text-xs text-slate-400">
-              Loading approval queue...
-            </div>
-          ) : approvals.length === 0 ? (
-            <div className="p-12 text-center">
-              <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500 mb-3" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Inbox is Clear</h3>
-              <p className="mt-1 text-xs text-slate-400">
-                No pending approval requests. All transactions are verified.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {approvals.map((req) => (
-                <div
-                  key={req.id}
-                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 shrink-0">
-                      <Clock className="h-5 w-5" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 dark:text-white text-sm">
-                          {req.entityType === 'INVOICE' ? 'High-Value Invoice Sign-Off' : req.requestType}
-                        </span>
-                        <Badge variant="warning" size="xs" dot>Pending Review</Badge>
-                      </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">
-                        {req.comments || 'Requires maker-checker sign-off.'}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 dark:text-slate-400 pt-1">
-                        <div className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          <span>Submitted by: <strong>{req.requesterName}</strong></span>
-                        </div>
-                        <div>Date: <DateText date={req.createdAt} showTime /></div>
-                        {req.metadata?.invoiceNumber && (
-                          <div className="flex items-center gap-1">
-                            <span>Invoice:</span>
-                            <Link
-                              href={`/invoices/${req.entityId}`}
-                              className="font-mono font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5"
-                            >
-                              {req.metadata.invoiceNumber}
-                              <ExternalLink className="h-2.5 w-2.5" />
-                            </Link>
-                          </div>
-                        )}
-                        {req.metadata?.totalAmount && (
-                          <div className="font-bold text-slate-900 dark:text-white">
-                            Amount: <MoneyText amount={req.metadata.totalAmount} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+      <DataTable
+        columns={columns}
+        data={approvals}
+        loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalItems={approvals.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        storageKey="approvals"
+        emptyTitle="Inbox zero"
+        emptyDescription="No invoices pending your approval right now."
+      />
 
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => triggerReject(req.id)}
-                      disabled={actionLoadingId === req.id}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => handleApprove(req.id)}
-                      loading={actionLoadingId === req.id}
-                      leftIcon={<CheckCircle2 className="h-3.5 w-3.5" />}
-                    >
-                      Approve & Post
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Accessible Reject Reason Dialog */}
       <ConfirmDialog
         open={rejectOpen}
         onOpenChange={setRejectOpen}

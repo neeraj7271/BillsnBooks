@@ -10,6 +10,7 @@ import { ComplianceTaskOrmEntity } from '../../infrastructure/persistence/entiti
 import { TaskCommentOrmEntity } from '../../infrastructure/persistence/entities/task-comment.orm-entity';
 import { ClientDocumentRequestOrmEntity } from '../../infrastructure/persistence/entities/client-document-request.orm-entity';
 import { CompanyOrmEntity } from '../../infrastructure/persistence/entities/company.orm-entity';
+import { DocumentVaultService } from './document-vault.service';
 import {
   FirmClientDto,
   CreateFirmClientDto,
@@ -27,7 +28,10 @@ import {
 
 @Injectable()
 export class PracticeService {
-  constructor(private readonly uow: UnitOfWorkService) {}
+  constructor(
+    private readonly uow: UnitOfWorkService,
+    private readonly vaultService: DocumentVaultService,
+  ) {}
 
   // ==========================================
   // CLIENT MANAGEMENT
@@ -108,6 +112,7 @@ export class PracticeService {
       });
 
       const saved = await qr.manager.save(FirmClientOrmEntity, client);
+      await this.vaultService.ensureDefaultFoldersInTx(qr.manager, tenantId, saved.id);
 
       // Auto-populate default statutory tasks for current month
       const currentYear = new Date().getFullYear();
@@ -463,6 +468,9 @@ export class PracticeService {
       docReq.status = DocumentRequestStatus.UPLOADED;
 
       const saved = await qr.manager.save(ClientDocumentRequestOrmEntity, docReq);
+      if (status === DocumentRequestStatus.ACCEPTED) {
+        await this.vaultService.autoPlaceAcceptedRequestFile(qr.manager, tenantId, saved);
+      }
 
       return {
         id: saved.id,
@@ -505,6 +513,9 @@ export class PracticeService {
       }
 
       const saved = await qr.manager.save(ClientDocumentRequestOrmEntity, docReq);
+      if (status === DocumentRequestStatus.ACCEPTED) {
+        await this.vaultService.autoPlaceAcceptedRequestFile(qr.manager, tenantId, saved);
+      }
 
       return {
         id: saved.id,

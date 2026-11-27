@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { toast, DateRangePicker, formatMoney } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -53,7 +55,7 @@ export default function ItemSalesPage() {
     try {
       await apiClient.toggleFavoriteReport(activeCompanyId, 'ITEM_SALES');
     } catch (err) {
-      console.error('Failed to toggle favorite', err);
+      logger.error('Failed to toggle favorite', err);
     }
   };
 
@@ -63,7 +65,7 @@ export default function ItemSalesPage() {
       const res = await apiClient.getItemSales(activeCompanyId, fromDate, toDate);
       setData(res);
     } catch (err) {
-      console.error('Failed to load item sales report', err);
+      logger.error('Failed to load item sales report', err);
     } finally {
       setLoading(false);
     }
@@ -78,7 +80,7 @@ export default function ItemSalesPage() {
     try {
       await apiClient.downloadReportExport(activeCompanyId, 'ITEM_SALES', 'xlsx', fromDate, toDate);
     } catch (err: any) {
-      alert(`Export error: ${err.message}`);
+      toast.error(`Export failed: ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -88,7 +90,7 @@ export default function ItemSalesPage() {
     try {
       await apiClient.downloadReportExport(activeCompanyId, 'ITEM_SALES', 'pdf', fromDate, toDate);
     } catch (err: any) {
-      alert(`Print error: ${err.message}`);
+      toast.error(`Print failed: ${err.message}`);
     }
   };
 
@@ -130,15 +132,15 @@ export default function ItemSalesPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] overflow-hidden space-y-2.5 animate-in fade-in duration-150">
       {/* 1. Slim Top Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white dark:bg-slate-900 px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-surface px-3.5 py-2 rounded-lg border border-default shadow-sm shrink-0">
         <div className="flex items-center gap-3">
           <BackButton fallbackUrl="/reports" label="Back" />
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" />
+          <div className="h-4 w-px bg-border-default" />
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            <h1 className="text-sm font-bold text-primary">
               Product & Item-Wise Sales Analysis
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-200/50">
+            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-subtle text-brand-text border border-brand/20">
               FY {currentYear}-{currentYear + 1}
             </span>
           </div>
@@ -146,70 +148,63 @@ export default function ItemSalesPage() {
 
         {/* Date Selector & Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md px-2 py-1 text-xs">
-            <Calendar className="h-3.5 w-3.5 text-slate-400" />
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none text-xs"
-            />
-            <span className="text-slate-400 text-[11px]">to</span>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="bg-transparent text-slate-800 dark:text-slate-200 focus:outline-none text-xs"
-            />
-          </div>
+          <DateRangePicker
+            from={fromDate}
+            to={toDate}
+            onChange={({ from: f, to: t }) => {
+              setFromDate(f);
+              setToDate(t);
+            }}
+            size="sm"
+          />
 
           <div className="hidden lg:flex items-center gap-1">
             <button
               type="button"
               onClick={() => setPresetDate('THIS_MONTH')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               This Month
             </button>
             <button
               type="button"
               onClick={() => setPresetDate('LAST_MONTH')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               Last Month
             </button>
             <button
               type="button"
               onClick={() => setPresetDate('THIS_FY')}
-              className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 text-slate-600 dark:text-slate-300 hover:bg-slate-50"
+              className="px-2 py-1 text-[11px] font-medium rounded border border-default bg-surface text-secondary hover:bg-surface-sunken"
             >
               This FY
             </button>
           </div>
 
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
+          <div className="h-4 w-px bg-border-default hidden sm:block" />
 
           <button
             type="button"
             onClick={() => setIsShareOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-default bg-surface text-primary hover:bg-surface-sunken"
           >
-            <Share2 className="h-3.5 w-3.5 text-indigo-500" />
+            <Share2 className="h-3.5 w-3.5 text-brand-text" />
             <span className="hidden sm:inline">Share Report</span>
           </button>
           <button
             type="button"
             onClick={handlePrintPdf}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-default bg-surface text-primary hover:bg-surface-sunken"
           >
-            <Printer className="h-3.5 w-3.5 text-slate-500" />
+            <Printer className="h-3.5 w-3.5 text-muted" />
             <span>Print / PDF</span>
           </button>
           <button
             type="button"
             disabled={exporting}
             onClick={handleExportExcel}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md bg-status-success hover:opacity-90 text-inverse shadow-sm disabled:opacity-50"
           >
             {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             <span>Export Excel (.xlsx)</span>
@@ -217,74 +212,74 @@ export default function ItemSalesPage() {
         </div>
       </div>
 
-      {/* 2. Peach / Blush Remarks & Action Bar with Purple Favorite Star */}
-      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-lg bg-[#fff7f6] dark:bg-[#2b161c] border border-[#fbd4d0] dark:border-[#52202b] text-xs shrink-0">
+      {/* 2. Remarks & Action Bar with Favorite Star */}
+      <div className="flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-lg bg-brand-subtle border border-default text-xs shrink-0">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#551a3b] dark:text-[#f8b4be] shrink-0">Remarks :</span>
-            <span className="text-slate-800 dark:text-slate-200">
+            <span className="font-bold text-brand-text shrink-0">Remarks :</span>
+            <span className="text-primary">
               SKU movement, selling rates, and quantity distribution across product catalogue.
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#551a3b] dark:text-[#f8b4be] shrink-0">Action :</span>
-            <span className="text-slate-700 dark:text-slate-300">
+            <span className="font-bold text-brand-text shrink-0">Action :</span>
+            <span className="text-secondary">
               Identify fast-moving inventory items and optimize reorder quantities.
             </span>
           </div>
         </div>
 
-        {/* Purple Favorite Star Button */}
+        {/* Favorite Star Button */}
         <button
           type="button"
           onClick={handleToggleFavorite}
           title={isFavorite ? 'Remove from Favorite Reports' : 'Add to Favorite Reports'}
-          className="shrink-0 p-1.5 rounded-md bg-[#6b21a8] hover:bg-[#581c87] text-white shadow-sm transition flex items-center justify-center"
+          className="shrink-0 p-1.5 rounded-md bg-brand hover:bg-brand-hover text-inverse shadow-sm transition flex items-center justify-center"
         >
-          <Star className={`h-3.5 w-3.5 ${isFavorite ? 'fill-amber-400 text-amber-400' : 'text-white'}`} />
+          <Star className={`h-3.5 w-3.5 ${isFavorite ? 'fill-current text-status-warning' : 'text-inverse'}`} />
         </button>
       </div>
 
       {/* 3. Metrics Summary & Search Bar */}
-      <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900 px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+      <div className="flex items-center justify-between gap-3 bg-surface px-3.5 py-1.5 rounded-lg border border-default shadow-sm shrink-0">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1.5 h-3.5 w-3.5 text-slate-400" />
+          <Search className="absolute left-2.5 top-1.5 h-3.5 w-3.5 text-muted" />
           <input
             type="text"
             placeholder="Search by product name, HSN code, or SKU..."
             value={tableSearch}
             onChange={(e) => setTableSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1 text-xs rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full pl-8 pr-3 py-1 text-xs rounded-md border border-default bg-surface-sunken text-primary placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-focus-ring"
           />
         </div>
 
         <div className="flex items-center gap-4 text-xs">
           <div>
-            <span className="text-slate-500 dark:text-slate-400">Distinct Products: </span>
-            <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
+            <span className="text-muted">Distinct Products: </span>
+            <span className="font-mono font-semibold text-primary">
               {filteredRows.length}
             </span>
           </div>
           <div>
-            <span className="text-slate-500 dark:text-slate-400">Total Quantity Sold: </span>
-            <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
+            <span className="text-muted">Total Quantity Sold: </span>
+            <span className="font-mono font-semibold text-primary">
               {data?.totalQuantity || 0}
             </span>
           </div>
           <div>
-            <span className="text-slate-500 dark:text-slate-400">Gross Item Sales: </span>
-            <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
-              ₹{(data?.totalSales || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            <span className="text-muted">Gross Item Sales: </span>
+            <span className="font-mono font-bold text-brand-text">
+              {formatMoney(data?.totalSales || 0)}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 4. Contained Data Grid with Exact Sticky Blush/Peach Header */}
-      <div className="flex-1 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col">
+      {/* 4. Contained Data Grid with Sticky Header */}
+      <div className="flex-1 overflow-hidden rounded-lg border border-default bg-surface shadow-sm flex flex-col">
         <div className="overflow-auto flex-1">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="sticky top-0 z-10 bg-[#fce8e6] dark:bg-[#3d1922] text-[#601925] dark:text-[#ffb3c0] border-b border-[#f7c5cb] dark:border-[#5e222f] font-semibold">
+            <thead className="sticky top-0 z-10 bg-surface-sunken text-secondary border-b border-default font-semibold">
               <tr>
                 <th className="py-2 px-3 w-12 text-center">Sr. No.</th>
                 <th className="py-2 px-3">
@@ -303,40 +298,40 @@ export default function ItemSalesPage() {
                 <th className="py-2 px-3 text-right">Gross Total (₹)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody className="divide-y divide-border-subtle">
               {filteredRows.map((row: any, idx: number) => (
-                <tr key={row.itemId || idx} className="hover:bg-orange-50/20 dark:hover:bg-slate-800/40 transition">
-                  <td className="py-2 px-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
-                  <td className="py-2 px-3 font-medium text-[#ea580c] dark:text-[#fb923c] hover:underline cursor-pointer">
+                <tr key={row.itemId || idx} className="hover:bg-row-hover transition">
+                  <td className="py-2 px-3 text-center text-muted font-mono text-[11px]">{idx + 1}</td>
+                  <td className="py-2 px-3 font-medium text-brand-text hover:underline cursor-pointer">
                     {row.itemName}
                   </td>
-                  <td className="py-2 px-3 font-mono text-[11px] text-slate-500">
+                  <td className="py-2 px-3 font-mono text-[11px] text-muted">
                     {row.hsnSacCode || '-'}
                   </td>
-                  <td className="py-2 px-3 text-center uppercase font-mono text-[10px] text-slate-600 dark:text-slate-400">
+                  <td className="py-2 px-3 text-center uppercase font-mono text-[10px] text-secondary">
                     {row.uom || 'NOS'}
                   </td>
-                  <td className="py-2 px-3 text-right font-mono font-semibold text-slate-800 dark:text-slate-200 text-[11px]">
+                  <td className="py-2 px-3 text-right font-mono font-semibold text-primary text-[11px]">
                     {row.quantitySold}
                   </td>
-                  <td className="py-2 px-3 text-right font-mono text-slate-700 dark:text-slate-300 text-[11px]">
-                    ₹{Number(row.avgSellingPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <td className="py-2 px-3 text-right font-mono text-secondary text-[11px]">
+                    {formatMoney(row.avgSellingPrice || 0)}
                   </td>
-                  <td className="py-2 px-3 text-right font-mono text-slate-700 dark:text-slate-300 text-[11px]">
-                    ₹{Number(row.taxableAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <td className="py-2 px-3 text-right font-mono text-secondary text-[11px]">
+                    {formatMoney(row.taxableAmount || 0)}
                   </td>
-                  <td className="py-2 px-3 text-right font-mono text-slate-500 dark:text-slate-400 text-[11px]">
-                    ₹{Number(row.totalTax || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <td className="py-2 px-3 text-right font-mono text-muted text-[11px]">
+                    {formatMoney(row.totalTax || 0)}
                   </td>
-                  <td className="py-2 px-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100 text-[11px]">
-                    ₹{Number(row.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  <td className="py-2 px-3 text-right font-mono font-bold text-primary text-[11px]">
+                    {formatMoney(row.totalAmount || 0)}
                   </td>
                 </tr>
               ))}
 
               {filteredRows.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={9} className="py-12 text-center text-muted text-xs">
                     No item sales records found for the selected period.
                   </td>
                 </tr>
@@ -344,8 +339,8 @@ export default function ItemSalesPage() {
 
               {loading && (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400 text-xs">
-                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-indigo-500 mb-2" />
+                  <td colSpan={9} className="py-12 text-center text-muted text-xs">
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto text-brand-text mb-2" />
                     Loading product sales summary...
                   </td>
                 </tr>
@@ -354,12 +349,12 @@ export default function ItemSalesPage() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 text-[11px] text-slate-500 shrink-0">
+        <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-default bg-surface-sunken text-[11px] text-muted shrink-0">
           <div>
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredRows.length}</span> items
+            Showing <span className="font-semibold text-secondary">{filteredRows.length}</span> items
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-slate-400 uppercase">HSN/SAC Inventory Audited</span>
+            <span className="font-mono text-[10px] text-muted uppercase">HSN/SAC Inventory Audited</span>
           </div>
         </div>
       </div>

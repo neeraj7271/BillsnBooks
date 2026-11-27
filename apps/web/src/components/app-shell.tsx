@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from './sidebar';
 import { TopHeader } from './top-header';
+import { PageErrorBoundary } from './error-boundary';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const isAuthRoute = pathname.startsWith('/auth');
+  const isPublicRoute = isAuthRoute || pathname.startsWith('/reports/shared');
 
   useEffect(() => {
     try {
@@ -24,7 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }
 
       const token = localStorage.getItem('antigravity_access_token');
-      if (!isAuthRoute && !token) {
+      if (!isPublicRoute && !token) {
         setIsAuthenticated(false);
         router.replace('/auth/login');
         return;
@@ -35,7 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     } finally {
       setMounted(true);
     }
-  }, [pathname, isAuthRoute, router]);
+  }, [pathname, isPublicRoute, router]);
 
   const handleToggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -49,32 +51,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     });
   };
 
-  // 1. Auth routes (/auth/login, /auth/signup) render completely standalone without Shell chrome
-  if (isAuthRoute) {
+  if (isPublicRoute) {
     return (
-      <main className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <main id="main-content" className="min-h-screen w-full bg-canvas text-primary">
         {children}
       </main>
     );
   }
 
-  // 2. Prevent unauthenticated flash while checking auth
   if (!mounted || !isAuthenticated) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen w-full flex items-center justify-center bg-canvas">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-          <p className="text-xs text-slate-500 font-medium">Verifying session...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+          <p className="text-xs text-muted font-medium">Verifying session...</p>
         </div>
       </div>
     );
   }
 
-  // 3. Authenticated protected routes
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 print:bg-white print:text-slate-950 print:min-h-0 print:block">
-      {/* Collapsible Left Sidebar */}
-      <div className="print:hidden">
+    <div className="flex h-screen overflow-hidden bg-canvas text-primary print:bg-white print:text-black print:min-h-0 print:h-auto print:overflow-visible print:block">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-brand focus:text-inverse focus:text-xs focus:font-semibold"
+      >
+        Skip to main content
+      </a>
+
+      <div className="h-full shrink-0 print:hidden">
         <Sidebar
           isCollapsed={isCollapsed}
           onToggleCollapse={handleToggleCollapse}
@@ -83,18 +88,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         />
       </div>
 
-      {/* Main View Area: Top Header + Page Content */}
-      <div className="flex flex-1 flex-col min-w-0 print:block print:w-full print:p-0">
-        <div className="print:hidden">
+      <div className="flex flex-1 flex-col min-w-0 h-full overflow-hidden print:block print:w-full print:p-0 print:h-auto print:overflow-visible">
+        <div className="shrink-0 print:hidden">
           <TopHeader
             isCollapsed={isCollapsed}
             onToggleCollapse={handleToggleCollapse}
             onOpenMobile={() => setMobileOpen(true)}
           />
         </div>
-        <main className="flex-1 w-full min-w-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible">
+        <main
+          id="main-content"
+          className="flex-1 h-0 w-full min-w-0 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 print:p-0 print:m-0 print:w-full print:max-w-none print:overflow-visible print:h-auto"
+        >
           <div className="max-w-7xl mx-auto w-full print:max-w-none print:w-full print:p-0">
-            {children}
+            <PageErrorBoundary>{children}</PageErrorBoundary>
           </div>
         </main>
       </div>

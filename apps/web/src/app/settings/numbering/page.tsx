@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import {
   CheckCircle2,
   Lock,
   ArrowLeft,
+  ChevronDown,
 } from 'lucide-react';
 import {
   Button,
@@ -30,6 +32,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -87,7 +93,7 @@ export default function NumberingSettingsPage() {
         setBranches(comp.branches);
       }
     } catch (err: unknown) {
-      console.error('Failed to load numbering series:', err);
+      logger.error('Failed to load numbering series:', err);
     } finally {
       setLoading(false);
     }
@@ -170,7 +176,7 @@ export default function NumberingSettingsPage() {
       setModalOpen(false);
       await loadData();
     } catch (err: unknown) {
-      console.error('Failed to save numbering series:', err);
+      logger.error('Failed to save numbering series:', err);
     } finally {
       setSubmitting(false);
     }
@@ -196,7 +202,7 @@ export default function NumberingSettingsPage() {
     {
       key: 'formatPattern',
       header: 'Pattern Template',
-      cell: (s) => <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono">{s.formatPattern}</code>,
+      cell: (s) => <code className="text-xs bg-surface-sunken px-2 py-0.5 rounded font-mono">{s.formatPattern}</code>,
     },
     {
       key: 'preview',
@@ -207,7 +213,7 @@ export default function NumberingSettingsPage() {
           .replace('{BRANCH}', 'HO')
           .replace('{FY}', '26-27')
           .replace('{SEQ}', String(s.currentSeq || 1).padStart(s.seqPadding || 5, '0'));
-        return <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">{sample}</span>;
+        return <span className="font-mono font-bold text-xs text-brand-text">{sample}</span>;
       },
     },
     {
@@ -222,7 +228,7 @@ export default function NumberingSettingsPage() {
       header: 'Reset Policy',
       width: '130px',
       cell: (s) => (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-secondary">
           {s.resetFrequency === 'ANNUAL_FY' ? 'Every FY' : s.resetFrequency === 'MONTHLY' ? 'Monthly' : 'Never'}
         </span>
       ),
@@ -246,18 +252,18 @@ export default function NumberingSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon-sm" asChild>
-            <Link href="/settings/companies">
+            <Link href="/settings/companies" aria-label="Back to Companies">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-2xl font-black tracking-tight text-primary">
                 Document Numbering & Sequences
               </h1>
               <Badge variant="brand" size="sm">Gap-Free Rule 46</Badge>
             </div>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-secondary">
               Configure consecutive numbering series, statutory prefixes, and sequence token rules across documents.
             </p>
           </div>
@@ -267,17 +273,54 @@ export default function NumberingSettingsPage() {
           <Button variant="outline" size="sm" onClick={loadData} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
-          <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-            New Numbering Series
-          </Button>
+          <div className="inline-flex rounded-lg shadow-2xs">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenCreate}
+              leftIcon={<Plus className="h-3.5 w-3.5" />}
+              className="rounded-r-none border-r border-brand-hover/30"
+            >
+              New Numbering Series
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="rounded-l-none px-2"
+                  aria-label="More creation options"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('TAX_INVOICE'); }}>
+                  Tax Invoice Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('CREDIT_NOTE'); }}>
+                  Credit Note Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('DEBIT_NOTE'); }}>
+                  Debit Note Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('DELIVERY_CHALLAN'); }}>
+                  Delivery Challan Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('JOURNAL_VOUCHER'); }}>
+                  Journal Voucher Series
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
       {/* Info Card */}
-      <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-        <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-          <span className="font-bold text-slate-900 dark:text-white block mb-0.5">
+      <div className="p-4 rounded-2xl bg-status-info-subtle border border-default flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-status-info-text shrink-0 mt-0.5" />
+        <div className="text-xs text-secondary leading-relaxed">
+          <span className="font-bold text-primary block mb-0.5">
             Statutory GST Numbering Invariant (Rule 46(b)):
           </span>
           All Tax Invoices, Credit Notes, and Delivery Challans must follow unique, consecutive numbering containing only alphanumeric and special characters (`-`, `/`). Gap-free sequence tracking prevents audit disallowances.
@@ -289,13 +332,13 @@ export default function NumberingSettingsPage() {
         columns={columns}
         data={seriesList}
         loading={loading}
-        emptyTitle="No custom numbering series found"
-        emptyDescription="Configure your first numbering series to override default invoice sequences."
+        emptyTitle="No numbering series"
+        emptyDescription="Define series formats for tax invoices, credit notes, and vouchers."
       />
 
       {/* Series Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent size="md" className="max-w-lg">
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>
               {selectedSeries ? `Edit Series: ${selectedSeries.seriesCode}` : 'Create New Document Numbering Series'}
@@ -348,15 +391,15 @@ export default function NumberingSettingsPage() {
               />
             </FormField>
 
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
-              <span className="text-[11px] text-slate-500 font-bold uppercase block mb-1">
+            <div className="p-3 rounded-xl bg-surface-sunken border border-default text-xs">
+              <span className="text-[11px] text-secondary font-bold uppercase block mb-1">
                 Supported Tokens:
               </span>
-              <div className="flex flex-wrap gap-2 text-[11px] font-mono text-slate-700 dark:text-slate-300">
-                <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border">`{'{SERIES}'}`</span>
-                <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border">`{'{FY}'}`</span>
-                <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border">`{'{BRANCH}'}`</span>
-                <span className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border">`{'{SEQ}'}`</span>
+              <div className="flex flex-wrap gap-2 text-[11px] font-mono text-primary">
+                <span className="px-1.5 py-0.5 rounded bg-surface border border-default">`{'{SERIES}'}`</span>
+                <span className="px-1.5 py-0.5 rounded bg-surface border border-default">`{'{FY}'}`</span>
+                <span className="px-1.5 py-0.5 rounded bg-surface border border-default">`{'{BRANCH}'}`</span>
+                <span className="px-1.5 py-0.5 rounded bg-surface border border-default">`{'{SEQ}'}`</span>
               </div>
             </div>
 
@@ -386,9 +429,9 @@ export default function NumberingSettingsPage() {
               </FormField>
             </div>
 
-            <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 flex items-center justify-between">
-              <span className="text-xs font-bold text-blue-900 dark:text-blue-200">Live Sample Output:</span>
-              <span className="font-mono font-black text-sm text-blue-600 dark:text-blue-400">
+            <div className="p-3 rounded-xl bg-status-info-subtle border border-default flex items-center justify-between">
+              <span className="text-xs font-bold text-primary">Live Sample Output:</span>
+              <span className="font-mono font-black text-sm text-status-info-text">
                 {previewFormatted}
               </span>
             </div>

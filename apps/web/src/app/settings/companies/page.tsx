@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   ShieldCheck,
 } from 'lucide-react';
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@platform/ui';
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent, LoadingState, MonoCopyable } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { CompanyDialog } from './company-dialog';
@@ -79,14 +79,14 @@ export default function CompaniesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-black tracking-tight text-primary">
               Company & Tenant Directory
             </h1>
             <Badge variant="brand" size="sm">
               Multi-Tenant
             </Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-secondary">
             Isolated enterprise legal entities with dedicated Chart of Accounts, state GSTIN nodes, and ledger segregation.
           </p>
         </div>
@@ -114,59 +114,59 @@ export default function CompaniesPage() {
 
       {/* Stats Summary Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl border border-default bg-surface shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Registered Companies
             </div>
-            <div className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xl font-black text-primary mt-0.5">
               {companies.length}
             </div>
           </div>
-          <div className="h-9 w-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+          <div className="h-9 w-9 rounded-xl bg-status-info-subtle text-status-info-text flex items-center justify-center">
             <Building2 className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl border border-default bg-surface shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Operating Branches & GSTINs
             </div>
-            <div className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
+            <div className="text-xl font-black text-primary mt-0.5">
               {totalBranches}
             </div>
           </div>
-          <div className="h-9 w-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+          <div className="h-9 w-9 rounded-xl bg-status-success-subtle text-status-success-text flex items-center justify-center">
             <MapPin className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl border border-default bg-surface shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Working Workspace Entity
             </div>
-            <div className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[170px] mt-0.5">
+            <div className="text-sm font-bold text-primary truncate max-w-[170px] mt-0.5">
               {companies.find((c) => c.id === workingCompanyId)?.legalName || 'No Company Selected'}
             </div>
           </div>
-          <div className="h-9 w-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+          <div className="h-9 w-9 rounded-xl bg-status-warning-subtle text-status-warning-text flex items-center justify-center">
             <ShieldCheck className="h-5 w-5" />
           </div>
         </div>
       </div>
 
       {success && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 font-medium flex items-center justify-between gap-2">
+        <div className="p-3.5 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text font-medium flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-status-success-text shrink-0" />
             <span>{success}</span>
           </div>
           <button
             type="button"
             onClick={() => setSuccess(null)}
-            className="text-xs text-emerald-600 hover:text-emerald-800 dark:hover:text-emerald-200"
+            className="text-xs text-status-success-text hover:underline"
           >
             Dismiss
           </button>
@@ -174,12 +174,12 @@ export default function CompaniesPage() {
       )}
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center justify-between gap-2">
+        <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium flex items-center justify-between gap-2">
           <span>{error}</span>
           <button
             type="button"
             onClick={() => setError(null)}
-            className="text-xs text-rose-600 hover:text-rose-800 dark:hover:text-rose-200"
+            className="text-xs text-status-danger-text hover:underline"
           >
             Dismiss
           </button>
@@ -188,15 +188,17 @@ export default function CompaniesPage() {
 
       {/* Companies List */}
       <div className="space-y-4">
-        {companies.length === 0 && !loading && (
-          <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-8 shadow-xs">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+        {loading ? (
+          <LoadingState variant="cards" rows={4} />
+        ) : companies.length === 0 ? (
+          <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-default bg-surface p-8 shadow-xs">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-status-info-subtle text-status-info-text">
               <Building2 className="h-6 w-6" />
             </div>
-            <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="mt-4 text-base font-bold text-primary">
               No Companies Registered in this Tenant
             </h3>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            <p className="mt-1 text-xs text-secondary max-w-sm mx-auto">
               Get started by registering your first enterprise legal entity, head office, and statutory state GSTIN node.
             </p>
             <div className="mt-5">
@@ -210,10 +212,9 @@ export default function CompaniesPage() {
               </Button>
             </div>
           </div>
-        )}
-
-        {companies.map((company) => {
-          const isWorking = company.id === workingCompanyId;
+        ) : (
+          companies.map((company) => {
+            const isWorking = company.id === workingCompanyId;
           const branches = company.branches || [];
 
           return (
@@ -221,18 +222,18 @@ export default function CompaniesPage() {
               key={company.id}
               className={`overflow-hidden border transition shadow-xs ${
                 isWorking
-                  ? 'border-blue-300 dark:border-blue-800 ring-2 ring-blue-500/10 dark:ring-blue-500/20'
-                  : 'border-slate-200/80 dark:border-slate-800'
-              } bg-white dark:bg-slate-900`}
+                  ? 'border-focus ring-2 ring-focus-ring/20'
+                  : 'border-default'
+              } bg-surface`}
             >
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 px-6 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/40 gap-3">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 px-6 border-b border-subtle bg-surface-sunken gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50 flex items-center justify-center font-bold shadow-xs shrink-0">
+                  <div className="h-10 w-10 rounded-xl bg-status-info-subtle text-status-info-text border border-default flex items-center justify-center font-bold shadow-xs shrink-0">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <CardTitle className="text-base font-extrabold text-slate-900 dark:text-white">
+                      <CardTitle className="text-base font-extrabold text-primary">
                         {company.legalName}
                       </CardTitle>
                       {isWorking ? (
@@ -248,13 +249,11 @@ export default function CompaniesPage() {
                         {company.defaultCurrency || 'INR'}
                       </Badge>
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                      PAN:{' '}
-                      <span className="font-semibold text-slate-700 dark:text-slate-300">
-                        {company.pan || company.panEncrypted || '—'}
-                      </span>{' '}
-                      • Trade:{' '}
-                      <span className="font-semibold text-slate-700 dark:text-slate-300">
+                    <div className="text-xs text-secondary font-mono mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>PAN:</span>
+                      <MonoCopyable value={company.pan || company.panEncrypted || '—'} label="Company PAN" className="text-xs" />
+                      <span>• Trade:</span>
+                      <span className="font-semibold text-primary font-sans">
                         {company.tradeName || company.legalName}
                       </span>
                     </div>
@@ -269,7 +268,7 @@ export default function CompaniesPage() {
                       size="xs"
                       onClick={() => handleSwitchWorkingCompany(company.id, company.legalName)}
                       leftIcon={<ArrowRightLeft className="h-3 w-3" />}
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:border-blue-900 dark:hover:bg-blue-950/50"
+                      className="text-brand-text border-default hover:bg-brand-subtle"
                       title="Set as currently active company across all navigation menus"
                     >
                       Make Active
@@ -279,7 +278,7 @@ export default function CompaniesPage() {
                   <Button
                     variant="ghost"
                     size="xs"
-                    className="h-8 px-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:text-slate-300 dark:hover:bg-blue-950/40"
+                    className="h-8 px-2 text-secondary hover:text-brand-text hover:bg-brand-subtle"
                     title="View full 360° company profile and audit details"
                     onClick={() => setSelectedCompanyForView(company)}
                   >
@@ -290,7 +289,7 @@ export default function CompaniesPage() {
                   <Button
                     variant="ghost"
                     size="xs"
-                    className="h-8 px-2 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 dark:text-slate-300 dark:hover:bg-emerald-950/40"
+                    className="h-8 px-2 text-secondary hover:text-status-success-text hover:bg-status-success-subtle"
                     title="Edit company legal credentials, PAN, currency or head office"
                     onClick={() => setSelectedCompanyForEdit(company)}
                   >
@@ -309,19 +308,19 @@ export default function CompaniesPage() {
                 </div>
               </CardHeader>
 
-              <CardContent className="p-6 space-y-4 bg-white dark:bg-slate-900">
+              <CardContent className="p-6 space-y-4 bg-surface">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2.5">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-muted mb-2.5">
                     Operating Branches & State GSTIN Units ({branches.length}):
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {branches.map((branch: any) => (
                       <div
                         key={branch.id}
-                        className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/60 text-xs space-y-2 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-xs"
+                        className="p-4 rounded-xl border border-default bg-surface-sunken text-xs space-y-2 hover:border-strong transition-colors shadow-xs"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 dark:text-white text-sm">
+                          <span className="font-bold text-primary text-sm">
                             {branch.branchName || branch.name || 'Main Office'}
                           </span>
                           {branch.isHeadOffice && (
@@ -330,19 +329,23 @@ export default function CompaniesPage() {
                             </Badge>
                           )}
                         </div>
-                        <div className="font-mono text-xs text-slate-600 dark:text-slate-300">
-                          <span className="text-slate-400 dark:text-slate-500 text-[11px] uppercase tracking-wider">
+                        <div className="font-mono text-xs text-secondary flex items-center gap-1">
+                          <span className="text-muted text-[11px] uppercase tracking-wider">
                             GSTIN:
-                          </span>{' '}
-                          <span className="font-semibold text-slate-900 dark:text-slate-100">
-                            {branch.gstin || 'Unregistered'}
                           </span>
+                          {branch.gstin ? (
+                            <MonoCopyable value={branch.gstin} label="Branch GSTIN" className="text-xs" />
+                          ) : (
+                            <span className="font-semibold text-muted italic font-sans">
+                              Unregistered
+                            </span>
+                          )}
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pt-0.5">
-                          <MapPin className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
+                        <div className="text-xs text-secondary flex items-center gap-1.5 pt-0.5">
+                          <MapPin className="h-3.5 w-3.5 text-brand-text shrink-0" />
                           <span>
                             Jurisdiction:{' '}
-                            <strong className="text-slate-700 dark:text-slate-200">
+                            <strong className="text-primary">
                               {INDIAN_GST_STATES[branch.stateCode]?.name || 'State'} (Code{' '}
                               {branch.stateCode})
                             </strong>
@@ -355,7 +358,7 @@ export default function CompaniesPage() {
               </CardContent>
             </Card>
           );
-        })}
+        }))}
       </div>
 
       {/* New Company Registration Dialog */}

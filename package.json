@@ -20,6 +20,7 @@
     "clean": "rm -rf node_modules apps/*/dist apps/*/.next packages/*/dist"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
     "@playwright/test": "^1.65.0",
     "@types/node": "^22.8.7",
     "@types/react": "^18.3.12",

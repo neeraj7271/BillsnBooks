@@ -1,5 +1,17 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Select, Badge } from '@platform/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Button,
+  Select,
+  Badge,
+  DataTable,
+  ColumnDef,
+} from '@platform/ui';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import { CANONICAL_IMPORT_FIELDS } from '@platform/shared-types';
 
@@ -28,6 +40,48 @@ export function Step2Mapping({
     })),
   ];
 
+  const mappingColumns: ColumnDef<{ header: string }>[] = [
+    {
+      key: 'header',
+      header: 'Uploaded File Header',
+      cell: (row) => (
+        <span className="font-mono font-semibold text-primary">{row.header}</span>
+      ),
+    },
+    {
+      key: 'canonicalField',
+      header: 'Canonical Platform Field',
+      cell: (row) => (
+        <div className="min-w-[260px]">
+          <Select
+            size="sm"
+            className="w-full min-w-0"
+            value={mapping[row.header] || ''}
+            onValueChange={(val) => onMappingChange(row.header, val)}
+            options={canonicalOptions}
+          />
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      align: 'center',
+      cell: (row) =>
+        mapping[row.header] ? (
+          <Badge variant="success" size="xs">
+            Mapped
+          </Badge>
+        ) : (
+          <Badge variant="neutral" size="xs">
+            Ignored
+          </Badge>
+        ),
+    },
+  ];
+
+  const tableData = detectedHeaders.map((header) => ({ header }));
+
   return (
     <Card>
       <CardHeader>
@@ -38,44 +92,14 @@ export function Step2Mapping({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 font-semibold text-slate-500">
-              <tr>
-                <th className="py-2.5 px-4">Uploaded File Header</th>
-                <th className="py-2.5 px-4">Canonical Platform Field</th>
-                <th className="py-2.5 px-4 text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {detectedHeaders.map((header) => {
-                const mappedVal = mapping[header] || '';
-                return (
-                  <tr key={header}>
-                    <td className="py-3 px-4 font-mono font-semibold text-slate-800 dark:text-slate-200">
-                      {header}
-                    </td>
-                    <td className="py-3 px-4">
-                      <Select
-                        size="sm"
-                        value={mappedVal}
-                        onValueChange={(val) => onMappingChange(header, val)}
-                        options={canonicalOptions}
-                      />
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {mappedVal ? (
-                        <Badge variant="success" size="xs">Mapped</Badge>
-                      ) : (
-                        <Badge variant="neutral" size="xs">Ignored</Badge>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={mappingColumns}
+          data={tableData}
+          showPagination={false}
+          density="compact"
+          emptyTitle="No headers detected"
+          emptyDescription="Please upload a valid CSV or Excel file with header rows."
+        />
       </CardContent>
 
       <CardFooter className="justify-between">

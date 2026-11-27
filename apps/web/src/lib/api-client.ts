@@ -967,11 +967,120 @@ export const apiClient = {
     });
   },
 
-  async uploadClientDocument(id: string, payload: { fileName: string; fileSizeBytes: number; fileUrl: string }) {
+  async uploadClientDocument(id: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
     return request<any>(`/v1/practice/documents/${id}/upload`, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: formData,
     });
+  },
+
+  async fetchProtectedBlob(path: string): Promise<{ blob: Blob; contentType: string; sha256?: string }> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('antigravity_access_token') : null;
+    const tenantId = getActiveTenantId();
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      headers: {
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
+      },
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || `Download failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    return {
+      blob,
+      contentType: res.headers.get('content-type') || 'application/octet-stream',
+      sha256: res.headers.get('x-content-sha256') || undefined,
+    };
+  },
+
+  async getClientVault(clientId: string, params?: { folderId?: string; q?: string }) {
+    const sp = new URLSearchParams();
+    if (params?.folderId) sp.set('folderId', params.folderId);
+    if (params?.q) sp.set('q', params.q);
+    const qs = sp.toString() ? `?${sp.toString()}` : '';
+    return request<any>(`/v1/practice/vault/clients/${clientId}${qs}`);
+  },
+
+  async listAllVaultFiles(params?: { clientId?: string; folderName?: string; q?: string }) {
+    const sp = new URLSearchParams();
+    if (params?.clientId) sp.set('clientId', params.clientId);
+    if (params?.folderName) sp.set('folderName', params.folderName);
+    if (params?.q) sp.set('q', params.q);
+    const qs = sp.toString() ? `?${sp.toString()}` : '';
+    return request<any[]>(`/v1/practice/vault/files${qs}`);
+  },
+
+  async createVaultFolder(clientId: string, name: string, parentId?: string) {
+    return request<any>(`/v1/practice/vault/clients/${clientId}/folders`, {
+      method: 'POST',
+      body: JSON.stringify({ name, parentId }),
+    });
+  },
+
+  async renameVaultFolder(folderId: string, name: string) {
+    return request<any>(`/v1/practice/vault/folders/${folderId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ name }),
+    });
+  },
+
+  async uploadToVault(
+    clientId: string,
+    file: File,
+    opts?: { folderId?: string; replaceFileGroupId?: string },
+  ) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (opts?.folderId) formData.append('folderId', opts.folderId);
+    if (opts?.replaceFileGroupId) formData.append('replaceFileGroupId', opts.replaceFileGroupId);
+    return request<any>(`/v1/practice/vault/clients/${clientId}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  async listVaultFileVersions(fileId: string) {
+    return request<any[]>(`/v1/practice/documents/files/${fileId}/versions`);
+  },
+
+  async restoreVaultFileVersion(fileId: string) {
+    return request<any>(`/v1/practice/documents/files/${fileId}/restore`, {
+      method: 'POST',
+    });
+  },
+
+  async updateVaultFile(fileId: string, updates: { fileName?: string; folderId?: string | null }) {
+    return request<any>(`/v1/practice/documents/files/${fileId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  async getVaultFileAudit(fileId: string) {
+    return request<any[]>(`/v1/practice/documents/files/${fileId}/audit`);
+  },
+
+  async deleteVaultFile(fileId: string) {
+    return request<any>(`/v1/practice/documents/files/${fileId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async uploadBrandingAsset(companyId: string, key: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('key', key);
+    return request<{ key: string; storageKey: string; url: string }>(
+      `/v1/companies/${companyId}/settings/branding/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+    );
   },
 
   async reviewClientDocument(id: string, status: 'ACCEPTED' | 'REJECTED', rejectionReason?: string) {
@@ -984,6 +1093,576 @@ export const apiClient = {
   async getPracticeCalendar(month?: string) {
     const q = month ? `?month=${month}` : '';
     return request<any>(`/v1/practice/calendar${q}`);
+  },
+
+  async getPracticeDashboard() {
+    return request<any>('/v1/practice/dashboard');
+  },
+
+  async getPracticeWorkload() {
+    return request<any>('/v1/practice/workload');
+  },
+
+  async listWorkflowTemplates() {
+    return request<any[]>('/v1/practice/workflow-templates');
+  },
+
+  async listPracticeJobs(params?: { clientId?: string; stage?: string; assignedToUserId?: string }) {
+    const sp = new URLSearchParams();
+    if (params?.clientId) sp.set('clientId', params.clientId);
+    if (params?.stage) sp.set('stage', params.stage);
+    if (params?.assignedToUserId) sp.set('assignedToUserId', params.assignedToUserId);
+    const qs = sp.toString() ? `?${sp.toString()}` : '';
+    return request<any[]>(`/v1/practice/jobs${qs}`);
+  },
+
+  async createPracticeJob(payload: any) {
+    return request<any>('/v1/practice/jobs', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getPracticeJob(jobId: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}`);
+  },
+
+  async movePracticeJobStage(jobId: string, stage: string, filingAckNumber?: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/stage`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stage, filingAckNumber }),
+    });
+  },
+
+  async assignPracticeJob(jobId: string, assignedToUserId: string | null) {
+    return request<any>(`/v1/practice/jobs/${jobId}/assign`, {
+      method: 'PATCH',
+      body: JSON.stringify({ assignedToUserId }),
+    });
+  },
+
+  async toggleJobChecklist(jobId: string, itemId: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/checklist/${itemId}`, {
+      method: 'PATCH',
+    });
+  },
+
+  async addJobComment(jobId: string, comment: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ comment }),
+    });
+  },
+
+  async getClient360(clientId: string) {
+    return request<any>(`/v1/practice/clients/${clientId}/360`);
+  },
+
+  async addClientContact(clientId: string, payload: any) {
+    return request<any>(`/v1/practice/clients/${clientId}/contacts`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteClientContact(contactId: string) {
+    return request<any>(`/v1/practice/contacts/${contactId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Practice Platform v2: Service Master, Workflows, Client-Work Mapping, Credentials, Custom Fields
+  async listPracticeServices(includeInactive = false) {
+    const q = includeInactive ? '?includeInactive=true' : '';
+    return request<any[]>(`/v1/practice/services${q}`);
+  },
+
+  async getPracticeServiceCategories() {
+    return request<string[]>('/v1/practice/services/categories');
+  },
+
+  async createPracticeService(payload: any) {
+    return request<any>('/v1/practice/services', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updatePracticeService(id: string, payload: any) {
+    return request<any>(`/v1/practice/services/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async clonePracticeService(id: string) {
+    return request<any>(`/v1/practice/services/${id}/clone`, {
+      method: 'POST',
+    });
+  },
+
+  async deletePracticeService(id: string) {
+    return request<any>(`/v1/practice/services/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async createWorkflowTemplate(payload: any) {
+    return request<any>('/v1/practice/workflow-templates', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateWorkflowTemplate(id: string, payload: any) {
+    return request<any>(`/v1/practice/workflow-templates/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteWorkflowTemplate(id: string) {
+    return request<any>(`/v1/practice/workflow-templates/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async listClientServices(clientId: string) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/services`);
+  },
+
+  async subscribeClientServices(clientId: string, items: any[]) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/services`, {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+    });
+  },
+
+  async updateClientService(id: string, payload: any) {
+    return request<any>(`/v1/practice/client-services/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async removeClientService(id: string) {
+    return request<any>(`/v1/practice/client-services/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async spawnDuePracticeJobs(period?: string) {
+    return request<any>('/v1/practice/jobs/spawn-due', {
+      method: 'POST',
+      body: JSON.stringify(period ? { period } : {}),
+    });
+  },
+
+  async updateJobCustomData(jobId: string, payload: { customFields?: Record<string, any>; labels?: string[] }) {
+    return request<any>(`/v1/practice/jobs/${jobId}/custom`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updatePracticeClient(clientId: string, payload: any) {
+    return request<any>(`/v1/practice/clients/${clientId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listClientCredentials(clientId: string) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/credentials`);
+  },
+
+  async upsertClientCredential(clientId: string, payload: any) {
+    return request<any>(`/v1/practice/clients/${clientId}/credentials`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async revealClientCredential(credId: string) {
+    return request<any>(`/v1/practice/credentials/${credId}/reveal`, {
+      method: 'POST',
+    });
+  },
+
+  async deleteClientCredential(credId: string) {
+    return request<any>(`/v1/practice/credentials/${credId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async getClientCredentialAudit(clientId: string) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/credentials/audit`);
+  },
+
+  async listCustomFields(entityType?: 'CLIENT' | 'JOB') {
+    const q = entityType ? `?entityType=${entityType}` : '';
+    return request<any[]>(`/v1/practice/custom-fields${q}`);
+  },
+
+  async createCustomField(payload: any) {
+    return request<any>('/v1/practice/custom-fields', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteCustomField(id: string) {
+    return request<any>(`/v1/practice/custom-fields/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async listPracticeLabels(entityType?: 'CLIENT' | 'JOB' | 'ALL') {
+    const q = entityType ? `?entityType=${entityType}` : '';
+    return request<any[]>(`/v1/practice/labels${q}`);
+  },
+
+  async createPracticeLabel(payload: any) {
+    return request<any>('/v1/practice/labels', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deletePracticeLabel(id: string) {
+    return request<any>(`/v1/practice/labels/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Practice Platform v2 Phase 2: Proposals, Engagements, e-Sign, Time & Billing, Capacity, Notices, Reminders, Mode, Dashboard
+  async listProposals() {
+    return request<any[]>('/v1/practice/proposals');
+  },
+
+  async getProposal(id: string) {
+    return request<any>(`/v1/practice/proposals/${id}`);
+  },
+
+  async getProposalPdfBlob(id: string): Promise<Blob> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('antigravity_access_token') : null;
+    const res = await fetch(`${API_BASE_URL}/v1/practice/proposals/${id}/pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error('Failed to generate proposal PDF');
+    return await res.blob();
+  },
+
+  async createProposal(payload: any) {
+    return request<any>('/v1/practice/proposals', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateProposalStatus(id: string, status: string) {
+    return request<any>(`/v1/practice/proposals/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  async listEngagementTemplates() {
+    return request<any[]>('/v1/practice/engagement-templates');
+  },
+
+  async upsertEngagementTemplate(payload: any) {
+    return request<any>('/v1/practice/engagement-templates', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listEngagements(clientId?: string) {
+    const q = clientId ? `?clientId=${clientId}` : '';
+    return request<any[]>(`/v1/practice/engagements${q}`);
+  },
+
+  async getEngagement(id: string) {
+    return request<any>(`/v1/practice/engagements/${id}`);
+  },
+
+  async convertProposalToEngagement(proposalId: string, templateId?: string) {
+    return request<any>(`/v1/practice/proposals/${proposalId}/convert-engagement`, {
+      method: 'POST',
+      body: JSON.stringify({ templateId }),
+    });
+  },
+
+  async clientSignEngagement(engagementId: string, payload: any) {
+    return request<any>(`/v1/practice/engagements/${engagementId}/client-sign`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async firmCountersignEngagement(engagementId: string) {
+    return request<any>(`/v1/practice/engagements/${engagementId}/firm-countersign`, {
+      method: 'POST',
+    });
+  },
+
+  async listTimeEntries(filters?: { jobId?: string; clientId?: string; userId?: string; unbilledOnly?: boolean }) {
+    const q = new URLSearchParams();
+    if (filters?.jobId) q.set('jobId', filters.jobId);
+    if (filters?.clientId) q.set('clientId', filters.clientId);
+    if (filters?.userId) q.set('userId', filters.userId);
+    if (filters?.unbilledOnly) q.set('unbilledOnly', 'true');
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/practice/time-entries${qs}`);
+  },
+
+  async logTimeEntry(payload: any) {
+    return request<any>('/v1/practice/time-entries', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async approveTimesheet(entryIds: string[], approvalStatus: 'SUBMITTED' | 'APPROVED') {
+    return request<any>('/v1/practice/time-entries/approve', {
+      method: 'POST',
+      body: JSON.stringify({ entryIds, approvalStatus }),
+    });
+  },
+
+  async getUnbilledWip() {
+    return request<any[]>('/v1/practice/billing/wip');
+  },
+
+  async listPracticeBills(clientId?: string) {
+    const q = clientId ? `?clientId=${clientId}` : '';
+    return request<any[]>(`/v1/practice/bills${q}`);
+  },
+
+  async createPracticeBillFromWip(payload: any) {
+    return request<any>('/v1/practice/bills/from-wip', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async convertBillToGstInvoice(billId: string, companyId: string = getActiveCompanyId()) {
+    return request<any>(`/v1/practice/bills/${billId}/convert-invoice`, {
+      method: 'POST',
+      body: JSON.stringify({ companyId }),
+    });
+  },
+
+  async markPracticeBillPaid(billId: string) {
+    return request<any>(`/v1/practice/bills/${billId}/mark-paid`, {
+      method: 'POST',
+    });
+  },
+
+  async getProfitabilityReport() {
+    return request<any>('/v1/practice/profitability');
+  },
+
+  async getCapacityHeatmap() {
+    return request<any>('/v1/practice/capacity');
+  },
+
+  async reassignCapacityJob(jobId: string, assignedToUserId: string | null) {
+    return request<any>('/v1/practice/capacity/reassign', {
+      method: 'POST',
+      body: JSON.stringify({ jobId, assignedToUserId }),
+    });
+  },
+
+  async listPracticeNotices(filters?: { authority?: string; status?: string; clientId?: string }) {
+    const q = new URLSearchParams();
+    if (filters?.authority) q.set('authority', filters.authority);
+    if (filters?.status) q.set('status', filters.status);
+    if (filters?.clientId) q.set('clientId', filters.clientId);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/practice/notices${qs}`);
+  },
+
+  async createPracticeNotice(payload: any) {
+    return request<any>('/v1/practice/notices', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updatePracticeNotice(id: string, payload: any) {
+    return request<any>(`/v1/practice/notices/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listReminderTemplates() {
+    return request<any[]>('/v1/practice/reminder-templates');
+  },
+
+  async upsertReminderTemplate(payload: any) {
+    return request<any>('/v1/practice/reminder-templates', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listNotificationRules() {
+    return request<any[]>('/v1/practice/notification-rules');
+  },
+
+  async upsertNotificationRule(payload: any) {
+    return request<any>('/v1/practice/notification-rules', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async runNotificationRules() {
+    return request<any>('/v1/practice/notification-rules/run', {
+      method: 'POST',
+    });
+  },
+
+  async getWorkspaceMode() {
+    return request<{ practiceMode: 'FIRM' | 'BUSINESS' }>('/v1/practice/workspace-mode');
+  },
+
+  async setWorkspaceMode(practiceMode: 'FIRM' | 'BUSINESS') {
+    return request<{ practiceMode: 'FIRM' | 'BUSINESS' }>('/v1/practice/workspace-mode', {
+      method: 'PATCH',
+      body: JSON.stringify({ practiceMode }),
+    });
+  },
+
+  async getCommandCenterDashboard() {
+    return request<any>('/v1/practice/command-center');
+  },
+
+  // Team Management & Review/Sign-off Engine
+  async getInviteInfo(token: string) {
+    return request<any>(`/v1/auth/invite-info?token=${encodeURIComponent(token)}`);
+  },
+
+  async acceptInvite(payload: { token: string; firstName: string; lastName: string; password: string }) {
+    return request<any>('/v1/auth/accept-invite', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getTeam() {
+    return request<any>('/v1/team');
+  },
+
+  async createTeamInvite(payload: any) {
+    return request<any>('/v1/team/invitations', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async resendTeamInvite(id: string) {
+    return request<any>(`/v1/team/invitations/${id}/resend`, { method: 'POST' });
+  },
+
+  async revokeTeamInvite(id: string) {
+    return request<any>(`/v1/team/invitations/${id}/revoke`, { method: 'POST' });
+  },
+
+  async updateTeamMember(userId: string, payload: any) {
+    return request<any>(`/v1/team/members/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listPermissionRoles() {
+    return request<any[]>('/v1/team/permission-roles');
+  },
+
+  async createPermissionRole(payload: any) {
+    return request<any>('/v1/team/permission-roles', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listJobRoles() {
+    return request<any[]>('/v1/team/job-roles');
+  },
+
+  async createJobRole(payload: any) {
+    return request<any>('/v1/team/job-roles', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getClientTeam(clientId: string) {
+    return request<any>(`/v1/team/clients/${clientId}`);
+  },
+
+  async addClientTeamMember(clientId: string, payload: any) {
+    return request<any>(`/v1/team/clients/${clientId}/members`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async assignClientJobRole(clientId: string, payload: any) {
+    return request<any>(`/v1/team/clients/${clientId}/job-roles`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async removeClientTeamMember(clientId: string, userId: string) {
+    return request<any>(`/v1/team/clients/${clientId}/members/${userId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async getReviewSettings() {
+    return request<any>('/v1/practice/review-settings');
+  },
+
+  async setReviewMode(reviewMode: 'OFF' | 'SELF_SIGNOFF' | 'ENFORCED') {
+    return request<any>('/v1/practice/review-settings', {
+      method: 'PATCH',
+      body: JSON.stringify({ reviewMode }),
+    });
+  },
+
+  async getReviewInbox() {
+    return request<any[]>('/v1/practice/reviews/inbox');
+  },
+
+  async getJobReviewHistory(jobId: string) {
+    return request<any[]>(`/v1/practice/jobs/${jobId}/reviews`);
+  },
+
+  async submitJobForReview(jobId: string, notes?: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/submit-review`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  },
+
+  async approveJobReview(jobId: string, payload?: { notes?: string; isFinalSignoff?: boolean }) {
+    return request<any>(`/v1/practice/jobs/${jobId}/approve-review`, {
+      method: 'POST',
+      body: JSON.stringify(payload || {}),
+    });
+  },
+
+  async returnJobForRework(jobId: string, notes: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/return-review`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
   },
 
   // Collections & Ageing (Phase 6)
@@ -1415,6 +2094,19 @@ export const apiClient = {
     return request<any>(`/v1/companies/${companyId}/notifications/trigger-scan`, {
       method: 'POST',
       body: JSON.stringify({ simulatedDate }),
+    });
+  },
+
+  // --- Developer Operations ---
+  async replayJourneys() {
+    return request<any>('/v1/dev/replay-journeys', {
+      method: 'POST',
+    });
+  },
+
+  async clearTenant() {
+    return request<any>('/v1/dev/clear-tenant', {
+      method: 'POST',
     });
   },
 };
