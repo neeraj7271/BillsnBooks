@@ -1335,6 +1335,212 @@ export const apiClient = {
     });
   },
 
+  // Practice Platform v2 Phase 2: Proposals, Engagements, e-Sign, Time & Billing, Capacity, Notices, Reminders, Mode, Dashboard
+  async listProposals() {
+    return request<any[]>('/v1/practice/proposals');
+  },
+
+  async getProposal(id: string) {
+    return request<any>(`/v1/practice/proposals/${id}`);
+  },
+
+  async getProposalPdfBlob(id: string): Promise<Blob> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('antigravity_access_token') : null;
+    const res = await fetch(`${API_BASE_URL}/v1/practice/proposals/${id}/pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error('Failed to generate proposal PDF');
+    return await res.blob();
+  },
+
+  async createProposal(payload: any) {
+    return request<any>('/v1/practice/proposals', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateProposalStatus(id: string, status: string) {
+    return request<any>(`/v1/practice/proposals/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  async listEngagementTemplates() {
+    return request<any[]>('/v1/practice/engagement-templates');
+  },
+
+  async upsertEngagementTemplate(payload: any) {
+    return request<any>('/v1/practice/engagement-templates', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listEngagements(clientId?: string) {
+    const q = clientId ? `?clientId=${clientId}` : '';
+    return request<any[]>(`/v1/practice/engagements${q}`);
+  },
+
+  async getEngagement(id: string) {
+    return request<any>(`/v1/practice/engagements/${id}`);
+  },
+
+  async convertProposalToEngagement(proposalId: string, templateId?: string) {
+    return request<any>(`/v1/practice/proposals/${proposalId}/convert-engagement`, {
+      method: 'POST',
+      body: JSON.stringify({ templateId }),
+    });
+  },
+
+  async clientSignEngagement(engagementId: string, payload: any) {
+    return request<any>(`/v1/practice/engagements/${engagementId}/client-sign`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async firmCountersignEngagement(engagementId: string) {
+    return request<any>(`/v1/practice/engagements/${engagementId}/firm-countersign`, {
+      method: 'POST',
+    });
+  },
+
+  async listTimeEntries(filters?: { jobId?: string; clientId?: string; userId?: string; unbilledOnly?: boolean }) {
+    const q = new URLSearchParams();
+    if (filters?.jobId) q.set('jobId', filters.jobId);
+    if (filters?.clientId) q.set('clientId', filters.clientId);
+    if (filters?.userId) q.set('userId', filters.userId);
+    if (filters?.unbilledOnly) q.set('unbilledOnly', 'true');
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/practice/time-entries${qs}`);
+  },
+
+  async logTimeEntry(payload: any) {
+    return request<any>('/v1/practice/time-entries', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async approveTimesheet(entryIds: string[], approvalStatus: 'SUBMITTED' | 'APPROVED') {
+    return request<any>('/v1/practice/time-entries/approve', {
+      method: 'POST',
+      body: JSON.stringify({ entryIds, approvalStatus }),
+    });
+  },
+
+  async getUnbilledWip() {
+    return request<any[]>('/v1/practice/billing/wip');
+  },
+
+  async listPracticeBills(clientId?: string) {
+    const q = clientId ? `?clientId=${clientId}` : '';
+    return request<any[]>(`/v1/practice/bills${q}`);
+  },
+
+  async createPracticeBillFromWip(payload: any) {
+    return request<any>('/v1/practice/bills/from-wip', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async convertBillToGstInvoice(billId: string, companyId: string = getActiveCompanyId()) {
+    return request<any>(`/v1/practice/bills/${billId}/convert-invoice`, {
+      method: 'POST',
+      body: JSON.stringify({ companyId }),
+    });
+  },
+
+  async markPracticeBillPaid(billId: string) {
+    return request<any>(`/v1/practice/bills/${billId}/mark-paid`, {
+      method: 'POST',
+    });
+  },
+
+  async getProfitabilityReport() {
+    return request<any>('/v1/practice/profitability');
+  },
+
+  async getCapacityHeatmap() {
+    return request<any>('/v1/practice/capacity');
+  },
+
+  async reassignCapacityJob(jobId: string, assignedToUserId: string | null) {
+    return request<any>('/v1/practice/capacity/reassign', {
+      method: 'POST',
+      body: JSON.stringify({ jobId, assignedToUserId }),
+    });
+  },
+
+  async listPracticeNotices(filters?: { authority?: string; status?: string; clientId?: string }) {
+    const q = new URLSearchParams();
+    if (filters?.authority) q.set('authority', filters.authority);
+    if (filters?.status) q.set('status', filters.status);
+    if (filters?.clientId) q.set('clientId', filters.clientId);
+    const qs = q.toString() ? `?${q.toString()}` : '';
+    return request<any[]>(`/v1/practice/notices${qs}`);
+  },
+
+  async createPracticeNotice(payload: any) {
+    return request<any>('/v1/practice/notices', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updatePracticeNotice(id: string, payload: any) {
+    return request<any>(`/v1/practice/notices/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listReminderTemplates() {
+    return request<any[]>('/v1/practice/reminder-templates');
+  },
+
+  async upsertReminderTemplate(payload: any) {
+    return request<any>('/v1/practice/reminder-templates', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listNotificationRules() {
+    return request<any[]>('/v1/practice/notification-rules');
+  },
+
+  async upsertNotificationRule(payload: any) {
+    return request<any>('/v1/practice/notification-rules', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async runNotificationRules() {
+    return request<any>('/v1/practice/notification-rules/run', {
+      method: 'POST',
+    });
+  },
+
+  async getWorkspaceMode() {
+    return request<{ practiceMode: 'FIRM' | 'BUSINESS' }>('/v1/practice/workspace-mode');
+  },
+
+  async setWorkspaceMode(practiceMode: 'FIRM' | 'BUSINESS') {
+    return request<{ practiceMode: 'FIRM' | 'BUSINESS' }>('/v1/practice/workspace-mode', {
+      method: 'PATCH',
+      body: JSON.stringify({ practiceMode }),
+    });
+  },
+
+  async getCommandCenterDashboard() {
+    return request<any>('/v1/practice/command-center');
+  },
+
   // Collections & Ageing (Phase 6)
   async getArAgeingSummary(companyId: string = getActiveCompanyId(), asOfDate?: string) {
     const q = asOfDate ? `?asOfDate=${asOfDate}` : '';

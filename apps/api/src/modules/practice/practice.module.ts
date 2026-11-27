@@ -5,7 +5,12 @@ import { PracticeService } from './practice.service';
 import { DocumentVaultService } from './document-vault.service';
 import { PracticeWorkflowService } from './practice-workflow.service';
 import { PracticeV2Service } from './practice-v2.service';
+import { PracticeOnboardingService } from './practice-onboarding.service';
+import { PracticeBillingService } from './practice-billing.service';
+import { PracticeOperationsService } from './practice-operations.service';
 import { PersistenceModule } from '../../infrastructure/persistence/persistence.module';
+import { ReportsModule } from '../reports/reports.module';
+import { InvoiceModule } from '../invoice/invoice.module';
 import { FirmClientOrmEntity } from '../../infrastructure/persistence/entities/firm-client.orm-entity';
 import { StaffAssignmentOrmEntity } from '../../infrastructure/persistence/entities/staff-assignment.orm-entity';
 import { ComplianceTaskOrmEntity } from '../../infrastructure/persistence/entities/compliance-task.orm-entity';
@@ -25,10 +30,17 @@ import { ClientServiceOrmEntity } from '../../infrastructure/persistence/entitie
 import { ClientCredentialOrmEntity } from '../../infrastructure/persistence/entities/client-credential.orm-entity';
 import { PracticeCustomFieldOrmEntity } from '../../infrastructure/persistence/entities/practice-custom-field.orm-entity';
 import { PracticeLabelOrmEntity } from '../../infrastructure/persistence/entities/practice-label.orm-entity';
+import { PracticeProposalOrmEntity, PracticeProposalLineOrmEntity } from '../../infrastructure/persistence/entities/practice-proposal.orm-entity';
+import { PracticeEngagementTemplateOrmEntity, PracticeEngagementOrmEntity } from '../../infrastructure/persistence/entities/practice-engagement.orm-entity';
+import { PracticeBillOrmEntity, PracticeBillLineOrmEntity } from '../../infrastructure/persistence/entities/practice-bill.orm-entity';
+import { PracticeNoticeOrmEntity } from '../../infrastructure/persistence/entities/practice-notice.orm-entity';
+import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } from '../../infrastructure/persistence/entities/practice-reminder.orm-entity';
 
 @Module({
   imports: [
     PersistenceModule,
+    ReportsModule,
+    InvoiceModule,
     TypeOrmModule.forFeature([
       FirmClientOrmEntity,
       StaffAssignmentOrmEntity,
@@ -49,11 +61,36 @@ import { PracticeLabelOrmEntity } from '../../infrastructure/persistence/entitie
       ClientCredentialOrmEntity,
       PracticeCustomFieldOrmEntity,
       PracticeLabelOrmEntity,
+      PracticeProposalOrmEntity,
+      PracticeProposalLineOrmEntity,
+      PracticeEngagementTemplateOrmEntity,
+      PracticeEngagementOrmEntity,
+      PracticeBillOrmEntity,
+      PracticeBillLineOrmEntity,
+      PracticeNoticeOrmEntity,
+      PracticeReminderTemplateOrmEntity,
+      PracticeNotificationRuleOrmEntity,
     ]),
   ],
   controllers: [PracticeController],
-  providers: [PracticeService, DocumentVaultService, PracticeWorkflowService, PracticeV2Service],
-  exports: [PracticeService, DocumentVaultService, PracticeWorkflowService, PracticeV2Service],
+  providers: [
+    PracticeService,
+    DocumentVaultService,
+    PracticeWorkflowService,
+    PracticeV2Service,
+    PracticeOnboardingService,
+    PracticeBillingService,
+    PracticeOperationsService,
+  ],
+  exports: [
+    PracticeService,
+    DocumentVaultService,
+    PracticeWorkflowService,
+    PracticeV2Service,
+    PracticeOnboardingService,
+    PracticeBillingService,
+    PracticeOperationsService,
+  ],
 })
 export class PracticeModule {}
 

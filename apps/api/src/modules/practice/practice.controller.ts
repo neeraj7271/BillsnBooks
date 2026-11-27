@@ -18,6 +18,9 @@ import { PracticeService } from './practice.service';
 import { DocumentVaultService } from './document-vault.service';
 import { PracticeWorkflowService } from './practice-workflow.service';
 import { PracticeV2Service } from './practice-v2.service';
+import { PracticeOnboardingService } from './practice-onboarding.service';
+import { PracticeBillingService } from './practice-billing.service';
+import { PracticeOperationsService } from './practice-operations.service';
 import { requireContext } from '../../common/http/request-context';
 import {
   CreateFirmClientDto,
@@ -34,6 +37,9 @@ export class PracticeController {
     private readonly vaultService: DocumentVaultService,
     private readonly workflowService: PracticeWorkflowService,
     private readonly v2Service: PracticeV2Service,
+    private readonly onboardingService: PracticeOnboardingService,
+    private readonly billingService: PracticeBillingService,
+    private readonly operationsService: PracticeOperationsService,
   ) {}
 
   private getContext(req: any) {
@@ -575,6 +581,277 @@ export class PracticeController {
   async deleteLabel(@Param('id') id: string, @Request() req: any) {
     const { tenantId } = this.getContext(req);
     return await this.v2Service.deleteLabel(tenantId, id);
+  }
+
+  // ==================== §7 PROPOSALS, ENGAGEMENTS & E-SIGN ====================
+
+  @Get('proposals')
+  async listProposals(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.listProposals(tenantId);
+  }
+
+  @Get('proposals/:id')
+  async getProposal(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.getProposal(tenantId, id);
+  }
+
+  @Post('proposals')
+  async createProposal(@Body() body: any, @Request() req: any) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.onboardingService.createProposal(tenantId, userId, body);
+  }
+
+  @Patch('proposals/:id/status')
+  async updateProposalStatus(@Param('id') id: string, @Body() body: { status: any }, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.updateProposalStatus(tenantId, id, body.status);
+  }
+
+  @Get('proposals/:id/pdf')
+  async downloadProposalPdf(@Param('id') id: string, @Request() req: any, @Res() res: Response) {
+    const { tenantId, userId, role } = this.getContext(req);
+    const { pdfBuffer, fileName } = await this.onboardingService.generateProposalPdf(
+      tenantId,
+      userId,
+      role,
+      id,
+    );
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.send(pdfBuffer);
+  }
+
+  @Get('engagement-templates')
+  async listEngagementTemplates(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.listEngagementTemplates(tenantId);
+  }
+
+  @Post('engagement-templates')
+  async upsertEngagementTemplate(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.upsertEngagementTemplate(tenantId, body);
+  }
+
+  @Get('engagements')
+  async listEngagements(@Query('clientId') clientId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.listEngagements(tenantId, clientId);
+  }
+
+  @Get('engagements/:id')
+  async getEngagement(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.onboardingService.getEngagement(tenantId, id);
+  }
+
+  @Post('proposals/:id/convert-engagement')
+  async convertProposalToEngagement(
+    @Param('id') id: string,
+    @Body() body: { templateId?: string },
+    @Request() req: any,
+  ) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.onboardingService.convertProposalToEngagement(
+      tenantId,
+      userId,
+      role,
+      id,
+      body?.templateId,
+    );
+  }
+
+  @Post('engagements/:id/client-sign')
+  async clientSignEngagement(@Param('id') id: string, @Body() body: any, @Request() req: any) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.onboardingService.clientSignEngagement(tenantId, userId, role, id, {
+      ...body,
+      ipAddress: req.ip || body?.ipAddress,
+    });
+  }
+
+  @Post('engagements/:id/firm-countersign')
+  async firmCountersignEngagement(@Param('id') id: string, @Request() req: any) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.onboardingService.firmCountersignEngagement(tenantId, userId, id);
+  }
+
+  // ==================== §8 TIME TRACKING, BILLING & PROFITABILITY ====================
+
+  @Get('time-entries')
+  async listTimeEntries(
+    @Query('jobId') jobId: string,
+    @Query('clientId') clientId: string,
+    @Query('userId') userId: string,
+    @Query('unbilledOnly') unbilledOnly: string,
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.billingService.listTimeEntries(tenantId, {
+      jobId,
+      clientId,
+      userId,
+      unbilledOnly: unbilledOnly === 'true',
+    });
+  }
+
+  @Post('time-entries')
+  async logTimeEntry(@Body() body: any, @Request() req: any) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.billingService.logTimeEntry(tenantId, userId, body);
+  }
+
+  @Post('time-entries/approve')
+  async approveTimesheet(
+    @Body() body: { entryIds: string[]; approvalStatus: 'SUBMITTED' | 'APPROVED' },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.billingService.updateTimesheetApproval(
+      tenantId,
+      body.entryIds || [],
+      body.approvalStatus || 'APPROVED',
+    );
+  }
+
+  @Get('billing/wip')
+  async getUnbilledWip(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.billingService.getUnbilledWip(tenantId);
+  }
+
+  @Get('bills')
+  async listBills(@Query('clientId') clientId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.billingService.listBills(tenantId, clientId);
+  }
+
+  @Post('bills/from-wip')
+  async createBillFromWip(@Body() body: any, @Request() req: any) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.billingService.createBillFromWip(tenantId, userId, body);
+  }
+
+  @Post('bills/:id/convert-invoice')
+  async convertBillToGstInvoice(
+    @Param('id') id: string,
+    @Body() body: { companyId: string },
+    @Request() req: any,
+  ) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.billingService.convertBillToGstInvoice(tenantId, body.companyId, userId, id);
+  }
+
+  @Post('bills/:id/mark-paid')
+  async markBillPaid(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.billingService.markBillPaid(tenantId, id);
+  }
+
+  @Get('profitability')
+  async getProfitabilityReport(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.billingService.getProfitabilityReport(tenantId);
+  }
+
+  // ==================== §9 CAPACITY PLANNING ====================
+
+  @Get('capacity')
+  async getCapacityHeatmap(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.getCapacityHeatmap(tenantId);
+  }
+
+  @Post('capacity/reassign')
+  async reassignJob(
+    @Body() body: { jobId: string; assignedToUserId: string | null },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.reassignJobWithNotification(
+      tenantId,
+      body.jobId,
+      body.assignedToUserId,
+    );
+  }
+
+  // ==================== §10 NOTICE MANAGEMENT ====================
+
+  @Get('notices')
+  async listNotices(
+    @Query('authority') authority: string,
+    @Query('status') status: string,
+    @Query('clientId') clientId: string,
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.listNotices(tenantId, { authority, status, clientId });
+  }
+
+  @Post('notices')
+  async createNotice(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.createNotice(tenantId, body);
+  }
+
+  @Patch('notices/:id')
+  async updateNotice(@Param('id') id: string, @Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.updateNotice(tenantId, id, body);
+  }
+
+  // ==================== §11 REMINDERS & NOTIFICATION RULES ====================
+
+  @Get('reminder-templates')
+  async listReminderTemplates(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.listReminderTemplates(tenantId);
+  }
+
+  @Post('reminder-templates')
+  async upsertReminderTemplate(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.upsertReminderTemplate(tenantId, body);
+  }
+
+  @Get('notification-rules')
+  async listNotificationRules(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.listNotificationRules(tenantId);
+  }
+
+  @Post('notification-rules')
+  async upsertNotificationRule(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.upsertNotificationRule(tenantId, body);
+  }
+
+  @Post('notification-rules/run')
+  async runNotificationRules(@Request() req: any) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.operationsService.runNotificationRules(tenantId, userId);
+  }
+
+  // ==================== §12 FIRM VS BUSINESS MODE & §13 COMMAND CENTER ====================
+
+  @Get('workspace-mode')
+  async getWorkspaceMode(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.getWorkspaceMode(tenantId);
+  }
+
+  @Patch('workspace-mode')
+  async setWorkspaceMode(@Body() body: { practiceMode: 'FIRM' | 'BUSINESS' }, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.setWorkspaceMode(tenantId, body.practiceMode);
+  }
+
+  @Get('command-center')
+  async getCommandCenterDashboard(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.operationsService.getCommandCenterDashboard(tenantId);
   }
 }
 
