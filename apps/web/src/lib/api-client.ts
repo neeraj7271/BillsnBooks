@@ -1095,6 +1095,82 @@ export const apiClient = {
     return request<any>(`/v1/practice/calendar${q}`);
   },
 
+  async getPracticeDashboard() {
+    return request<any>('/v1/practice/dashboard');
+  },
+
+  async getPracticeWorkload() {
+    return request<any>('/v1/practice/workload');
+  },
+
+  async listWorkflowTemplates() {
+    return request<any[]>('/v1/practice/workflow-templates');
+  },
+
+  async listPracticeJobs(params?: { clientId?: string; stage?: string; assignedToUserId?: string }) {
+    const sp = new URLSearchParams();
+    if (params?.clientId) sp.set('clientId', params.clientId);
+    if (params?.stage) sp.set('stage', params.stage);
+    if (params?.assignedToUserId) sp.set('assignedToUserId', params.assignedToUserId);
+    const qs = sp.toString() ? `?${sp.toString()}` : '';
+    return request<any[]>(`/v1/practice/jobs${qs}`);
+  },
+
+  async createPracticeJob(payload: any) {
+    return request<any>('/v1/practice/jobs', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getPracticeJob(jobId: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}`);
+  },
+
+  async movePracticeJobStage(jobId: string, stage: string, filingAckNumber?: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/stage`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stage, filingAckNumber }),
+    });
+  },
+
+  async assignPracticeJob(jobId: string, assignedToUserId: string | null) {
+    return request<any>(`/v1/practice/jobs/${jobId}/assign`, {
+      method: 'PATCH',
+      body: JSON.stringify({ assignedToUserId }),
+    });
+  },
+
+  async toggleJobChecklist(jobId: string, itemId: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/checklist/${itemId}`, {
+      method: 'PATCH',
+    });
+  },
+
+  async addJobComment(jobId: string, comment: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ comment }),
+    });
+  },
+
+  async getClient360(clientId: string) {
+    return request<any>(`/v1/practice/clients/${clientId}/360`);
+  },
+
+  async addClientContact(clientId: string, payload: any) {
+    return request<any>(`/v1/practice/clients/${clientId}/contacts`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteClientContact(contactId: string) {
+    return request<any>(`/v1/practice/contacts/${contactId}`, {
+      method: 'DELETE',
+    });
+  },
+
   // Collections & Ageing (Phase 6)
   async getArAgeingSummary(companyId: string = getActiveCompanyId(), asOfDate?: string) {
     const q = asOfDate ? `?asOfDate=${asOfDate}` : '';

@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { PracticeService } from './practice.service';
 import { DocumentVaultService } from './document-vault.service';
+import { PracticeWorkflowService } from './practice-workflow.service';
 import { requireContext } from '../../common/http/request-context';
 import {
   CreateFirmClientDto,
@@ -30,6 +31,7 @@ export class PracticeController {
   constructor(
     private readonly practiceService: PracticeService,
     private readonly vaultService: DocumentVaultService,
+    private readonly workflowService: PracticeWorkflowService,
   ) {}
 
   private getContext(req: any) {
@@ -280,6 +282,113 @@ export class PracticeController {
   async getCalendar(@Query('month') month: string, @Request() req: any) {
     const { tenantId } = this.getContext(req);
     return await this.practiceService.getComplianceCalendar(tenantId, month);
+  }
+
+  // ==========================================
+  // JOBS, WORKFLOW TEMPLATES, CLIENT 360, WORKLOAD, DASHBOARD
+  // ==========================================
+
+  @Get('dashboard')
+  async getDashboard(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.getPracticeDashboard(tenantId);
+  }
+
+  @Get('workload')
+  async getWorkload(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.getStaffWorkload(tenantId);
+  }
+
+  @Get('workflow-templates')
+  async listTemplates(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.listTemplates(tenantId);
+  }
+
+  @Get('jobs')
+  async listJobs(
+    @Query('clientId') clientId: string,
+    @Query('stage') stage: string,
+    @Query('assignedToUserId') assignedToUserId: string,
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.listJobs(tenantId, { clientId, stage, assignedToUserId });
+  }
+
+  @Post('jobs')
+  async createJob(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.createJob(tenantId, body);
+  }
+
+  @Get('jobs/:jobId')
+  async getJob(@Param('jobId') jobId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.getJob(tenantId, jobId);
+  }
+
+  @Patch('jobs/:jobId/stage')
+  async moveJobStage(
+    @Param('jobId') jobId: string,
+    @Body() body: { stage: string; filingAckNumber?: string },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.moveJobStage(tenantId, jobId, body.stage, body.filingAckNumber);
+  }
+
+  @Patch('jobs/:jobId/assign')
+  async assignJob(
+    @Param('jobId') jobId: string,
+    @Body() body: { assignedToUserId: string | null },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.assignJob(tenantId, jobId, body.assignedToUserId);
+  }
+
+  @Patch('jobs/:jobId/checklist/:itemId')
+  async toggleChecklistItem(
+    @Param('jobId') jobId: string,
+    @Param('itemId') itemId: string,
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.toggleChecklistItem(tenantId, jobId, itemId);
+  }
+
+  @Post('jobs/:jobId/comments')
+  async addJobComment(
+    @Param('jobId') jobId: string,
+    @Body() body: { comment: string },
+    @Request() req: any,
+  ) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.workflowService.addJobComment(tenantId, userId, jobId, body.comment);
+  }
+
+  @Get('clients/:clientId/360')
+  async getClient360(@Param('clientId') clientId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.getClient360(tenantId, clientId);
+  }
+
+  @Post('clients/:clientId/contacts')
+  async addClientContact(
+    @Param('clientId') clientId: string,
+    @Body() body: { name: string; role: string; email?: string; phone?: string; isPrimary?: boolean },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.addClientContact(tenantId, clientId, body);
+  }
+
+  @Delete('contacts/:contactId')
+  async deleteClientContact(@Param('contactId') contactId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.workflowService.deleteClientContact(tenantId, contactId);
   }
 }
 

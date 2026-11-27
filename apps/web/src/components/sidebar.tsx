@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Layers,
+  Briefcase,
   CreditCard,
   Compass,
   FileSpreadsheet,
@@ -174,7 +175,10 @@ export function Sidebar({
         {
           title: 'Practice',
           items: [
+            { label: 'Practice Hub', href: '/practice', icon: Briefcase },
+            { label: 'Jobs Pipeline', href: '/practice/jobs', icon: Layers },
             { label: 'Clients', href: '/practice/clients', icon: Building2 },
+            { label: 'Workload', href: '/practice/workload', icon: Users },
             { label: 'Tasks', href: '/practice/tasks', icon: CheckSquare },
             { label: 'Calendar', href: '/practice/calendar', icon: CalendarClock },
             { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
