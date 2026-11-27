@@ -197,9 +197,11 @@ export function Sidebar({
                 ]
               : [
                   { label: 'Practice Hub', href: '/practice', icon: Briefcase },
+                  { label: 'Reviews', href: '/practice/reviews', icon: CheckSquare },
                   { label: 'Proposals', href: '/practice/proposals', icon: FileText },
                   { label: 'Jobs Pipeline', href: '/practice/jobs', icon: Layers },
                   { label: 'Clients', href: '/practice/clients', icon: Building2 },
+                  { label: 'Team', href: '/practice/team', icon: Users },
                   { label: 'Timesheets', href: '/practice/timesheets', icon: CalendarClock },
                   { label: 'Billing & WIP', href: '/practice/billing', icon: Receipt },
                   { label: 'Capacity', href: '/practice/capacity', icon: Users },
@@ -209,8 +211,10 @@ export function Sidebar({
                   { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
                   { label: 'Services', href: '/practice/settings/services', icon: Boxes },
                   { label: 'Workflows', href: '/practice/settings/workflows', icon: Sliders },
+                  { label: 'Roles', href: '/practice/settings/roles', icon: Users },
                   { label: 'Custom Fields', href: '/practice/settings/custom-fields', icon: Hash },
                   { label: 'Reminders', href: '/practice/settings/templates', icon: Bell },
+                  { label: 'Practice Settings', href: '/practice/settings', icon: Settings },
                 ],
         },
         {

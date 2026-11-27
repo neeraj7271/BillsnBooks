@@ -84,6 +84,11 @@ function JobsPipelineContent() {
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
   const [commentText, setCommentText] = useState('');
   const [jobTimeEntries, setJobTimeEntries] = useState<any[]>([]);
+  const [jobReviewHistory, setJobReviewHistory] = useState<any[]>([]);
+  const [reviewMode, setReviewMode] = useState<'OFF' | 'SELF_SIGNOFF' | 'ENFORCED'>('ENFORCED');
+  const [reviewRemarks, setReviewRemarks] = useState('');
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [timerStartedAt, setTimerStartedAt] = useState<number | null>(null);
   const [timerJobId, setTimerJobId] = useState<string | null>(null);
   const [elapsedSec, setElapsedSec] = useState(0);
@@ -191,8 +196,18 @@ function JobsPipelineContent() {
   }, [serviceFilter, services, filteredJobs]);
 
   const openJobDetail = async (jobId: string) => {
-    const detail = await apiClient.getPracticeJob(jobId);
+    setReviewError(null);
+    setCurrentUserId(typeof window !== 'undefined' ? localStorage.getItem('antigravity_user_id') : null);
+    const [detail, entries, reviews, revSettings] = await Promise.all([
+      apiClient.getPracticeJob(jobId),
+      apiClient.listTimeEntries({ jobId }).catch(() => []),
+      apiClient.getJobReviewHistory(jobId).catch(() => []),
+      apiClient.getReviewSettings().catch(() => ({ reviewMode: 'ENFORCED' })),
+    ]);
     setSelectedJob(detail);
+    setJobTimeEntries(entries || []);
+    setJobReviewHistory(reviews || []);
+    setReviewMode(revSettings?.reviewMode || 'ENFORCED');
   };
 
   const handleMoveStage = async (jobId: string, stage: string) => {
@@ -654,21 +669,145 @@ function JobsPipelineContent() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
-            {/* Stage Switcher */}
+            {/* Stage Switcher (with Enforced Maker-Checker Review Gate) */}
             <div>
-              <label className="block text-[11px] font-bold uppercase text-muted mb-2">Move Pipeline Stage</label>
-              <div className="flex flex-wrap gap-1.5">
-                {drawerStages.map((s: any) => (
-                  <Button
-                    key={s.key}
-                    variant={selectedJob.stage === s.key ? 'primary' : 'outline'}
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[11px] font-bold uppercase text-muted">Move Pipeline Stage</label>
+                {selectedJob.reviewStatus && selectedJob.reviewStatus !== 'NONE' && (
+                  <Badge
+                    variant={
+                      selectedJob.reviewStatus === 'SIGNED_OFF' || selectedJob.reviewStatus === 'APPROVED'
+                        ? 'success'
+                        : selectedJob.reviewStatus === 'CHANGES_REQUESTED'
+                          ? 'danger'
+                          : 'warning'
+                    }
                     size="xs"
-                    onClick={() => handleMoveStage(selectedJob.id, s.key)}
                   >
-                    {s.label}
-                  </Button>
-                ))}
+                    {selectedJob.reviewStatus.replace(/_/g, ' ')}
+                  </Badge>
+                )}
               </div>
+              <div className="flex flex-wrap gap-1.5">
+                {drawerStages.map((s: any) => {
+                  const isPreparer = Boolean(currentUserId && selectedJob.preparerUserId === currentUserId);
+                  const isGatedOrTerminal = s.key === 'FILED' || s.key === 'DONE' || selectedJob.stage.includes('REVIEW');
+                  const notApproved = selectedJob.reviewStatus !== 'APPROVED' && selectedJob.reviewStatus !== 'SIGNED_OFF';
+                  const disabledForPreparer = reviewMode === 'ENFORCED' && isPreparer && isGatedOrTerminal && notApproved && s.key !== selectedJob.stage;
+                  return (
+                    <Button
+                      key={s.key}
+                      variant={selectedJob.stage === s.key ? 'primary' : 'outline'}
+                      size="xs"
+                      disabled={disabledForPreparer}
+                      title={disabledForPreparer ? 'Awaiting review by Reviewer/Partner' : undefined}
+                      onClick={() => handleMoveStage(selectedJob.id, s.key)}
+                    >
+                      {s.label}
+                    </Button>
+                  );
+                })}
+              </div>
+              {reviewMode === 'ENFORCED' && currentUserId && selectedJob.preparerUserId === currentUserId && selectedJob.reviewStatus === 'IN_REVIEW' && (
+                <div className="mt-2 p-2 rounded-lg bg-status-warning-subtle text-[11px] text-status-warning-text font-medium">
+                  Awaiting review by Reviewer — preparer cannot advance or mark Filed.
+                </div>
+              )}
+              {selectedJob.reviewStatus === 'CHANGES_REQUESTED' && selectedJob.reviewNotes && (
+                <div className="mt-2 p-2 rounded-lg bg-status-danger-subtle text-[11px] text-status-danger-text font-medium">
+                  Changes Requested: {selectedJob.reviewNotes}
+                </div>
+              )}
+            </div>
+
+            {/* Maker-Checker Review & Sign-off Engine */}
+            <div className="p-3 rounded-xl border border-default bg-surface-sunken/40 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase text-muted">Review &amp; Sign-off ({reviewMode})</span>
+                {selectedJob.reviewStatus !== 'IN_REVIEW' && selectedJob.reviewStatus !== 'SIGNED_OFF' && (
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="primary"
+                    onClick={async () => {
+                      setReviewError(null);
+                      await apiClient.submitJobForReview(selectedJob.id, reviewRemarks || undefined);
+                      setReviewRemarks('');
+                      await openJobDetail(selectedJob.id);
+                      await loadAll();
+                    }}
+                  >
+                    Submit for Review
+                  </Button>
+                )}
+              </div>
+              {reviewError && (
+                <div className="text-[11px] text-status-danger-text font-medium">{reviewError}</div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  value={reviewRemarks}
+                  onChange={(e) => setReviewRemarks(e.target.value)}
+                  placeholder="Review remarks or rework notes..."
+                />
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="outline"
+                  disabled={selectedJob.reviewStatus !== 'IN_REVIEW'}
+                  onClick={async () => {
+                    setReviewError(null);
+                    try {
+                      await apiClient.returnJobForRework(selectedJob.id, reviewRemarks || 'Please revise working papers');
+                      setReviewRemarks('');
+                      await openJobDetail(selectedJob.id);
+                      await loadAll();
+                    } catch (err: any) {
+                      setReviewError(err?.message || 'Return failed');
+                    }
+                  }}
+                >
+                  Return
+                </Button>
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="primary"
+                  disabled={
+                    (reviewMode === 'ENFORCED' && currentUserId === selectedJob.preparerUserId) ||
+                    selectedJob.reviewStatus === 'SIGNED_OFF'
+                  }
+                  onClick={async () => {
+                    setReviewError(null);
+                    try {
+                      await apiClient.approveJobReview(selectedJob.id, { notes: reviewRemarks || undefined, isFinalSignoff: true });
+                      setReviewRemarks('');
+                      await openJobDetail(selectedJob.id);
+                      await loadAll();
+                    } catch (err: any) {
+                      setReviewError(err?.message || 'Approval blocked');
+                    }
+                  }}
+                >
+                  {reviewMode === 'ENFORCED' ? 'Approve & Sign Off' : 'Self Sign-Off'}
+                </Button>
+              </div>
+              {jobReviewHistory.length > 0 && (
+                <div className="space-y-1 pt-2 border-t border-subtle">
+                  <div className="text-[10px] font-bold uppercase text-muted">Review Audit Timeline</div>
+                  {jobReviewHistory.map((rh: any) => (
+                    <div key={rh.id} className="text-[11px] flex justify-between gap-2 text-secondary">
+                      <span>
+                        <strong>{rh.actorName}</strong> ({rh.actorRole}) · <span className="font-semibold">{rh.action}</span>
+                        {rh.notes ? ` — "${rh.notes}"` : ''}
+                      </span>
+                      <span className="font-mono text-[10px] text-muted shrink-0">
+                        {new Date(rh.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Staff Assignment */}

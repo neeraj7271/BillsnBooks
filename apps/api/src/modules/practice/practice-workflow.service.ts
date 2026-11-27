@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { EntityManager } from 'typeorm';
 import { UnitOfWorkService } from '../../infrastructure/persistence/unit-of-work/unit-of-work.service';
@@ -22,6 +22,7 @@ import { ServiceTypeOrmEntity } from '../../infrastructure/persistence/entities/
 import { ClientServiceOrmEntity } from '../../infrastructure/persistence/entities/client-service.orm-entity';
 import { PracticeCustomFieldOrmEntity } from '../../infrastructure/persistence/entities/practice-custom-field.orm-entity';
 import { PracticeLabelOrmEntity } from '../../infrastructure/persistence/entities/practice-label.orm-entity';
+import { TenantOrmEntity } from '../../infrastructure/persistence/entities/tenant.orm-entity';
 
 export const JOB_STAGES = [
   'BACKLOG',
@@ -218,6 +219,12 @@ export class PracticeWorkflowService {
         nextSpawnedJobId: j.nextSpawnedJobId || null,
         filingAckNumber: j.filingAckNumber || null,
         checklist: j.checklist || [],
+        preparerUserId: j.preparerUserId || null,
+        reviewerUserId: j.reviewerUserId || null,
+        partnerUserId: j.partnerUserId || null,
+        reviewStatus: j.reviewStatus || 'NONE',
+        reviewNotes: j.reviewNotes || null,
+        stageState: j.stageState || {},
         createdAt: j.createdAt.toISOString(),
         updatedAt: j.updatedAt.toISOString(),
       };
@@ -383,12 +390,16 @@ export class PracticeWorkflowService {
     jobId: string,
     stage: string,
     filingAckNumber?: string,
+    actorUserId?: string,
   ) {
     return this.uow.executeInTransaction(async (qr) => {
-      const job = await qr.manager.findOne(PracticeJobOrmEntity, {
-        where: { id: jobId, tenantId },
-        relations: ['client', 'client.company', 'template'],
-      });
+      const [tenant, job] = await Promise.all([
+        qr.manager.findOne(TenantOrmEntity, { where: { id: tenantId } }),
+        qr.manager.findOne(PracticeJobOrmEntity, {
+          where: { id: jobId, tenantId },
+          relations: ['client', 'client.company', 'template'],
+        }),
+      ]);
       if (!job) throw new NotFoundException(`Job '${jobId}' not found.`);
 
       const allowedStages = new Set<string>([
@@ -398,6 +409,28 @@ export class PracticeWorkflowService {
       ]);
       if (!allowedStages.has(stage)) {
         throw new BadRequestException(`Invalid stage '${stage}'.`);
+      }
+
+      // Enforced maker-checker review gate: preparer cannot advance past a gated stage or mark FILED/DONE without approval
+      const reviewMode = (tenant?.reviewMode as 'OFF' | 'SELF_SIGNOFF' | 'ENFORCED') || 'ENFORCED';
+      if (reviewMode === 'ENFORCED') {
+        const stagesList = job.stages?.length ? job.stages : [];
+        const curStageDef = stagesList.find((s) => s.key === job.stage);
+        const curIsGated = Boolean(curStageDef?.requiresApproval) || job.stage.includes('REVIEW');
+        const targetIdx = stagesList.findIndex((s) => s.key === stage);
+        const curIdx = stagesList.findIndex((s) => s.key === job.stage);
+        const movingForward = targetIdx > curIdx || stage === 'FILED' || stage === 'DONE';
+
+        const hasGatedStage = stagesList.some((s) => s.requiresApproval) || job.stage.includes('REVIEW') || job.reviewStatus === 'IN_REVIEW';
+        const isApproved = job.reviewStatus === 'APPROVED' || job.reviewStatus === 'SIGNED_OFF';
+
+        if (movingForward && (curIsGated || job.reviewStatus === 'IN_REVIEW' || (hasGatedStage && (stage === 'FILED' || stage === 'DONE'))) && !isApproved) {
+          if (!actorUserId || job.preparerUserId === actorUserId || job.assignedToUserId === actorUserId || job.reviewStatus === 'IN_REVIEW') {
+            throw new ForbiddenException(
+              `Awaiting review by ${curStageDef?.assigneeRole || 'Reviewer'}: preparer cannot advance or file a gated job.`,
+            );
+          }
+        }
       }
 
       job.stage = stage;

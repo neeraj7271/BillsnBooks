@@ -95,6 +95,24 @@ export class PracticeJobOrmEntity {
   @Column({ type: 'jsonb', default: () => "'[]'" })
   checklist!: JobChecklistItem[];
 
+  @Column({ name: 'preparer_user_id', type: 'uuid', nullable: true })
+  preparerUserId?: string | null;
+
+  @Column({ name: 'reviewer_user_id', type: 'uuid', nullable: true })
+  reviewerUserId?: string | null;
+
+  @Column({ name: 'partner_user_id', type: 'uuid', nullable: true })
+  partnerUserId?: string | null;
+
+  @Column({ name: 'review_status', type: 'varchar', length: 30, default: 'NONE' })
+  reviewStatus!: 'NONE' | 'IN_REVIEW' | 'CHANGES_REQUESTED' | 'APPROVED' | 'SIGNED_OFF';
+
+  @Column({ name: 'review_notes', type: 'text', nullable: true })
+  reviewNotes?: string | null;
+
+  @Column({ name: 'stage_state', type: 'jsonb', default: () => "'{}'" })
+  stageState!: Record<string, { status: string; completedByUserId?: string; completedAt?: string }>;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 

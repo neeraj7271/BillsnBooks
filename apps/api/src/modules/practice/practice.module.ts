@@ -8,6 +8,7 @@ import { PracticeV2Service } from './practice-v2.service';
 import { PracticeOnboardingService } from './practice-onboarding.service';
 import { PracticeBillingService } from './practice-billing.service';
 import { PracticeOperationsService } from './practice-operations.service';
+import { PracticeReviewService } from './practice-review.service';
 import { PersistenceModule } from '../../infrastructure/persistence/persistence.module';
 import { ReportsModule } from '../reports/reports.module';
 import { InvoiceModule } from '../invoice/invoice.module';
@@ -35,6 +36,8 @@ import { PracticeEngagementTemplateOrmEntity, PracticeEngagementOrmEntity } from
 import { PracticeBillOrmEntity, PracticeBillLineOrmEntity } from '../../infrastructure/persistence/entities/practice-bill.orm-entity';
 import { PracticeNoticeOrmEntity } from '../../infrastructure/persistence/entities/practice-notice.orm-entity';
 import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } from '../../infrastructure/persistence/entities/practice-reminder.orm-entity';
+import { PracticeJobReviewOrmEntity } from '../../infrastructure/persistence/entities/team-and-review.orm-entity';
+import { TenantOrmEntity } from '../../infrastructure/persistence/entities/tenant.orm-entity';
 
 @Module({
   imports: [
@@ -70,6 +73,8 @@ import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } 
       PracticeNoticeOrmEntity,
       PracticeReminderTemplateOrmEntity,
       PracticeNotificationRuleOrmEntity,
+      PracticeJobReviewOrmEntity,
+      TenantOrmEntity,
     ]),
   ],
   controllers: [PracticeController],
@@ -81,6 +86,7 @@ import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } 
     PracticeOnboardingService,
     PracticeBillingService,
     PracticeOperationsService,
+    PracticeReviewService,
   ],
   exports: [
     PracticeService,
@@ -90,6 +96,7 @@ import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } 
     PracticeOnboardingService,
     PracticeBillingService,
     PracticeOperationsService,
+    PracticeReviewService,
   ],
 })
 export class PracticeModule {}

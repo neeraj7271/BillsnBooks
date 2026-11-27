@@ -21,6 +21,7 @@ import { PracticeV2Service } from './practice-v2.service';
 import { PracticeOnboardingService } from './practice-onboarding.service';
 import { PracticeBillingService } from './practice-billing.service';
 import { PracticeOperationsService } from './practice-operations.service';
+import { PracticeReviewService } from './practice-review.service';
 import { requireContext } from '../../common/http/request-context';
 import {
   CreateFirmClientDto,
@@ -40,6 +41,7 @@ export class PracticeController {
     private readonly onboardingService: PracticeOnboardingService,
     private readonly billingService: PracticeBillingService,
     private readonly operationsService: PracticeOperationsService,
+    private readonly reviewService: PracticeReviewService,
   ) {}
 
   private getContext(req: any) {
@@ -343,8 +345,8 @@ export class PracticeController {
     @Body() body: { stage: string; filingAckNumber?: string },
     @Request() req: any,
   ) {
-    const { tenantId } = this.getContext(req);
-    return await this.workflowService.moveJobStage(tenantId, jobId, body.stage, body.filingAckNumber);
+    const { tenantId, userId } = this.getContext(req);
+    return await this.workflowService.moveJobStage(tenantId, jobId, body.stage, body.filingAckNumber, userId);
   }
 
   @Patch('jobs/:jobId/assign')
@@ -852,6 +854,54 @@ export class PracticeController {
   async getCommandCenterDashboard(@Request() req: any) {
     const { tenantId } = this.getContext(req);
     return await this.operationsService.getCommandCenterDashboard(tenantId);
+  }
+
+  // ==================== §4 & §5 REVIEW / SIGN-OFF ENGINE & SOLO/FIRM TOGGLE ====================
+
+  @Get('review-settings')
+  async getReviewSettings(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.reviewService.getReviewSettings(tenantId);
+  }
+
+  @Patch('review-settings')
+  async setReviewMode(@Body() body: { reviewMode: 'OFF' | 'SELF_SIGNOFF' | 'ENFORCED' }, @Request() req: any) {
+    const { tenantId, role } = this.getContext(req);
+    return await this.reviewService.setReviewMode(tenantId, role, body.reviewMode);
+  }
+
+  @Get('reviews/inbox')
+  async getReviewInbox(@Request() req: any) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.reviewService.getReviewInbox(tenantId, userId, role);
+  }
+
+  @Get('jobs/:jobId/reviews')
+  async getJobReviewHistory(@Param('jobId') jobId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.reviewService.getJobReviewHistory(tenantId, jobId);
+  }
+
+  @Post('jobs/:jobId/submit-review')
+  async submitForReview(@Param('jobId') jobId: string, @Body() body: { notes?: string }, @Request() req: any) {
+    const { tenantId, userId } = this.getContext(req);
+    return await this.reviewService.submitForReview(tenantId, userId, jobId, body?.notes);
+  }
+
+  @Post('jobs/:jobId/approve-review')
+  async approveOrSignOff(
+    @Param('jobId') jobId: string,
+    @Body() body: { notes?: string; isFinalSignoff?: boolean },
+    @Request() req: any,
+  ) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.reviewService.approveOrSignOff(tenantId, userId, role, jobId, body || {});
+  }
+
+  @Post('jobs/:jobId/return-review')
+  async returnForRework(@Param('jobId') jobId: string, @Body() body: { notes: string }, @Request() req: any) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.reviewService.returnForRework(tenantId, userId, role, jobId, body?.notes);
   }
 }
 

@@ -42,3 +42,17 @@ Phase 1 replaced the hardcoded `TaskCategory` enum and static template-only work
 
 13. **Command-Center Dashboard (`/practice`)**
     - Live jobs by stage, overdue & due-this-week counts, at-risk clients, open notices by authority, unbilled WIP / billed / collected financials, staff capacity summary, and 14-day statutory calendar.
+
+---
+
+## Team Management & Maker-Checker Review Engine (Implemented on `ux/refresh-v6`)
+
+- **Colleague Management & Invite-to-Firm (`/practice/team`, `/auth/accept-invite`)**:
+  - `user_kind` separates `FIRM_COLLEAGUE` from `CLIENT_USER`.
+  - Invitations (`team_invitations`) join the existing firm (`tenant_id`) instead of creating a new tenant.
+  - Editable `weekly_capacity_hours` and `hourly_cost_rate` on each colleague feed §9 Capacity Heatmap and §8 Profitability.
+- **Two Role Systems & Client-Team Membership (`/practice/settings/roles`, Client 360 → *Team*)**:
+  - Custom `permission_roles` matrix enforced by `RolesGuard` (`@RequirePermission`), separate from `job_roles` (`Preparer`, `Reviewer`, `Partner / Signatory`, etc.) and `client_team_members`.
+- **Enforced Review / Sign-off Engine (`/practice/jobs`, `/practice/reviews`, `/practice/settings`)**:
+  - Separation of duties: in `ENFORCED` mode, preparers cannot approve or advance a gated job to `FILED`/`DONE` (UI buttons disabled + API `403 Forbidden`).
+  - Supports **Submit for Review**, **Return for Rework** (required notes), **Approve / Partner Sign-off** with tamper-evident `audit_logs` + `practice_job_reviews` timeline, and **Solo vs Team** `reviewMode` (`OFF | SELF_SIGNOFF | ENFORCED`).
