@@ -20,6 +20,7 @@ import {
   DateText,
   Card,
   CardContent,
+  EmptyState,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -168,8 +169,16 @@ export default function BankingOverviewPage() {
       )}
 
       {/* Account Selector Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {accounts.map((acc) => {
+      {accounts.length === 0 && !loading ? (
+        <EmptyState
+          icon={<Landmark className="h-6 w-6 text-muted" />}
+          title="No bank accounts"
+          description="Add a bank account to upload statements and reconcile."
+          action={{ label: 'Add Bank Account', onClick: () => setNewAccModalOpen(true) }}
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {accounts.map((acc) => {
           const isSelected = acc.id === selectedAccountId;
           return (
             <Card
@@ -195,6 +204,7 @@ export default function BankingOverviewPage() {
           );
         })}
       </div>
+      )}
 
       {/* Transactions Table */}
       <div className="space-y-3">

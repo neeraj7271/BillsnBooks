@@ -592,8 +592,9 @@ export default function ItemsPage() {
               setFilterType('ALL');
               setSearchTerm('');
             }}
-            emptyTitle="No items in catalog"
-            emptyDescription="Create your first billable item or service to begin issuing invoices."
+            emptyTitle="No items yet"
+            emptyDescription="Add goods or services you sell."
+            emptyAction={{ label: 'Add Item', onClick: () => setShowAddEditModal(true) }}
           />
         </div>
       ) : (

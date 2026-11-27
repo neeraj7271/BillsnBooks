@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { ChevronDown, ChevronUp, ChevronsUpDown, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './button';
 import { Skeleton } from './skeleton';
+import { EmptyState } from './empty-state';
 import { cn } from './utils';
 
 export interface ColumnDef<T> {
@@ -20,6 +21,8 @@ export interface DataTableProps<T> {
   loading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyIcon?: React.ReactNode;
+  emptyAction?: { label: string; onClick: () => void } | React.ReactNode;
   density?: 'comfortable' | 'compact';
   stickyHeader?: boolean;
   onRowClick?: (row: T) => void;
@@ -66,6 +69,8 @@ export function DataTable<T extends Record<string, any>>({
   loading = false,
   emptyTitle = 'No records found',
   emptyDescription = 'There are no items to display right now.',
+  emptyIcon,
+  emptyAction,
   density = 'comfortable',
   stickyHeader = false,
   onRowClick,
@@ -245,32 +250,21 @@ export function DataTable<T extends Record<string, any>>({
               ))
             ) : displayData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-12 px-4 text-center">
+                <td colSpan={columns.length} className="py-6 px-4 text-center">
                   {isFiltered ? (
-                    <div className="flex flex-col items-center justify-center space-y-3">
-                      <div className="h-10 w-10 rounded-full bg-surface-sunken flex items-center justify-center text-muted">
-                        <Inbox className="h-5 w-5" />
-                      </div>
-                      <p className="text-sm font-semibold text-primary">No matches</p>
-                      <p className="text-xs text-muted max-w-sm">No records match your active filters.</p>
-                      {onClearFilters && (
-                        <Button variant="outline" size="sm" onClick={onClearFilters}>
-                          Clear filters
-                        </Button>
-                      )}
-                    </div>
+                    <EmptyState
+                      isFiltered={true}
+                      onClearFilters={onClearFilters}
+                      className="border-0 shadow-none bg-transparent p-4"
+                    />
                   ) : (
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <div className="h-10 w-10 rounded-full bg-surface-sunken flex items-center justify-center text-muted">
-                        <Inbox className="h-5 w-5" />
-                      </div>
-                      <p className="text-sm font-semibold text-primary">
-                        {emptyTitle}
-                      </p>
-                      <p className="text-xs text-muted max-w-sm">
-                        {emptyDescription}
-                      </p>
-                    </div>
+                    <EmptyState
+                      icon={emptyIcon}
+                      title={emptyTitle}
+                      description={emptyDescription}
+                      action={emptyAction}
+                      className="border-0 shadow-none bg-transparent p-4"
+                    />
                   )}
                 </td>
               </tr>

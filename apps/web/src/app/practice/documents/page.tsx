@@ -224,8 +224,9 @@ function ClientDocumentsPortalContent() {
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
         storageKey="practice_documents"
-        emptyTitle="No document requests active"
-        emptyDescription="Request bank statements or sales registers from client finance teams."
+        emptyTitle="No document requests"
+        emptyDescription="Request bank statements, purchase bills, or certificates from clients."
+        emptyAction={{ label: 'Request Document', onClick: () => setOpenRequestModal(true) }}
       />
 
       <RequestDocumentDialog

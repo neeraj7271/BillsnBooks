@@ -173,8 +173,8 @@ export default function PeriodsPage() {
         columns={columns}
         data={periods}
         loading={loading}
-        emptyTitle="No accounting periods found"
-        emptyDescription="Financial year periods are auto-generated upon company creation."
+        emptyTitle="No locked periods"
+        emptyDescription="Lock financial periods to freeze postings and prevent unauthorized edits."
       />
     </div>
   );

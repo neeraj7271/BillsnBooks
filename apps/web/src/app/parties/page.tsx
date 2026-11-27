@@ -335,13 +335,14 @@ export default function PartiesPage() {
         onPageChange={setCurrentPage}
         onPageSizeChange={setPageSize}
         storageKey="parties"
+        emptyTitle="No parties yet"
+        emptyDescription="Add a customer or vendor to start billing."
+        emptyAction={{ label: 'Add Party', onClick: () => setShowAddEditModal(true) }}
         isFiltered={filterType !== 'ALL' || Boolean(searchTerm.trim())}
         onClearFilters={() => {
           setFilterType('ALL');
           setSearchTerm('');
         }}
-        emptyTitle="No counterparties registered"
-        emptyDescription="Create your first customer or vendor to enable GST invoicing."
       />
 
       {/* Create / Edit Dialog */}

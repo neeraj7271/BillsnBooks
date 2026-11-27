@@ -256,8 +256,9 @@ export default function ImportsDashboardPage() {
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
         storageKey="imports"
-        emptyTitle="No import batches uploaded yet"
-        emptyDescription="Begin verification by uploading your first Excel or CSV sales register."
+        emptyTitle="No import batches"
+        emptyDescription="Upload a Tally XML or CSV register to stage transactions."
+        emptyAction={{ label: 'New Import', onClick: () => { window.location.href = '/imports/new'; } }}
       />
     </div>
   );

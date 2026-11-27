@@ -450,8 +450,9 @@ export default function InvoicesPage() {
           setDocTypeFilter('ALL');
           setSearchTerm('');
         }}
-        emptyTitle="No invoices found"
-        emptyDescription="Create your first GST tax invoice to generate canonical vouchers."
+        emptyTitle="No invoices yet"
+        emptyDescription="Create your first GST invoice."
+        emptyAction={{ label: 'New Invoice', onClick: () => window.location.href = '/invoices/new' }}
       />
 
       {/* Table Actions Legend */}

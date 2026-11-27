@@ -289,8 +289,8 @@ export default function NumberingSettingsPage() {
         columns={columns}
         data={seriesList}
         loading={loading}
-        emptyTitle="No custom numbering series found"
-        emptyDescription="Configure your first numbering series to override default invoice sequences."
+        emptyTitle="No numbering series"
+        emptyDescription="Define series formats for tax invoices, credit notes, and vouchers."
       />
 
       {/* Series Modal */}

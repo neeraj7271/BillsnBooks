@@ -288,8 +288,9 @@ export default function RecurringSchedulesPage() {
           onPageChange={setPage}
           onPageSizeChange={setPageSize}
           storageKey="recurring_schedules"
-          emptyTitle="No Recurring Schedules"
-          emptyDescription="Click 'New Schedule' to set up recurring retainer invoicing."
+          emptyTitle="No recurring schedules"
+          emptyDescription="Set up automatic subscription invoices for retainers or recurring services."
+          emptyAction={{ label: 'New Schedule', onClick: () => setOpenModal(true) }}
         />
       </div>
 

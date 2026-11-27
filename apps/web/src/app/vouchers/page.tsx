@@ -474,8 +474,9 @@ export default function VouchersPage() {
           setTypeFilter('ALL');
           setSearchTerm('');
         }}
-        emptyTitle="No vouchers found"
-        emptyDescription="Post invoices or manual journal entries to populate the general ledger books."
+        emptyTitle="No journal vouchers"
+        emptyDescription="Vouchers appear here once invoices are approved or you post a manual journal."
+        emptyAction={{ label: 'New Voucher', onClick: () => setNewJvOpen(true) }}
       />
 
       {/* Voucher Entries Drill-down Modal */}

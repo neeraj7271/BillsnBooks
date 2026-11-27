@@ -369,8 +369,8 @@ export default function ArAgeingPage() {
             storageKey="ageing_parties"
             isFiltered={Boolean(searchTerm.trim())}
             onClearFilters={() => setSearchTerm('')}
-            emptyTitle="No Open Debtors"
-            emptyDescription="No customer accounts with outstanding dues detected."
+            emptyTitle="No overdue receivables"
+            emptyDescription="All customer accounts are currently settled within terms."
           />
         ) : (
           <DataTable

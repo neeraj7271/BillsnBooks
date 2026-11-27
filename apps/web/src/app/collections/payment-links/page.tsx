@@ -325,8 +325,9 @@ export default function PaymentLinksPage() {
           onPageChange={setLinksPage}
           onPageSizeChange={setLinksPageSize}
           storageKey="payment_links"
-          emptyTitle="No Payment Links"
-          emptyDescription="Click 'Generate Link' to send an instant payment request."
+          emptyTitle="No payment links"
+          emptyDescription="Create a payment link from an open invoice to collect via UPI or card."
+          emptyAction={{ label: 'Generate Link', onClick: () => setOpenCreateModal(true) }}
         />
       </div>
 

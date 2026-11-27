@@ -213,8 +213,9 @@ export default function ClientsDirectoryPage() {
         storageKey="practice_clients"
         isFiltered={Boolean(searchTerm.trim())}
         onClearFilters={() => setSearchTerm('')}
-        emptyTitle="No clients onboarded yet"
-        emptyDescription="Onboard your first enterprise client entity to start managing statutory deadlines."
+        emptyTitle="No clients yet"
+        emptyDescription="Invite a client to start their file."
+        emptyAction={{ label: 'New Client', onClick: () => setOpenOnboardModal(true) }}
       />
 
       <ClientDialog

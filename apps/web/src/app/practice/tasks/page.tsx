@@ -242,8 +242,9 @@ function ComplianceTasksContent() {
           setStatusFilter('ALL');
           setCategoryFilter('ALL');
         }}
-        emptyTitle="No tasks matching criteria"
-        emptyDescription="Create statutory compliance tasks or switch filters to view deliverables."
+        emptyTitle="No compliance tasks"
+        emptyDescription="Create tasks to track statutory deadlines and filings."
+        emptyAction={{ label: 'New Task', onClick: () => setOpenCreateModal(true) }}
       />
 
       <TaskDialog

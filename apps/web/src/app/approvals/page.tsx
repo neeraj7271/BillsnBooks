@@ -238,8 +238,8 @@ export default function ApprovalsPage() {
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
         storageKey="approvals"
-        emptyTitle="Inbox is Clear"
-        emptyDescription="No pending approval requests. All transactions are verified."
+        emptyTitle="Inbox zero"
+        emptyDescription="No invoices pending your approval right now."
       />
 
       <ConfirmDialog
