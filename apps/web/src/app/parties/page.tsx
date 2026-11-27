@@ -9,6 +9,7 @@ import {
   Input,
   DataTable,
   MoneyText,
+  MonoCopyable,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -182,13 +183,14 @@ export default function PartiesPage() {
               {identity.badgeLabel}
             </Badge>
             {identity.showGstin && p.gstin ? (
-              <div className="font-mono text-xs font-semibold text-secondary">
-                {p.gstin}
+              <div>
+                <MonoCopyable value={p.gstin} label="GSTIN" />
               </div>
             ) : null}
             {p.pan && (
-              <div className="text-[10px] font-mono text-muted">
-                PAN: {p.pan}
+              <div className="text-[10px] text-muted flex items-center gap-1">
+                <span>PAN:</span>
+                <MonoCopyable value={p.pan} label="PAN" className="text-[10px]" />
               </div>
             )}
           </div>

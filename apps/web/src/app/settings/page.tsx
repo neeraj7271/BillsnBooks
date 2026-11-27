@@ -37,6 +37,7 @@ import {
   QrCode,
   toast,
   confirmDialog,
+  MonoCopyable,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -206,8 +207,9 @@ export default function GlobalSettingsPage() {
           <div className="font-bold text-sm text-primary truncate">
             {activeCompany?.legalName || 'Acme Global Pvt Ltd'}
           </div>
-          <div className="text-[11px] font-mono text-secondary mt-0.5">
-            PAN: {activeCompany?.pan || 'AABCA1234F'}
+          <div className="text-[11px] font-mono text-secondary mt-0.5 flex items-center gap-1">
+            <span>PAN:</span>
+            <MonoCopyable value={activeCompany?.pan || 'AABCA1234F'} label="Company PAN" className="text-[11px] p-0" />
           </div>
         </div>
 

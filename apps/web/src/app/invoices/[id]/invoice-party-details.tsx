@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateText, Badge } from '@platform/ui';
+import { DateText, Badge, MonoCopyable } from '@platform/ui';
 import { formatPartyTaxIdentity, INDIAN_GST_STATES } from '@platform/shared-types';
 
 interface InvoicePartyDetailsProps {
@@ -53,13 +53,18 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
             {companyAddr}
           </p>
           <div className="mt-2 flex flex-wrap gap-4 text-xs font-mono text-secondary print:text-black">
-            <div>
+            <div className="flex items-center gap-1">
               <span className="font-bold text-primary print:text-black">GSTIN:</span>{' '}
-              {companyGstin || <span className="italic font-sans text-muted">Unregistered</span>}
+              {companyGstin ? (
+                <MonoCopyable value={companyGstin} label="GSTIN" />
+              ) : (
+                <span className="italic font-sans text-muted">Unregistered</span>
+              )}
             </div>
             {companyPan && (
-              <div>
-                <span className="font-bold text-primary print:text-black">PAN:</span> {companyPan}
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-primary print:text-black">PAN:</span>{' '}
+                <MonoCopyable value={companyPan} label="PAN" />
               </div>
             )}
             <div>
@@ -115,8 +120,9 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
               </Badge>
             </div>
             {identity.showGstin && partyGstin ? (
-              <div>
-                <span className="font-bold">GSTIN:</span> {partyGstin}
+              <div className="flex items-center gap-1">
+                <span className="font-bold">GSTIN:</span>{' '}
+                <MonoCopyable value={partyGstin} label="Customer GSTIN" />
               </div>
             ) : null}
             <div>

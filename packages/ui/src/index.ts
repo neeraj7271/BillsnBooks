@@ -2,6 +2,7 @@ export * from './tokens';
 export * from './utils';
 export * from './button';
 export * from './tooltip';
+export * from './mono-copyable';
 export * from './badge';
 export * from './card';
 export * from './input';

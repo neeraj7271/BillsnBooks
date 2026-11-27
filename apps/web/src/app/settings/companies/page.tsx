@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   ShieldCheck,
 } from 'lucide-react';
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent, LoadingState } from '@platform/ui';
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent, LoadingState, MonoCopyable } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { CompanyDialog } from './company-dialog';
@@ -249,13 +249,11 @@ export default function CompaniesPage() {
                         {company.defaultCurrency || 'INR'}
                       </Badge>
                     </div>
-                    <div className="text-xs text-secondary font-mono mt-0.5">
-                      PAN:{' '}
-                      <span className="font-semibold text-primary">
-                        {company.pan || company.panEncrypted || '—'}
-                      </span>{' '}
-                      • Trade:{' '}
-                      <span className="font-semibold text-primary">
+                    <div className="text-xs text-secondary font-mono mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>PAN:</span>
+                      <MonoCopyable value={company.pan || company.panEncrypted || '—'} label="Company PAN" className="text-xs" />
+                      <span>• Trade:</span>
+                      <span className="font-semibold text-primary font-sans">
                         {company.tradeName || company.legalName}
                       </span>
                     </div>
@@ -331,13 +329,17 @@ export default function CompaniesPage() {
                             </Badge>
                           )}
                         </div>
-                        <div className="font-mono text-xs text-secondary">
+                        <div className="font-mono text-xs text-secondary flex items-center gap-1">
                           <span className="text-muted text-[11px] uppercase tracking-wider">
                             GSTIN:
-                          </span>{' '}
-                          <span className="font-semibold text-primary">
-                            {branch.gstin || 'Unregistered'}
                           </span>
+                          {branch.gstin ? (
+                            <MonoCopyable value={branch.gstin} label="Branch GSTIN" className="text-xs" />
+                          ) : (
+                            <span className="font-semibold text-muted italic font-sans">
+                              Unregistered
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-secondary flex items-center gap-1.5 pt-0.5">
                           <MapPin className="h-3.5 w-3.5 text-brand-text shrink-0" />
