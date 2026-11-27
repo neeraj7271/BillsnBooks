@@ -328,13 +328,11 @@ export default function InvoicesPage() {
           <Button variant="outline" size="sm" onClick={loadInvoices} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
-          <Link
-            href="/invoices/new"
-            className="h-8 px-3.5 rounded-lg bg-brand hover:bg-brand-hover active:scale-[0.98] text-inverse font-semibold text-xs shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5 cursor-pointer select-none"
-          >
-            <Plus className="h-3.5 w-3.5 text-inverse" />
-            <span>Create Tax Invoice</span>
-          </Link>
+          <Button variant="primary" size="sm" asChild leftIcon={<Plus className="h-3.5 w-3.5" />}>
+            <Link href="/invoices/new">
+              Create Tax Invoice
+            </Link>
+          </Button>
         </div>
       </div>
 

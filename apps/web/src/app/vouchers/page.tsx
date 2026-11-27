@@ -10,6 +10,7 @@ import {
   Eye,
   RotateCcw,
   BookOpen,
+  ChevronDown,
 } from 'lucide-react';
 import {
   Button,
@@ -22,6 +23,10 @@ import {
   ConfirmDialog,
   type ColumnDef,
   toast,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -344,14 +349,44 @@ export default function VouchersPage() {
               >
                 <Link href="/reports/general-ledger">General Ledger</Link>
               </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setNewJvOpen(true)}
-                leftIcon={<Plus className="h-3.5 w-3.5" />}
-              >
-                New Journal Voucher
-              </Button>
+              <div className="inline-flex rounded-lg shadow-2xs">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setNewJvOpen(true)}
+                  leftIcon={<Plus className="h-3.5 w-3.5" />}
+                  className="rounded-r-none border-r border-brand-hover/30"
+                >
+                  New Journal Voucher
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="rounded-l-none px-2"
+                      aria-label="More voucher types"
+                    >
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuItem onClick={() => setNewJvOpen(true)}>
+                      <Plus className="h-3.5 w-3.5 mr-2" /> Journal Voucher (JV)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/banking" className="flex items-center w-full">
+                        <Plus className="h-3.5 w-3.5 mr-2" /> Bank Contra / Transfer
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/reports/general-ledger" className="flex items-center w-full">
+                        <BookOpen className="h-3.5 w-3.5 mr-2" /> General Ledger
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           ),
         }}
