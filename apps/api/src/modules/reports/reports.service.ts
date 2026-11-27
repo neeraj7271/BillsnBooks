@@ -13,6 +13,8 @@ import { ItemOrmEntity } from '../../infrastructure/persistence/entities/item.or
 import { CompanyOrmEntity } from '../../infrastructure/persistence/entities/company.orm-entity';
 import { BranchOrmEntity } from '../../infrastructure/persistence/entities/branch.orm-entity';
 import { UserFavoriteReportOrmEntity } from '../../infrastructure/persistence/entities/user-favorite-report.orm-entity';
+import { SettingValueOrmEntity } from '../../infrastructure/persistence/entities/setting-value.orm-entity';
+import { FileStorageService } from '../storage/file-storage.service';
 import {
   AccountNature,
   CustomerSalesReport,
@@ -73,7 +75,10 @@ export interface TrialBalanceReport {
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly uow: UnitOfWorkService) {}
+  constructor(
+    private readonly uow: UnitOfWorkService,
+    private readonly storage: FileStorageService,
+  ) {}
 
   private async resolveCompanyAndTenant(
     qr: QueryRunner,
@@ -876,11 +881,32 @@ export class ReportsService {
         where: [{ companyId, tenantId }, { companyId }],
       });
 
+      let logoDataUri: string | undefined;
+      try {
+        const logoSetting = await qr.manager.findOne(SettingValueOrmEntity, {
+          where: { settingKey: 'branding.logo_url', scopeId: companyId },
+        });
+        const rawLogo = typeof logoSetting?.value === 'string' ? logoSetting.value : '';
+        if (rawLogo.startsWith('data:')) {
+          logoDataUri = rawLogo;
+        } else if (rawLogo.includes('key=')) {
+          const parsedUrl = new URL(rawLogo, 'http://localhost');
+          const key = parsedUrl.searchParams.get('key');
+          if (key) {
+            const stored = await this.storage.get(key);
+            logoDataUri = `data:${stored.contentType};base64,${stored.body.toString('base64')}`;
+          }
+        }
+      } catch {
+        // Logo optional
+      }
+
       return {
-        legalName: company?.legalName || 'Pannalal & Sons Traders',
+        legalName: company?.legalName || 'Enterprise Books',
         pan: company?.panEncrypted || undefined,
         gstin: branch?.gstin || undefined,
         address: branch?.addressLine1 || undefined,
+        logoDataUri,
       };
     });
   }
