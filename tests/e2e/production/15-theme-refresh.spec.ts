@@ -73,12 +73,23 @@ test.describe(`Theme Review Capture (${STAGE})`, () => {
     await page.waitForLoadState('networkidle');
     await capturePage(page, 'trial-balance', runContrast);
 
-    // 5. Practice page (/practice/jobs)
+    // 5. Practice -> Proposals (hero comparison page)
+    await page.goto('/practice/proposals');
+    await page.waitForLoadState('networkidle');
+    await capturePage(page, 'proposals', runContrast);
+
+    // 6. Practice page (/practice/jobs)
     await page.goto('/practice/jobs');
     await page.waitForLoadState('networkidle');
     await capturePage(page, 'practice', runContrast);
 
-    // 6. Dialog open
+    // 7. Notification Bell Popover open
+    await page.locator('button[aria-label*="Notification" i], button:has(svg.lucide-bell)').first().click();
+    await page.waitForTimeout(300);
+    await capturePage(page, 'notifications', runContrast);
+    await page.keyboard.press('Escape');
+
+    // 8. Dialog open
     await page.getByRole('button', { name: /^New Job$/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await capturePage(page, 'dialog', runContrast);

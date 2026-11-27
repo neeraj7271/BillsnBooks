@@ -104,7 +104,7 @@ export function DatePicker({
         <PopoverPrimitive.Content
           align="start"
           sideOffset={4}
-          className="z-50 rounded-2xl border border-default bg-surface p-3 shadow-xl text-primary animate-in fade-in-0 zoom-in-95 focus:outline-none"
+          className="z-50 rounded-xl border border-subtle bg-surface-raised p-3 shadow-popover text-primary animate-in fade-in-0 zoom-in-95 focus:outline-none"
         >
           <DayPicker
             mode="single"
@@ -275,7 +275,7 @@ export function DateRangePicker({
         <PopoverPrimitive.Content
           align="start"
           sideOffset={4}
-          className="z-50 rounded-2xl border border-default bg-surface p-4 shadow-xl text-primary animate-in fade-in-0 zoom-in-95 focus:outline-none max-w-sm"
+          className="z-50 rounded-xl border border-subtle bg-surface-raised p-4 shadow-popover text-primary animate-in fade-in-0 zoom-in-95 focus:outline-none max-w-sm"
         >
           {showQuickChips && (
             <div className="flex flex-wrap gap-1.5 pb-3 border-b border-default/60 mb-3">

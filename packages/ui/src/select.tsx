@@ -69,7 +69,7 @@ export function Select({
         <SelectPrimitive.Content
           position="popper"
           sideOffset={4}
-          className="z-50 min-w-[8rem] max-h-72 overflow-y-auto rounded-xl border border-default bg-surface-raised p-1 text-primary shadow-lg animate-in fade-in-80"
+          className="z-50 min-w-[8rem] max-h-72 overflow-y-auto rounded-xl border border-subtle bg-surface-raised p-1 text-primary shadow-popover animate-in fade-in-80"
         >
           <SelectPrimitive.Viewport className="p-1">
             {options

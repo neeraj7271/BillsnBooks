@@ -443,7 +443,7 @@ function JobsPipelineContent() {
                     setDraggedJobId(null);
                   }
                 }}
-                className="rounded-2xl border border-default bg-surface-sunken/50 p-3 min-h-[380px] space-y-2.5"
+                className="rounded-xl bg-surface-sunken/70 p-3 min-h-[380px] space-y-2.5"
               >
                 <div className="flex items-center justify-between px-1">
                   <span className="text-xs font-bold uppercase tracking-wider text-primary">{stage.label}</span>
@@ -460,7 +460,7 @@ function JobsPipelineContent() {
                         draggable
                         onDragStart={() => setDraggedJobId(job.id)}
                         onClick={() => openJobDetail(job.id)}
-                        className="cursor-pointer rounded-xl border border-default bg-surface p-3 shadow-2xs hover:border-brand transition space-y-2"
+                        className="cursor-pointer rounded-xl border border-subtle bg-surface p-3 shadow-card hover:shadow-card-hover transition-shadow space-y-2"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-xs font-bold text-primary leading-snug">{job.title}</span>

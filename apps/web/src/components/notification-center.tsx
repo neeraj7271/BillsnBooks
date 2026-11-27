@@ -396,7 +396,7 @@ export function NotificationCenter() {
         <div
           role="dialog"
           aria-label="Notification center"
-          className="absolute right-0 top-11 z-50 w-[calc(100vw-2rem)] sm:w-[400px] max-h-[580px] flex flex-col rounded-2xl border border-default bg-surface shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 top-11 z-50 w-[calc(100vw-2rem)] sm:w-[400px] max-h-[580px] flex flex-col rounded-xl border border-subtle bg-surface-raised shadow-popover overflow-hidden animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Sticky Header */}
           <div className="sticky top-0 z-10 border-b border-subtle bg-surface/95 backdrop-blur-xs p-3 space-y-2.5">

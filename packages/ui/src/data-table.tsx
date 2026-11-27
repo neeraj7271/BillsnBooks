@@ -188,7 +188,7 @@ export function DataTable<T extends Record<string, any>>({
   );
 
   return (
-    <div className={cn('flex flex-col w-full rounded-2xl border border-default bg-surface overflow-hidden shadow-xs', className)}>
+    <div className={cn('flex flex-col w-full rounded-xl border border-subtle bg-surface overflow-hidden shadow-card', className)}>
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead className={cn('bg-surface-sunken border-b border-default', stickyHeader && 'sticky top-0 z-10 backdrop-blur-xs')}>

@@ -74,7 +74,7 @@ export function ConfirmDialogContainer() {
         <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-surface-overlay backdrop-blur-xs transition-opacity animate-in fade-in-0" />
         <AlertDialogPrimitive.Content
           data-testid="themed-confirm-dialog"
-          className="fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-[420px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-default bg-surface p-6 shadow-xl rounded-2xl animate-in fade-in-0 zoom-in-95 focus:outline-none"
+          className="fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-[420px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-subtle bg-surface-raised p-6 shadow-popover rounded-xl animate-in fade-in-0 zoom-in-95 focus:outline-none"
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
               e.preventDefault();
@@ -162,7 +162,7 @@ export function ConfirmDialog({
         <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-surface-overlay backdrop-blur-xs transition-opacity animate-in fade-in-0" />
         <AlertDialogPrimitive.Content
           data-testid="declarative-confirm-dialog"
-          className="fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-[420px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-default bg-surface p-6 shadow-xl rounded-2xl animate-in fade-in-0 zoom-in-95 focus:outline-none"
+          className="fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-[420px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-subtle bg-surface-raised p-6 shadow-popover rounded-xl animate-in fade-in-0 zoom-in-95 focus:outline-none"
         >
           <div className="flex flex-col space-y-2 text-left">
             <AlertDialogPrimitive.Title className="text-base font-semibold text-primary">

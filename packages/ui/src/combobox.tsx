@@ -132,7 +132,7 @@ export function Combobox({
 
       {/* Popover Dropdown Panel */}
       {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-full min-w-[14rem] max-w-sm rounded-xl border border-default bg-surface-raised p-1.5 text-primary shadow-xl animate-in fade-in-80 zoom-in-95">
+        <div className="absolute left-0 top-full z-50 mt-1 w-full min-w-[14rem] max-w-sm rounded-xl border border-subtle bg-surface-raised p-1.5 text-primary shadow-popover animate-in fade-in-80 zoom-in-95">
           {/* Search Box */}
           <div className="relative mb-1.5">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted pointer-events-none" />

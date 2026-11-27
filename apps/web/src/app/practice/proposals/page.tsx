@@ -69,92 +69,88 @@ export default function ProposalsListPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Proposals Pipeline</h2>
-          {loading ? (
-            <div className="text-xs text-text-muted py-6 text-center">Loading proposals...</div>
-          ) : proposals.length === 0 ? (
-            <div className="text-xs text-text-muted py-6 text-center">No proposals yet. Click New Proposal to create one.</div>
-          ) : (
-            <div className="space-y-2">
-              {proposals.map((p) => (
-                <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-default bg-surface-muted">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-text-primary">{p.clientName}</span>
-                      <Badge variant={p.status === 'ACCEPTED' ? 'success' : p.status === 'SENT' ? 'info' : 'neutral'}>
-                        {p.status}
-                      </Badge>
-                    </div>
-                    <div className="text-xs text-text-secondary mt-0.5">
-                      {p.lines?.length || 0} service(s) · Subtotal ₹{Number(p.totalValue).toLocaleString('en-IN')} + GST ₹{Number(p.gstAmount).toLocaleString('en-IN')} · Valid until {p.validUntil}
-                    </div>
-                  </div>
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Proposals Pipeline</h2>
+        {loading ? (
+          <div className="text-xs text-text-muted py-6 text-center">Loading proposals...</div>
+        ) : proposals.length === 0 ? (
+          <div className="text-xs text-text-muted py-6 text-center rounded-xl bg-surface-sunken p-6">No proposals yet. Click New Proposal to create one.</div>
+        ) : (
+          <div className="space-y-2.5">
+            {proposals.map((p) => (
+              <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover transition-shadow">
+                <div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleDownloadPdf(p.id)}>
-                      <FileText className="h-3.5 w-3.5 mr-1" /> Generate PDF
+                    <span className="text-sm font-semibold text-text-primary">{p.clientName}</span>
+                    <Badge variant={p.status === 'ACCEPTED' ? 'success' : p.status === 'SENT' ? 'info' : 'neutral'}>
+                      {p.status}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-text-secondary mt-0.5">
+                    {p.lines?.length || 0} service(s) · Subtotal ₹{Number(p.totalValue).toLocaleString('en-IN')} + GST ₹{Number(p.gstAmount).toLocaleString('en-IN')} · Valid until {p.validUntil}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleDownloadPdf(p.id)}>
+                    <FileText className="h-3.5 w-3.5 mr-1" /> Generate PDF
+                  </Button>
+                  {p.status !== 'ACCEPTED' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        await apiClient.updateProposalStatus(p.id, 'ACCEPTED');
+                        await loadData();
+                      }}
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Accepted
                     </Button>
-                    {p.status !== 'ACCEPTED' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          await apiClient.updateProposalStatus(p.id, 'ACCEPTED');
-                          await loadData();
-                        }}
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark Accepted
-                      </Button>
-                    )}
-                    {p.clientId && (
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        loading={convertingId === p.id}
-                        onClick={() => handleConvertToEngagement(p.id)}
-                      >
-                        Convert to Engagement <ArrowRight className="h-3.5 w-3.5 ml-1" />
-                      </Button>
-                    )}
-                  </div>
+                  )}
+                  {p.clientId && (
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      loading={convertingId === p.id}
+                      onClick={() => handleConvertToEngagement(p.id)}
+                    >
+                      Convert to Engagement <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                    </Button>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Engagement Letters &amp; e-Sign</h2>
-          {engagements.length === 0 ? (
-            <div className="text-xs text-text-muted py-4 text-center">No engagement letters generated yet.</div>
-          ) : (
-            <div className="space-y-2">
-              {engagements.map((e) => (
-                <div key={e.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-default">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-text-primary">{e.title}</span>
-                      <Badge variant={e.status === 'ACTIVE' ? 'success' : e.status === 'SIGNED' ? 'warning' : 'info'}>
-                        {e.status}
-                      </Badge>
-                    </div>
-                    <div className="text-xs text-text-secondary mt-0.5">
-                      Start: {e.startDate} · {(e.scopeOfServices || []).length} scoped service(s)
-                      {e.signedByClientName && ` · Signed by ${e.signedByClientName}`}
-                    </div>
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Engagement Letters &amp; e-Sign</h2>
+        {engagements.length === 0 ? (
+          <div className="text-xs text-text-muted py-4 text-center rounded-xl bg-surface-sunken p-6">No engagement letters generated yet.</div>
+        ) : (
+          <div className="space-y-2.5">
+            {engagements.map((e) => (
+              <div key={e.id} className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover transition-shadow">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-text-primary">{e.title}</span>
+                    <Badge variant={e.status === 'ACTIVE' ? 'success' : e.status === 'SIGNED' ? 'warning' : 'info'}>
+                      {e.status}
+                    </Badge>
                   </div>
-                  <Link href={`/practice/engagements/${e.id}`}>
-                    <Button size="sm" variant="primary">Open &amp; e-Sign</Button>
-                  </Link>
+                  <div className="text-xs text-text-secondary mt-0.5">
+                    Start: {e.startDate} · {(e.scopeOfServices || []).length} scoped service(s)
+                    {e.signedByClientName && ` · Signed by ${e.signedByClientName}`}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <Link href={`/practice/engagements/${e.id}`}>
+                  <Button size="sm" variant="primary">Open &amp; e-Sign</Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

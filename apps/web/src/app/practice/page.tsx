@@ -221,7 +221,7 @@ export default function PracticeCommandCenterPage() {
               </div>
               <div className="space-y-1.5">
                 {(data?.staffSummary || []).slice(0, 5).map((s: any) => (
-                  <div key={s.userId} className="flex items-center justify-between text-xs p-2 rounded-lg border border-default">
+                  <div key={s.userId} className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-surface-sunken/60">
                     <span className="font-medium text-primary flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-muted" /> {s.name}</span>
                     <Badge variant="neutral" size="xs">{s.openJobs} open · {s.capacityHours}h cap</Badge>
                   </div>
@@ -255,7 +255,7 @@ export default function PracticeCommandCenterPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               {data.upcoming14Days.map((j: any) => (
-                <div key={j.id} className="p-3 rounded-xl border border-default flex items-center justify-between text-xs">
+                <div key={j.id} className="p-3 rounded-xl bg-surface-sunken/60 flex items-center justify-between text-xs">
                   <div className="truncate mr-2">
                     <div className="font-semibold text-primary truncate">{j.title}</div>
                     <div className="text-[11px] text-secondary truncate">{mode === 'FIRM' ? `${j.clientName} · ` : ''}{j.stage}</div>

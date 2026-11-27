@@ -50,6 +50,11 @@
     --color-focus-ring: rgba(47, 111, 224, 0.35);
     --color-skeleton: #eef0f3;
 
+    /* Elevation — soft cool shadows instead of hard outlines */
+    --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 2px 8px rgba(16, 24, 40, 0.06);
+    --shadow-card-hover: 0 2px 4px rgba(16, 24, 40, 0.06), 0 8px 20px rgba(16, 24, 40, 0.10);
+    --shadow-popover: 0 4px 12px rgba(16, 24, 40, 0.08), 0 12px 32px rgba(16, 24, 40, 0.14);
+
     --density-row-height: 36px;
     --density-cell-px: 12px;
     --density-cell-py: 6px;
@@ -107,6 +112,11 @@
     --color-row-stripe: rgba(255, 255, 255, 0.02);
     --color-focus-ring: rgba(79, 143, 245, 0.4);
     --color-skeleton: #272a35;
+
+    /* Elevation — dark cards lift via lighter fill + deep soft shadow + 1px lit top edge */
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.40), 0 6px 18px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.45), 0 10px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --shadow-popover: 0 2px 8px rgba(0, 0, 0, 0.40), 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
   body {

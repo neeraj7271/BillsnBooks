@@ -72,7 +72,7 @@ export function EmptyState({
     <div
       data-testid="empty-state"
       className={cn(
-        'flex flex-col items-center justify-center text-center rounded-2xl border border-default bg-surface p-12 space-y-3 shadow-2xs',
+        'flex flex-col items-center justify-center text-center rounded-xl border border-subtle bg-surface p-12 space-y-3 shadow-card',
         className
       )}
     >
