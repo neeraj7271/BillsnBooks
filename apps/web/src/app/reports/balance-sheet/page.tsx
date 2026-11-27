@@ -6,6 +6,7 @@ import { ShieldCheck, AlertTriangle, Calendar } from 'lucide-react';
 import { ReportPage, MoneyText, DatePicker, formatMoney } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { downloadReportExport } from '@/lib/report-export';
 
 export default function BalanceSheetPage() {
   const { activeCompanyId } = useCompany();
@@ -89,7 +90,8 @@ export default function BalanceSheetPage() {
       dateControls={dateControls}
       compareMode={compareMode}
       onToggleCompare={() => setCompareMode((v) => !v)}
-      onPrintPdf={() => window.print()}
+      onExportExcel={() => downloadReportExport(activeCompanyId, 'BALANCE_SHEET', 'xlsx', { toDate: asOfDate, fileBase: 'Balance_Sheet' })}
+      onPrintPdf={() => downloadReportExport(activeCompanyId, 'BALANCE_SHEET', 'pdf', { toDate: asOfDate, fileBase: 'Balance_Sheet' })}
       loading={loading}
       error={error}
       onRetry={loadData}

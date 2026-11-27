@@ -6,6 +6,7 @@ import { Calendar, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { ReportPage, MoneyText, DatePicker } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { downloadReportExport } from '@/lib/report-export';
 
 export default function TrialBalancePage() {
   const { activeCompanyId } = useCompany();
@@ -90,7 +91,8 @@ export default function TrialBalancePage() {
       dateControls={dateControls}
       compareMode={compareMode}
       onToggleCompare={() => setCompareMode((v) => !v)}
-      onPrintPdf={() => window.print()}
+      onExportExcel={() => downloadReportExport(activeCompanyId, 'TRIAL_BALANCE', 'xlsx', { toDate: asOfDate, fileBase: 'Trial_Balance' })}
+      onPrintPdf={() => downloadReportExport(activeCompanyId, 'TRIAL_BALANCE', 'pdf', { toDate: asOfDate, fileBase: 'Trial_Balance' })}
       loading={loading}
       error={error}
       onRetry={loadData}

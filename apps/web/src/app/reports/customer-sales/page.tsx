@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { useTablePagination } from '@/hooks/use-table-pagination';
 import { ShareDialog } from '../share-dialog';
+import { downloadReportExport } from '@/lib/report-export';
 
 export default function CustomerSalesPage() {
   const { activeCompanyId } = useCompany();
@@ -123,7 +124,7 @@ export default function CustomerSalesPage() {
       onToggleCompare={() => setCompareMode((v) => !v)}
       onExportExcel={() => downloadFormat('xlsx')}
       onExportHtml={() => downloadFormat('html')}
-      onPrintPdf={() => window.print()}
+      onPrintPdf={() => downloadReportExport(activeCompanyId, 'CUSTOMER_SALES', 'pdf', { fromDate, toDate, fileBase: 'Customer_Sales' })}
       onShare={() => setShareOpen(true)}
       loading={loading}
       error={error}

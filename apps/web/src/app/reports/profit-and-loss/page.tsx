@@ -6,6 +6,7 @@ import { Calendar } from 'lucide-react';
 import { ReportPage, MoneyText, DateRangePicker } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
+import { downloadReportExport } from '@/lib/report-export';
 
 export default function ProfitAndLossPage() {
   const { activeCompanyId } = useCompany();
@@ -89,7 +90,8 @@ export default function ProfitAndLossPage() {
       dateControls={dateControls}
       compareMode={compareMode}
       onToggleCompare={() => setCompareMode((v) => !v)}
-      onPrintPdf={() => window.print()}
+      onExportExcel={() => downloadReportExport(activeCompanyId, 'PROFIT_LOSS', 'xlsx', { fromDate, toDate, fileBase: 'Profit_and_Loss' })}
+      onPrintPdf={() => downloadReportExport(activeCompanyId, 'PROFIT_LOSS', 'pdf', { fromDate, toDate, fileBase: 'Profit_and_Loss' })}
       loading={loading}
       error={error}
       onRetry={loadData}
