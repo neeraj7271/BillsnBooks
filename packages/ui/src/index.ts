@@ -1,6 +1,7 @@
 export * from './tokens';
 export * from './utils';
 export * from './button';
+export * from './tooltip';
 export * from './badge';
 export * from './card';
 export * from './input';

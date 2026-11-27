@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
 import { cn } from './utils';
+import { Tooltip } from './tooltip';
 
 export const buttonVariants = cva(
   'inline-flex items-center justify-center font-medium transition-colors select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
@@ -46,6 +47,8 @@ export interface ButtonProps
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  tooltip?: React.ReactNode;
+  shortcut?: string;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -60,12 +63,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       children,
       disabled,
+      tooltip,
+      shortcut,
       ...props
     },
     ref
   ) => {
+    const isIconSize = size === 'icon' || size === 'icon-sm' || size === 'icon-lg';
+    const tooltipText = tooltip || (isIconSize ? (props['aria-label'] || props.title) : undefined);
+
     if (asChild && React.isValidElement(children)) {
-      return (
+      const slotElement = (
         <Slot
           ref={ref as any}
           className={cn(buttonVariants({ variant, size }), className)}
@@ -86,9 +94,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           })}
         </Slot>
       );
+
+      if (tooltipText) {
+        return (
+          <Tooltip content={tooltipText} shortcut={shortcut}>
+            {slotElement}
+          </Tooltip>
+        );
+      }
+      return slotElement;
     }
 
-    return (
+    const buttonElement = (
       <button
         ref={ref}
         disabled={disabled || loading}
@@ -109,6 +126,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
+
+    if (tooltipText) {
+      return (
+        <Tooltip content={tooltipText} shortcut={shortcut}>
+          {buttonElement}
+        </Tooltip>
+      );
+    }
+
+    return buttonElement;
   }
 );
 
