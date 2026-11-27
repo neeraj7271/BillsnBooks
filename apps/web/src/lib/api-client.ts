@@ -1171,6 +1171,170 @@ export const apiClient = {
     });
   },
 
+  // Practice Platform v2: Service Master, Workflows, Client-Work Mapping, Credentials, Custom Fields
+  async listPracticeServices(includeInactive = false) {
+    const q = includeInactive ? '?includeInactive=true' : '';
+    return request<any[]>(`/v1/practice/services${q}`);
+  },
+
+  async getPracticeServiceCategories() {
+    return request<string[]>('/v1/practice/services/categories');
+  },
+
+  async createPracticeService(payload: any) {
+    return request<any>('/v1/practice/services', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updatePracticeService(id: string, payload: any) {
+    return request<any>(`/v1/practice/services/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async clonePracticeService(id: string) {
+    return request<any>(`/v1/practice/services/${id}/clone`, {
+      method: 'POST',
+    });
+  },
+
+  async deletePracticeService(id: string) {
+    return request<any>(`/v1/practice/services/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async createWorkflowTemplate(payload: any) {
+    return request<any>('/v1/practice/workflow-templates', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateWorkflowTemplate(id: string, payload: any) {
+    return request<any>(`/v1/practice/workflow-templates/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteWorkflowTemplate(id: string) {
+    return request<any>(`/v1/practice/workflow-templates/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async listClientServices(clientId: string) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/services`);
+  },
+
+  async subscribeClientServices(clientId: string, items: any[]) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/services`, {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+    });
+  },
+
+  async updateClientService(id: string, payload: any) {
+    return request<any>(`/v1/practice/client-services/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async removeClientService(id: string) {
+    return request<any>(`/v1/practice/client-services/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async spawnDuePracticeJobs(period?: string) {
+    return request<any>('/v1/practice/jobs/spawn-due', {
+      method: 'POST',
+      body: JSON.stringify(period ? { period } : {}),
+    });
+  },
+
+  async updateJobCustomData(jobId: string, payload: { customFields?: Record<string, any>; labels?: string[] }) {
+    return request<any>(`/v1/practice/jobs/${jobId}/custom`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updatePracticeClient(clientId: string, payload: any) {
+    return request<any>(`/v1/practice/clients/${clientId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listClientCredentials(clientId: string) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/credentials`);
+  },
+
+  async upsertClientCredential(clientId: string, payload: any) {
+    return request<any>(`/v1/practice/clients/${clientId}/credentials`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async revealClientCredential(credId: string) {
+    return request<any>(`/v1/practice/credentials/${credId}/reveal`, {
+      method: 'POST',
+    });
+  },
+
+  async deleteClientCredential(credId: string) {
+    return request<any>(`/v1/practice/credentials/${credId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async getClientCredentialAudit(clientId: string) {
+    return request<any[]>(`/v1/practice/clients/${clientId}/credentials/audit`);
+  },
+
+  async listCustomFields(entityType?: 'CLIENT' | 'JOB') {
+    const q = entityType ? `?entityType=${entityType}` : '';
+    return request<any[]>(`/v1/practice/custom-fields${q}`);
+  },
+
+  async createCustomField(payload: any) {
+    return request<any>('/v1/practice/custom-fields', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteCustomField(id: string) {
+    return request<any>(`/v1/practice/custom-fields/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async listPracticeLabels(entityType?: 'CLIENT' | 'JOB' | 'ALL') {
+    const q = entityType ? `?entityType=${entityType}` : '';
+    return request<any[]>(`/v1/practice/labels${q}`);
+  },
+
+  async createPracticeLabel(payload: any) {
+    return request<any>('/v1/practice/labels', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deletePracticeLabel(id: string) {
+    return request<any>(`/v1/practice/labels/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   // Collections & Ageing (Phase 6)
   async getArAgeingSummary(companyId: string = getActiveCompanyId(), asOfDate?: string) {
     const q = asOfDate ? `?asOfDate=${asOfDate}` : '';

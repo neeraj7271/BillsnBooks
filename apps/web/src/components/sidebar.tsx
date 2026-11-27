@@ -182,6 +182,9 @@ export function Sidebar({
             { label: 'Tasks', href: '/practice/tasks', icon: CheckSquare },
             { label: 'Calendar', href: '/practice/calendar', icon: CalendarClock },
             { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
+            { label: 'Services', href: '/practice/settings/services', icon: Boxes },
+            { label: 'Workflows', href: '/practice/settings/workflows', icon: Sliders },
+            { label: 'Custom Fields', href: '/practice/settings/custom-fields', icon: Hash },
           ],
         },
         {

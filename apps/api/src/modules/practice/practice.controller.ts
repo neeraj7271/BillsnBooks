@@ -17,6 +17,7 @@ import { Response } from 'express';
 import { PracticeService } from './practice.service';
 import { DocumentVaultService } from './document-vault.service';
 import { PracticeWorkflowService } from './practice-workflow.service';
+import { PracticeV2Service } from './practice-v2.service';
 import { requireContext } from '../../common/http/request-context';
 import {
   CreateFirmClientDto,
@@ -32,6 +33,7 @@ export class PracticeController {
     private readonly practiceService: PracticeService,
     private readonly vaultService: DocumentVaultService,
     private readonly workflowService: PracticeWorkflowService,
+    private readonly v2Service: PracticeV2Service,
   ) {}
 
   private getContext(req: any) {
@@ -389,6 +391,190 @@ export class PracticeController {
   async deleteClientContact(@Param('contactId') contactId: string, @Request() req: any) {
     const { tenantId } = this.getContext(req);
     return await this.workflowService.deleteClientContact(tenantId, contactId);
+  }
+
+  // ==================== PRACTICE V2: SERVICE MASTER ====================
+
+  @Get('services')
+  async listServices(@Query('includeInactive') includeInactive: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.listServices(tenantId, includeInactive === 'true');
+  }
+
+  @Get('services/categories')
+  async getServiceCategories(@Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.getServiceCategories(tenantId);
+  }
+
+  @Post('services')
+  async createService(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.createService(tenantId, body);
+  }
+
+  @Patch('services/:id')
+  async updateService(@Param('id') id: string, @Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.updateService(tenantId, id, body);
+  }
+
+  @Post('services/:id/clone')
+  async cloneService(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.cloneService(tenantId, id);
+  }
+
+  @Delete('services/:id')
+  async deleteService(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.deleteService(tenantId, id);
+  }
+
+  // ==================== WORKFLOW TEMPLATES CRUD ====================
+
+  @Post('workflow-templates')
+  async createTemplate(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.createTemplate(tenantId, body);
+  }
+
+  @Patch('workflow-templates/:id')
+  async updateTemplate(@Param('id') id: string, @Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.updateTemplate(tenantId, id, body);
+  }
+
+  @Delete('workflow-templates/:id')
+  async deleteTemplate(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.deleteTemplate(tenantId, id);
+  }
+
+  // ==================== CLIENT-WORK MAPPING & RECURRENCE ====================
+
+  @Get('clients/:clientId/services')
+  async listClientServices(@Param('clientId') clientId: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.listClientServices(tenantId, clientId);
+  }
+
+  @Post('clients/:clientId/services')
+  async subscribeClientServices(
+    @Param('clientId') clientId: string,
+    @Body() body: { items: any[] },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.subscribeClientServices(tenantId, clientId, body.items || []);
+  }
+
+  @Patch('client-services/:id')
+  async updateClientService(@Param('id') id: string, @Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.updateClientService(tenantId, id, body);
+  }
+
+  @Delete('client-services/:id')
+  async removeClientService(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.removeClientService(tenantId, id);
+  }
+
+  @Post('jobs/spawn-due')
+  async spawnDueJobs(@Body() body: { period?: string }, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.spawnDueJobsFromClientServices(tenantId, body?.period);
+  }
+
+  @Patch('jobs/:jobId/custom')
+  async updateJobCustomData(
+    @Param('jobId') jobId: string,
+    @Body() body: { customFields?: Record<string, any>; labels?: string[] },
+    @Request() req: any,
+  ) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.updateJobCustomData(tenantId, jobId, body);
+  }
+
+  // ==================== CLIENT MASTER EXTENSIONS & CREDENTIALS VAULT ====================
+
+  @Patch('clients/:clientId')
+  async updateClientDetails(@Param('clientId') clientId: string, @Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.updateClientDetails(tenantId, clientId, body);
+  }
+
+  @Get('clients/:clientId/credentials')
+  async listCredentials(@Param('clientId') clientId: string, @Request() req: any) {
+    const { tenantId, role } = this.getContext(req);
+    return await this.v2Service.listCredentials(tenantId, clientId, role);
+  }
+
+  @Post('clients/:clientId/credentials')
+  async upsertCredential(
+    @Param('clientId') clientId: string,
+    @Body() body: any,
+    @Request() req: any,
+  ) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.v2Service.upsertCredential(tenantId, userId, role, clientId, body);
+  }
+
+  @Post('credentials/:id/reveal')
+  async revealCredential(@Param('id') id: string, @Request() req: any) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.v2Service.revealCredential(tenantId, userId, role, id);
+  }
+
+  @Delete('credentials/:id')
+  async deleteCredential(@Param('id') id: string, @Request() req: any) {
+    const { tenantId, userId, role } = this.getContext(req);
+    return await this.v2Service.deleteCredential(tenantId, userId, role, id);
+  }
+
+  @Get('clients/:clientId/credentials/audit')
+  async getCredentialAudit(@Param('clientId') clientId: string, @Request() req: any) {
+    const { tenantId, role } = this.getContext(req);
+    return await this.v2Service.getCredentialAudit(tenantId, clientId, role);
+  }
+
+  // ==================== CUSTOM FIELDS & LABELS ====================
+
+  @Get('custom-fields')
+  async listCustomFields(@Query('entityType') entityType: 'CLIENT' | 'JOB', @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.listCustomFields(tenantId, entityType);
+  }
+
+  @Post('custom-fields')
+  async createCustomField(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.createCustomField(tenantId, body);
+  }
+
+  @Delete('custom-fields/:id')
+  async deleteCustomField(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.deleteCustomField(tenantId, id);
+  }
+
+  @Get('labels')
+  async listLabels(@Query('entityType') entityType: 'CLIENT' | 'JOB' | 'ALL', @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.listLabels(tenantId, entityType);
+  }
+
+  @Post('labels')
+  async createLabel(@Body() body: any, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.createLabel(tenantId, body);
+  }
+
+  @Delete('labels/:id')
+  async deleteLabel(@Param('id') id: string, @Request() req: any) {
+    const { tenantId } = this.getContext(req);
+    return await this.v2Service.deleteLabel(tenantId, id);
   }
 }
 

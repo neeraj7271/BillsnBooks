@@ -49,6 +49,10 @@ export class ComplianceTaskOrmEntity {
   })
   category!: TaskCategory;
 
+  @Index()
+  @Column({ name: 'service_type_id', type: 'uuid', nullable: true })
+  serviceTypeId?: string | null;
+
   @Column({ name: 'statutory_period', type: 'varchar', length: 50 })
   statutoryPeriod!: string;
 

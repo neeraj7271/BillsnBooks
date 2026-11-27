@@ -41,6 +41,11 @@ import { PracticeJobOrmEntity } from './entities/practice-job.orm-entity';
 import { PracticeJobCommentOrmEntity } from './entities/practice-job-comment.orm-entity';
 import { ClientContactOrmEntity } from './entities/client-contact.orm-entity';
 import { PracticeTimeEntryOrmEntity } from './entities/practice-time-entry.orm-entity';
+import { ServiceTypeOrmEntity } from './entities/service-type.orm-entity';
+import { ClientServiceOrmEntity } from './entities/client-service.orm-entity';
+import { ClientCredentialOrmEntity } from './entities/client-credential.orm-entity';
+import { PracticeCustomFieldOrmEntity } from './entities/practice-custom-field.orm-entity';
+import { PracticeLabelOrmEntity } from './entities/practice-label.orm-entity';
 import { RecurringScheduleOrmEntity } from './entities/recurring-schedule.orm-entity';
 import { PaymentLinkOrmEntity } from './entities/payment-link.orm-entity';
 import { GatewaySettlementOrmEntity } from './entities/gateway-settlement.orm-entity';
@@ -73,6 +78,7 @@ import { AuthSecurityDefinerHelpers1731500000000 } from './migrations/1731500000
 import { TenantRlsCollectionsAndRemainingTables1731600000000 } from './migrations/1731600000000-TenantRlsCollectionsAndRemainingTables';
 import { DocumentVaultAndStorage1731700000000 } from './migrations/1731700000000-DocumentVaultAndStorage';
 import { PracticeJobsWorkflowAndClient3601731800000 } from './migrations/1731800000000-PracticeJobsWorkflowAndClient360';
+import { PracticePlatformV2Core1731900000000 } from './migrations/1731900000000-PracticePlatformV2Core';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -129,6 +135,11 @@ export const AppDataSource = new DataSource({
     PracticeJobCommentOrmEntity,
     ClientContactOrmEntity,
     PracticeTimeEntryOrmEntity,
+    ServiceTypeOrmEntity,
+    ClientServiceOrmEntity,
+    ClientCredentialOrmEntity,
+    PracticeCustomFieldOrmEntity,
+    PracticeLabelOrmEntity,
     RecurringScheduleOrmEntity,
     PaymentLinkOrmEntity,
     GatewaySettlementOrmEntity,
@@ -159,6 +170,7 @@ export const AppDataSource = new DataSource({
     TenantRlsCollectionsAndRemainingTables1731600000000,
     DocumentVaultAndStorage1731700000000,
     PracticeJobsWorkflowAndClient3601731800000,
+    PracticePlatformV2Core1731900000000,
   ],
   migrationsRun: false,
 });
