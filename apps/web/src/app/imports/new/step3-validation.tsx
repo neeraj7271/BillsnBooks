@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Badge } from '@platform/ui';
-import { ArrowLeft, CheckCircle2, RotateCw, AlertTriangle, XCircle, Sparkles, Users } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Badge, DataTable, ColumnDef } from '@platform/ui';
+import { ArrowLeft, RotateCw, Sparkles, Users } from 'lucide-react';
 
 interface Step3ValidationProps {
   validatedBatch: any;
@@ -39,6 +39,68 @@ export function Step3Validation({
   const greenCount = stagedRows.filter((r) => getStatus(r) === 'GREEN').length;
   const yellowCount = stagedRows.filter((r) => getStatus(r) === 'YELLOW').length;
   const redCount = stagedRows.filter((r) => getStatus(r) === 'RED').length;
+
+  const validationColumns: ColumnDef<any>[] = [
+    {
+      key: 'index',
+      header: '#',
+      width: '48px',
+      cell: (_r, idx) => <span className="text-muted">{idx + 1}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: '100px',
+      cell: (r) => (
+        <Badge
+          variant={getStatus(r) === 'GREEN' ? 'success' : getStatus(r) === 'YELLOW' ? 'warning' : 'danger'}
+          size="xs"
+          dot
+        >
+          {getStatus(r)}
+        </Badge>
+      ),
+    },
+    {
+      key: 'ref',
+      header: 'Invoice / Ref',
+      cell: (r) => (
+        <span className="font-mono font-semibold">
+          {r.parsedData?.voucherNumber || r.parsedData?.invoiceNumber || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'party',
+      header: 'Party Name',
+      cell: (r) => <span className="font-medium">{r.parsedData?.partyName || '—'}</span>,
+    },
+    {
+      key: 'gstin',
+      header: 'GSTIN',
+      cell: (r) => (
+        <span className="font-mono text-[11px]">
+          {r.parsedData?.partyGstin || r.parsedData?.gstin || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'errors',
+      header: 'Errors / Rule Violations',
+      cell: (r) => (
+        <div className="text-[11px] text-muted space-y-0.5">
+          {(r.errorReasons || r.errors || []).map((err: any, eIdx: number) => (
+            <span key={eIdx} className="block text-status-danger-text font-medium">
+              • {typeof err === 'string' ? err : err.message || JSON.stringify(err)}
+            </span>
+          ))}
+          {(!r.errorReasons || r.errorReasons.length === 0) && (!r.errors || r.errors.length === 0) && (
+            <span className="text-status-success-text">Passed audit</span>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <Card>
@@ -122,50 +184,15 @@ export function Step3Validation({
           </button>
         </div>
 
-        {/* Rows Table */}
-        <div className="rounded-xl border border-default overflow-x-auto max-h-96">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-surface-sunken border-b border-default font-semibold text-muted sticky top-0">
-              <tr>
-                <th className="py-2.5 px-3">#</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Invoice / Ref</th>
-                <th className="py-2.5 px-3">Party Name</th>
-                <th className="py-2.5 px-3">GSTIN</th>
-                <th className="py-2.5 px-3">Errors / Rule Violations</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-subtle">
-              {filteredRows.map((r, idx) => (
-                <tr key={r.id || idx}>
-                  <td className="py-2 px-3 text-muted">{idx + 1}</td>
-                  <td className="py-2 px-3">
-                    <Badge
-                      variant={getStatus(r) === 'GREEN' ? 'success' : getStatus(r) === 'YELLOW' ? 'warning' : 'danger'}
-                      size="xs"
-                      dot
-                    >
-                      {getStatus(r)}
-                    </Badge>
-                  </td>
-                  <td className="py-2 px-3 font-mono font-semibold">{r.parsedData?.voucherNumber || r.parsedData?.invoiceNumber || '—'}</td>
-                  <td className="py-2 px-3 font-medium">{r.parsedData?.partyName || '—'}</td>
-                  <td className="py-2 px-3 font-mono text-[11px]">{r.parsedData?.partyGstin || r.parsedData?.gstin || '—'}</td>
-                  <td className="py-2 px-3 text-[11px] text-muted">
-                    {(r.errorReasons || r.errors || []).map((err: any, eIdx: number) => (
-                      <span key={eIdx} className="block text-status-danger-text font-medium">
-                        • {typeof err === 'string' ? err : err.message || JSON.stringify(err)}
-                      </span>
-                    ))}
-                    {(!r.errorReasons || r.errorReasons.length === 0) && (!r.errors || r.errors.length === 0) && (
-                      <span className="text-status-success-text">Passed audit</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Rows DataTable */}
+        <DataTable
+          columns={validationColumns}
+          data={filteredRows}
+          density="compact"
+          pageSize={20}
+          emptyTitle="No staged rows match filter"
+          emptyDescription="Switch tabs above to view rows with different validation statuses."
+        />
       </CardContent>
 
       <CardFooter className="justify-between">

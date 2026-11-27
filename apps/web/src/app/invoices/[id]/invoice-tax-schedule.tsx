@@ -1,5 +1,5 @@
 import React from 'react';
-import { MoneyText } from '@platform/ui';
+import { MoneyText, DataTable, ColumnDef } from '@platform/ui';
 
 interface InvoiceTaxScheduleProps {
   invoice: any;
@@ -15,58 +15,85 @@ export function InvoiceTaxSchedule({ invoice, company }: InvoiceTaxScheduleProps
 
   const companyLegalName = company?.legalName || 'Acme Global Technologies Pvt Ltd';
 
+  const taxColumns: ColumnDef<any>[] = [
+    {
+      key: 'hsn',
+      header: 'HSN / SAC',
+      cell: () => <span>Multiple / 998311</span>,
+    },
+    {
+      key: 'taxable',
+      header: 'Taxable Value',
+      align: 'right',
+      cell: () => <MoneyText amount={invoice.subtotalAmount} />,
+    },
+    ...(isIntraState
+      ? [
+          {
+            key: 'cgstRate',
+            header: 'CGST Rate',
+            align: 'right' as const,
+            cell: () => <span>9.00%</span>,
+          },
+          {
+            key: 'cgstAmt',
+            header: 'CGST Amount',
+            align: 'right' as const,
+            cell: () => <MoneyText amount={invoice.cgstAmount} />,
+          },
+          {
+            key: 'sgstRate',
+            header: 'SGST Rate',
+            align: 'right' as const,
+            cell: () => <span>9.00%</span>,
+          },
+          {
+            key: 'sgstAmt',
+            header: 'SGST Amount',
+            align: 'right' as const,
+            cell: () => <MoneyText amount={invoice.sgstAmount} />,
+          },
+        ]
+      : [
+          {
+            key: 'igstRate',
+            header: 'IGST Rate',
+            align: 'right' as const,
+            cell: () => <span>18.00%</span>,
+          },
+          {
+            key: 'igstAmt',
+            header: 'IGST Amount',
+            align: 'right' as const,
+            cell: () => <MoneyText amount={invoice.igstAmount} />,
+          },
+        ]),
+    {
+      key: 'totalTax',
+      header: 'Total Tax',
+      align: 'right',
+      cell: () => (
+        <span className="font-bold text-primary print:text-black">
+          <MoneyText amount={totalTax} />
+        </span>
+      ),
+    },
+  ];
+
   return (
     <>
       <div className="py-6 border-b border-default">
         <div className="text-[10px] font-bold uppercase tracking-wider text-muted print:text-black mb-2">
           GST Tax Schedule & Breakup:
         </div>
-        <table className="w-full text-left text-xs bg-surface-sunken print:bg-white rounded-xl overflow-hidden print:border print:border-default">
-          <thead className="border-b border-default text-[10px] font-bold text-secondary print:text-black uppercase">
-            <tr>
-              <th className="py-2 px-3">HSN / SAC</th>
-              <th className="py-2 px-3 text-right">Taxable Value</th>
-              {isIntraState ? (
-                <>
-                  <th className="py-2 px-3 text-right">CGST Rate</th>
-                  <th className="py-2 px-3 text-right">CGST Amount</th>
-                  <th className="py-2 px-3 text-right">SGST Rate</th>
-                  <th className="py-2 px-3 text-right">SGST Amount</th>
-                </>
-              ) : (
-                <>
-                  <th className="py-2 px-3 text-right">IGST Rate</th>
-                  <th className="py-2 px-3 text-right">IGST Amount</th>
-                </>
-              )}
-              <th className="py-2 px-3 text-right">Total Tax</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border-subtle font-mono text-[11px] print:text-black">
-            <tr>
-              <td className="py-2 px-3">Multiple / 998311</td>
-              <td className="py-2 px-3 text-right">
-                <MoneyText amount={invoice.subtotalAmount} />
-              </td>
-              {isIntraState ? (
-                <>
-                  <td className="py-2 px-3 text-right">9.00%</td>
-                  <td className="py-2 px-3 text-right"><MoneyText amount={invoice.cgstAmount} /></td>
-                  <td className="py-2 px-3 text-right">9.00%</td>
-                  <td className="py-2 px-3 text-right"><MoneyText amount={invoice.sgstAmount} /></td>
-                </>
-              ) : (
-                <>
-                  <td className="py-2 px-3 text-right">18.00%</td>
-                  <td className="py-2 px-3 text-right"><MoneyText amount={invoice.igstAmount} /></td>
-                </>
-              )}
-              <td className="py-2 px-3 text-right font-bold text-primary print:text-black">
-                <MoneyText amount={totalTax} />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          columns={taxColumns}
+          data={[{ id: 'schedule-1' }]}
+          showPagination={false}
+          density="compact"
+          emptyTitle="No tax schedule"
+          emptyDescription="Tax schedule will appear once items are added."
+        />
       </div>
 
       <div className="py-6 flex justify-between items-start">

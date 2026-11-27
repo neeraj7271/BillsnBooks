@@ -1,61 +1,104 @@
 import React from 'react';
-import { MoneyText } from '@platform/ui';
+import { MoneyText, DataTable, ColumnDef } from '@platform/ui';
 
 interface InvoiceItemsTableProps {
   items: any[];
 }
 
 export function InvoiceItemsTable({ items }: InvoiceItemsTableProps) {
+  const columns: ColumnDef<any>[] = [
+    {
+      key: 'index',
+      header: '#',
+      width: '32px',
+      cell: (_it, idx) => <span className="text-muted print:text-black">{idx + 1}</span>,
+    },
+    {
+      key: 'description',
+      header: 'Description of Goods / Services',
+      cell: (it) => (
+        <div className="font-bold text-primary print:text-black">{it.description}</div>
+      ),
+    },
+    {
+      key: 'hsnSacCode',
+      header: 'HSN/SAC',
+      width: '80px',
+      cell: (it) => (
+        <span className="font-mono text-secondary print:text-black">{it.hsnSacCode}</span>
+      ),
+    },
+    {
+      key: 'quantity',
+      header: 'Qty',
+      width: '64px',
+      align: 'right',
+      cell: (it) => (
+        <span className="font-mono print:text-black">{parseFloat(it.quantity).toFixed(0)}</span>
+      ),
+    },
+    {
+      key: 'uom',
+      header: 'UOM',
+      width: '64px',
+      cell: (it) => <span className="text-secondary print:text-black">{it.uom}</span>,
+    },
+    {
+      key: 'unitPrice',
+      header: 'Rate',
+      width: '96px',
+      align: 'right',
+      cell: (it) => (
+        <span className="print:text-black">
+          <MoneyText amount={it.unitPrice} />
+        </span>
+      ),
+    },
+    {
+      key: 'taxableAmount',
+      header: 'Taxable',
+      width: '96px',
+      align: 'right',
+      cell: (it) => (
+        <span className="font-semibold print:text-black">
+          <MoneyText amount={it.taxableAmount} />
+        </span>
+      ),
+    },
+    {
+      key: 'gstRatePercent',
+      header: 'GST %',
+      width: '64px',
+      align: 'right',
+      cell: (it) => (
+        <span className="font-mono text-secondary print:text-black">
+          {parseFloat(it.gstRatePercent)}%
+        </span>
+      ),
+    },
+    {
+      key: 'totalAmount',
+      header: 'Total',
+      width: '96px',
+      align: 'right',
+      cell: (it) => (
+        <span className="font-bold text-primary print:text-black">
+          <MoneyText amount={it.totalAmount} />
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div className="py-6 border-b border-default overflow-x-auto print:overflow-visible">
-      <table className="w-full text-left text-xs">
-        <thead className="border-b border-default text-[11px] font-bold text-secondary print:text-black uppercase tracking-wider">
-          <tr>
-            <th className="py-2.5 px-2 w-8">#</th>
-            <th className="py-2.5 px-3">Description of Goods / Services</th>
-            <th className="py-2.5 px-2 w-20">HSN/SAC</th>
-            <th className="py-2.5 px-2 w-16 text-right">Qty</th>
-            <th className="py-2.5 px-2 w-16">UOM</th>
-            <th className="py-2.5 px-2 w-24 text-right">Rate</th>
-            <th className="py-2.5 px-2 w-24 text-right">Taxable</th>
-            <th className="py-2.5 px-2 w-16 text-right">GST %</th>
-            <th className="py-2.5 px-2 w-24 text-right">Total</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border-subtle font-medium">
-          {items?.map((it: any, idx: number) => (
-            <tr key={it.id || idx}>
-              <td className="py-3 px-2 text-muted print:text-black">{idx + 1}</td>
-              <td className="py-3 px-3">
-                <div className="font-bold text-primary print:text-black">
-                  {it.description}
-                </div>
-              </td>
-              <td className="py-3 px-2 font-mono text-secondary print:text-black">
-                {it.hsnSacCode}
-              </td>
-              <td className="py-3 px-2 text-right font-mono print:text-black">
-                {parseFloat(it.quantity).toFixed(0)}
-              </td>
-              <td className="py-3 px-2 text-secondary print:text-black">
-                {it.uom}
-              </td>
-              <td className="py-3 px-2 text-right print:text-black">
-                <MoneyText amount={it.unitPrice} />
-              </td>
-              <td className="py-3 px-2 text-right font-semibold print:text-black">
-                <MoneyText amount={it.taxableAmount} />
-              </td>
-              <td className="py-3 px-2 text-right font-mono text-secondary print:text-black">
-                {parseFloat(it.gstRatePercent)}%
-              </td>
-              <td className="py-3 px-2 text-right font-bold text-primary print:text-black">
-                <MoneyText amount={it.totalAmount} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        columns={columns}
+        data={items || []}
+        showPagination={false}
+        density="compact"
+        emptyTitle="No items"
+        emptyDescription="This invoice does not contain line items."
+      />
     </div>
   );
 }

@@ -38,6 +38,8 @@ import {
   toast,
   confirmDialog,
   MonoCopyable,
+  DataTable,
+  ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -139,6 +141,61 @@ export default function GlobalSettingsPage() {
       String(s.value).toLowerCase().includes(q)
     );
   });
+
+  const resolvedColumns: ColumnDef<any>[] = [
+    {
+      key: 'key',
+      header: 'Setting Key',
+      cell: (s) => (
+        <div>
+          <div className="font-mono text-primary font-semibold">{s.key}</div>
+          {s.definition?.description && (
+            <div className="font-sans font-normal text-[10px] text-muted line-clamp-1">
+              {s.definition.description}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      cell: (s) => (
+        <span className="px-2 py-0.5 rounded bg-surface-sunken text-secondary font-sans text-[10px]">
+          {s.definition?.category || 'SYSTEM'}
+        </span>
+      ),
+    },
+    {
+      key: 'value',
+      header: 'Resolved Value',
+      cell: (s) => (
+        <span className="font-mono font-bold text-brand-text max-w-xs truncate block">
+          {s.value === null || s.value === undefined
+            ? '<null>'
+            : typeof s.value === 'boolean'
+            ? s.value ? 'true' : 'false'
+            : typeof s.value === 'object'
+            ? JSON.stringify(s.value)
+            : String(s.value)}
+        </span>
+      ),
+    },
+    {
+      key: 'scope',
+      header: 'Scope',
+      cell: (s) => <span className="font-sans text-secondary">{s.resolvedScope}</span>,
+    },
+    {
+      key: 'state',
+      header: 'State',
+      cell: (s) => (
+        <Badge variant={s.isOverridden ? 'success' : 'neutral'} size="xs">
+          {s.isOverridden ? 'Overridden' : 'Default'}
+        </Badge>
+      ),
+    },
+  ];
 
   const logoUrl = settingsMap['branding.logo_url'];
   const showSignature = settingsMap['document.show_signature'] !== false;
@@ -747,63 +804,14 @@ export default function GlobalSettingsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="rounded-xl border border-default overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-surface-sunken text-secondary font-semibold border-b border-default">
-                  <tr>
-                    <th className="py-2.5 px-3">Setting Key</th>
-                    <th className="py-2.5 px-3">Category</th>
-                    <th className="py-2.5 px-3">Resolved Value</th>
-                    <th className="py-2.5 px-3">Scope</th>
-                    <th className="py-2.5 px-3">State</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-subtle font-mono text-[11px]">
-                  {filteredResolved.length > 0 ? (
-                    filteredResolved.map((s) => (
-                      <tr key={s.key} className="hover:bg-row-hover">
-                        <td className="py-2 px-3 font-semibold text-primary">
-                          <div>{s.key}</div>
-                          {s.definition?.description && (
-                            <div className="font-sans font-normal text-[10px] text-muted line-clamp-1">
-                              {s.definition.description}
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-2 px-3">
-                          <span className="px-2 py-0.5 rounded bg-surface-sunken text-secondary font-sans text-[10px]">
-                            {s.definition?.category || 'SYSTEM'}
-                          </span>
-                        </td>
-                        <td className="py-2 px-3 font-bold text-brand-text max-w-xs truncate">
-                          {s.value === null || s.value === undefined
-                            ? '<null>'
-                            : typeof s.value === 'boolean'
-                            ? s.value ? 'true' : 'false'
-                            : typeof s.value === 'object'
-                            ? JSON.stringify(s.value)
-                            : String(s.value)}
-                        </td>
-                        <td className="py-2 px-3 font-sans text-secondary">
-                          {s.resolvedScope}
-                        </td>
-                        <td className="py-2 px-3">
-                          <Badge variant={s.isOverridden ? 'success' : 'neutral'} size="xs">
-                            {s.isOverridden ? 'Overridden' : 'Default'}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="py-8 text-center text-muted font-sans">
-                        No settings matching "{searchQuery}"
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={resolvedColumns}
+              data={filteredResolved}
+              density="compact"
+              emptyTitle="No settings found"
+              emptyDescription={searchQuery ? `No system settings matching "${searchQuery}"` : 'No settings registered.'}
+              pageSize={25}
+            />
           </CardContent>
         </Card>
       )}
