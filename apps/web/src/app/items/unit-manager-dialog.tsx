@@ -147,7 +147,7 @@ export function UnitManagerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg" className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent size="md" className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-status-info-subtle flex items-center justify-center text-status-info-text">

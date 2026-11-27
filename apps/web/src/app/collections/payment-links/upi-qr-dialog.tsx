@@ -46,7 +46,7 @@ export function UpiQrDialog({ open, onOpenChange, paymentLink }: UpiQrDialogProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px]">
+      <DialogContent size="xs">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-status-success-subtle text-status-success-text">

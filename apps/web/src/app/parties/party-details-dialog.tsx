@@ -46,7 +46,7 @@ export function PartyDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="xl" className="max-w-3xl overflow-hidden p-0 gap-0">
+      <DialogContent size="lg" className="overflow-hidden p-0 gap-0">
         {/* Header Banner */}
         <div className="p-6 bg-surface-sunken border-b border-default">
           <div className="flex items-start justify-between gap-4">

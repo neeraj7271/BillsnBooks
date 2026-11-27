@@ -78,7 +78,7 @@ export function CompanyDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg" className="max-w-2xl max-h-[88vh] overflow-y-auto">
+      <DialogContent size="md" className="max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">

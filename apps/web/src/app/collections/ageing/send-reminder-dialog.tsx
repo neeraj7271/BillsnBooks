@@ -84,7 +84,7 @@ export function SendReminderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-surface border border-default rounded-xl p-6">
+      <DialogContent size="sm">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-primary flex items-center gap-2">
             <Send className="h-5 w-5 text-brand-text" />

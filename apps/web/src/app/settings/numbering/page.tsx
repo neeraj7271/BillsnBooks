@@ -295,7 +295,7 @@ export default function NumberingSettingsPage() {
 
       {/* Series Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent size="md" className="max-w-lg">
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>
               {selectedSeries ? `Edit Series: ${selectedSeries.seriesCode}` : 'Create New Document Numbering Series'}

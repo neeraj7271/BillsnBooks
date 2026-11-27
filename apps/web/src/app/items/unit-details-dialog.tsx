@@ -48,7 +48,7 @@ export function UnitDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md" className="max-w-xl">
+      <DialogContent size="sm">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text">

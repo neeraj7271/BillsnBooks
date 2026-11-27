@@ -171,7 +171,7 @@ export function InvoiceSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md" className="max-w-xl">
+      <DialogContent size="md">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 rounded-xl bg-brand-subtle border border-default flex items-center justify-center text-brand-text">

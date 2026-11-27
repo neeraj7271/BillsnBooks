@@ -352,7 +352,8 @@ export function RecurringScheduleDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="max-w-2xl bg-surface border border-default rounded-2xl p-6 max-h-[90vh] overflow-y-auto shadow-xl"
+          size="md"
+          className="p-6 max-h-[90vh] overflow-y-auto shadow-xl"
           data-testid="recurring-schedule-dialog"
         >
           <DialogHeader>
@@ -824,7 +825,8 @@ export function RecurringScheduleDialog({
       {previewDrawerOpen && (
         <Dialog open={previewDrawerOpen} onOpenChange={setPreviewDrawerOpen}>
           <DialogContent
-            className="max-w-4xl bg-surface border border-default rounded-2xl p-6 max-h-[95vh] overflow-y-auto shadow-2xl"
+            size="lg"
+            className="p-6 max-h-[95vh] overflow-y-auto shadow-2xl"
             data-testid="recurring-first-invoice-drawer"
           >
             <DialogHeader>

@@ -483,7 +483,7 @@ export default function VouchersPage() {
       {/* Voucher Entries Drill-down Modal */}
       {selectedVoucher && (
         <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DialogContent size="lg" className="max-w-3xl">
+          <DialogContent size="lg">
             <DialogHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -591,7 +591,7 @@ export default function VouchersPage() {
 
       {/* New Journal Voucher (JV) Dialog */}
       <Dialog open={newJvOpen} onOpenChange={setNewJvOpen}>
-        <DialogContent size="lg" className="max-w-3xl">
+        <DialogContent size="lg">
           <DialogHeader>
             <DialogTitle>New Manual Journal Entry (JV)</DialogTitle>
             <DialogDescription className="text-xs">

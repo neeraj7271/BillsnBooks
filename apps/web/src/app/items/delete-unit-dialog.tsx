@@ -75,7 +75,7 @@ export function DeleteUnitDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm" className="max-w-md">
+      <DialogContent size="xs">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
             <div

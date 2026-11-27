@@ -86,7 +86,7 @@ export function EditUnitDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm" className="max-w-md">
+      <DialogContent size="xs">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text">

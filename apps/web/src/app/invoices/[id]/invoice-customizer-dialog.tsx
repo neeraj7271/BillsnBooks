@@ -213,7 +213,7 @@ export function InvoiceCustomizerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent size="md" className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-brand-subtle border border-default text-brand-text">
