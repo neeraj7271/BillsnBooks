@@ -58,6 +58,14 @@ export default function PartiesPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUserRole(localStorage.getItem('antigravity_user_role') || '');
+    }
+  }, []);
+  const isReadOnly = userRole === 'CLIENT_VIEWER';
 
   const { page: currentPage, pageSize, setPage: setCurrentPage, setPageSize } = useTablePagination({
     storageKey: 'parties',
@@ -283,12 +291,16 @@ export default function PartiesPage() {
           <Button variant="outline" size="sm" onClick={loadParties} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)} leftIcon={<UploadCloud className="h-3.5 w-3.5" />}>
-            Import
-          </Button>
-          <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-            New Party
-          </Button>
+          {!isReadOnly && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)} leftIcon={<UploadCloud className="h-3.5 w-3.5" />}>
+                Import
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
+                New Party
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

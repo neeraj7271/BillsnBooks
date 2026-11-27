@@ -31,6 +31,7 @@ export default function LoginPage() {
         const fullName = `${res.user?.firstName || ''} ${res.user?.lastName || ''}`.trim() || email;
         localStorage.setItem('antigravity_user_name', fullName);
         localStorage.setItem('antigravity_user_email', res.user?.email || email);
+        if (res.user?.role) localStorage.setItem('antigravity_user_role', res.user.role);
         if (res.tokens?.accessToken) localStorage.setItem('antigravity_access_token', res.tokens.accessToken);
         if (res.tokens?.refreshToken) localStorage.setItem('antigravity_refresh_token', res.tokens.refreshToken);
       }

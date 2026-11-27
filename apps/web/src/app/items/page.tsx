@@ -52,6 +52,14 @@ interface Item {
 export default function ItemsPage() {
   const { activeCompanyId } = useCompany();
   const [mainView, setMainView] = useState<'ITEMS' | 'UNITS'>('ITEMS');
+  const [userRole, setUserRole] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setUserRole(localStorage.getItem('antigravity_user_role') || '');
+    }
+  }, []);
+  const isReadOnly = userRole === 'CLIENT_VIEWER';
 
   // Items State
   const [items, setItems] = useState<Item[]>([]);
@@ -361,22 +369,26 @@ export default function ItemsPage() {
                 >
                   View Units Table
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowImportModal(true)}
-                  leftIcon={<UploadCloud className="h-3.5 w-3.5" />}
-                >
-                  Import
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleOpenCreate}
-                  leftIcon={<Plus className="h-3.5 w-3.5" />}
-                >
-                  Add Item
-                </Button>
+                {!isReadOnly && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowImportModal(true)}
+                      leftIcon={<UploadCloud className="h-3.5 w-3.5" />}
+                    >
+                      Import
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleOpenCreate}
+                      leftIcon={<Plus className="h-3.5 w-3.5" />}
+                    >
+                      Add Item
+                    </Button>
+                  </>
+                )}
               </div>
             ),
           }}
