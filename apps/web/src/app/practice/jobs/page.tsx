@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -12,10 +12,10 @@ import {
   CheckSquare,
   Square,
   MessageSquare,
-  ArrowRight,
   Repeat,
   X,
-  UserCheck,
+  Play,
+  Tag,
 } from 'lucide-react';
 import {
   Button,
@@ -30,14 +30,14 @@ import {
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 
-const STAGES = [
+const DEFAULT_STAGES = [
   { key: 'BACKLOG', label: 'Backlog' },
   { key: 'IN_PROGRESS', label: 'In Progress' },
   { key: 'REVIEW', label: 'Review' },
   { key: 'AWAITING_CLIENT', label: 'Awaiting Client' },
   { key: 'FILED', label: 'Filed' },
   { key: 'DONE', label: 'Done' },
-] as const;
+];
 
 function JobsPipelineContent() {
   const searchParams = useSearchParams();
@@ -46,11 +46,23 @@ function JobsPipelineContent() {
 
   const [view, setView] = useState<'KANBAN' | 'LIST' | 'CALENDAR'>('KANBAN');
   const [jobs, setJobs] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [staff, setStaff] = useState<any[]>([]);
+  const [customFieldsDef, setCustomFieldsDef] = useState<any[]>([]);
+  const [labelsDef, setLabelsDef] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [spawning, setSpawning] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
+
+  // Filters
+  const [searchFilter, setSearchFilter] = useState('');
+  const [serviceFilter, setServiceFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [clientFilter, setClientFilter] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState(initialAssignee);
+  const [labelFilter, setLabelFilter] = useState('');
 
   // Drag state
   const [draggedJobId, setDraggedJobId] = useState<string | null>(null);
@@ -58,10 +70,15 @@ function JobsPipelineContent() {
   // Create Job Modal
   const [createOpen, setCreateOpen] = useState(false);
   const [newClientId, setNewClientId] = useState('');
-  const [newTemplateId, setNewTemplateId] = useState('');
+  const [newServiceId, setNewServiceId] = useState('');
   const [newPeriod, setNewPeriod] = useState(new Date().toISOString().slice(0, 7));
   const [newAssigneeId, setNewAssigneeId] = useState('');
   const [creating, setCreating] = useState(false);
+
+  // Inline custom service inside Create Job modal
+  const [showInlineSvc, setShowInlineSvc] = useState(false);
+  const [inlineSvcName, setInlineSvcName] = useState('');
+  const [inlineSvcCategory, setInlineSvcCategory] = useState('Advisory');
 
   // Job Detail Drawer
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
@@ -70,22 +87,25 @@ function JobsPipelineContent() {
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [jobsRes, tplRes, clientRes, workloadRes] = await Promise.all([
-        apiClient.listPracticeJobs({
-          stage: initialStage || undefined,
-          assignedToUserId: initialAssignee || undefined,
-        }),
-        apiClient.listWorkflowTemplates(),
-        apiClient.listPracticeClients(),
+      const [jobsRes, svcRes, tplRes, clientRes, workloadRes, cfRes, lblRes] = await Promise.all([
+        apiClient.listPracticeJobs({ stage: initialStage || undefined }),
+        apiClient.listPracticeServices().catch(() => []),
+        apiClient.listWorkflowTemplates().catch(() => []),
+        apiClient.listPracticeClients().catch(() => []),
         apiClient.getPracticeWorkload().catch(() => ({ staff: [] })),
+        apiClient.listCustomFields('JOB').catch(() => []),
+        apiClient.listPracticeLabels('JOB').catch(() => []),
       ]);
       setJobs(jobsRes || []);
+      setServices(svcRes || []);
       setTemplates(tplRes || []);
       setClients(clientRes || []);
       setStaff(workloadRes?.staff || []);
+      setCustomFieldsDef(cfRes || []);
+      setLabelsDef(lblRes || []);
 
       if (!newClientId && clientRes?.length > 0) setNewClientId(clientRes[0].id);
-      if (!newTemplateId && tplRes?.length > 0) setNewTemplateId(tplRes[0].id);
+      if (!newServiceId && svcRes?.length > 0) setNewServiceId(svcRes[0].id);
     } finally {
       setLoading(false);
     }
@@ -93,7 +113,52 @@ function JobsPipelineContent() {
 
   useEffect(() => {
     loadAll();
-  }, [initialStage, initialAssignee]);
+  }, [initialStage]);
+
+  const categories = useMemo(
+    () => Array.from(new Set(services.map((s) => s.category).filter(Boolean))).sort(),
+    [services],
+  );
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((j) => {
+      if (serviceFilter && j.serviceTypeId !== serviceFilter) return false;
+      if (categoryFilter && j.serviceCategory !== categoryFilter) return false;
+      if (clientFilter && j.clientId !== clientFilter) return false;
+      if (assigneeFilter && j.assignedToUserId !== assigneeFilter) return false;
+      if (labelFilter && !(j.labels || []).includes(labelFilter)) return false;
+      if (searchFilter.trim()) {
+        const q = searchFilter.toLowerCase();
+        return (
+          j.title?.toLowerCase().includes(q) ||
+          j.clientName?.toLowerCase().includes(q) ||
+          j.serviceName?.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [jobs, serviceFilter, categoryFilter, clientFilter, assigneeFilter, labelFilter, searchFilter]);
+
+  // Dynamic Kanban stages: if a service filter is active and that service defines custom stages, render those!
+  // Otherwise, if filtered jobs share custom stages not in DEFAULT_STAGES, include them.
+  const activeColumns = useMemo(() => {
+    if (serviceFilter) {
+      const svc = services.find((s) => s.id === serviceFilter);
+      if (svc?.defaultStages?.length) {
+        return svc.defaultStages.map((st: any) => ({ key: st.key, label: st.label }));
+      }
+    }
+    const cols = [...DEFAULT_STAGES];
+    const seen = new Set(cols.map((c) => c.key));
+    for (const j of filteredJobs) {
+      if (j.stage && !seen.has(j.stage)) {
+        seen.add(j.stage);
+        const match = (j.stages || []).find((s: any) => s.key === j.stage);
+        cols.push({ key: j.stage, label: match?.label || j.stage.replace(/_/g, ' ') });
+      }
+    }
+    return cols;
+  }, [serviceFilter, services, filteredJobs]);
 
   const openJobDetail = async (jobId: string) => {
     const detail = await apiClient.getPracticeJob(jobId);
@@ -111,6 +176,30 @@ function JobsPipelineContent() {
     }
   };
 
+  const handleSpawnDue = async () => {
+    setSpawning(true);
+    try {
+      const res = await apiClient.spawnDuePracticeJobs();
+      setBanner(`Recurrence Engine: spawned ${res.spawnedCount} job(s), skipped ${res.skippedCount} existing/one-time.`);
+      await loadAll();
+    } finally {
+      setSpawning(false);
+    }
+  };
+
+  const handleCreateInlineService = async () => {
+    if (!inlineSvcName.trim()) return;
+    const created = await apiClient.createPracticeService({
+      name: inlineSvcName.trim(),
+      category: inlineSvcCategory.trim() || 'General',
+      frequency: 'MONTHLY',
+    });
+    setServices((prev) => [...prev, created]);
+    setNewServiceId(created.id);
+    setInlineSvcName('');
+    setShowInlineSvc(false);
+  };
+
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClientId) return;
@@ -118,7 +207,7 @@ function JobsPipelineContent() {
     try {
       await apiClient.createPracticeJob({
         clientId: newClientId,
-        templateId: newTemplateId || undefined,
+        serviceTypeId: newServiceId || undefined,
         period: newPeriod,
         assignedToUserId: newAssigneeId || undefined,
       });
@@ -143,17 +232,31 @@ function JobsPipelineContent() {
     await openJobDetail(selectedJob.id);
   };
 
+  const handleSaveJobCustom = async (customFields: Record<string, any>, labels: string[]) => {
+    if (!selectedJob) return;
+    await apiClient.updateJobCustomData(selectedJob.id, { customFields, labels });
+    await openJobDetail(selectedJob.id);
+    await loadAll();
+  };
+
+  const drawerStages = useMemo(() => {
+    if (selectedJob?.stages?.length) {
+      return selectedJob.stages.map((s: any) => ({ key: s.key, label: s.label }));
+    }
+    return DEFAULT_STAGES;
+  }, [selectedJob]);
+
   return (
     <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black tracking-tight text-primary">Practice Jobs & Workflow Pipeline</h1>
-            <Badge variant="brand" size="sm">{jobs.length} Jobs</Badge>
+            <h1 className="text-2xl font-black tracking-tight text-primary">Practice Jobs &amp; Workflow Pipeline</h1>
+            <Badge variant="brand" size="sm">{filteredJobs.length} Jobs</Badge>
           </div>
           <p className="mt-1 text-xs text-secondary">
-            Manage GST, TDS, ITR, Tax Audit, and ROC deliverables across stages with recurring auto-spawning.
+            Configurable service pipelines, custom workflow stages, and automated client-subscription recurrence.
           </p>
         </div>
 
@@ -188,13 +291,86 @@ function JobsPipelineContent() {
             </button>
           </div>
 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSpawnDue}
+            loading={spawning}
+            leftIcon={<Play className="h-3.5 w-3.5" />}
+          >
+            Spawn Due Jobs
+          </Button>
           <Button variant="outline" size="sm" onClick={loadAll} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
           <Button variant="primary" size="sm" onClick={() => setCreateOpen(true)} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-            New Job from Template
+            New Job
           </Button>
         </div>
+      </div>
+
+      {/* Filters Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 rounded-2xl border border-default bg-surface p-3">
+        <Input
+          value={searchFilter}
+          onChange={(e) => setSearchFilter(e.target.value)}
+          placeholder="Search jobs..."
+        />
+        <select
+          value={serviceFilter}
+          onChange={(e) => setServiceFilter(e.target.value)}
+          className="rounded-xl border border-default bg-surface px-2.5 py-1.5 text-xs text-primary"
+          aria-label="Filter by service"
+        >
+          <option value="">All Services</option>
+          {services.map((s) => (
+            <option key={s.id} value={s.id}>{s.name}</option>
+          ))}
+        </select>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="rounded-xl border border-default bg-surface px-2.5 py-1.5 text-xs text-primary"
+          aria-label="Filter by category"
+        >
+          <option value="">All Categories</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+        <select
+          value={clientFilter}
+          onChange={(e) => setClientFilter(e.target.value)}
+          className="rounded-xl border border-default bg-surface px-2.5 py-1.5 text-xs text-primary"
+          aria-label="Filter by client"
+        >
+          <option value="">All Clients</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>{c.companyName}</option>
+          ))}
+        </select>
+        <select
+          value={assigneeFilter}
+          onChange={(e) => setAssigneeFilter(e.target.value)}
+          className="rounded-xl border border-default bg-surface px-2.5 py-1.5 text-xs text-primary"
+          aria-label="Filter by assignee"
+        >
+          <option value="">All Assignees</option>
+          {staff.map((s) => (
+            <option key={s.userId} value={s.userId}>{s.name}</option>
+          ))}
+        </select>
+        <select
+          value={labelFilter}
+          onChange={(e) => setLabelFilter(e.target.value)}
+          className="rounded-xl border border-default bg-surface px-2.5 py-1.5 text-xs text-primary"
+          aria-label="Filter by label"
+        >
+          <option value="">All Labels</option>
+          {labelsDef.map((l) => (
+            <option key={l.id} value={l.name}>{l.name}</option>
+          ))}
+        </select>
       </div>
 
       {banner && (
@@ -209,8 +385,8 @@ function JobsPipelineContent() {
       {/* KANBAN BOARD */}
       {view === 'KANBAN' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 items-start">
-          {STAGES.map((stage) => {
-            const stageJobs = jobs.filter((j) => j.stage === stage.key);
+          {activeColumns.map((stage: any) => {
+            const stageJobs = filteredJobs.filter((j) => j.stage === stage.key);
             return (
               <div
                 key={stage.key}
@@ -245,6 +421,12 @@ function JobsPipelineContent() {
                           <span className="text-xs font-bold text-primary leading-snug">{job.title}</span>
                           {job.isRecurring && <Repeat className="h-3.5 w-3.5 text-brand-text shrink-0" />}
                         </div>
+                        <div className="flex flex-wrap gap-1">
+                          {job.serviceCategory && <Badge variant="neutral" size="xs">{job.serviceCategory}</Badge>}
+                          {(job.labels || []).map((lbl: string) => (
+                            <Badge key={lbl} variant="info" size="xs">{lbl}</Badge>
+                          ))}
+                        </div>
                         <div className="text-[11px] text-secondary truncate">{job.clientName}</div>
                         <div className="flex items-center justify-between text-[10px] text-muted pt-1 border-t border-subtle">
                           <span>{job.assignedToName}</span>
@@ -269,6 +451,7 @@ function JobsPipelineContent() {
             <thead>
               <tr className="border-b border-default bg-surface-sunken/50 text-[11px] font-bold uppercase text-muted">
                 <th className="py-3 px-4">Job Title</th>
+                <th className="py-3 px-3">Service</th>
                 <th className="py-3 px-3">Client</th>
                 <th className="py-3 px-3">Period</th>
                 <th className="py-3 px-3">Stage</th>
@@ -277,9 +460,10 @@ function JobsPipelineContent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-subtle">
-              {jobs.map((job) => (
+              {filteredJobs.map((job) => (
                 <tr key={job.id} onClick={() => openJobDetail(job.id)} className="cursor-pointer hover:bg-surface-sunken/40">
                   <td className="py-3 px-4 font-bold text-primary">{job.title}</td>
+                  <td className="py-3 px-3 text-secondary">{job.serviceName || job.jobType}</td>
                   <td className="py-3 px-3 text-secondary">{job.clientName}</td>
                   <td className="py-3 px-3 font-mono">{job.period}</td>
                   <td className="py-3 px-3"><Badge variant="brand" size="xs">{job.stage}</Badge></td>
@@ -295,7 +479,7 @@ function JobsPipelineContent() {
       {/* DUE DATES VIEW */}
       {view === 'CALENDAR' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {jobs.map((job) => (
+          {filteredJobs.map((job) => (
             <div
               key={job.id}
               onClick={() => openJobDetail(job.id)}
@@ -316,7 +500,7 @@ function JobsPipelineContent() {
         <DialogContent size="sm">
           <form onSubmit={handleCreateJob} className="space-y-4">
             <DialogHeader>
-              <DialogTitle>Create Job from Workflow Template</DialogTitle>
+              <DialogTitle>Create Job from Service Master</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-3">
@@ -337,19 +521,48 @@ function JobsPipelineContent() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-secondary mb-1">Workflow Template</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-secondary">Service Type</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowInlineSvc((v) => !v)}
+                    className="text-[11px] font-semibold text-brand-text hover:underline"
+                  >
+                    + Add custom service
+                  </button>
+                </div>
                 <select
-                  value={newTemplateId}
-                  onChange={(e) => setNewTemplateId(e.target.value)}
+                  value={newServiceId}
+                  onChange={(e) => setNewServiceId(e.target.value)}
                   className="w-full rounded-xl border border-default bg-surface px-3 py-2 text-xs text-primary"
                 >
-                  {templates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name} {t.isRecurring ? `(${t.recurrenceFrequency})` : ''}
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.category} · {s.frequency})
                     </option>
                   ))}
                 </select>
               </div>
+
+              {showInlineSvc && (
+                <div className="p-2.5 rounded-xl border border-default bg-surface-sunken space-y-2">
+                  <div className="text-[11px] font-bold text-primary">New Custom Service</div>
+                  <Input
+                    value={inlineSvcName}
+                    onChange={(e) => setInlineSvcName(e.target.value)}
+                    placeholder="Service name (e.g. RERA Compliance)"
+                  />
+                  <Input
+                    value={inlineSvcCategory}
+                    onChange={(e) => setInlineSvcCategory(e.target.value)}
+                    placeholder="Category (e.g. Real Estate)"
+                  />
+                  <div className="flex justify-end gap-1.5">
+                    <Button type="button" size="xs" variant="ghost" onClick={() => setShowInlineSvc(false)}>Cancel</Button>
+                    <Button type="button" size="xs" variant="primary" onClick={handleCreateInlineService}>Save</Button>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-semibold text-secondary mb-1">Period (YYYY-MM)</label>
@@ -390,8 +603,9 @@ function JobsPipelineContent() {
         <div className="fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-surface border-l border-default shadow-2xl flex flex-col">
           <div className="flex items-start justify-between p-5 border-b border-default">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="brand" size="xs">{selectedJob.stage}</Badge>
+                {selectedJob.serviceCategory && <Badge variant="neutral" size="xs">{selectedJob.serviceCategory}</Badge>}
                 {selectedJob.isRecurring && (
                   <Badge variant="info" size="xs">
                     <Repeat className="h-3 w-3 mr-1" />
@@ -414,7 +628,7 @@ function JobsPipelineContent() {
             <div>
               <label className="block text-[11px] font-bold uppercase text-muted mb-2">Move Pipeline Stage</label>
               <div className="flex flex-wrap gap-1.5">
-                {STAGES.map((s) => (
+                {drawerStages.map((s: any) => (
                   <Button
                     key={s.key}
                     variant={selectedJob.stage === s.key ? 'primary' : 'outline'}
@@ -447,6 +661,62 @@ function JobsPipelineContent() {
                 ))}
               </select>
             </div>
+
+            {/* Labels */}
+            {labelsDef.length > 0 && (
+              <div>
+                <div className="text-[11px] font-bold uppercase text-muted mb-1.5 flex items-center gap-1">
+                  <Tag className="h-3 w-3" /> Labels
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {labelsDef.map((l) => {
+                    const active = (selectedJob.labels || []).includes(l.name);
+                    return (
+                      <button
+                        key={l.id}
+                        type="button"
+                        onClick={() => {
+                          const current = selectedJob.labels || [];
+                          const next = active
+                            ? current.filter((x: string) => x !== l.name)
+                            : [...current, l.name];
+                          handleSaveJobCustom(selectedJob.customFields || {}, next);
+                        }}
+                        className={`px-2.5 py-1 rounded-full text-xs border ${
+                          active
+                            ? 'bg-brand-subtle border-brand text-brand-text font-semibold'
+                            : 'border-default text-secondary'
+                        }`}
+                      >
+                        {l.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Custom Fields */}
+            {customFieldsDef.length > 0 && (
+              <div className="space-y-2 border-t border-default pt-3">
+                <div className="text-[11px] font-bold uppercase text-muted">Custom Fields</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {customFieldsDef.map((cf) => (
+                    <div key={cf.id}>
+                      <label className="block text-[11px] font-medium text-secondary mb-1">{cf.label}</label>
+                      <Input
+                        value={String(selectedJob.customFields?.[cf.fieldKey] ?? '')}
+                        onChange={(e) => {
+                          const next = { ...(selectedJob.customFields || {}), [cf.fieldKey]: e.target.value };
+                          setSelectedJob({ ...selectedJob, customFields: next });
+                        }}
+                        onBlur={() => handleSaveJobCustom(selectedJob.customFields || {}, selectedJob.labels || [])}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Checklist */}
             <div>

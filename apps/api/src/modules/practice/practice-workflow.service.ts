@@ -18,6 +18,10 @@ import { BranchOrmEntity } from '../../infrastructure/persistence/entities/branc
 import { DocumentFileOrmEntity } from '../../infrastructure/persistence/entities/document-file.orm-entity';
 import { ClientDocumentRequestOrmEntity } from '../../infrastructure/persistence/entities/client-document-request.orm-entity';
 import { ComplianceTaskOrmEntity } from '../../infrastructure/persistence/entities/compliance-task.orm-entity';
+import { ServiceTypeOrmEntity } from '../../infrastructure/persistence/entities/service-type.orm-entity';
+import { ClientServiceOrmEntity } from '../../infrastructure/persistence/entities/client-service.orm-entity';
+import { PracticeCustomFieldOrmEntity } from '../../infrastructure/persistence/entities/practice-custom-field.orm-entity';
+import { PracticeLabelOrmEntity } from '../../infrastructure/persistence/entities/practice-label.orm-entity';
 
 export const JOB_STAGES = [
   'BACKLOG',
@@ -177,34 +181,47 @@ export class PracticeWorkflowService {
   }
 
   private async mapJobs(manager: EntityManager, tenantId: string, jobs: PracticeJobOrmEntity[]) {
-    const users = await manager.find(UserOrmEntity, { where: { tenantId } });
+    const [users, services] = await Promise.all([
+      manager.find(UserOrmEntity, { where: { tenantId } }),
+      manager.find(ServiceTypeOrmEntity, { where: { tenantId } }),
+    ]);
     const userMap = new Map(
       users.map((u) => [u.id, `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email]),
     );
-    return jobs.map((j) => ({
-      id: j.id,
-      tenantId: j.tenantId,
-      clientId: j.clientId,
-      clientName: j.client?.company?.legalName || 'Unknown Client',
-      clientCode: j.client?.clientCode || '',
-      templateId: j.templateId || null,
-      templateName: j.template?.name || null,
-      title: j.title,
-      jobType: j.jobType,
-      period: j.period,
-      stage: j.stage,
-      priority: j.priority,
-      dueDate: j.dueDate,
-      assignedToUserId: j.assignedToUserId || null,
-      assignedToName: j.assignedToUserId ? userMap.get(j.assignedToUserId) || 'Assigned Staff' : 'Unassigned',
-      isRecurring: j.isRecurring,
-      recurrenceFrequency: j.recurrenceFrequency || null,
-      nextSpawnedJobId: j.nextSpawnedJobId || null,
-      filingAckNumber: j.filingAckNumber || null,
-      checklist: j.checklist || [],
-      createdAt: j.createdAt.toISOString(),
-      updatedAt: j.updatedAt.toISOString(),
-    }));
+    const svcMap = new Map(services.map((s) => [s.id, s]));
+    return jobs.map((j) => {
+      const svc = j.serviceTypeId ? svcMap.get(j.serviceTypeId) : undefined;
+      return {
+        id: j.id,
+        tenantId: j.tenantId,
+        clientId: j.clientId,
+        clientName: j.client?.company?.legalName || 'Unknown Client',
+        clientCode: j.client?.clientCode || '',
+        templateId: j.templateId || null,
+        templateName: j.template?.name || null,
+        serviceTypeId: j.serviceTypeId || null,
+        serviceName: svc?.name || null,
+        serviceCategory: svc?.category || null,
+        stages: j.stages?.length ? j.stages : svc?.defaultStages || j.template?.stageConfigs || [],
+        customFields: j.customFields || {},
+        labels: j.labels || [],
+        title: j.title,
+        jobType: j.jobType,
+        period: j.period,
+        stage: j.stage,
+        priority: j.priority,
+        dueDate: j.dueDate,
+        assignedToUserId: j.assignedToUserId || null,
+        assignedToName: j.assignedToUserId ? userMap.get(j.assignedToUserId) || 'Assigned Staff' : 'Unassigned',
+        isRecurring: j.isRecurring,
+        recurrenceFrequency: j.recurrenceFrequency || null,
+        nextSpawnedJobId: j.nextSpawnedJobId || null,
+        filingAckNumber: j.filingAckNumber || null,
+        checklist: j.checklist || [],
+        createdAt: j.createdAt.toISOString(),
+        updatedAt: j.updatedAt.toISOString(),
+      };
+    });
   }
 
   async listJobs(
@@ -264,6 +281,7 @@ export class PracticeWorkflowService {
     dto: {
       clientId: string;
       templateId?: string;
+      serviceTypeId?: string;
       title?: string;
       jobType?: string;
       period: string;
@@ -272,6 +290,8 @@ export class PracticeWorkflowService {
       assignedToUserId?: string;
       isRecurring?: boolean;
       recurrenceFrequency?: string;
+      customFields?: Record<string, any>;
+      labels?: string[];
     },
   ) {
     return this.uow.executeInTransaction(async (qr) => {
@@ -280,6 +300,14 @@ export class PracticeWorkflowService {
         relations: ['company'],
       });
       if (!client) throw new NotFoundException(`Client '${dto.clientId}' not found.`);
+
+      let serviceType: ServiceTypeOrmEntity | null = null;
+      if (dto.serviceTypeId) {
+        serviceType = await qr.manager.findOne(ServiceTypeOrmEntity, {
+          where: { id: dto.serviceTypeId, tenantId },
+        });
+        if (!serviceType) throw new NotFoundException(`Service type '${dto.serviceTypeId}' not found.`);
+      }
 
       let template: WorkflowTemplateOrmEntity | null = null;
       if (dto.templateId) {
@@ -292,14 +320,25 @@ export class PracticeWorkflowService {
       const period = (dto.period || new Date().toISOString().slice(0, 7)).trim();
       const title =
         dto.title?.trim() ||
-        `${template?.name || dto.jobType || 'Compliance Job'} — ${client.company?.legalName || client.clientCode} — ${period}`;
+        `${serviceType?.name || template?.name || dto.jobType || 'Compliance Job'} — ${client.company?.legalName || client.clientCode} — ${period}`;
 
       const defaultDue = new Date();
-      defaultDue.setDate(template?.defaultDueDay || 20);
+      const offset = serviceType?.defaultDueDateRule?.offsetDays ?? template?.defaultDueDay ?? 20;
+      defaultDue.setDate(Math.min(28, Math.max(1, Math.abs(offset))));
       if (defaultDue < new Date()) defaultDue.setMonth(defaultDue.getMonth() + 1);
       const dueDate = dto.dueDate || defaultDue.toISOString().split('T')[0];
 
-      const checklist: JobChecklistItem[] = (template?.checklist || []).map((c) => ({
+      const stages = serviceType?.defaultStages?.length
+        ? serviceType.defaultStages
+        : template?.stageConfigs?.length
+          ? template.stageConfigs
+          : [];
+      const firstStage = stages[0]?.key || 'BACKLOG';
+
+      const sourceChecklist = serviceType?.defaultChecklist?.length
+        ? serviceType.defaultChecklist
+        : template?.checklist || [];
+      const checklist: JobChecklistItem[] = sourceChecklist.map((c) => ({
         id: c.id || crypto.randomUUID(),
         title: c.title,
         stage: c.stage,
@@ -310,16 +349,23 @@ export class PracticeWorkflowService {
         tenantId,
         clientId: client.id,
         templateId: template?.id || null,
+        serviceTypeId: serviceType?.id || null,
         title,
-        jobType: dto.jobType || template?.jobType || 'GENERAL',
+        jobType: dto.jobType || serviceType?.code || template?.jobType || 'GENERAL',
         period,
-        stage: 'BACKLOG',
-        priority: dto.priority || 'MEDIUM',
+        stage: firstStage,
+        priority: dto.priority || serviceType?.defaultPriority || 'MEDIUM',
         dueDate,
         assignedToUserId: dto.assignedToUserId || null,
-        isRecurring: dto.isRecurring ?? template?.isRecurring ?? false,
-        recurrenceFrequency: dto.recurrenceFrequency ?? template?.recurrenceFrequency ?? null,
+        isRecurring:
+          dto.isRecurring ??
+          (serviceType ? serviceType.frequency !== 'ONE_TIME' : template?.isRecurring ?? false),
+        recurrenceFrequency:
+          dto.recurrenceFrequency ?? serviceType?.frequency ?? template?.recurrenceFrequency ?? null,
+        stages,
         checklist,
+        customFields: dto.customFields || {},
+        labels: dto.labels || [],
       });
 
       const saved = await qr.manager.save(PracticeJobOrmEntity, job);
@@ -338,15 +384,21 @@ export class PracticeWorkflowService {
     stage: string,
     filingAckNumber?: string,
   ) {
-    if (!JOB_STAGES.includes(stage as any)) {
-      throw new BadRequestException(`Invalid stage '${stage}'.`);
-    }
     return this.uow.executeInTransaction(async (qr) => {
       const job = await qr.manager.findOne(PracticeJobOrmEntity, {
         where: { id: jobId, tenantId },
         relations: ['client', 'client.company', 'template'],
       });
       if (!job) throw new NotFoundException(`Job '${jobId}' not found.`);
+
+      const allowedStages = new Set<string>([
+        ...JOB_STAGES,
+        ...(job.stages || []).map((s) => s.key),
+        ...(job.template?.stages || []),
+      ]);
+      if (!allowedStages.has(stage)) {
+        throw new BadRequestException(`Invalid stage '${stage}'.`);
+      }
 
       job.stage = stage;
       if (filingAckNumber) job.filingAckNumber = filingAckNumber;
@@ -364,15 +416,20 @@ export class PracticeWorkflowService {
           ...item,
           completed: false,
         }));
+        const firstStage = job.stages?.[0]?.key || 'BACKLOG';
 
         const nextEntity = qr.manager.create(PracticeJobOrmEntity, {
           tenantId,
           clientId: job.clientId,
           templateId: job.templateId || null,
+          serviceTypeId: job.serviceTypeId || null,
+          stages: job.stages || [],
+          customFields: job.customFields || {},
+          labels: job.labels || [],
           title: `${baseName} — ${clientName} — ${nextPeriod}`,
           jobType: job.jobType,
           period: nextPeriod,
-          stage: 'BACKLOG',
+          stage: firstStage,
           priority: job.priority,
           dueDate: nextDueDate,
           assignedToUserId: job.assignedToUserId || null,
@@ -486,6 +543,22 @@ export class PracticeWorkflowService {
         order: { dueDate: 'ASC' },
       });
 
+      const [clientServices, customFieldsDef, labelsDef] = await Promise.all([
+        qr.manager.find(ClientServiceOrmEntity, {
+          where: { tenantId, clientId },
+          relations: ['serviceType'],
+          order: { createdAt: 'ASC' },
+        }),
+        qr.manager.find(PracticeCustomFieldOrmEntity, {
+          where: { tenantId, entityType: 'CLIENT' },
+          order: { sortOrder: 'ASC' },
+        }),
+        qr.manager.find(PracticeLabelOrmEntity, {
+          where: { tenantId },
+          order: { name: 'ASC' },
+        }),
+      ]);
+
       const activity = [
         ...jobs.map((j) => ({
           id: `job-${j.id}`,
@@ -503,13 +576,16 @@ export class PracticeWorkflowService {
         })),
       ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+      const branchGstins = branches.map((b) => b.gstin).filter(Boolean) as string[];
+      const mergedGstins = Array.from(new Set([...(client.gstins || []), ...branchGstins]));
+
       return {
         client: {
           id: client.id,
           companyId: client.companyId,
           companyName: client.company?.legalName || 'Unknown Entity',
           pan: client.company?.panEncrypted || null,
-          gstins: branches.map((b) => b.gstin).filter(Boolean),
+          gstins: mergedGstins,
           clientCode: client.clientCode,
           primaryContactName: client.primaryContactName,
           primaryContactEmail: client.primaryContactEmail,
@@ -518,8 +594,25 @@ export class PracticeWorkflowService {
           serviceTier: client.serviceTier,
           healthStatus: client.healthStatus,
           isPortalEnabled: client.isPortalEnabled,
+          entityType: client.entityType || 'Pvt Ltd',
+          incorporationDate: client.incorporationDate || null,
+          cin: client.cin || null,
+          tan: client.tan || null,
+          aadhaarMasked: client.aadhaarMasked || null,
+          registeredAddress: client.registeredAddress || null,
+          fyPreference: client.fyPreference || 'April-March',
+          isVip: Boolean(client.isVip),
+          assignedPartnerId: client.assignedPartnerId || null,
+          customFields: client.customFields || {},
+          labels: client.labels || [],
           createdAt: client.createdAt.toISOString(),
         },
+        clientServices: clientServices.map((cs) => ({
+          ...cs,
+          feeAmount: cs.feeAmount != null ? Number(cs.feeAmount) : null,
+        })),
+        customFieldsDef,
+        labelsDef: labelsDef.filter((l) => l.entityType === 'ALL' || l.entityType === 'CLIENT'),
         jobs,
         contacts: contacts.map((c) => ({
           id: c.id,

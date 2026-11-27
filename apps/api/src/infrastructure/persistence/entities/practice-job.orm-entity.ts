@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { FirmClientOrmEntity } from './firm-client.orm-entity';
 import { WorkflowTemplateOrmEntity } from './workflow-template.orm-entity';
+import { ServiceStageDef } from './service-type.orm-entity';
 
 export interface JobChecklistItem {
   id: string;
@@ -37,6 +38,19 @@ export class PracticeJobOrmEntity {
 
   @Column({ name: 'template_id', type: 'uuid', nullable: true })
   templateId?: string | null;
+
+  @Index()
+  @Column({ name: 'service_type_id', type: 'uuid', nullable: true })
+  serviceTypeId?: string | null;
+
+  @Column({ type: 'jsonb', default: () => "'[]'" })
+  stages!: ServiceStageDef[];
+
+  @Column({ name: 'custom_fields', type: 'jsonb', default: () => "'{}'" })
+  customFields!: Record<string, any>;
+
+  @Column({ type: 'jsonb', default: () => "'[]'" })
+  labels!: string[];
 
   @ManyToOne(() => WorkflowTemplateOrmEntity, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'template_id' })

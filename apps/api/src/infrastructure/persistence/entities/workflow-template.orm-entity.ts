@@ -7,6 +7,8 @@ import {
   Index,
 } from 'typeorm';
 
+import { ServiceStageDef } from './service-type.orm-entity';
+
 export interface WorkflowChecklistTemplateItem {
   id: string;
   title: string;
@@ -21,6 +23,19 @@ export class WorkflowTemplateOrmEntity {
   @Index()
   @Column({ name: 'tenant_id', type: 'uuid' })
   tenantId!: string;
+
+  @Index()
+  @Column({ name: 'service_type_id', type: 'uuid', nullable: true })
+  serviceTypeId?: string | null;
+
+  @Column({ name: 'is_default', type: 'boolean', default: false })
+  isDefault!: boolean;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive!: boolean;
+
+  @Column({ name: 'stage_configs', type: 'jsonb', default: () => "'[]'" })
+  stageConfigs!: ServiceStageDef[];
 
   @Column({ type: 'varchar', length: 150 })
   name!: string;
