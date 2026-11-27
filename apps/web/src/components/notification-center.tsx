@@ -384,7 +384,7 @@ export function NotificationCenter() {
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
-          <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-brand text-inverse text-[10px] font-bold tabular-nums shadow-xs">
+          <span data-testid="bell-badge" aria-hidden="true" className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-brand text-inverse text-[10px] font-bold tabular-nums shadow-xs">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

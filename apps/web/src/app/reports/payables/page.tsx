@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
-import { toast } from '@platform/ui';
+import { toast, DateRangePicker } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -265,22 +265,15 @@ export default function PayablesSuitePage() {
 
         {/* Date Selector & Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-surface-sunken border border-default rounded-md px-2 py-1 text-xs">
-            <Calendar className="h-3.5 w-3.5 text-muted" />
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="bg-transparent text-primary focus:outline-none text-xs"
-            />
-            <span className="text-muted text-[11px]">to</span>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="bg-transparent text-primary focus:outline-none text-xs"
-            />
-          </div>
+          <DateRangePicker
+            from={fromDate}
+            to={toDate}
+            onChange={({ from: f, to: t }) => {
+              setFromDate(f);
+              setToDate(t);
+            }}
+            size="sm"
+          />
 
           <div className="hidden lg:flex items-center gap-1">
             <button

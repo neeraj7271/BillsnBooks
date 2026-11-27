@@ -23,6 +23,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DatePicker,
   type ColumnDef,
 } from '@platform/ui';
 import {
@@ -601,12 +602,11 @@ export default function VouchersPage() {
           <form onSubmit={handleCreateJv} className="space-y-4">
             <div className="grid grid-cols-3 gap-3">
               <FormField label="Voucher Date" required id="jv-date">
-                <Input
+                <DatePicker
                   id="jv-date"
-                  type="date"
                   value={jvDate}
-                  onChange={(e) => setJvDate(e.target.value)}
-                  className="text-xs"
+                  onChange={setJvDate}
+                  required
                 />
               </FormField>
 

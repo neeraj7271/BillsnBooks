@@ -10,6 +10,7 @@ import {
   Button,
   Input,
   Select,
+  DatePicker,
   type SelectOption,
 } from '@platform/ui';
 import { Scale, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -132,14 +133,13 @@ export function ReconcileSettlementDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-secondary">
+              <label className="text-xs font-semibold text-secondary block mb-1">
                 Settlement Date
               </label>
-              <Input
-                type="date"
+              <DatePicker
                 value={settlementDate}
-                onChange={(e) => setSettlementDate(e.target.value)}
-                className="mt-1 text-xs"
+                onChange={setSettlementDate}
+                size="sm"
               />
             </div>
             <div>

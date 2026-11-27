@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Calendar, ShieldCheck, AlertTriangle } from 'lucide-react';
-import { ReportPage, MoneyText } from '@platform/ui';
+import { ReportPage, MoneyText, DatePicker } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 
@@ -33,15 +33,12 @@ export default function TrialBalancePage() {
   }, [asOfDate, activeCompanyId]);
 
   const dateControls = (
-    <div className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-xs">
-      <Calendar className="h-3.5 w-3.5 text-muted" />
-      <span className="text-muted font-medium">As of:</span>
-      <input
-        type="date"
-        aria-label="As of date"
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-muted font-medium">As of:</span>
+      <DatePicker
         value={asOfDate}
-        onChange={(e) => setAsOfDate(e.target.value)}
-        className="bg-transparent font-medium text-primary focus:outline-none"
+        onChange={setAsOfDate}
+        size="sm"
       />
     </div>
   );

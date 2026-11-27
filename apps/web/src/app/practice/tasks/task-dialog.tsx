@@ -12,6 +12,7 @@ import {
   Input,
   Select,
   Button,
+  DatePicker,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 
@@ -151,10 +152,10 @@ export function TaskDialog({
               </FormField>
 
               <FormField label="Statutory Due Date" required>
-                <Input
-                  type="date"
+                <DatePicker
                   value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                  onChange={(d) => setFormData({ ...formData, dueDate: d })}
+                  required
                 />
               </FormField>
             </div>

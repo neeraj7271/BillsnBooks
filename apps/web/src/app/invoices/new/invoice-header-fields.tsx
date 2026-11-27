@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FormField, Select, Input, Badge } from '@platform/ui';
+import { FormField, Select, Input, Badge, DatePicker } from '@platform/ui';
 import { INDIAN_GST_STATES_LIST, formatPartyTaxIdentity } from '@platform/shared-types';
 import { Settings, Hash, Copy, Check } from 'lucide-react';
 
@@ -289,20 +289,20 @@ export function InvoiceHeaderFields({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField label="Invoice Date" required id="inv-date">
-              <Input
+              <DatePicker
                 id="inv-date"
-                type="date"
                 value={invoiceDate}
-                onChange={(e) => onInvoiceDateChange(e.target.value)}
+                onChange={onInvoiceDateChange}
+                required
               />
             </FormField>
 
             <FormField label="Payment Due Date" required id="inv-due-date">
-              <Input
+              <DatePicker
                 id="inv-due-date"
-                type="date"
                 value={dueDate}
-                onChange={(e) => onDueDateChange(e.target.value)}
+                onChange={onDueDateChange}
+                required
               />
             </FormField>
 

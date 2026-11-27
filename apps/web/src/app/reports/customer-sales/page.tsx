@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Calendar } from 'lucide-react';
-import { ReportPage, MoneyText, DataTable, type ColumnDef } from '@platform/ui';
+import { ReportPage, MoneyText, DataTable, DateRangePicker, type ColumnDef } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { useTablePagination } from '@/hooks/use-table-pagination';
@@ -101,24 +101,15 @@ export default function CustomerSalesPage() {
   ];
 
   const dateControls = (
-    <div className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-xs">
-      <Calendar className="h-3.5 w-3.5 text-muted" />
-      <input
-        type="date"
-        aria-label="From date"
-        value={fromDate}
-        onChange={(e) => setFromDate(e.target.value)}
-        className="bg-transparent font-medium text-primary focus:outline-none"
-      />
-      <span className="text-muted">to</span>
-      <input
-        type="date"
-        aria-label="To date"
-        value={toDate}
-        onChange={(e) => setToDate(e.target.value)}
-        className="bg-transparent font-medium text-primary focus:outline-none"
-      />
-    </div>
+    <DateRangePicker
+      from={fromDate}
+      to={toDate}
+      onChange={({ from: f, to: t }) => {
+        setFromDate(f);
+        setToDate(t);
+      }}
+      size="sm"
+    />
   );
 
   return (

@@ -16,6 +16,7 @@ import {
   Card,
   CardContent,
   Skeleton,
+  DateRangePicker,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -119,23 +120,15 @@ function GeneralLedgerContent() {
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Input
-              type="date"
-              size="sm"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="w-36"
-            />
-            <span className="text-xs text-muted">to</span>
-            <Input
-              type="date"
-              size="sm"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="w-36"
-            />
-          </div>
+          <DateRangePicker
+            from={fromDate}
+            to={toDate}
+            onChange={({ from: f, to: t }) => {
+              setFromDate(f);
+              setToDate(t);
+            }}
+            size="sm"
+          />
         </div>
       </div>
 

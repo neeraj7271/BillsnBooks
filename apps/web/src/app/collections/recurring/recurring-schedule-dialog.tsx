@@ -12,6 +12,7 @@ import {
   Select,
   type SelectOption,
   toast,
+  DatePicker,
 } from '@platform/ui';
 import {
   CalendarClock,
@@ -429,13 +430,12 @@ export function RecurringScheduleDialog({
                   >
                     First Invoice Date
                   </label>
-                  <Input
+                  <DatePicker
                     id="first-invoice-date"
-                    aria-label="First Invoice Date"
-                    type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="mt-1 text-xs"
+                    onChange={setStartDate}
+                    className="mt-1"
+                    required
                   />
                   <p className="mt-1 text-[11px] text-muted">
                     The first invoice runs on this date.
@@ -473,13 +473,11 @@ export function RecurringScheduleDialog({
                   >
                     Stop After (Optional)
                   </label>
-                  <Input
+                  <DatePicker
                     id="stop-after"
-                    aria-label="Stop After (Optional)"
-                    type="date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="mt-1 text-xs"
+                    onChange={setEndDate}
+                    className="mt-1"
                   />
                   <p className="mt-1 text-[11px] text-muted">
                     No invoices are generated past this date.

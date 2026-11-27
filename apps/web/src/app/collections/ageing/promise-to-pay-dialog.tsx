@@ -11,6 +11,7 @@ import {
   Button,
   Input,
   FormField,
+  DatePicker,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { Calendar, Clock } from 'lucide-react';
@@ -99,11 +100,10 @@ export function PromiseToPayDialog({
 
         <form onSubmit={handleSave} className="space-y-4 py-2">
           <FormField label="Promised Payment Date" required id="promise-date">
-            <Input
+            <DatePicker
               id="promise-date"
-              type="date"
               value={promiseDate}
-              onChange={(e) => setPromiseDate(e.target.value)}
+              onChange={setPromiseDate}
               required
             />
           </FormField>
