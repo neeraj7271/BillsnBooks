@@ -47,6 +47,15 @@ export function ShareDialog({
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleGenerateShare = async () => {
@@ -77,7 +86,12 @@ export function ShareDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Share Report"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    >
       <div className="relative w-full max-w-lg rounded-2xl bg-surface border border-default shadow-2xl p-6 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-subtle">
