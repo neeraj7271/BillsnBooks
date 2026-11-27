@@ -1,5 +1,8 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { chromium, Browser } from 'playwright-core';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 
 @Injectable()
 export class PdfRenderService implements OnModuleDestroy {
@@ -7,14 +10,45 @@ export class PdfRenderService implements OnModuleDestroy {
   private browser: Browser | null = null;
   private launching: Promise<Browser> | null = null;
 
+  private resolveExecutablePath(): string | undefined {
+    if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+      return process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    }
+    const defaultPath = chromium.executablePath();
+    if (defaultPath && fs.existsSync(defaultPath)) {
+      return defaultPath;
+    }
+    const cacheDirs = [
+      path.join(os.homedir(), 'Library', 'Caches', 'ms-playwright'),
+      path.join(os.homedir(), '.cache', 'ms-playwright'),
+    ];
+    for (const dir of cacheDirs) {
+      if (!fs.existsSync(dir)) continue;
+      const entries = fs.readdirSync(dir).filter((d) => d.startsWith('chromium_headless_shell-')).sort().reverse();
+      for (const entry of entries) {
+        const candidates = [
+          path.join(dir, entry, 'chrome-headless-shell-mac-arm64', 'chrome-headless-shell'),
+          path.join(dir, entry, 'chrome-headless-shell-mac-x64', 'chrome-headless-shell'),
+          path.join(dir, entry, 'chrome-headless-shell-linux', 'chrome-headless-shell'),
+        ];
+        for (const c of candidates) {
+          if (fs.existsSync(c)) return c;
+        }
+      }
+    }
+    return undefined;
+  }
+
   private async getBrowser(): Promise<Browser> {
     if (this.browser && this.browser.isConnected()) {
       return this.browser;
     }
     if (!this.launching) {
+      const executablePath = this.resolveExecutablePath();
       this.launching = chromium
         .launch({
           headless: true,
+          executablePath,
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
         })
         .then((b) => {
