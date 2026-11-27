@@ -6,6 +6,7 @@ import { TenantContextInterceptor } from './common/interceptors/tenant-context.i
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppDataSource } from './infrastructure/persistence/data-source';
 import { PersistenceModule } from './infrastructure/persistence/persistence.module';
+import { StorageModule } from './modules/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { VoucherModule } from './modules/voucher/voucher.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
@@ -33,6 +34,7 @@ import { HealthController } from './modules/health/health.controller';
   imports: [
     TypeOrmModule.forRoot(AppDataSource.options),
     PersistenceModule,
+    StorageModule,
     AuthModule,
     VoucherModule,
     IntelligenceModule,
