@@ -967,11 +967,120 @@ export const apiClient = {
     });
   },
 
-  async uploadClientDocument(id: string, payload: { fileName: string; fileSizeBytes: number; fileUrl: string }) {
+  async uploadClientDocument(id: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
     return request<any>(`/v1/practice/documents/${id}/upload`, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: formData,
     });
+  },
+
+  async fetchProtectedBlob(path: string): Promise<{ blob: Blob; contentType: string; sha256?: string }> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('antigravity_access_token') : null;
+    const tenantId = getActiveTenantId();
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      headers: {
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+        ...(tenantId ? { 'x-tenant-id': tenantId } : {}),
+      },
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || `Download failed (${res.status})`);
+    }
+    const blob = await res.blob();
+    return {
+      blob,
+      contentType: res.headers.get('content-type') || 'application/octet-stream',
+      sha256: res.headers.get('x-content-sha256') || undefined,
+    };
+  },
+
+  async getClientVault(clientId: string, params?: { folderId?: string; q?: string }) {
+    const sp = new URLSearchParams();
+    if (params?.folderId) sp.set('folderId', params.folderId);
+    if (params?.q) sp.set('q', params.q);
+    const qs = sp.toString() ? `?${sp.toString()}` : '';
+    return request<any>(`/v1/practice/vault/clients/${clientId}${qs}`);
+  },
+
+  async listAllVaultFiles(params?: { clientId?: string; folderName?: string; q?: string }) {
+    const sp = new URLSearchParams();
+    if (params?.clientId) sp.set('clientId', params.clientId);
+    if (params?.folderName) sp.set('folderName', params.folderName);
+    if (params?.q) sp.set('q', params.q);
+    const qs = sp.toString() ? `?${sp.toString()}` : '';
+    return request<any[]>(`/v1/practice/vault/files${qs}`);
+  },
+
+  async createVaultFolder(clientId: string, name: string, parentId?: string) {
+    return request<any>(`/v1/practice/vault/clients/${clientId}/folders`, {
+      method: 'POST',
+      body: JSON.stringify({ name, parentId }),
+    });
+  },
+
+  async renameVaultFolder(folderId: string, name: string) {
+    return request<any>(`/v1/practice/vault/folders/${folderId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ name }),
+    });
+  },
+
+  async uploadToVault(
+    clientId: string,
+    file: File,
+    opts?: { folderId?: string; replaceFileGroupId?: string },
+  ) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (opts?.folderId) formData.append('folderId', opts.folderId);
+    if (opts?.replaceFileGroupId) formData.append('replaceFileGroupId', opts.replaceFileGroupId);
+    return request<any>(`/v1/practice/vault/clients/${clientId}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  async listVaultFileVersions(fileId: string) {
+    return request<any[]>(`/v1/practice/documents/files/${fileId}/versions`);
+  },
+
+  async restoreVaultFileVersion(fileId: string) {
+    return request<any>(`/v1/practice/documents/files/${fileId}/restore`, {
+      method: 'POST',
+    });
+  },
+
+  async updateVaultFile(fileId: string, updates: { fileName?: string; folderId?: string | null }) {
+    return request<any>(`/v1/practice/documents/files/${fileId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  async getVaultFileAudit(fileId: string) {
+    return request<any[]>(`/v1/practice/documents/files/${fileId}/audit`);
+  },
+
+  async deleteVaultFile(fileId: string) {
+    return request<any>(`/v1/practice/documents/files/${fileId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async uploadBrandingAsset(companyId: string, key: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('key', key);
+    return request<{ key: string; storageKey: string; url: string }>(
+      `/v1/companies/${companyId}/settings/branding/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+    );
   },
 
   async reviewClientDocument(id: string, status: 'ACCEPTED' | 'REJECTED', rejectionReason?: string) {
