@@ -29,8 +29,18 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4000
 
-# Install runtime dependencies for healthchecks
-RUN apk add --no-cache wget
+# Install runtime dependencies for healthchecks and headless Chromium PDF rendering
+RUN apk add --no-cache \
+      wget \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont
+
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Create non-root user and group
 RUN addgroup --system --gid 1001 nodejs && \

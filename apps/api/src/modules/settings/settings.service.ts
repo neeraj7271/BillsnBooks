@@ -417,7 +417,7 @@ export class SettingsService {
   }
 
   async migrateBrandingBase64ToStorage(companyId?: string): Promise<{ migrated: number }> {
-    const targetKeys = ['invoice.logo_url', 'invoice.signature_url'];
+    const targetKeys = ['branding.logo_url', 'branding.signature_url', 'invoice.logo_url', 'invoice.signature_url'];
     const rows = await this.settingValueRepo.find({
       where: {
         settingKey: In(targetKeys),

@@ -45,4 +45,10 @@ postgres_data/
 redis_data/
 minio_data/
 /storage/
+apps/api/storage/
+
+# Test & TS build artifacts
+playwright-report/
+test-results/
+*.tsbuildinfo
 
