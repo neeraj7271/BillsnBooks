@@ -1,445 +1,66 @@
 'use client';
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Eye, Edit3, Columns, GripVertical } from 'lucide-react';
 import {
-  FormPage,
+  ArrowLeft,
+  Settings,
+  Eye,
+  Edit3,
+  Columns,
+  GripVertical,
+} from 'lucide-react';
+import {
   Button,
   Badge,
   Card,
   CardContent,
+  FormPage,
   LoadingState,
   ErrorState,
 } from '@platform/ui';
-import { apiClient } from '@/lib/api-client';
-import { useCompany } from '@/lib/company-context';
-import { calculateInvoiceTotals, type LineItem } from './invoice-math';
 import { InvoiceHeaderFields } from './invoice-header-fields';
 import { InvoiceLineItems } from './invoice-line-items';
 import { InvoiceSummary } from './invoice-summary';
+import { InvoicePreviewCard } from './invoice-preview-card';
 import { InvoiceSettingsDialog } from './invoice-settings-dialog';
-import { InvoicePreviewCard, type TemplateStyle } from './invoice-preview-card';
 import { buildInvoicePreviewModel } from './invoice-preview-model';
-
-export type ViewMode = 'edit' | 'split' | 'preview';
+import { useInvoiceForm } from './use-invoice-form';
 
 function NewInvoiceContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const cloneFrom = searchParams.get('cloneFrom');
-  const mode = searchParams.get('mode');
-
-  const { activeCompanyId, activeCompany } = useCompany();
-
-  const [parties, setParties] = useState<any[]>([]);
-  const [items, setItems] = useState<any[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
-  const [financialYears, setFinancialYears] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [submitting, setSubmitting] = useState<boolean>(false);
-  const [submittingDraft, setSubmittingDraft] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // 3-mode View Toggle: Edit (default), Split, Preview
-  const [viewMode, setViewMode] = useState<ViewMode>('edit');
-  const [splitRatio, setSplitRatio] = useState<number>(55);
-  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
-  const isDraggingRef = useRef<boolean>(false);
-
-  const [templateStyle, setTemplateStyle] = useState<TemplateStyle>('Modern');
-
-  const [selectedBranchId, setSelectedBranchId] = useState<string>('');
-  const [selectedFyId, setSelectedFyId] = useState<string>('');
-  const [selectedPartyId, setSelectedPartyId] = useState<string>('');
-  const [invoiceDate, setInvoiceDate] = useState<string>(new Date().toISOString().split('T')[0]!);
-  const [dueDate, setDueDate] = useState<string>(
-    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!
-  );
-  const [posStateCode, setPosStateCode] = useState<string>('27');
-  const [documentType, setDocumentType] = useState<string>('TAX_INVOICE');
-  const [taxClassification, setTaxClassification] = useState<string>('TAXABLE');
-  const [isRcm, setIsRcm] = useState<boolean>(false);
-  const [notes, setNotes] = useState<string>(
-    'Thank you for your business. Payment due within payment terms.'
-  );
-
-  const [customInvoiceNumber, setCustomInvoiceNumber] = useState<string>('');
-  const [autoInvoiceNumber, setAutoInvoiceNumber] = useState<string>('');
-  const [fetchingNumber, setFetchingNumber] = useState<boolean>(false);
-  const [prefix, setPrefix] = useState<string>('INV-');
-  const [suffix, setSuffix] = useState<string>('');
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-
-  const [lineItems, setLineItems] = useState<LineItem[]>([
-    {
-      description: '',
-      hsnSacCode: '998311',
-      quantity: 1,
-      uom: 'NOS',
-      unitPrice: 10000,
-      discountPercent: 0,
-      gstRatePercent: 18,
-    },
-  ]);
-
-  // Load view mode and split ratio preferences from localStorage
-  useEffect(() => {
-    try {
-      const savedMode = localStorage.getItem('antigravity_invoice_view_mode') as ViewMode | null;
-      if (savedMode && ['edit', 'split', 'preview'].includes(savedMode)) {
-        setViewMode(savedMode);
-      }
-      const savedRatio = localStorage.getItem('antigravity_invoice_split_ratio');
-      if (savedRatio) {
-        const parsed = parseInt(savedRatio, 10);
-        if (parsed >= 40 && parsed <= 70) setSplitRatio(parsed);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // Monitor screen width (< 1280px disables split mode)
-  useEffect(() => {
-    const checkWidth = () => {
-      const small = window.innerWidth < 1280;
-      setIsSmallScreen(small);
-      if (small && viewMode === 'split') {
-        setViewMode('edit');
-      }
-    };
-    checkWidth();
-    window.addEventListener('resize', checkWidth);
-    return () => window.removeEventListener('resize', checkWidth);
-  }, [viewMode]);
-
-  const handleSetViewMode = (newMode: ViewMode) => {
-    if (newMode === 'split' && isSmallScreen) return;
-    setViewMode(newMode);
-    try {
-      localStorage.setItem('antigravity_invoice_view_mode', newMode);
-    } catch {
-      // ignore
-    }
-  };
-
-  useEffect(() => {
-    loadMasters();
-  }, [activeCompanyId, cloneFrom]);
-
-  const loadMasters = async () => {
-    setLoading(true);
-    try {
-      const [partiesRes, itemsRes, companiesRes] = await Promise.all([
-        apiClient.listParties(activeCompanyId, 'CUSTOMER'),
-        apiClient.listItems(activeCompanyId),
-        apiClient.listCompanies(),
-      ]);
-
-      setParties(partiesRes || []);
-      setItems(itemsRes || []);
-
-      const company =
-        companiesRes?.find((c: any) => c.id === activeCompanyId) || companiesRes?.[0];
-      if (company) {
-        if (company.branches?.length > 0) {
-          setBranches(company.branches);
-          setSelectedBranchId(company.branches[0].id);
-        }
-        if (company.financialYears?.length > 0) {
-          setFinancialYears(company.financialYears);
-          setSelectedFyId(company.financialYears[0].id);
-        }
-      }
-
-      const docTypeParam = searchParams.get('docType');
-      if (cloneFrom) {
-        try {
-          const sourceInv = await apiClient.getInvoice(activeCompanyId, cloneFrom);
-          if (sourceInv) {
-            if (sourceInv.partyId) setSelectedPartyId(sourceInv.partyId);
-            if (sourceInv.branchId) setSelectedBranchId(sourceInv.branchId);
-            if (sourceInv.financialYearId) setSelectedFyId(sourceInv.financialYearId);
-            if (sourceInv.placeOfSupplyStateCode) setPosStateCode(sourceInv.placeOfSupplyStateCode);
-            if (mode === 'edit' && sourceInv.invoiceNumber) {
-              setCustomInvoiceNumber(sourceInv.invoiceNumber);
-            }
-            if (docTypeParam) {
-              setDocumentType(docTypeParam);
-            } else if (sourceInv.documentType) {
-              setDocumentType(sourceInv.documentType);
-            }
-            if (sourceInv.taxClassification) setTaxClassification(sourceInv.taxClassification);
-            if (sourceInv.isRcm !== undefined) setIsRcm(sourceInv.isRcm);
-            if (!docTypeParam && sourceInv.notes) setNotes(sourceInv.notes);
-            if (sourceInv.items?.length > 0) {
-              setLineItems(
-                sourceInv.items.map((it: any) => ({
-                  itemId: it.itemId,
-                  description: it.description,
-                  hsnSacCode: it.hsnSacCode,
-                  quantity: parseFloat(it.quantity) || 1,
-                  uom: it.uom || 'NOS',
-                  unitPrice: parseFloat(it.unitPrice) || 0,
-                  discountPercent: parseFloat(it.discountPercent) || 0,
-                  gstRatePercent: parseFloat(it.gstRatePercent) || 18,
-                }))
-              );
-            }
-            return;
-          }
-        } catch {
-          // Fall through
-        }
-      } else if (docTypeParam) {
-        setDocumentType(docTypeParam);
-      }
-
-      if (partiesRes?.length > 0) {
-        handleSelectParty(partiesRes[0].id, partiesRes);
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load master data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeCompanyId && mode !== 'edit') {
-      fetchNextInvoiceNumber();
-    }
-  }, [activeCompanyId, documentType, selectedBranchId, invoiceDate, mode]);
-
-  const fetchNextInvoiceNumber = async () => {
-    try {
-      setFetchingNumber(true);
-      const res = await apiClient.getNextInvoiceNumber(
-        activeCompanyId,
-        documentType,
-        selectedBranchId || undefined,
-        invoiceDate
-      );
-      if (res?.invoiceNumber) {
-        setAutoInvoiceNumber(res.invoiceNumber);
-      }
-    } catch {
-      // ignore
-    } finally {
-      setFetchingNumber(false);
-    }
-  };
-
-  const handleSelectParty = (partyId: string, partyList = parties) => {
-    setSelectedPartyId(partyId);
-    const p = partyList.find((x) => x.id === partyId);
-    if (p) {
-      if (p.billingStateCode) setPosStateCode(p.billingStateCode);
-      if (p.paymentTermsDays) {
-        const d = new Date(invoiceDate);
-        d.setDate(d.getDate() + p.paymentTermsDays);
-        setDueDate(d.toISOString().split('T')[0]!);
-      }
-    }
-  };
-
-  const activeBranch = branches.find((b) => b.id === selectedBranchId);
-  const supplierState = activeBranch?.stateCode || '27';
-  const isIntraState = supplierState === posStateCode;
-  const computedTotals = calculateInvoiceTotals(lineItems, isIntraState);
-
-  const handleSelectItemForLine = (index: number, itemId: string) => {
-    const item = items.find((i) => i.id === itemId);
-    if (!item) return;
-    const updated = [...lineItems];
-    updated[index] = {
-      ...updated[index]!,
-      itemId: item.id,
-      description: item.name,
-      hsnSacCode: item.hsnSacCode,
-      uom: item.uom,
-      unitPrice: parseFloat(item.unitPrice || '0'),
-      gstRatePercent: parseFloat(item.gstRatePercent || '18'),
-    };
-    setLineItems(updated);
-  };
-
-  const handleUpdateLineItem = (index: number, field: keyof LineItem, value: any) => {
-    const updated = [...lineItems];
-    updated[index] = { ...updated[index]!, [field]: value };
-    setLineItems(updated);
-  };
-
-  const handleAddLineItem = () => {
-    setLineItems((prev) => [
-      ...prev,
-      {
-        description: '',
-        hsnSacCode: '998311',
-        quantity: 1,
-        uom: 'NOS',
-        unitPrice: 0,
-        discountPercent: 0,
-        gstRatePercent: 18,
-      },
-    ]);
-  };
-
-  const handleRemoveLineItem = (index: number) => {
-    if (lineItems.length <= 1) return;
-    setLineItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async (isDraft: boolean = false) => {
-    if (!selectedPartyId || !selectedBranchId || !selectedFyId) {
-      setError('Please select customer, branch, and financial year.');
-      return;
-    }
-
-    if (isDraft) setSubmittingDraft(true);
-    else setSubmitting(true);
-    setError(null);
-
-    try {
-      const payload = {
-        branchId: selectedBranchId,
-        financialYearId: selectedFyId,
-        partyId: selectedPartyId,
-        invoiceDate,
-        dueDate,
-        placeOfSupplyStateCode: posStateCode,
-        documentType,
-        taxClassification,
-        customInvoiceNumber: customInvoiceNumber.trim() || undefined,
-        isRcm,
-        isDraft,
-        notes,
-        items: lineItems.map((line) => ({
-          itemId: line.itemId,
-          description: line.description || 'Consulting / Goods',
-          hsnSacCode: line.hsnSacCode,
-          quantity: String(line.quantity),
-          uom: line.uom,
-          unitPrice: String(line.unitPrice),
-          discountPercent: String(line.discountPercent),
-          gstRatePercent: String(line.gstRatePercent),
-        })),
-      };
-
-      const result =
-        mode === 'edit' && cloneFrom
-          ? await apiClient.updateInvoice(activeCompanyId, cloneFrom, payload)
-          : await apiClient.createInvoice(activeCompanyId, payload);
-      router.push(`/invoices/${result.id}`);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to create invoice');
-    } finally {
-      setSubmitting(false);
-      setSubmittingDraft(false);
-    }
-  };
-
-  // Keyboard shortcuts:
-  // Cmd+Shift+P -> Preview mode
-  // Cmd+Shift+E -> Edit mode
-  // Cmd+S -> save draft
-  // Cmd+Enter -> submit
-  // Alt+N -> add line item
-  // Alt+Backspace / Alt+D -> remove last line item
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
-      if (isCmdOrCtrl && e.shiftKey && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        handleSetViewMode('preview');
-      } else if (isCmdOrCtrl && e.shiftKey && e.key.toLowerCase() === 'e') {
-        e.preventDefault();
-        handleSetViewMode('edit');
-      } else if (isCmdOrCtrl && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        void handleSubmit(true);
-      } else if (isCmdOrCtrl && e.key === 'Enter') {
-        e.preventDefault();
-        void handleSubmit(false);
-      } else if (e.altKey && e.key.toLowerCase() === 'n') {
-        e.preventDefault();
-        handleAddLineItem();
-      } else if (e.altKey && (e.key === 'Backspace' || e.key.toLowerCase() === 'd')) {
-        e.preventDefault();
-        if (lineItems.length > 1) handleRemoveLineItem(lineItems.length - 1);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [lineItems, selectedPartyId, selectedBranchId, selectedFyId, invoiceDate, dueDate, posStateCode, documentType, taxClassification, customInvoiceNumber, isRcm, notes]);
-
-  // Resizer mouse drag for split mode
-  const handleMouseDownResize = (e: React.MouseEvent) => {
-    e.preventDefault();
-    isDraggingRef.current = true;
-    const startX = e.clientX;
-    const startRatio = splitRatio;
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      const deltaX = moveEvent.clientX - startX;
-      const totalWidth = window.innerWidth;
-      const deltaPercent = (deltaX / totalWidth) * 100;
-      const newRatio = Math.max(40, Math.min(70, Math.round(startRatio + deltaPercent)));
-      setSplitRatio(newRatio);
-    };
-
-    const onMouseUp = () => {
-      isDraggingRef.current = false;
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-      try {
-        localStorage.setItem('antigravity_invoice_split_ratio', String(splitRatio));
-      } catch {
-        // ignore
-      }
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  };
-
-  const selectedParty = parties.find((p) => p.id === selectedPartyId);
-  const displayInvoiceNo = customInvoiceNumber.trim() || autoInvoiceNumber || 'INV-DRAFT';
+  const form = useInvoiceForm();
 
   // Shared Form Component
   const renderForm = () => (
     <Card className="shadow-xs overflow-hidden">
       <CardContent className="p-6 space-y-6 overflow-hidden">
         <InvoiceHeaderFields
-          parties={parties}
-          branches={branches}
-          financialYears={financialYears}
-          selectedPartyId={selectedPartyId}
-          selectedBranchId={selectedBranchId}
-          selectedFyId={selectedFyId}
-          invoiceDate={invoiceDate}
-          dueDate={dueDate}
-          posStateCode={posStateCode}
-          isIntraState={isIntraState}
-          documentType={documentType}
-          taxClassification={taxClassification}
-          isRcm={isRcm}
-          customInvoiceNumber={customInvoiceNumber}
-          autoInvoiceNumber={autoInvoiceNumber}
-          fetchingNumber={fetchingNumber}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onPartyChange={handleSelectParty}
-          onBranchChange={setSelectedBranchId}
-          onFyChange={setSelectedFyId}
-          onInvoiceDateChange={setInvoiceDate}
-          onDueDateChange={setDueDate}
-          onPosChange={setPosStateCode}
-          onDocumentTypeChange={setDocumentType}
-          onTaxClassificationChange={setTaxClassification}
-          onRcmChange={setIsRcm}
+          parties={form.parties}
+          branches={form.branches}
+          financialYears={form.financialYears}
+          selectedPartyId={form.selectedPartyId}
+          selectedBranchId={form.selectedBranchId}
+          selectedFyId={form.selectedFyId}
+          invoiceDate={form.invoiceDate}
+          dueDate={form.dueDate}
+          posStateCode={form.posStateCode}
+          isIntraState={form.isIntraState}
+          documentType={form.documentType}
+          taxClassification={form.taxClassification}
+          isRcm={form.isRcm}
+          customInvoiceNumber={form.customInvoiceNumber}
+          autoInvoiceNumber={form.autoInvoiceNumber}
+          fetchingNumber={form.fetchingNumber}
+          onOpenSettings={() => form.setSettingsOpen(true)}
+          onPartyChange={form.handleSelectParty}
+          onBranchChange={form.setSelectedBranchId}
+          onFyChange={form.setSelectedFyId}
+          onInvoiceDateChange={form.setInvoiceDate}
+          onDueDateChange={form.setDueDate}
+          onPosChange={form.setPosStateCode}
+          onDocumentTypeChange={form.setDocumentType}
+          onTaxClassificationChange={form.setTaxClassification}
+          onRcmChange={form.setIsRcm}
         />
 
         {/* 3. Line Items Card */}
@@ -448,26 +69,26 @@ function NewInvoiceContent() {
             <h3 className="text-sm font-bold text-primary">Line Items</h3>
           </div>
           <InvoiceLineItems
-            items={items}
-            lineItems={lineItems}
-            computedTotals={computedTotals}
-            onSelectItemForLine={handleSelectItemForLine}
-            onUpdateLineItem={handleUpdateLineItem}
-            onAddLineItem={handleAddLineItem}
-            onRemoveLineItem={handleRemoveLineItem}
+            items={form.items}
+            lineItems={form.lineItems}
+            computedTotals={form.computedTotals}
+            onSelectItemForLine={form.handleSelectItemForLine}
+            onUpdateLineItem={form.handleUpdateLineItem}
+            onAddLineItem={form.handleAddLineItem}
+            onRemoveLineItem={form.handleRemoveLineItem}
           />
         </div>
 
         {/* Totals, Notes & Actions */}
         <InvoiceSummary
-          computedTotals={computedTotals}
-          isIntraState={isIntraState}
-          notes={notes}
-          submitting={submitting}
-          submittingDraft={submittingDraft}
-          onNotesChange={setNotes}
-          onSubmit={() => handleSubmit(false)}
-          onSaveDraft={() => handleSubmit(true)}
+          computedTotals={form.computedTotals}
+          isIntraState={form.isIntraState}
+          notes={form.notes}
+          submitting={form.submitting}
+          submittingDraft={form.submittingDraft}
+          onNotesChange={form.setNotes}
+          onSubmit={() => form.handleSubmit(false)}
+          onSaveDraft={() => form.handleSubmit(true)}
         />
       </CardContent>
     </Card>
@@ -477,28 +98,28 @@ function NewInvoiceContent() {
   const renderPreview = (showBack: boolean = false) => {
     const previewModel = buildInvoicePreviewModel(
       {
-        documentType,
-        displayInvoiceNo,
-        invoiceDate,
-        dueDate,
-        posStateCode,
-        notes,
+        documentType: form.documentType,
+        displayInvoiceNo: form.displayInvoiceNo,
+        invoiceDate: form.invoiceDate,
+        dueDate: form.dueDate,
+        posStateCode: form.posStateCode,
+        notes: form.notes,
       },
-      activeCompany,
-      activeBranch,
-      selectedParty,
-      lineItems,
-      computedTotals,
+      form.activeCompany,
+      form.activeBranch,
+      form.selectedParty,
+      form.lineItems,
+      form.computedTotals,
     );
 
     return (
       <InvoicePreviewCard
-        templateStyle={templateStyle}
-        setTemplateStyle={setTemplateStyle}
+        templateStyle={form.templateStyle}
+        setTemplateStyle={form.setTemplateStyle}
         previewModel={previewModel}
-        activeCompany={activeCompany}
+        activeCompany={form.activeCompany}
         showBackToEdit={showBack}
-        onBackToEdit={() => handleSetViewMode('edit')}
+        onBackToEdit={() => form.handleSetViewMode('edit')}
       />
     );
   };
@@ -507,22 +128,21 @@ function NewInvoiceContent() {
     <FormPage
       header={{
         title:
-          mode === 'edit'
+          form.mode === 'edit'
             ? 'Revise Tax Invoice'
-            : cloneFrom
+            : form.cloneFrom
             ? 'Duplicate Tax Invoice'
             : 'New GST Tax Invoice',
-        subtitle: `Generate Rule 46 tax invoice for ${activeCompany?.legalName || 'Active Entity'}.`,
+        subtitle: `Generate Rule 46 tax invoice for ${form.activeCompany?.legalName || 'Active Entity'}.`,
         badge: <Badge variant="brand" size="sm">Rule 46</Badge>,
         actions: (
           <div className="flex items-center gap-3">
-            {/* 3-way Segmented View Mode Toggle: Edit / Split / Preview */}
             <div className="inline-flex rounded-xl bg-surface-sunken p-1 border border-default shadow-2xs">
               <button
                 type="button"
-                onClick={() => handleSetViewMode('edit')}
+                onClick={() => form.handleSetViewMode('edit')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  viewMode === 'edit'
+                  form.viewMode === 'edit'
                     ? 'bg-surface text-primary shadow-xs'
                     : 'text-muted hover:text-primary'
                 }`}
@@ -534,17 +154,17 @@ function NewInvoiceContent() {
 
               <button
                 type="button"
-                disabled={isSmallScreen}
-                onClick={() => handleSetViewMode('split')}
+                disabled={form.isSmallScreen}
+                onClick={() => form.handleSetViewMode('split')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  viewMode === 'split'
+                  form.viewMode === 'split'
                     ? 'bg-surface text-primary shadow-xs'
-                    : isSmallScreen
+                    : form.isSmallScreen
                     ? 'text-muted/40 cursor-not-allowed'
                     : 'text-muted hover:text-primary'
                 }`}
                 title={
-                  isSmallScreen
+                  form.isSmallScreen
                     ? 'Enable wider viewport for Split view (≥1280px)'
                     : 'Split View: 2 columns with draggable resizer'
                 }
@@ -555,9 +175,9 @@ function NewInvoiceContent() {
 
               <button
                 type="button"
-                onClick={() => handleSetViewMode('preview')}
+                onClick={() => form.handleSetViewMode('preview')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  viewMode === 'preview'
+                  form.viewMode === 'preview'
                     ? 'bg-surface text-primary shadow-xs'
                     : 'text-muted hover:text-primary'
                 }`}
@@ -575,7 +195,7 @@ function NewInvoiceContent() {
               variant="outline"
               size="sm"
               type="button"
-              onClick={() => setSettingsOpen(true)}
+              onClick={() => form.setSettingsOpen(true)}
               leftIcon={<Settings className="h-3.5 w-3.5" />}
             >
               Series Settings
@@ -585,35 +205,35 @@ function NewInvoiceContent() {
       }}
       footer={null}
     >
-      {error && (
+      {form.error && (
         <div className="mb-4">
-          <ErrorState error={error} />
+          <ErrorState error={form.error} />
         </div>
       )}
 
-      {loading ? (
+      {form.loading ? (
         <LoadingState rows={8} />
       ) : (
         <>
-          {/* MODE 1: EDIT MODE (Form full width at max-w-4xl, Preview completely unmounted) */}
-          {viewMode === 'edit' && (
+          {/* MODE 1: EDIT MODE */}
+          {form.viewMode === 'edit' && (
             <div className="max-w-4xl mx-auto w-full space-y-6">
               {renderForm()}
             </div>
           )}
 
-          {/* MODE 2: PREVIEW MODE (Preview centered at max-w-[820px], Form completely unmounted) */}
-          {viewMode === 'preview' && (
+          {/* MODE 2: PREVIEW MODE */}
+          {form.viewMode === 'preview' && (
             <div className="max-w-[820px] mx-auto w-full space-y-6">
               {renderPreview(true)}
             </div>
           )}
 
-          {/* MODE 3: SPLIT MODE (2 columns with draggable divider, only on wide screens) */}
-          {viewMode === 'split' && (
+          {/* MODE 3: SPLIT MODE */}
+          {form.viewMode === 'split' && (
             <div className="flex items-start gap-0 w-full relative">
               <div
-                style={{ width: `${splitRatio}%` }}
+                style={{ width: `${form.splitRatio}%` }}
                 className="shrink-0 min-w-0 pr-4 space-y-6"
               >
                 {renderForm()}
@@ -621,7 +241,7 @@ function NewInvoiceContent() {
 
               {/* Draggable Vertical Resizer */}
               <div
-                onMouseDown={handleMouseDownResize}
+                onMouseDown={form.handleMouseDownResize}
                 className="w-4 shrink-0 flex items-center justify-center cursor-col-resize select-none group py-12"
                 title="Drag to resize form and preview"
               >
@@ -632,7 +252,7 @@ function NewInvoiceContent() {
 
               <div
                 data-testid="invoice-preview-scroll"
-                style={{ width: `${100 - splitRatio}%` }}
+                style={{ width: `${100 - form.splitRatio}%` }}
                 className="shrink-0 min-w-0 pl-4 sticky top-0 h-[calc(100vh-theme(spacing.14))] overflow-y-auto space-y-6"
               >
                 {renderPreview(false)}
@@ -643,21 +263,21 @@ function NewInvoiceContent() {
       )}
 
       <InvoiceSettingsDialog
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        companyId={activeCompanyId}
-        docType={documentType}
-        branchId={selectedBranchId}
-        customInvoiceNumber={customInvoiceNumber}
-        onCustomInvoiceNumberChange={setCustomInvoiceNumber}
-        prefix={prefix}
-        onPrefixChange={setPrefix}
-        suffix={suffix}
-        onSuffixChange={setSuffix}
-        notes={notes}
-        onNotesChange={setNotes}
-        autoInvoiceNumber={autoInvoiceNumber}
-        onSeriesUpdated={fetchNextInvoiceNumber}
+        open={form.settingsOpen}
+        onOpenChange={form.setSettingsOpen}
+        companyId={form.activeCompanyId}
+        docType={form.documentType}
+        branchId={form.selectedBranchId}
+        customInvoiceNumber={form.customInvoiceNumber}
+        onCustomInvoiceNumberChange={form.setCustomInvoiceNumber}
+        prefix={form.prefix}
+        onPrefixChange={form.setPrefix}
+        suffix={form.suffix}
+        onSuffixChange={form.setSuffix}
+        notes={form.notes}
+        onNotesChange={form.setNotes}
+        autoInvoiceNumber={form.autoInvoiceNumber}
+        onSeriesUpdated={form.fetchNextInvoiceNumber}
       />
     </FormPage>
   );
