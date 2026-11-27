@@ -26,6 +26,7 @@ import {
   Input,
   DataTable,
   MoneyText,
+  formatMoney,
   Card,
   type ColumnDef,
   confirmDialog,
@@ -157,7 +158,7 @@ export default function ChartOfAccountsPage() {
     if (ledger.currentBalance && Math.abs(ledger.currentBalance) > 0) {
       const confirmed = await confirmDialog({
         title: 'Delete ledger with active balance',
-        description: `WARNING: Ledger "${ledger.name}" has an active running balance of ₹${Math.abs(ledger.currentBalance).toLocaleString('en-IN')}.\n\nDeleting an account with posted voucher transactions will violate double-entry balancing invariants.\n\nAre you sure you want to attempt deletion?`,
+        description: `WARNING: Ledger "${ledger.name}" has an active running balance of ${formatMoney(Math.abs(ledger.currentBalance))}.\n\nDeleting an account with posted voucher transactions will violate double-entry balancing invariants.\n\nAre you sure you want to attempt deletion?`,
         confirmLabel: 'Delete Anyway',
         variant: 'danger',
       });

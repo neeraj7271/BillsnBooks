@@ -8,6 +8,7 @@ import {
   DialogFooter,
   Button,
   Badge,
+  formatMoney,
 } from '@platform/ui';
 import { Scale, Lock, ShieldCheck, Box, Edit3 } from 'lucide-react';
 
@@ -156,7 +157,7 @@ export function UnitDetailsDialog({
                     </div>
                     <div className="text-right shrink-0">
                       <div className="font-mono font-semibold text-primary">
-                        ₹{Number(it.unitPrice).toLocaleString('en-IN')}
+                        {formatMoney(it.unitPrice)}
                       </div>
                       <div className="text-[10px] text-muted">{it.gstRatePercent}% GST</div>
                     </div>

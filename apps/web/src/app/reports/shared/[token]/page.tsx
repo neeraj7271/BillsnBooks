@@ -17,6 +17,7 @@ import {
   FileCheck2,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { formatDate } from '@platform/ui';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -100,7 +101,7 @@ export default function SharedReportPage() {
           </div>
           <span className="flex items-center gap-1 text-[11px] font-mono text-status-success-text">
             <Clock className="h-3.5 w-3.5" />
-            Expires {new Date(shareData.expiresAt).toLocaleDateString()}
+            Expires {formatDate(shareData.expiresAt)}
           </span>
         </div>
 

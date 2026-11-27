@@ -11,6 +11,7 @@ import {
   Input,
   Select,
   DatePicker,
+  formatMoney,
   type SelectOption,
 } from '@platform/ui';
 import { Scale, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -62,7 +63,7 @@ export function ReconcileSettlementDialog({
 
   const handleReconcile = async () => {
     if (!isBalanced) {
-      setError(`Reconciliation out of balance: Expected Net Credit is ₹${expectedNet.toLocaleString('en-IN')}`);
+      setError(`Reconciliation out of balance: Expected Net Credit is ${formatMoney(expectedNet)}`);
       return;
     }
     setLoading(true);

@@ -14,6 +14,7 @@ import {
   Badge,
   DataTable,
   DateText,
+  formatDate,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -105,7 +106,7 @@ export default function PeriodsPage() {
       header: 'Audit Information',
       cell: (p) => (
         <span className="text-[11px] text-secondary">
-          {p.isLocked && p.lockedAt ? `Locked on ${new Date(p.lockedAt).toLocaleDateString('en-IN')}` : 'Open for journal entry'}
+          {p.isLocked && p.lockedAt ? `Locked on ${formatDate(p.lockedAt)}` : 'Open for journal entry'}
         </span>
       ),
     },

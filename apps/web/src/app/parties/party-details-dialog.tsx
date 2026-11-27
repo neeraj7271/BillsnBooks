@@ -10,6 +10,7 @@ import {
   Button,
   Badge,
   MoneyText,
+  formatMoney,
 } from '@platform/ui';
 import { formatPartyTaxIdentity } from '@platform/shared-types';
 import {
@@ -181,7 +182,7 @@ export function PartyDetailsDialog({
                   <span className="text-[11px] text-muted block">Credit Limit</span>
                   <span className="font-semibold text-primary">
                     {Number(party.creditLimit || 0) > 0
-                      ? `₹${Number(party.creditLimit).toLocaleString('en-IN')}`
+                      ? formatMoney(party.creditLimit)
                       : 'None (No limit set)'}
                   </span>
                 </div>

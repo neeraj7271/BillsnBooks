@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@platform/ui';
+import { Card, formatMoney } from '@platform/ui';
 import { Clock, Users, ArrowUpRight } from 'lucide-react';
 import type { ArAgeingSummaryDto } from '@platform/shared-types';
 
@@ -11,14 +11,7 @@ interface AgeingSummaryCardsProps {
 }
 
 export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps) {
-  const formatInr = (val: string | number | undefined) => {
-    const num = Number(val || 0);
-    return num.toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatInr = (val: string | number | undefined) => formatMoney(val);
 
   const cards = [
     {

@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
-import { toast, DateRangePicker } from '@platform/ui';
+import { toast, DateRangePicker, formatMoney } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -613,17 +613,17 @@ export default function CashBankAuditSuitePage() {
                     </td>
                     <td className="py-2 px-3 text-secondary">{r.groupName || 'Cash-in-hand'}</td>
                     <td className="py-2 px-3 text-right font-mono text-[11px]">
-                      ₹{Number(r.openingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatMoney(r.openingBalance || 0)}
                     </td>
                     <td className="py-2 px-3 text-right font-mono text-[11px]">
-                      ₹{Number(r.totalDebit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatMoney(r.totalDebit || 0)}
                     </td>
                     <td className="py-2 px-3 text-right font-mono text-[11px]">
-                      ₹{Number(r.totalCredit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatMoney(r.totalCredit || 0)}
                     </td>
                     <td className="py-2 px-3 text-right font-mono font-bold">
                       <span className={isNegative ? 'text-status-danger-text' : 'text-primary'}>
-                        ₹{Number(r.closingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.closingBalance || 0)}
                       </span>
                     </td>
                     <td className="py-2 px-3 text-center">

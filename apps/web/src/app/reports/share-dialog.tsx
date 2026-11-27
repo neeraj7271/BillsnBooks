@@ -16,6 +16,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { formatDate } from '@platform/ui';
 
 interface ShareDialogProps {
   isOpen: boolean;
@@ -252,7 +253,7 @@ export function ShareDialog({
                   Secure Link Ready
                 </span>
                 <span className="text-[11px] text-muted font-normal">
-                  Expires {new Date(shareResult.expiresAt).toLocaleDateString()}
+                  Expires {formatDate(shareResult.expiresAt)}
                 </span>
               </div>
 

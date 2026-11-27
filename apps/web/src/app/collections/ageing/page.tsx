@@ -6,6 +6,7 @@ import {
   Input,
   Badge,
   DataTable,
+  formatMoney,
   type ColumnDef,
 } from '@platform/ui';
 import { RefreshCw, Search, Send, Calendar, ArrowRight } from 'lucide-react';
@@ -58,14 +59,7 @@ export default function ArAgeingPage() {
     loadData();
   }, [activeCompanyId]);
 
-  const formatInr = (val: string | number) => {
-    const num = Number(val || 0);
-    return num.toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    });
-  };
+  const formatInr = (val: string | number) => formatMoney(val);
 
   const filteredParties = parties.filter((p) => {
     const term = searchTerm.toLowerCase();

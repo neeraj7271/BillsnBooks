@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
-import { toast, DateRangePicker } from '@platform/ui';
+import { toast, DateRangePicker, formatMoney } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -527,7 +527,7 @@ export default function PayablesSuitePage() {
         <div className="flex items-center gap-3 text-xs">
           <span className="text-muted">Total Outstanding Payable:</span>
           <span className="font-mono font-bold text-status-danger-text">
-            ₹{totalOutstanding.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            {formatMoney(totalOutstanding)}
           </span>
         </div>
       </div>
@@ -633,7 +633,7 @@ export default function PayablesSuitePage() {
                         {Number(r.closingBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2 px-3 text-right font-mono font-bold text-status-danger-text">
-                        ₹{Number(r.netPayable || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.netPayable || 0)}
                       </td>
                     </>
                   ) : activeTab.startsWith('ageing') ? (
@@ -645,19 +645,19 @@ export default function PayablesSuitePage() {
                       </td>
                       <td className="py-2 px-3 font-mono text-[11px] text-muted">{r.pan || 'N/A'}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.current_0_30 || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.current_0_30 || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.bracket_31_60 || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.bracket_31_60 || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.bracket_61_90 || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.bracket_61_90 || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px] font-semibold text-status-danger-text">
-                        ₹{Number(r.bracket_90_plus || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.bracket_90_plus || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono font-bold text-primary">
-                        ₹{Number(r.totalOutstanding || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.totalOutstanding || 0)}
                       </td>
                     </>
                   ) : (

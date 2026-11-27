@@ -27,6 +27,7 @@ import {
   Badge,
   Input,
   DataTable,
+  formatDate,
   Skeleton,
   cn,
   type ColumnDef,
@@ -229,12 +230,7 @@ export default function NotificationsFullPage() {
       width: '160px',
       cell: (row) => (
         <span className="text-xs text-muted tabular-nums">
-          {new Date(row.createdAt).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+          {formatDate(row.createdAt, 'short')}
         </span>
       ),
     },

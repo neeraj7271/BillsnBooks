@@ -144,7 +144,11 @@ export default function StatutoryCalendarPage() {
   const monthLabel = useMemo(() => {
     const [yearStr, monthStr] = selectedMonth.split('-');
     const date = new Date(parseInt(yearStr || '2026', 10), parseInt(monthStr || '1', 10) - 1, 1);
-    return date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   }, [selectedMonth]);
 
   const handlePrevMonth = () => {

@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
-import { toast, DateRangePicker } from '@platform/ui';
+import { toast, DateRangePicker, formatMoney } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -487,7 +487,7 @@ export default function ExpensesSuitePage() {
         <div className="flex items-center gap-3 text-xs">
           <span className="text-muted">Total Period Outflow:</span>
           <span className="font-mono font-bold text-brand-text">
-            ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            {formatMoney(totalAmount)}
           </span>
         </div>
       </div>
@@ -602,13 +602,13 @@ export default function ExpensesSuitePage() {
                       <td className="py-2 px-3 font-medium text-primary">{r.month}</td>
                       <td className="py-2 px-3 text-center font-mono text-[11px]">{r.voucherCount}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.directExpenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.directExpenses || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.indirectExpenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.indirectExpenses || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono font-bold text-brand-text">
-                        ₹{Number(r.totalExpenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.totalExpenses || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono">
                         {r.variationPercentage !== undefined ? (
@@ -635,7 +635,7 @@ export default function ExpensesSuitePage() {
                       </td>
                       <td className="py-2 px-3 text-center font-mono text-[11px]">{r.voucherCount}</td>
                       <td className="py-2 px-3 text-right font-mono font-semibold text-primary">
-                        ₹{Number(r.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.totalAmount || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">{r.percentageOfTotal}%</td>
                       <td className="py-2 px-3 text-center">
@@ -654,7 +654,7 @@ export default function ExpensesSuitePage() {
                       <td className="py-2 px-3 font-mono text-muted uppercase text-[10px]">{r.nature}</td>
                       <td className="py-2 px-3 text-center font-mono text-[11px]">{r.voucherCount}</td>
                       <td className="py-2 px-3 text-right font-mono font-semibold text-primary">
-                        ₹{Number(r.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.totalAmount || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">{r.percentageOfTotal}%</td>
                     </>
@@ -669,13 +669,13 @@ export default function ExpensesSuitePage() {
                       <td className="py-2 px-3 text-center uppercase font-mono text-[10px]">{r.uom}</td>
                       <td className="py-2 px-3 text-right font-mono font-semibold">{r.quantityPurchased}</td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.avgPurchasePrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.avgPurchasePrice || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono text-[11px]">
-                        ₹{Number(r.taxableAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.taxableAmount || 0)}
                       </td>
                       <td className="py-2 px-3 text-right font-mono font-bold text-primary">
-                        ₹{Number(r.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.totalAmount || 0)}
                       </td>
                     </>
                   ) : (
@@ -686,7 +686,7 @@ export default function ExpensesSuitePage() {
                       <td className="py-2 px-3 font-medium text-primary">{r.ledgerName}</td>
                       <td className="py-2 px-3 text-muted italic text-[11px] max-w-xs truncate">{r.narration || '-'}</td>
                       <td className="py-2 px-3 text-right font-mono font-bold text-brand-text">
-                        ₹{Number(r.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        {formatMoney(r.amount || 0)}
                       </td>
                     </>
                   )}

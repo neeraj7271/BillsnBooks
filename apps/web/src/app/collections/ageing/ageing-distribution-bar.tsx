@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card } from '@platform/ui';
+import { Card, formatMoney } from '@platform/ui';
 import type { ArAgeingSummaryDto } from '@platform/shared-types';
 
 interface AgeingDistributionBarProps {
@@ -20,8 +20,7 @@ export function AgeingDistributionBar({ summary }: AgeingDistributionBarProps) {
   const p61_90 = total > 0 ? (c61_90 / total) * 100 : 0;
   const p90_plus = total > 0 ? (c90_plus / total) * 100 : 0;
 
-  const formatInr = (n: number) =>
-    n.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+  const formatInr = (n: number) => formatMoney(n);
 
   return (
     <Card className="p-4 bg-surface border border-default rounded-xl shadow-xs">

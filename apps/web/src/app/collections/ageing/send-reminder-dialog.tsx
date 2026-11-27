@@ -9,6 +9,7 @@ import {
   DialogFooter,
   Button,
   Select,
+  formatMoney,
   type SelectOption,
 } from '@platform/ui';
 import { MessageSquare, Mail, Send } from 'lucide-react';
@@ -77,10 +78,7 @@ export function SendReminderDialog({
     }
   };
 
-  const formattedDue = Number(party?.totalDue || 0).toLocaleString('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-  });
+  const formattedDue = formatMoney(party?.totalDue || 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

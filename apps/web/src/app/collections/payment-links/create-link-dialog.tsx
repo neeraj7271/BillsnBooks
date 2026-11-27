@@ -9,6 +9,7 @@ import {
   DialogFooter,
   Button,
   Select,
+  formatMoney,
   type SelectOption,
 } from '@platform/ui';
 import { Link2, CreditCard } from 'lucide-react';
@@ -50,7 +51,7 @@ export function CreateLinkDialog({
   ];
 
   const invoiceOptions: SelectOption[] = invoices.map((inv) => ({
-    label: `${inv.invoiceNumber} - ${inv.party?.name || 'Customer'} (₹${Number(inv.totalAmount).toLocaleString('en-IN')})`,
+    label: `${inv.invoiceNumber} - ${inv.party?.name || 'Customer'} (${formatMoney(inv.totalAmount)})`,
     value: inv.id,
   }));
 

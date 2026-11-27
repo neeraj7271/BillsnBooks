@@ -21,7 +21,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react';
-import { Button, Badge, Skeleton, cn } from '@platform/ui';
+import { Button, Badge, Skeleton, formatDate, cn } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 
 export interface NotificationItem {
@@ -62,7 +62,7 @@ function getRelativeTimeString(dateStr: string): string {
   const diffDay = Math.floor(diffHour / 24);
   if (diffDay === 1) return 'Yesterday';
   if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+  return formatDate(date, 'short');
 }
 
 function resolveActionUrl(item: NotificationItem): string | null {

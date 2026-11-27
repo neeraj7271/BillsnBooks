@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, AlertTriangle, Calendar } from 'lucide-react';
-import { ReportPage, MoneyText, DatePicker } from '@platform/ui';
+import { ReportPage, MoneyText, DatePicker, formatMoney } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 
@@ -60,7 +60,7 @@ export default function BalanceSheetPage() {
         ) : (
           <>
             <AlertTriangle className="h-4 w-4" />
-            Variance Detected: ₹{Number(data.variance || 0).toLocaleString('en-IN')}
+            Variance Detected: {formatMoney(data.variance || 0)}
           </>
         )}
       </span>

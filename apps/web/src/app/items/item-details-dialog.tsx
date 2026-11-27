@@ -9,6 +9,7 @@ import {
   Button,
   Badge,
   MoneyText,
+  formatMoney,
 } from '@platform/ui';
 import {
   Boxes,
@@ -141,7 +142,7 @@ export function ItemDetailsDialog({
               <div className="space-y-1">
                 <span className="text-[11px] text-muted block">Default Unit Selling Price</span>
                 <div className="font-semibold text-primary text-sm">
-                  ₹{Number(item.unitPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  {formatMoney(item.unitPrice || 0)}
                 </div>
               </div>
             </div>

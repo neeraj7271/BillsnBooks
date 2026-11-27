@@ -6,6 +6,7 @@ import {
   Badge,
   DataTable,
   Card,
+  formatMoney,
   type ColumnDef,
 } from '@platform/ui';
 import {
@@ -86,12 +87,7 @@ export default function PaymentLinksPage() {
     }
   };
 
-  const formatInr = (val: string | number) =>
-    Number(val || 0).toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2,
-    });
+  const formatInr = (val: string | number) => formatMoney(val);
 
   const linkColumns: ColumnDef<PaymentLinkDto>[] = [
     {

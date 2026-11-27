@@ -13,6 +13,8 @@ import {
   type SelectOption,
   toast,
   DatePicker,
+  formatDate,
+  formatMoney,
 } from '@platform/ui';
 import {
   CalendarClock,
@@ -183,13 +185,7 @@ export function RecurringScheduleDialog({
         } else if (frequency === RecurringFrequency.ANNUAL) {
           d.setFullYear(d.getFullYear() + i);
         }
-        dates.push(
-          d.toLocaleDateString('en-IN', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          })
-        );
+        dates.push(formatDate(d, 'short'));
       }
       return dates;
     } catch {
@@ -654,10 +650,10 @@ export function RecurringScheduleDialog({
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-secondary">Per invoice:</span>
                   <span className="font-bold text-brand font-mono">
-                    ₹ {totals.grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatMoney(totals.grandTotal)}
                     <span className="text-[11px] text-muted font-normal ml-1">
-                      (₹ {totals.subtotal.toLocaleString('en-IN')} + GST ₹{' '}
-                      {totals.totalGst.toLocaleString('en-IN')})
+                      ({formatMoney(totals.subtotal)} + GST{' '}
+                      {formatMoney(totals.totalGst)})
                     </span>
                   </span>
                 </div>
@@ -706,7 +702,7 @@ export function RecurringScheduleDialog({
                   <div>
                     <span className="text-muted block text-[11px]">Total per invoice:</span>
                     <span className="font-bold text-primary font-mono">
-                      ₹ {totals.grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatMoney(totals.grandTotal)}
                     </span>
                   </div>
                 </div>
@@ -728,7 +724,7 @@ export function RecurringScheduleDialog({
                       </div>
                       <div className="text-right">
                         <span className="font-mono font-bold text-primary">
-                          ₹ {it.unitPrice.toLocaleString('en-IN')}
+                          {formatMoney(it.unitPrice)}
                         </span>
                         <span className="block text-[10px] text-muted font-mono">
                           +{it.gstRatePercent}% GST

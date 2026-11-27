@@ -11,6 +11,7 @@ import {
   Button,
   Badge,
   DataTable,
+  formatDate,
   type ColumnDef,
 } from '@platform/ui';
 import {
@@ -144,12 +145,7 @@ export default function ImportsDashboardPage() {
       width: '160px',
       cell: (batch) => (
         <span className="text-xs text-muted">
-          {new Date(batch.createdAt).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+          {formatDate(batch.createdAt, 'short')}
         </span>
       ),
     },

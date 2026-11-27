@@ -17,6 +17,7 @@ import {
   CardContent,
   Skeleton,
   DateRangePicker,
+  formatMoney,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -175,11 +176,11 @@ function GeneralLedgerContent() {
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="text-xs text-muted">Dr:</span>
                 <span className="font-mono text-xs font-bold text-status-success-text">
-                  ₹{Number(report.totalDebit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  {formatMoney(report.totalDebit || 0)}
                 </span>
                 <span className="text-xs text-muted ml-1">Cr:</span>
                 <span className="font-mono text-xs font-bold text-status-info-text">
-                  ₹{Number(report.totalCredit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  {formatMoney(report.totalCredit || 0)}
                 </span>
               </div>
               <div className="text-[10px] text-muted mt-0.5">Total {report.entries?.length || 0} line entries</div>
@@ -277,10 +278,10 @@ function GeneralLedgerContent() {
                           )}
                         </td>
                         <td className="py-2 px-4 text-right font-mono font-bold text-status-success-text">
-                          {isDebit ? `₹${Number(entry.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}
+                          {isDebit ? formatMoney(entry.amount) : '—'}
                         </td>
                         <td className="py-2 px-4 text-right font-mono font-bold text-status-info-text">
-                          {!isDebit ? `₹${Number(entry.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}
+                          {!isDebit ? formatMoney(entry.amount) : '—'}
                         </td>
                         <td className="py-2 px-4 text-right font-mono font-bold">
                           <MoneyText
@@ -306,10 +307,10 @@ function GeneralLedgerContent() {
                       Closing Balance c/f
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono font-black text-status-success-text">
-                      ₹{Number(report.totalDebit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatMoney(report.totalDebit || 0)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono font-black text-status-info-text">
-                      ₹{Number(report.totalCredit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatMoney(report.totalCredit || 0)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono font-black">
                       <MoneyText amount={report.closingBalance || 0} showDrCr colorCode="dr-cr" />

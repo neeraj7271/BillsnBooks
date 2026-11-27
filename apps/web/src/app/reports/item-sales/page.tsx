@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
-import { toast, DateRangePicker } from '@platform/ui';
+import { toast, DateRangePicker, formatMoney } from '@platform/ui';
 import { ShareDialog } from '../share-dialog';
 import { BackButton } from '@/components/back-button';
 
@@ -268,7 +268,7 @@ export default function ItemSalesPage() {
           <div>
             <span className="text-muted">Gross Item Sales: </span>
             <span className="font-mono font-bold text-brand-text">
-              ₹{(data?.totalSales || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              {formatMoney(data?.totalSales || 0)}
             </span>
           </div>
         </div>
@@ -314,16 +314,16 @@ export default function ItemSalesPage() {
                     {row.quantitySold}
                   </td>
                   <td className="py-2 px-3 text-right font-mono text-secondary text-[11px]">
-                    ₹{Number(row.avgSellingPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatMoney(row.avgSellingPrice || 0)}
                   </td>
                   <td className="py-2 px-3 text-right font-mono text-secondary text-[11px]">
-                    ₹{Number(row.taxableAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatMoney(row.taxableAmount || 0)}
                   </td>
                   <td className="py-2 px-3 text-right font-mono text-muted text-[11px]">
-                    ₹{Number(row.totalTax || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatMoney(row.totalTax || 0)}
                   </td>
                   <td className="py-2 px-3 text-right font-mono font-bold text-primary text-[11px]">
-                    ₹{Number(row.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatMoney(row.totalAmount || 0)}
                   </td>
                 </tr>
               ))}
