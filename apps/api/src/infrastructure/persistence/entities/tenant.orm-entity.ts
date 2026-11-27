@@ -23,6 +23,9 @@ export class TenantOrmEntity {
   @Column({ type: 'varchar', length: 50, default: 'STARTER' })
   plan!: string;
 
+  @Column({ name: 'practice_mode', type: 'varchar', length: 20, default: 'FIRM' })
+  practiceMode!: 'FIRM' | 'BUSINESS';
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

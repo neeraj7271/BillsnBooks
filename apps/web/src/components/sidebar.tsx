@@ -63,6 +63,18 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { activeCompany, tallyEnabled, invoicingOnly } = useCompany();
+  const [practiceMode, setPracticeMode] = useState<'FIRM' | 'BUSINESS'>('FIRM');
+
+  useEffect(() => {
+    apiClient.getWorkspaceMode().then((res) => {
+      if (res?.practiceMode) setPracticeMode(res.practiceMode);
+    }).catch(() => {});
+    const handler = (e: any) => {
+      if (e?.detail === 'FIRM' || e?.detail === 'BUSINESS') setPracticeMode(e.detail);
+    };
+    window.addEventListener('practice-mode-changed', handler);
+    return () => window.removeEventListener('practice-mode-changed', handler);
+  }, []);
   const [tallyOnline, setTallyOnline] = useState<boolean>(true);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
@@ -173,19 +185,33 @@ export function Sidebar({
           ],
         },
         {
-          title: 'Practice',
-          items: [
-            { label: 'Practice Hub', href: '/practice', icon: Briefcase },
-            { label: 'Jobs Pipeline', href: '/practice/jobs', icon: Layers },
-            { label: 'Clients', href: '/practice/clients', icon: Building2 },
-            { label: 'Workload', href: '/practice/workload', icon: Users },
-            { label: 'Tasks', href: '/practice/tasks', icon: CheckSquare },
-            { label: 'Calendar', href: '/practice/calendar', icon: CalendarClock },
-            { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
-            { label: 'Services', href: '/practice/settings/services', icon: Boxes },
-            { label: 'Workflows', href: '/practice/settings/workflows', icon: Sliders },
-            { label: 'Custom Fields', href: '/practice/settings/custom-fields', icon: Hash },
-          ],
+          title: practiceMode === 'BUSINESS' ? 'Compliance' : 'Practice',
+          items:
+            practiceMode === 'BUSINESS'
+              ? [
+                  { label: 'Home', href: '/practice', icon: Briefcase },
+                  { label: 'Compliance', href: '/practice/jobs', icon: Layers },
+                  { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
+                  { label: 'Calendar', href: '/practice/calendar', icon: CalendarClock },
+                  { label: 'Notices', href: '/practice/notices', icon: Bell },
+                ]
+              : [
+                  { label: 'Practice Hub', href: '/practice', icon: Briefcase },
+                  { label: 'Proposals', href: '/practice/proposals', icon: FileText },
+                  { label: 'Jobs Pipeline', href: '/practice/jobs', icon: Layers },
+                  { label: 'Clients', href: '/practice/clients', icon: Building2 },
+                  { label: 'Timesheets', href: '/practice/timesheets', icon: CalendarClock },
+                  { label: 'Billing & WIP', href: '/practice/billing', icon: Receipt },
+                  { label: 'Capacity', href: '/practice/capacity', icon: Users },
+                  { label: 'Notices', href: '/practice/notices', icon: Bell },
+                  { label: 'Tasks', href: '/practice/tasks', icon: CheckSquare },
+                  { label: 'Calendar', href: '/practice/calendar', icon: CalendarClock },
+                  { label: 'Documents', href: '/practice/documents', icon: FileSpreadsheet },
+                  { label: 'Services', href: '/practice/settings/services', icon: Boxes },
+                  { label: 'Workflows', href: '/practice/settings/workflows', icon: Sliders },
+                  { label: 'Custom Fields', href: '/practice/settings/custom-fields', icon: Hash },
+                  { label: 'Reminders', href: '/practice/settings/templates', icon: Bell },
+                ],
         },
         {
           title: 'Setup',
