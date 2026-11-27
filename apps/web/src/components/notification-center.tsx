@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
@@ -299,7 +300,7 @@ export function NotificationCenter() {
         await apiClient.markNotificationRead?.(item.id);
       }
     } catch (err) {
-      console.error('Failed to update notification read status', err);
+      logger.error('Failed to update notification read status', err);
     }
   };
 
@@ -308,7 +309,7 @@ export function NotificationCenter() {
     try {
       await apiClient.markAllNotificationsRead?.();
     } catch (err) {
-      console.error('Failed to mark all as read', err);
+      logger.error('Failed to mark all as read', err);
     }
   };
 

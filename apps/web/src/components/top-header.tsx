@@ -36,6 +36,8 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showCompanyMenu, setShowCompanyMenu] = useState(false);
+  const [companyQuery, setCompanyQuery] = useState('');
+  const [activeCompanyIndex, setActiveCompanyIndex] = useState(0);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [userName, setUserName] = useState('Administrator');
   const [userEmail, setUserEmail] = useState('admin@workspace.com');
@@ -61,6 +63,10 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
       } else if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         setShowCompanyMenu((v) => !v);
+      } else if (e.key === 'Escape') {
+        setShowCompanyMenu(false);
+        setShowProfileMenu(false);
+        setShowNotifications(false);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -85,6 +91,8 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
 
   useEffect(() => {
     if (!activeCompanyId) return;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('antigravity_access_token') : null;
+    if (!token) return;
     apiClient
       .listNotifications?.(20)
       ?.then((list: any[]) => setNotifications(list || []))
@@ -104,6 +112,16 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
       window.location.href = '/auth/login';
     }
   };
+
+  const filteredCompanies = companies.filter((c) => {
+    if (!companyQuery.trim()) return true;
+    const q = companyQuery.toLowerCase();
+    return (
+      (c.legalName && c.legalName.toLowerCase().includes(q)) ||
+      (c.tradeName && c.tradeName.toLowerCase().includes(q)) ||
+      (c.pan && c.pan.toLowerCase().includes(q))
+    );
+  });
 
   const initials = (() => {
     const parts = userName.trim().split(/\s+/);
@@ -138,7 +156,12 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <div ref={companyRef} className="relative">
             <button
               type="button"
-              onClick={() => setShowCompanyMenu((v) => !v)}
+              data-testid="top-company-switcher-btn"
+              onClick={() => {
+                setShowCompanyMenu((v) => !v);
+                setCompanyQuery('');
+                setActiveCompanyIndex(0);
+              }}
               title="Switch company (⌘⇧C)"
               className="flex items-center gap-2 h-9 max-w-[240px] px-3 rounded-lg border border-default bg-surface hover:bg-surface-sunken text-left transition-colors"
             >
@@ -159,33 +182,75 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
                 <div className="px-2.5 py-1 text-overline uppercase text-muted">
                   Active Entity (⌘⇧C)
                 </div>
-                <div className="max-h-64 overflow-y-auto space-y-0.5">
-                  {companies.map((c) => {
-                    const selected = c.id === activeCompanyId;
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveCompanyId(c.id);
+                <div className="p-1">
+                  <input
+                    type="text"
+                    value={companyQuery}
+                    onChange={(e) => {
+                      setCompanyQuery(e.target.value);
+                      setActiveCompanyIndex(0);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        setActiveCompanyIndex((prev) => (prev + 1) % Math.max(1, filteredCompanies.length));
+                      } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        setActiveCompanyIndex((prev) => (prev - 1 + filteredCompanies.length) % Math.max(1, filteredCompanies.length));
+                      } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const selectedCompany = filteredCompanies[activeCompanyIndex];
+                        if (selectedCompany) {
+                          setActiveCompanyId(selectedCompany.id);
                           setShowCompanyMenu(false);
-                        }}
-                        className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-left text-xs transition-colors ${
-                          selected
-                            ? 'bg-brand-subtle text-brand-text font-semibold'
-                            : 'text-primary hover:bg-surface-sunken'
-                        }`}
-                      >
-                        <div className="min-w-0">
-                          <div className="truncate">{c.legalName}</div>
-                          {c.pan && (
-                            <div className="font-mono text-[10px] text-muted">PAN: {c.pan}</div>
-                          )}
-                        </div>
-                        {selected && <Check className="h-3.5 w-3.5 shrink-0" />}
-                      </button>
-                    );
-                  })}
+                          setCompanyQuery('');
+                        }
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        setShowCompanyMenu(false);
+                        setCompanyQuery('');
+                      }
+                    }}
+                    placeholder="Search companies..."
+                    autoFocus
+                    className="w-full px-2 py-1 text-xs rounded-md border border-subtle bg-surface text-primary focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                </div>
+                <div className="max-h-64 overflow-y-auto space-y-0.5 mt-1">
+                  {filteredCompanies.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-muted text-center">No companies found</div>
+                  ) : (
+                    filteredCompanies.map((c, idx) => {
+                      const selected = c.id === activeCompanyId;
+                      const isFocused = idx === activeCompanyIndex;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveCompanyId(c.id);
+                            setShowCompanyMenu(false);
+                            setCompanyQuery('');
+                          }}
+                          className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-left text-xs transition-colors ${
+                            selected
+                              ? 'bg-brand-subtle text-brand-text font-semibold'
+                              : isFocused
+                              ? 'bg-surface-sunken text-primary'
+                              : 'text-primary hover:bg-surface-sunken'
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <div className="truncate">{c.legalName}</div>
+                            {c.pan && (
+                              <div className="font-mono text-[10px] text-muted">PAN: {c.pan}</div>
+                            )}
+                          </div>
+                          {selected && <Check className="h-3.5 w-3.5 shrink-0" />}
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}
@@ -224,6 +289,7 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
           <div ref={profileRef} className="relative">
             <button
               type="button"
+              data-testid="top-profile-btn"
               onClick={() => setShowProfileMenu((v) => !v)}
               aria-label={`${initials} - Account menu`}
               className="h-9 px-2 flex items-center gap-2 rounded-lg hover:bg-surface-sunken transition-colors"

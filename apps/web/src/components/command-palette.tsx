@@ -29,6 +29,7 @@ import {
   X,
 } from 'lucide-react';
 import { useTheme } from './theme-provider';
+import { apiClient } from '@/lib/api-client';
 
 export interface CommandPaletteProps {
   isOpen: boolean;
@@ -49,7 +50,43 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const { theme, toggleTheme } = useTheme();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [partyResults, setPartyResults] = useState<CommandItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (query.trim().length >= 2) {
+      apiClient
+        .listParties?.()
+        ?.then((res: any) => {
+          const list = res?.data || res?.items || res || [];
+          if (Array.isArray(list)) {
+            const q = query.toLowerCase();
+            const matches = list
+              .filter(
+                (p: any) =>
+                  (p.name && p.name.toLowerCase().includes(q)) ||
+                  (p.gstin && p.gstin.toLowerCase().includes(q))
+              )
+              .slice(0, 5);
+            setPartyResults(
+              matches.map((p: any) => ({
+                id: `party-${p.id}`,
+                title: `${p.name} (${p.gstin || 'Unregistered'})`,
+                category: 'Masters' as const,
+                icon: Users,
+                action: () => {
+                  router.push(`/parties`);
+                  onClose();
+                },
+              }))
+            );
+          }
+        })
+        ?.catch(() => setPartyResults([]));
+    } else {
+      setPartyResults([]);
+    }
+  }, [query, router, onClose]);
 
   const commands: CommandItem[] = [
     // Actions
@@ -251,7 +288,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     },
   ];
 
-  const filtered = commands.filter((cmd) => {
+  const allCommands = [...commands, ...partyResults];
+
+  const filtered = allCommands.filter((cmd) => {
     if (!query.trim()) return true;
     const term = query.toLowerCase();
     return (
@@ -267,6 +306,18 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKey);
+    return () => window.removeEventListener('keydown', handleGlobalKey);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     setSelectedIndex(0);

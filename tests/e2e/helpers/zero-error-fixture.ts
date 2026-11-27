@@ -30,8 +30,10 @@ export const test = baseTest.extend<{
 
       page.on('pageerror', (err) => {
         const text = err.message || String(err);
+        const stack = err.stack || '';
+        const url = page.url();
         if (!isAllowed(text, allowedErrorPatterns)) {
-          uncaughtExceptions.push(`[uncaughtException] ${text}`);
+          uncaughtExceptions.push(`[uncaughtException @ ${url}] ${text}\n${stack}`);
         }
       });
 
