@@ -13,6 +13,14 @@ export interface CompanyBrandingContext {
   address?: string | null;
   email?: string | null;
   phone?: string | null;
+  logoDataUri?: string | null;
+}
+
+export interface PrintHtmlOptions {
+  forPdf?: boolean;
+  watermark?: string;
+  rowKinds?: Array<'normal' | 'group' | 'subtotal'>;
+  subtitle?: string;
 }
 
 export type ColumnType = 'text' | 'number' | 'currency' | 'date' | 'code' | 'badge';
@@ -237,7 +245,7 @@ export class ReportExportService {
 
         if (cType === 'currency') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
-          cell.numFmt = '₹ #,##,##0.00';
+          cell.numFmt = '₹ #,##,##0.00;(₹ #,##,##0.00);"-"';
         } else if (cType === 'number') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.numFmt = '#,##0';
@@ -295,7 +303,7 @@ export class ReportExportService {
       if (colNum >= 5) {
         cell.alignment = { horizontal: 'right', vertical: 'middle' };
         if (colNum >= 6) {
-          cell.numFmt = '₹ #,##,##0.00';
+          cell.numFmt = '₹ #,##,##0.00;(₹ #,##,##0.00);"-"';
         } else {
           cell.numFmt = '#,##0';
         }
@@ -382,7 +390,7 @@ export class ReportExportService {
 
         if (cType === 'currency') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
-          cell.numFmt = '₹ #,##,##0.00';
+          cell.numFmt = '₹ #,##,##0.00;(₹ #,##,##0.00);"-"';
         } else if (cType === 'number') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.numFmt = colNum === 9 ? '0.00"%"' : '#,##0.00';
@@ -439,7 +447,7 @@ export class ReportExportService {
       if (colNum >= 6) {
         cell.alignment = { horizontal: 'right', vertical: 'middle' };
         if ([8, 10, 11].includes(colNum)) {
-          cell.numFmt = '₹ #,##,##0.00';
+          cell.numFmt = '₹ #,##,##0.00;(₹ #,##,##0.00);"-"';
         } else if (colNum === 6) {
           cell.numFmt = '#,##0.00';
         }
@@ -529,7 +537,7 @@ export class ReportExportService {
 
         if (cType === 'currency') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
-          cell.numFmt = '₹ #,##,##0.00';
+          cell.numFmt = '₹ #,##,##0.00;(₹ #,##,##0.00);"-"';
         } else if (cType === 'number') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.numFmt = typeof cell.value === 'number' && !Number.isInteger(cell.value) ? '#,##0.00' : '#,##0';
@@ -584,7 +592,7 @@ export class ReportExportService {
         const cType = colTypes[colNumber - 1];
         if (cType === 'currency') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
-          cell.numFmt = '₹ #,##,##0.00';
+          cell.numFmt = '₹ #,##,##0.00;(₹ #,##,##0.00);"-"';
         } else if (cType === 'number') {
           cell.alignment = { horizontal: 'right', vertical: 'middle' };
           cell.numFmt = typeof cell.value === 'number' && !Number.isInteger(cell.value) ? '#,##0.00' : '#,##0';
@@ -609,14 +617,21 @@ export class ReportExportService {
    * Generate High-Fidelity Branded PDF (HTML print-preview with Print Toolbar,
    * proper tabular formatting, and ICAI accounting compliance)
    */
-  public generateBrandedReportHtml(
+  public formatIndianCurrency(val: number): string {
+    const abs = Math.abs(val).toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return val < 0 ? `(₹ ${abs})` : `₹ ${abs}`;
+  }
+
+  private renderSharedHeadAndHeader(
     reportTitle: string,
     periodStr: string,
     branding: CompanyBrandingContext,
-    headers: string[],
-    rows: (string | number)[][],
-    totalsRow?: (string | number)[],
-  ): string {
+    options?: PrintHtmlOptions,
+    recordCountLabel?: string,
+  ): { headHtml: string; headerHtml: string; watermarkHtml: string; toolbarHtml: string } {
     const formattedDate = new Date().toLocaleString('en-IN', {
       day: '2-digit',
       month: 'short',
@@ -625,7 +640,296 @@ export class ReportExportService {
       minute: '2-digit',
     });
 
-    // Detect column alignment per header
+    const esc = (s: any) =>
+      String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const headHtml = `
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(reportTitle)} — ${esc(branding.legalName)}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      color: #0f172a;
+      background: ${options?.forPdf ? '#ffffff' : '#f8fafc'};
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      font-size: 10.5px;
+      line-height: 1.42;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    .report-paper {
+      background: #ffffff;
+      padding: ${options?.forPdf ? '0' : '28px 34px'};
+      margin: 0 auto;
+      max-width: ${options?.forPdf ? '100%' : '1020px'};
+      ${options?.forPdf ? '' : 'border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(15,23,42,0.06); margin-top: 16px; margin-bottom: 24px;'}
+    }
+    .print-toolbar {
+      position: sticky;
+      top: 10px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 10px;
+      max-width: 1020px;
+      margin: 12px auto 0 auto;
+    }
+    .btn-action {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+    }
+    .watermark {
+      position: fixed;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-32deg);
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: rgba(15, 23, 42, 0.065);
+      pointer-events: none;
+      z-index: 0;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .letterhead {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .lh-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      flex: 1;
+    }
+    .lh-logo {
+      max-height: 46px;
+      max-width: 110px;
+      object-fit: contain;
+    }
+    .company-title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+      margin: 0 0 3px 0;
+    }
+    .company-sub {
+      font-size: 9.5px;
+      color: #475569;
+      line-height: 1.45;
+    }
+    .stat-pill {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: #1e293b;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 1px 6px;
+      margin-right: 6px;
+      margin-top: 3px;
+    }
+    .lh-right {
+      text-align: right;
+      min-width: 210px;
+    }
+    .report-title-text {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .report-meta {
+      font-size: 9px;
+      color: #475569;
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+    .status-chip {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 9.5px;
+      position: relative;
+      z-index: 1;
+    }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    th {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 7px 8px;
+      font-size: 9px;
+      border: 1px solid #0f172a;
+      letter-spacing: 0.02em;
+    }
+    th.align-left, td.align-left { text-align: left; }
+    th.align-center, td.align-center { text-align: center; }
+    th.align-right, td.align-right { text-align: right; }
+    td {
+      padding: 5.5px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+      vertical-align: top;
+    }
+    td.num-font {
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 9px;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) td { background-color: #f8fafc; }
+    tr.group-row td {
+      background-color: #f1f5f9 !important;
+      font-weight: 700;
+      color: #0f172a;
+      border-top: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+      padding-top: 7px;
+      padding-bottom: 6px;
+    }
+    tr.subtotal-row td {
+      background-color: #f8fafc !important;
+      font-weight: 700;
+      color: #0f172a;
+      border-top: 1px solid #64748b;
+      border-bottom: 1px solid #94a3b8;
+    }
+    tr.total-row td {
+      background-color: #f1f5f9 !important;
+      font-weight: 800;
+      color: #0f172a;
+      border-top: 2px solid #0f172a;
+      border-bottom: 3px double #0f172a;
+      padding: 7px 8px;
+    }
+    .reconcile-banner {
+      margin-top: 12px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 9.5px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      border: 1px solid #a7f3d0;
+      background: #ecfdf5;
+      color: #065f46;
+    }
+    .reconcile-banner.warn {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+    @page {
+      size: A4 portrait;
+      margin: 15mm 14mm 18mm 14mm;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff; }
+      .report-paper { border: none; box-shadow: none; padding: 0; margin: 0; max-width: 100%; }
+    }
+  </style>`;
+
+    const toolbarHtml = options?.forPdf
+      ? ''
+      : `
+  <div class="print-toolbar no-print">
+    <div><strong>${esc(reportTitle)}</strong> ${recordCountLabel ? `(${esc(recordCountLabel)})` : ''}</div>
+    <button type="button" class="btn-action" onclick="window.print()">Print</button>
+  </div>`;
+
+    const watermarkHtml = options?.watermark
+      ? `<div class="watermark">${esc(options.watermark)}</div>`
+      : '';
+
+    const headerHtml = `
+    <div class="letterhead">
+      <div class="lh-left">
+        ${branding.logoDataUri ? `<img class="lh-logo" src="${branding.logoDataUri}" alt="Logo" />` : ''}
+        <div>
+          <div class="company-title">${esc(branding.legalName)}</div>
+          <div class="company-sub">
+            ${branding.address ? `<div>${esc(branding.address)}</div>` : ''}
+            <div>
+              ${branding.gstin ? `<span class="stat-pill">GSTIN: ${esc(branding.gstin)}</span>` : ''}
+              ${branding.pan ? `<span class="stat-pill">PAN: ${esc(branding.pan)}</span>` : ''}
+            </div>
+            ${branding.phone || branding.email ? `<div>${[branding.phone ? `Tel: ${esc(branding.phone)}` : '', branding.email ? `Email: ${esc(branding.email)}` : ''].filter(Boolean).join(' · ')}</div>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="lh-right">
+        <div class="report-title-text">${esc(reportTitle)}</div>
+        <div class="report-meta">
+          <div>Period: <strong>${esc(periodStr)}</strong></div>
+          <div>Generated: ${esc(formattedDate)} IST</div>
+          <div>Currency: <strong>INR (₹)</strong></div>
+        </div>
+        <span class="status-chip">${options?.watermark ? esc(options.watermark) : 'Verified Statement'}</span>
+      </div>
+    </div>`;
+
+    return { headHtml, headerHtml, watermarkHtml, toolbarHtml };
+  }
+
+  public generateBrandedReportHtml(
+    reportTitle: string,
+    periodStr: string,
+    branding: CompanyBrandingContext,
+    headers: string[],
+    rows: (string | number)[][],
+    totalsRow?: (string | number)[],
+    options?: PrintHtmlOptions,
+  ): string {
+    const esc = (s: any) =>
+      String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
     const colAlignments = headers.map((h, i) => {
       const sample = rows[0] ? rows[0][i] : undefined;
       const type = this.inferColumnType(h, sample);
@@ -634,388 +938,212 @@ export class ReportExportService {
       return 'left';
     });
 
-    // Format display cells
     const formatPrintCell = (val: any, colIdx: number): string => {
       if (val === null || val === undefined || val === '') return '-';
       const align = colAlignments[colIdx];
       if (align === 'right') {
         const parsed = this.parseRawNumber(val);
         if (parsed.isNum) {
-          const isCurrency = headers[colIdx].toLowerCase().includes('(₹)') || headers[colIdx].toLowerCase().includes('amount') || headers[colIdx].toLowerCase().includes('rate') || headers[colIdx].toLowerCase().includes('balance') || headers[colIdx].toLowerCase().includes('sales') || headers[colIdx].toLowerCase().includes('due') || headers[colIdx].toLowerCase().includes('tax') || headers[colIdx].toLowerCase().includes('expenses');
+          const hdr = headers[colIdx].toLowerCase();
+          const isCurrency =
+            hdr.includes('(₹)') ||
+            hdr.includes('amount') ||
+            hdr.includes('rate') ||
+            hdr.includes('balance') ||
+            hdr.includes('sales') ||
+            hdr.includes('due') ||
+            hdr.includes('tax') ||
+            hdr.includes('debit') ||
+            hdr.includes('credit') ||
+            hdr.includes('expenses');
           if (isCurrency) {
-            return `₹ ${parsed.numVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            return this.formatIndianCurrency(parsed.numVal);
           }
           return parsed.numVal.toLocaleString('en-IN', { maximumFractionDigits: 2 });
         }
       }
-      return String(val);
+      return esc(val);
     };
+
+    const { headHtml, headerHtml, watermarkHtml, toolbarHtml } = this.renderSharedHeadAndHeader(
+      reportTitle,
+      periodStr,
+      branding,
+      options,
+      `${rows.length} records`,
+    );
 
     return `<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${reportTitle} — ${branding.legalName}</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
-
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      padding: 24px;
-      color: #0f172a;
-      background: #f8fafc;
-      font-size: 11px;
-      line-height: 1.4;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Floating Interactive Toolbar */
-    .print-toolbar {
-      position: sticky;
-      top: 12px;
-      z-index: 999;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      background: #0f172a;
-      color: #ffffff;
-      padding: 10px 18px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.3), 0 8px 10px -6px rgba(15, 23, 42, 0.3);
-      margin-bottom: 24px;
-    }
-    .print-toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .print-toolbar-badge {
-      background: #1e293b;
-      color: #38bdf8;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-family: 'JetBrains Mono', monospace;
-      text-transform: uppercase;
-    }
-    .print-toolbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.15s ease;
-    }
-    .btn-primary {
-      background: #3b82f6;
-      color: #ffffff;
-    }
-    .btn-primary:hover {
-      background: #2563eb;
-    }
-    .btn-secondary {
-      background: #334155;
-      color: #e2e8f0;
-    }
-    .btn-secondary:hover {
-      background: #475569;
-    }
-
-    /* Page Container */
-    .report-paper {
-      background: #ffffff;
-      padding: 32px 36px;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      margin: 0 auto;
-      max-width: 1400px;
-    }
-
-    /* Corporate Header */
-    .header-box {
-      border-bottom: 2px solid #0f172a;
-      padding-bottom: 14px;
-      margin-bottom: 16px;
-      position: relative;
-    }
-    .header-box::before {
-      content: '';
-      position: absolute;
-      top: -32px;
-      left: -36px;
-      right: -36px;
-      height: 4px;
-      background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
-    }
-    .company-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
-      margin: 0 0 4px 0;
-    }
-    .company-meta-strip {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      font-size: 10px;
-      color: #475569;
-      margin-top: 4px;
-    }
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 600;
-      color: #1e293b;
-    }
-    .report-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-top: 14px;
-      padding-top: 10px;
-      border-top: 1px dashed #cbd5e1;
-    }
-    .report-title-text {
-      font-size: 14px;
-      font-weight: 700;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-    }
-    .report-meta-text {
-      font-size: 10px;
-      color: #64748b;
-      text-align: right;
-    }
-
-    /* Table Styles */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 10px;
-    }
-    thead {
-      display: table-header-group;
-    }
-    th {
-      background-color: #1e293b;
-      color: #ffffff;
-      font-weight: 700;
-      padding: 8px 10px;
-      font-size: 9.5px;
-      border: 1px solid #1e293b;
-      letter-spacing: 0.02em;
-    }
-    th.align-left, td.align-left {
-      text-align: left;
-    }
-    th.align-center, td.align-center {
-      text-align: center;
-    }
-    th.align-right, td.align-right {
-      text-align: right;
-    }
-
-    td {
-      padding: 6.5px 10px;
-      border-bottom: 1px solid #e2e8f0;
-      border-left: 1px solid #f1f5f9;
-      border-right: 1px solid #f1f5f9;
-      color: #1e293b;
-    }
-    td.num-font {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px;
-      font-weight: 500;
-    }
-    tr:nth-child(even) td {
-      background-color: #f8fafc;
-    }
-    tr:hover td {
-      background-color: #f1f5f9;
-    }
-    tr {
-      page-break-inside: avoid;
-    }
-
-    /* Totals Row */
-    tr.total-row td {
-      background-color: #f1f5f9 !important;
-      font-weight: 800;
-      color: #0f172a;
-      border-top: 1.5px solid #334155;
-      border-bottom: 3px double #0f172a;
-      padding: 8px 10px;
-    }
-
-    /* Footer */
-    .report-footer {
-      margin-top: 24px;
-      padding-top: 12px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 9px;
-      color: #64748b;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* Print Media Rules */
-    @media print {
-      body {
-        margin: 0;
-        padding: 0;
-        background: #ffffff;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .report-paper {
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        max-width: 100%;
-      }
-      .header-box::before {
-        display: none;
-      }
-      @page {
-        size: landscape;
-        margin: 12mm 15mm;
-      }
-    }
-  </style>
-</head>
+<head>${headHtml}</head>
 <body>
-  <!-- Print Controls Toolbar (Hidden during print) -->
-  <div class="print-toolbar no-print">
-    <div class="print-toolbar-left">
-      <span>📄 ${reportTitle}</span>
-      <span class="print-toolbar-badge">Ready to Print / PDF</span>
-      <span style="font-size: 11px; color: #94a3b8;">${rows.length} records</span>
-    </div>
-    <div class="print-toolbar-actions">
-      <button type="button" class="btn-action btn-primary" onclick="window.print()">
-        🖨️ Print / Save as PDF
-      </button>
-      <button type="button" class="btn-action btn-secondary" onclick="window.close()">
-        ✕ Close Window
-      </button>
-    </div>
-  </div>
-
+  ${toolbarHtml}
+  ${watermarkHtml}
   <div class="report-paper">
-    <!-- Corporate Header -->
-    <div class="header-box">
-      <div class="company-title">${branding.legalName}</div>
-      <div class="company-meta-strip">
-        ${branding.gstin ? `<span class="badge-pill">GSTIN: ${branding.gstin}</span>` : ''}
-        ${branding.pan ? `<span class="badge-pill">PAN: ${branding.pan}</span>` : ''}
-        ${branding.address ? `<span>📍 ${branding.address}</span>` : ''}
-        ${branding.phone ? `<span>📞 ${branding.phone}</span>` : ''}
-        ${branding.email ? `<span>✉️ ${branding.email}</span>` : ''}
-      </div>
-
-      <div class="report-banner">
-        <div>
-          <div class="report-title-text">${reportTitle}</div>
-          <div style="font-size: 10px; color: #64748b; margin-top: 2px;">
-            Accounting Standards & Statutory Compliance Audit
-          </div>
-        </div>
-        <div class="report-meta-text">
-          <div>Period: <strong>${periodStr}</strong></div>
-          <div style="margin-top: 2px;">Generated on: <strong>${formattedDate} IST</strong> | Currency: <strong>INR (₹)</strong></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Data Table -->
+    ${headerHtml}
     <table>
       <thead>
         <tr>
-          ${headers
-            .map(
-              (h, i) =>
-                `<th class="align-${colAlignments[i]}">${h}</th>`,
-            )
-            .join('')}
+          ${headers.map((h, i) => `<th class="align-${colAlignments[i]}">${esc(h)}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
         ${rows
-          .map(
-            (row) => `
-          <tr>
-            ${row
-              .map((cell, i) => {
-                const align = colAlignments[i];
-                const isNum = align === 'right' || align === 'center';
-                const formatted = formatPrintCell(cell, i);
-                return `<td class="align-${align} ${isNum ? 'num-font' : ''}">${formatted}</td>`;
-              })
-              .join('')}
-          </tr>
-        `,
-          )
+          .map((row, rIdx) => {
+            const kind = options?.rowKinds?.[rIdx] || 'normal';
+            const cls = kind === 'group' ? 'group-row' : kind === 'subtotal' ? 'subtotal-row' : '';
+            return `<tr class="${cls}">
+              ${row
+                .map((cell, i) => {
+                  const align = colAlignments[i];
+                  const isNum = align === 'right' || align === 'center';
+                  return `<td class="align-${align} ${isNum ? 'num-font' : ''}">${formatPrintCell(cell, i)}</td>`;
+                })
+                .join('')}
+            </tr>`;
+          })
           .join('')}
         ${
           totalsRow && totalsRow.length > 0
-            ? `
-          <tr class="total-row">
-            ${totalsRow
-              .map((cell, i) => {
-                const align = colAlignments[i];
-                const formatted = formatPrintCell(cell, i);
-                return `<td class="align-${align} num-font">${formatted}</td>`;
-              })
-              .join('')}
-          </tr>
-        `
+            ? `<tr class="total-row">
+                ${totalsRow
+                  .map((cell, i) => {
+                    const align = colAlignments[i];
+                    return `<td class="align-${align} num-font">${formatPrintCell(cell, i)}</td>`;
+                  })
+                  .join('')}
+              </tr>`
             : ''
         }
       </tbody>
     </table>
-
-    <!-- Footer -->
-    <div class="report-footer">
-      <div>Generated via <strong>Antigravity Books Enterprise</strong> — Official Chartered Accountant & Tax Platform</div>
-      <div>Confidential & Privileged • Verified Double-Entry Ledger System</div>
-    </div>
   </div>
 </body>
 </html>`;
+  }
+
+  public generateTrialBalancePrintHtml(
+    data: any,
+    branding: CompanyBrandingContext,
+    options?: PrintHtmlOptions,
+  ): string {
+    const headers = ['Code', 'Particulars (Ledger / Group)', 'Nature', 'Opening (₹)', 'Period Debit (₹)', 'Period Credit (₹)', 'Closing Debit (₹)', 'Closing Credit (₹)'];
+    const rows: (string | number)[][] = (data.rows || []).map((r: any) => [
+      r.ledgerCode,
+      `${r.ledgerName} (${r.groupName})`,
+      r.nature,
+      Number(r.openingDebit || 0) - Number(r.openingCredit || 0),
+      Number(r.periodDebit || 0),
+      Number(r.periodCredit || 0),
+      Number(r.closingDebit || 0),
+      Number(r.closingCredit || 0),
+    ]);
+    const totals = [
+      '',
+      'GRAND TOTAL',
+      '',
+      '',
+      Number(data.totalPeriodDebit || 0),
+      Number(data.totalPeriodCredit || 0),
+      Number(data.totalClosingDebit || 0),
+      Number(data.totalClosingCredit || 0),
+    ];
+    return this.generateBrandedReportHtml(
+      'Trial Balance (ICAI Standard)',
+      `As at ${data.asOfDate || new Date().toISOString().split('T')[0]}`,
+      branding,
+      headers,
+      rows,
+      totals,
+      options,
+    );
+  }
+
+  public generateProfitAndLossPrintHtml(
+    data: any,
+    branding: CompanyBrandingContext,
+    options?: PrintHtmlOptions,
+  ): string {
+    const headers = ['Schedule / Particulars', 'Group', 'Amount (₹)'];
+    const rows: (string | number)[][] = [];
+    const rowKinds: Array<'normal' | 'group' | 'subtotal'> = [];
+
+    rows.push(['I. OPERATING & OTHER INCOME', '', '']);
+    rowKinds.push('group');
+    for (const item of data.incomes || []) {
+      rows.push([item.ledgerName, item.groupName, Number(item.amount || 0)]);
+      rowKinds.push('normal');
+    }
+    rows.push(['Total Income (I)', '', Number(data.totalIncome || 0)]);
+    rowKinds.push('subtotal');
+
+    rows.push(['II. EXPENSES', '', '']);
+    rowKinds.push('group');
+    for (const item of data.expenses || []) {
+      rows.push([item.ledgerName, item.groupName, Number(item.amount || 0)]);
+      rowKinds.push('normal');
+    }
+    rows.push(['Total Expenses (II)', '', Number(data.totalExpense || 0)]);
+    rowKinds.push('subtotal');
+
+    const totals = ['NET PROFIT / (LOSS) (I - II)', '', Number(data.netProfit || 0)];
+    return this.generateBrandedReportHtml(
+      'Statement of Profit & Loss (Schedule III)',
+      `${data.fromDate} to ${data.toDate}`,
+      branding,
+      headers,
+      rows,
+      totals,
+      { ...options, rowKinds },
+    );
+  }
+
+  public generateBalanceSheetPrintHtml(
+    data: any,
+    branding: CompanyBrandingContext,
+    options?: PrintHtmlOptions,
+  ): string {
+    const headers = ['Particulars (Schedule III)', 'Group', 'Amount (₹)'];
+    const rows: (string | number)[][] = [];
+    const rowKinds: Array<'normal' | 'group' | 'subtotal'> = [];
+
+    rows.push(['I. EQUITY & LIABILITIES', '', '']);
+    rowKinds.push('group');
+    for (const item of data.equity || []) {
+      rows.push([item.ledgerName, item.groupName || 'Equity', Number(item.amount || 0)]);
+      rowKinds.push('normal');
+    }
+    for (const item of data.liabilities || []) {
+      rows.push([item.ledgerName, item.groupName || 'Liability', Number(item.amount || 0)]);
+      rowKinds.push('normal');
+    }
+    rows.push(['Total Equity & Liabilities', '', Number(data.totalLiabilitiesAndEquity || 0)]);
+    rowKinds.push('subtotal');
+
+    rows.push(['II. ASSETS', '', '']);
+    rowKinds.push('group');
+    for (const item of data.assets || []) {
+      rows.push([item.ledgerName, item.groupName || 'Asset', Number(item.amount || 0)]);
+      rowKinds.push('normal');
+    }
+    rows.push(['Total Assets', '', Number(data.totalAssets || 0)]);
+    rowKinds.push('subtotal');
+
+    const diff = Math.abs(Number(data.totalAssets || 0) - Number(data.totalLiabilitiesAndEquity || 0));
+    const totals = [
+      diff < 0.05 ? 'BALANCE SHEET TALLIED (A = L + E)' : 'BALANCE SHEET VARIANCE',
+      '',
+      Number(data.totalAssets || 0),
+    ];
+
+    return this.generateBrandedReportHtml(
+      'Balance Sheet (Schedule III Vertical)',
+      `As at ${data.asOfDate || new Date().toISOString().split('T')[0]}`,
+      branding,
+      headers,
+      rows,
+      totals,
+      { ...options, rowKinds },
+    );
   }
 }
