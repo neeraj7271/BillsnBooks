@@ -77,6 +77,42 @@ export class FirmClientOrmEntity {
   })
   healthStatus!: ClientHealthStatus;
 
+  @Column({ name: 'entity_type', type: 'varchar', length: 50, default: 'Pvt Ltd' })
+  entityType!: string;
+
+  @Column({ name: 'incorporation_date', type: 'date', nullable: true })
+  incorporationDate?: string | null;
+
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  cin?: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  tan?: string | null;
+
+  @Column({ name: 'aadhaar_masked', type: 'varchar', length: 20, nullable: true })
+  aadhaarMasked?: string | null;
+
+  @Column({ name: 'registered_address', type: 'text', nullable: true })
+  registeredAddress?: string | null;
+
+  @Column({ type: 'jsonb', default: () => "'[]'" })
+  gstins!: string[];
+
+  @Column({ name: 'fy_preference', type: 'varchar', length: 20, default: 'APR_MAR' })
+  fyPreference!: string;
+
+  @Column({ name: 'is_vip', type: 'boolean', default: false })
+  isVip!: boolean;
+
+  @Column({ name: 'assigned_partner_id', type: 'uuid', nullable: true })
+  assignedPartnerId?: string | null;
+
+  @Column({ name: 'custom_fields', type: 'jsonb', default: () => "'{}'" })
+  customFields!: Record<string, any>;
+
+  @Column({ type: 'jsonb', default: () => "'[]'" })
+  labels!: string[];
+
   @OneToMany(() => StaffAssignmentOrmEntity, (a) => a.client)
   staffAssignments!: StaffAssignmentOrmEntity[];
 
