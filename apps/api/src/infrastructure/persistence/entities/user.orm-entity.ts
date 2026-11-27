@@ -56,6 +56,12 @@ export class UserOrmEntity {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
 
+  @Column({ name: 'weekly_capacity_hours', type: 'int', default: 40 })
+  weeklyCapacityHours!: number;
+
+  @Column({ name: 'hourly_cost_rate', type: 'numeric', precision: 10, scale: 2, default: 500 })
+  hourlyCostRate!: number;
+
   @Column({
     name: 'refresh_token_hash',
     type: 'varchar',

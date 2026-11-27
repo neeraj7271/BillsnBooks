@@ -815,17 +815,18 @@ export default function Client360Page() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-brand-text" />
+              <Clock className="h-4 w-4 text-brand-text" />
               <span>Time Tracking, WIP &amp; Engagement Billing</span>
-              <Badge variant="info" size="xs">Phase 2 · Coming soon</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <p className="text-xs text-secondary leading-relaxed">
-              The underlying <code className="font-mono">practice_time_entries</code> schema is provisioned.
-              In Phase 2 (see <code className="font-mono">docs/practice/PRACTICE_PLATFORM_V2_ROADMAP.md</code>),
-              proposals, engagement letters, staff timers, WIP billing, and automated reminders will activate here.
+              Manage unbilled WIP, retainer draw-downs, GST invoice conversion, and client profitability directly in the Practice Billing &amp; Timesheets workspace.
             </p>
+            <div className="flex gap-2">
+              <Link href="/practice/timesheets"><Button size="sm" variant="outline">Open Timesheets</Button></Link>
+              <Link href="/practice/billing"><Button size="sm" variant="primary">Open Billing &amp; WIP</Button></Link>
+            </div>
           </CardContent>
         </Card>
       )}

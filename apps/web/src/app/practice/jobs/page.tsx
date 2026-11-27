@@ -83,6 +83,36 @@ function JobsPipelineContent() {
   // Job Detail Drawer
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
   const [commentText, setCommentText] = useState('');
+  const [jobTimeEntries, setJobTimeEntries] = useState<any[]>([]);
+  const [timerStartedAt, setTimerStartedAt] = useState<number | null>(null);
+  const [timerJobId, setTimerJobId] = useState<string | null>(null);
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const [manualMinutes, setManualMinutes] = useState('45');
+  const [manualNote, setManualNote] = useState('');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('practice_active_timer');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.jobId && parsed.startedAt) {
+          setTimerJobId(parsed.jobId);
+          setTimerStartedAt(parsed.startedAt);
+        }
+      } catch {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!timerStartedAt) {
+      setElapsedSec(0);
+      return;
+    }
+    const tick = () => setElapsedSec(Math.max(0, Math.floor((Date.now() - timerStartedAt) / 1000)));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [timerStartedAt]);
 
   const loadAll = async () => {
     setLoading(true);
@@ -743,6 +773,97 @@ function JobsPipelineContent() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Time Tracking (Timer + Manual Entry) */}
+            <div className="space-y-3 pt-2 border-t border-default">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-bold uppercase text-muted">Time Tracking</div>
+                {timerJobId === selectedJob.id && timerStartedAt ? (
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="danger"
+                    onClick={async () => {
+                      const mins = Math.max(1, Math.round((Date.now() - timerStartedAt) / 60000));
+                      localStorage.removeItem('practice_active_timer');
+                      setTimerStartedAt(null);
+                      setTimerJobId(null);
+                      await apiClient.logTimeEntry({
+                        clientId: selectedJob.clientId,
+                        jobId: selectedJob.id,
+                        minutes: mins,
+                        isBillable: true,
+                        hourlyRate: 1500,
+                        notes: `Timer session on ${selectedJob.title}`,
+                      });
+                      const entries = await apiClient.listTimeEntries({ jobId: selectedJob.id });
+                      setJobTimeEntries(entries || []);
+                    }}
+                  >
+                    Stop Timer ({Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s)
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="outline"
+                    onClick={() => {
+                      const now = Date.now();
+                      localStorage.setItem('practice_active_timer', JSON.stringify({ jobId: selectedJob.id, startedAt: now }));
+                      setTimerJobId(selectedJob.id);
+                      setTimerStartedAt(now);
+                    }}
+                  >
+                    Start Timer
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  className="w-24"
+                  value={manualMinutes}
+                  onChange={(e) => setManualMinutes(e.target.value)}
+                  placeholder="Mins"
+                />
+                <Input
+                  value={manualNote}
+                  onChange={(e) => setManualNote(e.target.value)}
+                  placeholder="Manual time note..."
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="primary"
+                  onClick={async () => {
+                    if (!Number(manualMinutes)) return;
+                    await apiClient.logTimeEntry({
+                      clientId: selectedJob.clientId,
+                      jobId: selectedJob.id,
+                      minutes: Number(manualMinutes),
+                      isBillable: true,
+                      hourlyRate: 1500,
+                      notes: manualNote || `Work on ${selectedJob.title}`,
+                    });
+                    setManualNote('');
+                    const entries = await apiClient.listTimeEntries({ jobId: selectedJob.id });
+                    setJobTimeEntries(entries || []);
+                  }}
+                >
+                  Log
+                </Button>
+              </div>
+              {jobTimeEntries.length > 0 && (
+                <div className="space-y-1">
+                  {jobTimeEntries.slice(0, 4).map((te) => (
+                    <div key={te.id} className="text-[11px] flex justify-between px-2 py-1 rounded bg-surface-sunken">
+                      <span>{te.notes || 'Work'}</span>
+                      <span className="font-mono">{te.minutes}m · ₹{te.amount}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Comments */}
