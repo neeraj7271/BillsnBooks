@@ -147,10 +147,10 @@ function ClientDocumentsPortalContent() {
           {row.status === 'UPLOADED' && (
             <>
               <Button
-                variant="primary"
+                variant="outline"
                 size="xs"
                 onClick={() => handleReview(row.id, 'ACCEPTED')}
-                leftIcon={<CheckCircle2 className="h-3 w-3" />}
+                leftIcon={<CheckCircle2 className="h-3 w-3 text-status-success-text" />}
               >
                 Accept
               </Button>

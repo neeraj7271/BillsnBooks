@@ -201,7 +201,7 @@ export default function NotificationSettingsPage() {
               Test ({testChannel})
             </Button>
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               onClick={handleSave}
               loading={saving}

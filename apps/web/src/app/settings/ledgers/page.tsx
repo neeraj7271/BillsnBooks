@@ -31,6 +31,10 @@ import {
   type ColumnDef,
   confirmDialog,
   toast,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
@@ -521,13 +525,36 @@ export default function ChartOfAccountsPage() {
             </Button>
           )}
 
-          <Button variant="outline" size="sm" onClick={() => handleOpenAddGroup()}>
-            <Plus className="h-4 w-4 mr-1.5" /> Add Group
-          </Button>
-
-          <Button variant="primary" size="sm" onClick={() => handleOpenAddLedger()}>
-            <Plus className="h-4 w-4 mr-1.5" /> Add Ledger
-          </Button>
+          <div className="inline-flex rounded-lg shadow-2xs">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleOpenAddLedger()}
+              className="rounded-r-none border-r border-brand-hover/30"
+            >
+              <Plus className="h-4 w-4 mr-1.5" /> Add Ledger
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="rounded-l-none px-2"
+                  aria-label="More account options"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => handleOpenAddGroup()}>
+                  <Plus className="h-3.5 w-3.5 mr-1.5 text-muted" /> Add Account Group
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleOpenAddLedger()}>
+                  <Plus className="h-3.5 w-3.5 mr-1.5 text-muted" /> Add Account Ledger
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 

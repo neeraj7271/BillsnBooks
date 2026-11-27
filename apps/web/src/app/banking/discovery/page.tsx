@@ -137,13 +137,13 @@ export default function SalesDiscoveryCockpitPage() {
       cell: (t) =>
         t.status === 'OPEN' ? (
           <Button
-            variant="primary"
+            variant="outline"
             size="xs"
             onClick={() => {
               setActiveTicket(t);
               setConvertModalOpen(true);
             }}
-            leftIcon={<Sparkles className="h-3 w-3" />}
+            leftIcon={<Sparkles className="h-3 w-3 text-brand-text" />}
           >
             Convert
           </Button>

@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Lock,
   ArrowLeft,
+  ChevronDown,
 } from 'lucide-react';
 import {
   Button,
@@ -30,6 +31,10 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
   type ColumnDef,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
@@ -267,9 +272,46 @@ export default function NumberingSettingsPage() {
           <Button variant="outline" size="sm" onClick={loadData} loading={loading} leftIcon={<RefreshCw className="h-3.5 w-3.5" />}>
             Refresh
           </Button>
-          <Button variant="primary" size="sm" onClick={handleOpenCreate} leftIcon={<Plus className="h-3.5 w-3.5" />}>
-            New Numbering Series
-          </Button>
+          <div className="inline-flex rounded-lg shadow-2xs">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleOpenCreate}
+              leftIcon={<Plus className="h-3.5 w-3.5" />}
+              className="rounded-r-none border-r border-brand-hover/30"
+            >
+              New Numbering Series
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="rounded-l-none px-2"
+                  aria-label="More creation options"
+                >
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('TAX_INVOICE'); }}>
+                  Tax Invoice Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('CREDIT_NOTE'); }}>
+                  Credit Note Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('DEBIT_NOTE'); }}>
+                  Debit Note Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('DELIVERY_CHALLAN'); }}>
+                  Delivery Challan Series
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { handleOpenCreate(); setDocType('JOURNAL_VOUCHER'); }}>
+                  Journal Voucher Series
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 

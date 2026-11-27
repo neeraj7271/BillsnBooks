@@ -622,11 +622,11 @@ export default function InvoiceBrandingSettingsPage() {
       {/* Bottom Save Bar */}
       <div className="flex justify-end pt-2">
         <Button
-          variant="primary"
+          variant="outline"
           size="md"
           onClick={handleSaveAll}
           loading={saving}
-          className="bg-brand hover:bg-brand-hover text-inverse font-semibold shadow-xs px-6"
+          className="font-semibold shadow-xs px-6"
         >
           Save All Settings
         </Button>
