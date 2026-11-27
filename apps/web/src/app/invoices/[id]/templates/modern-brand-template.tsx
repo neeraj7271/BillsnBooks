@@ -4,6 +4,7 @@ import { formatPartyTaxIdentity, INDIAN_GST_STATES } from '@platform/shared-type
 import { ShieldCheck, Landmark, CheckCircle2 } from 'lucide-react';
 import { numberToIndianWords } from '@/lib/number-to-words';
 import type { InvoiceTemplateProps } from './types';
+import '@/app/invoices/print.css';
 
 export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTemplateProps) {
   const isIntraState = invoice.supplyType === 'INTRA_STATE';
@@ -254,7 +255,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
       </div>
 
       {/* Tax Breakdown, In Words & Financial Summary Block */}
-      <div className="py-5 flex justify-between items-start gap-8">
+      <div className="py-5 flex justify-between items-start gap-8 page-break-avoid">
         <div className="flex-1 space-y-3 max-w-lg">
           <div className="p-3.5 rounded-xl bg-surface-sunken print:bg-white border border-default">
             <div className="text-[10px] font-bold uppercase tracking-wider text-secondary print:text-black">

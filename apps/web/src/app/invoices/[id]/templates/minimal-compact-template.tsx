@@ -3,6 +3,7 @@ import { DateText, MoneyText, QrCode } from '@platform/ui';
 import { INDIAN_GST_STATES } from '@platform/shared-types';
 import { CheckCircle2 } from 'lucide-react';
 import type { InvoiceTemplateProps } from './types';
+import '@/app/invoices/print.css';
 
 export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTemplateProps) {
   const isIntraState = invoice.supplyType === 'INTRA_STATE';
@@ -151,7 +152,7 @@ export function MinimalCompactTemplate({ invoice, company, settings }: InvoiceTe
       </div>
 
       {/* Summary Footer */}
-      <div className="pt-3 flex justify-between items-start text-[10px]">
+      <div className="pt-3 flex justify-between items-start text-[10px] page-break-avoid">
         <div className="max-w-xs text-secondary print:text-black space-y-2">
           <div className="flex items-start gap-2.5">
             {showQrCode && (

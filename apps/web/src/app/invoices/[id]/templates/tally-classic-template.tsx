@@ -4,6 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { numberToIndianWords } from '@/lib/number-to-words';
 import { INDIAN_GST_STATES } from '@platform/shared-types';
 import type { InvoiceTemplateProps } from './types';
+import '@/app/invoices/print.css';
 
 export function TallyClassicTemplate({ invoice, company, settings }: InvoiceTemplateProps) {
   const isIntraState = invoice.supplyType === 'INTRA_STATE';
@@ -329,7 +330,7 @@ export function TallyClassicTemplate({ invoice, company, settings }: InvoiceTemp
       </div>
 
       {/* Statutory HSN/SAC Tax Analysis Breakup Table (Classic Tally Box) */}
-      <div className="border-b-2 border-strong">
+      <div className="border-b-2 border-strong page-break-avoid">
         <div className="py-1 px-1.5 bg-surface-sunken print:bg-white text-[9px] font-black uppercase text-primary border-b border-default">
           Tax Analysis & Breakup
         </div>
@@ -422,7 +423,7 @@ export function TallyClassicTemplate({ invoice, company, settings }: InvoiceTemp
       </div>
 
       {/* Footer Section: Bank Details + QR + Terms (Left) vs Authorised Signatory (Right) */}
-      <div className="grid grid-cols-2 divide-x-2 divide-border-strong">
+      <div className="grid grid-cols-2 divide-x-2 divide-border-strong page-break-avoid">
         <div className="p-2 space-y-1.5 flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
             <div className="space-y-0.5">

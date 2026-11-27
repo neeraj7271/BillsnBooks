@@ -1,0 +1,28 @@
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
+    color: black !important;
+    font-family: Inter, -apple-system, system-ui, sans-serif;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .page-break-before {
+    break-before: page;
+  }
+  .page-break-avoid {
+    break-inside: avoid;
+  }
+  table thead {
+    display: table-header-group;
+  }
+  table tr {
+    break-inside: avoid;
+  }
+}
