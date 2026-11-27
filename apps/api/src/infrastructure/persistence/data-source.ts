@@ -51,6 +51,14 @@ import { PracticeEngagementTemplateOrmEntity, PracticeEngagementOrmEntity } from
 import { PracticeBillOrmEntity, PracticeBillLineOrmEntity } from './entities/practice-bill.orm-entity';
 import { PracticeNoticeOrmEntity } from './entities/practice-notice.orm-entity';
 import { PracticeReminderTemplateOrmEntity, PracticeNotificationRuleOrmEntity } from './entities/practice-reminder.orm-entity';
+import {
+  TeamInvitationOrmEntity,
+  PermissionRoleOrmEntity,
+  JobRoleOrmEntity,
+  ClientJobRoleAssignmentOrmEntity,
+  ClientTeamMemberOrmEntity,
+  PracticeJobReviewOrmEntity,
+} from './entities/team-and-review.orm-entity';
 import { RecurringScheduleOrmEntity } from './entities/recurring-schedule.orm-entity';
 import { PaymentLinkOrmEntity } from './entities/payment-link.orm-entity';
 import { GatewaySettlementOrmEntity } from './entities/gateway-settlement.orm-entity';
@@ -85,6 +93,7 @@ import { DocumentVaultAndStorage1731700000000 } from './migrations/1731700000000
 import { PracticeJobsWorkflowAndClient3601731800000 } from './migrations/1731800000000-PracticeJobsWorkflowAndClient360';
 import { PracticePlatformV2Core1731900000000 } from './migrations/1731900000000-PracticePlatformV2Core';
 import { PracticePlatformV2Phase21732000000000 } from './migrations/1732000000000-PracticePlatformV2Phase2';
+import { TeamAndReviewEngine1732100000000 } from './migrations/1732100000000-TeamAndReviewEngine';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -155,6 +164,12 @@ export const AppDataSource = new DataSource({
     PracticeNoticeOrmEntity,
     PracticeReminderTemplateOrmEntity,
     PracticeNotificationRuleOrmEntity,
+    TeamInvitationOrmEntity,
+    PermissionRoleOrmEntity,
+    JobRoleOrmEntity,
+    ClientJobRoleAssignmentOrmEntity,
+    ClientTeamMemberOrmEntity,
+    PracticeJobReviewOrmEntity,
     RecurringScheduleOrmEntity,
     PaymentLinkOrmEntity,
     GatewaySettlementOrmEntity,
@@ -187,6 +202,7 @@ export const AppDataSource = new DataSource({
     PracticeJobsWorkflowAndClient3601731800000,
     PracticePlatformV2Core1731900000000,
     PracticePlatformV2Phase21732000000000,
+    TeamAndReviewEngine1732100000000,
   ],
   migrationsRun: false,
 });

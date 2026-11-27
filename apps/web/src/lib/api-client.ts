@@ -1541,6 +1541,130 @@ export const apiClient = {
     return request<any>('/v1/practice/command-center');
   },
 
+  // Team Management & Review/Sign-off Engine
+  async getInviteInfo(token: string) {
+    return request<any>(`/v1/auth/invite-info?token=${encodeURIComponent(token)}`);
+  },
+
+  async acceptInvite(payload: { token: string; firstName: string; lastName: string; password: string }) {
+    return request<any>('/v1/auth/accept-invite', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getTeam() {
+    return request<any>('/v1/team');
+  },
+
+  async createTeamInvite(payload: any) {
+    return request<any>('/v1/team/invitations', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async resendTeamInvite(id: string) {
+    return request<any>(`/v1/team/invitations/${id}/resend`, { method: 'POST' });
+  },
+
+  async revokeTeamInvite(id: string) {
+    return request<any>(`/v1/team/invitations/${id}/revoke`, { method: 'POST' });
+  },
+
+  async updateTeamMember(userId: string, payload: any) {
+    return request<any>(`/v1/team/members/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listPermissionRoles() {
+    return request<any[]>('/v1/team/permission-roles');
+  },
+
+  async createPermissionRole(payload: any) {
+    return request<any>('/v1/team/permission-roles', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async listJobRoles() {
+    return request<any[]>('/v1/team/job-roles');
+  },
+
+  async createJobRole(payload: any) {
+    return request<any>('/v1/team/job-roles', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getClientTeam(clientId: string) {
+    return request<any>(`/v1/team/clients/${clientId}`);
+  },
+
+  async addClientTeamMember(clientId: string, payload: any) {
+    return request<any>(`/v1/team/clients/${clientId}/members`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async assignClientJobRole(clientId: string, payload: any) {
+    return request<any>(`/v1/team/clients/${clientId}/job-roles`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async removeClientTeamMember(clientId: string, userId: string) {
+    return request<any>(`/v1/team/clients/${clientId}/members/${userId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async getReviewSettings() {
+    return request<any>('/v1/practice/review-settings');
+  },
+
+  async setReviewMode(reviewMode: 'OFF' | 'SELF_SIGNOFF' | 'ENFORCED') {
+    return request<any>('/v1/practice/review-settings', {
+      method: 'PATCH',
+      body: JSON.stringify({ reviewMode }),
+    });
+  },
+
+  async getReviewInbox() {
+    return request<any[]>('/v1/practice/reviews/inbox');
+  },
+
+  async getJobReviewHistory(jobId: string) {
+    return request<any[]>(`/v1/practice/jobs/${jobId}/reviews`);
+  },
+
+  async submitJobForReview(jobId: string, notes?: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/submit-review`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  },
+
+  async approveJobReview(jobId: string, payload?: { notes?: string; isFinalSignoff?: boolean }) {
+    return request<any>(`/v1/practice/jobs/${jobId}/approve-review`, {
+      method: 'POST',
+      body: JSON.stringify(payload || {}),
+    });
+  },
+
+  async returnJobForRework(jobId: string, notes: string) {
+    return request<any>(`/v1/practice/jobs/${jobId}/return-review`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    });
+  },
+
   // Collections & Ageing (Phase 6)
   async getArAgeingSummary(companyId: string = getActiveCompanyId(), asOfDate?: string) {
     const q = asOfDate ? `?asOfDate=${asOfDate}` : '';

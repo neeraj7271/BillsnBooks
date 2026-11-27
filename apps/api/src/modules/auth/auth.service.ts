@@ -288,6 +288,68 @@ export class AuthService {
     }
   }
 
+  async getInviteInfo(token: string) {
+    const rows = await this.dataSource.query(
+      `SELECT * FROM auth_find_invite_by_token($1)`,
+      [token],
+    );
+    const inv = rows[0];
+    if (!inv) throw new UnauthorizedException('Invalid invitation link.');
+    if (inv.status !== 'PENDING') throw new ConflictException(`Invitation is already ${inv.status.toLowerCase()}.`);
+    if (new Date(inv.expiresAt) < new Date()) throw new UnauthorizedException('Invitation has expired.');
+    return inv;
+  }
+
+  async acceptInvite(dto: { token: string; firstName: string; lastName: string; password: string }) {
+    const inv = await this.getInviteInfo(dto.token);
+    const passwordHash = await argon2.hash(dto.password);
+
+    const savedUser = await this.dataSource.transaction(async (manager) => {
+      await manager.query(`SELECT set_config('app.tenant_id', $1, true)`, [inv.tenantId]);
+      const existing = await manager.findOne(UserOrmEntity, { where: { email: inv.email } });
+      if (existing) {
+        throw new ConflictException('A user with this email already exists.');
+      }
+
+      const userRepo = manager.getRepository(UserOrmEntity);
+      const user = await userRepo.save(
+        userRepo.create({
+          tenantId: inv.tenantId,
+          email: inv.email,
+          firstName: dto.firstName?.trim() || inv.name || 'Team',
+          lastName: dto.lastName?.trim() || 'Member',
+          passwordHash,
+          role: (inv.invitedRole || 'STAFF_ACCOUNTANT') as any,
+          permissionRoleId: inv.permissionRoleId || null,
+          userKind: 'FIRM_COLLEAGUE',
+          isActive: true,
+        }),
+      );
+
+      await manager.query(
+        `UPDATE team_invitations SET status = 'ACCEPTED', accepted_at = now() WHERE id = $1`,
+        [inv.id],
+      );
+      return user;
+    });
+
+    const tokens = await this.generateTokens(savedUser);
+    const refreshHash = await argon2.hash(tokens.refreshToken);
+    await this.updateRefreshTokenForTenant(savedUser.tenantId, savedUser.id, refreshHash);
+
+    return {
+      user: {
+        id: savedUser.id,
+        email: savedUser.email,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        role: savedUser.role,
+        tenantId: savedUser.tenantId,
+      },
+      tokens,
+    };
+  }
+
   private async generateTokens(user: UserOrmEntity): Promise<AuthTokens> {
     const payload = {
       sub: user.id,

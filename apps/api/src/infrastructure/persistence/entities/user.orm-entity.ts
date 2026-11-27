@@ -62,6 +62,21 @@ export class UserOrmEntity {
   @Column({ name: 'hourly_cost_rate', type: 'numeric', precision: 10, scale: 2, default: 500 })
   hourlyCostRate!: number;
 
+  @Column({ name: 'user_kind', type: 'varchar', length: 30, default: 'FIRM_COLLEAGUE' })
+  userKind!: 'FIRM_COLLEAGUE' | 'CLIENT_USER';
+
+  @Column({ name: 'client_id', type: 'uuid', nullable: true })
+  clientId?: string | null;
+
+  @Column({ name: 'permission_role_id', type: 'uuid', nullable: true })
+  permissionRoleId?: string | null;
+
+  @Column({ name: 'job_role_ids', type: 'jsonb', default: () => "'[]'" })
+  jobRoleIds!: string[];
+
+  @Column({ name: 'last_active_at', type: 'timestamptz', nullable: true })
+  lastActiveAt?: Date | null;
+
   @Column({
     name: 'refresh_token_hash',
     type: 'varchar',

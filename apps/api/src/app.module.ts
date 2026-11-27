@@ -23,6 +23,7 @@ import { InvoiceModule } from './modules/invoice/invoice.module';
 import { ApprovalModule } from './modules/approval/approval.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PracticeModule } from './modules/practice/practice.module';
+import { TeamModule } from './modules/team/team.module';
 import { CollectionsModule } from './modules/collections/collections.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -51,6 +52,7 @@ import { HealthController } from './modules/health/health.controller';
     ApprovalModule,
     NotificationModule,
     PracticeModule,
+    TeamModule,
     CollectionsModule,
     MetricsModule,
     SettingsModule,
