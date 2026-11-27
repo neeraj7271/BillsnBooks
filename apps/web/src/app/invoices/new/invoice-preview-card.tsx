@@ -45,7 +45,7 @@ export function InvoicePreviewCard({
   return (
     <div className="space-y-4" data-testid="invoice-live-preview">
       {/* Top Bar with Template Switcher & Actions - Hidden in Print */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-2xl border border-default shadow-xs print:hidden">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-2xl border border-default shadow-xs print:hidden">
         <div className="flex items-center gap-2">
           {showBackToEdit && onBackToEdit && (
             <Button
@@ -109,7 +109,7 @@ export function InvoicePreviewCard({
         </div>
 
         {/* Footer Cue */}
-        <div className="w-full max-w-[210mm] mt-3 flex items-center justify-between text-[11px] text-muted print:hidden select-none px-1">
+        <div className="no-print w-full max-w-[210mm] mt-3 flex items-center justify-between text-[11px] text-muted print:hidden select-none px-1">
           <span>A4 Standard Portrait (210 × 297 mm)</span>
           <span className="font-mono text-[10px]">Exact Print Preview</span>
         </div>

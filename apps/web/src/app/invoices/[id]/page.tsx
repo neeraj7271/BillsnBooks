@@ -190,20 +190,22 @@ export default function InvoiceDetailsPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12 print:m-0 print:p-0 print:max-w-none print:w-full print:space-y-0">
-      <InvoiceHeaderBar
-        invoice={invoice}
-        actionLoading={actionLoading}
-        selectedTemplate={selectedTemplate}
-        onSelectTemplate={handleSelectTemplate}
-        onPrint={handlePrint}
-        onApprove={handleApprove}
-        onTriggerReject={() => setRejectOpen(true)}
-        onTriggerCancel={() => setCancelOpen(true)}
-        onOpenCustomizer={() => setCustomizerOpen(true)}
-      />
+      <div className="no-print">
+        <InvoiceHeaderBar
+          invoice={invoice}
+          actionLoading={actionLoading}
+          selectedTemplate={selectedTemplate}
+          onSelectTemplate={handleSelectTemplate}
+          onPrint={handlePrint}
+          onApprove={handleApprove}
+          onTriggerReject={() => setRejectOpen(true)}
+          onTriggerCancel={() => setCancelOpen(true)}
+          onOpenCustomizer={() => setCustomizerOpen(true)}
+        />
+      </div>
 
       {invoice.status === 'DRAFT' && (
-        <div className="print:hidden p-4 rounded-2xl bg-brand-subtle border border-default flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
+        <div className="no-print print:hidden p-4 rounded-2xl bg-brand-subtle border border-default flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
           <div className="flex items-start sm:items-center gap-3">
             <div className="p-2 rounded-xl bg-surface text-brand-text shrink-0">
               <FileText className="h-5 w-5" />
@@ -244,7 +246,7 @@ export default function InvoiceDetailsPage() {
       )}
 
       {invoice.status === 'PENDING_APPROVAL' && (
-        <div className="print:hidden p-4 rounded-2xl bg-status-warning-subtle border border-status-warning flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
+        <div className="no-print print:hidden p-4 rounded-2xl bg-status-warning-subtle border border-status-warning flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
           <div className="flex items-start sm:items-center gap-3">
             <div className="p-2 rounded-xl bg-surface text-status-warning-text shrink-0">
               <Clock className="h-5 w-5" />
@@ -287,7 +289,7 @@ export default function InvoiceDetailsPage() {
       {/* Real A4 Print Preview Canvas / Desk Mat */}
       <div className="preview-stage-mat relative rounded-3xl border border-default bg-surface-sunken p-3 sm:p-6 md:p-10 shadow-inner flex flex-col items-center overflow-x-auto print:p-0 print:m-0 print:border-none print:bg-transparent print:shadow-none print:block">
         {/* Document Preview Inspector / Header Strip */}
-        <div className="w-full max-w-[210mm] mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-secondary print:hidden select-none px-1">
+        <div className="no-print w-full max-w-[210mm] mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-secondary print:hidden select-none px-1">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="relative flex h-2.5 w-2.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-success opacity-75"></span>
@@ -346,7 +348,7 @@ export default function InvoiceDetailsPage() {
         </div>
 
         {/* Preview Footer Cue */}
-        <div className="w-full max-w-[210mm] mt-3.5 flex items-center justify-between text-[11px] text-muted print:hidden select-none px-1">
+        <div className="no-print w-full max-w-[210mm] mt-3.5 flex items-center justify-between text-[11px] text-muted print:hidden select-none px-1">
           <span>End of Sheet • A4 Standard Portrait (210 × 297 mm)</span>
           <span className="font-mono text-[10px]">Exact Print Preview</span>
         </div>
