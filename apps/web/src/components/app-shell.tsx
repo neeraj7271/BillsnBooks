@@ -16,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const isAuthRoute = pathname.startsWith('/auth');
+  const isPublicRoute = isAuthRoute || pathname.startsWith('/reports/shared');
 
   useEffect(() => {
     try {
@@ -25,7 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }
 
       const token = localStorage.getItem('antigravity_access_token');
-      if (!isAuthRoute && !token) {
+      if (!isPublicRoute && !token) {
         setIsAuthenticated(false);
         router.replace('/auth/login');
         return;
@@ -36,7 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     } finally {
       setMounted(true);
     }
-  }, [pathname, isAuthRoute, router]);
+  }, [pathname, isPublicRoute, router]);
 
   const handleToggleCollapse = () => {
     setIsCollapsed((prev) => {
@@ -50,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     });
   };
 
-  if (isAuthRoute) {
+  if (isPublicRoute) {
     return (
       <main id="main-content" className="min-h-screen w-full bg-canvas text-primary">
         {children}

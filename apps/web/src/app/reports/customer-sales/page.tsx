@@ -7,6 +7,7 @@ import { ReportPage, MoneyText, DataTable, DateRangePicker, type ColumnDef } fro
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { useTablePagination } from '@/hooks/use-table-pagination';
+import { ShareDialog } from '../share-dialog';
 
 export default function CustomerSalesPage() {
   const { activeCompanyId } = useCompany();
@@ -16,6 +17,7 @@ export default function CustomerSalesPage() {
   const [fromDate, setFromDate] = useState<string>('2024-04-01');
   const [toDate, setToDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [compareMode, setCompareMode] = useState<boolean>(false);
+  const [shareOpen, setShareOpen] = useState<boolean>(false);
 
   const { page, pageSize, setPage, setPageSize } = useTablePagination({
     storageKey: 'report_customer_sales',
@@ -122,6 +124,7 @@ export default function CustomerSalesPage() {
       onExportExcel={() => downloadFormat('xlsx')}
       onExportHtml={() => downloadFormat('html')}
       onPrintPdf={() => window.print()}
+      onShare={() => setShareOpen(true)}
       loading={loading}
       error={error}
       onRetry={loadData}
@@ -147,6 +150,14 @@ export default function CustomerSalesPage() {
         storageKey="report_customer_sales"
         emptyTitle="No customer sales"
         emptyDescription="No sales recorded for the selected date range."
+      />
+      <ShareDialog
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        reportKey="CUSTOMER_SALES"
+        reportTitle="Customer Sales Summary"
+        companyId={activeCompanyId}
+        filters={{ fromDate, toDate }}
       />
     </ReportPage>
   );
