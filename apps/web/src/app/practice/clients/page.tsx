@@ -72,8 +72,15 @@ export default function ClientsDirectoryPage() {
       key: 'companyName',
       cell: (row) => (
         <div>
-          <div className="font-bold text-primary">{row.companyName}</div>
-          <div className="text-[11px] font-mono text-muted">{row.clientCode}</div>
+          <Link href={`/practice/clients/${row.id}`} className="font-bold text-brand-text hover:underline">
+            {row.companyName}
+          </Link>
+          <div className="text-[11px] font-mono text-muted flex items-center gap-2">
+            <span>{row.clientCode}</span>
+            <Link href={`/practice/clients/${row.id}/vault`} className="text-secondary hover:text-primary underline">
+              Vault
+            </Link>
+          </div>
         </div>
       ),
     },
