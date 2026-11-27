@@ -553,7 +553,7 @@ export function NotificationCenter() {
                               </button>
 
                               {openMenuId === n.id && (
-                                <div className="absolute right-0 bottom-7 z-20 w-36 rounded-xl border border-default bg-surface shadow-lg py-1 text-xs">
+                                <div className="absolute right-0 bottom-7 z-20 w-36 rounded-xl border border-subtle bg-surface-raised shadow-popover py-1 text-xs">
                                   <button
                                     type="button"
                                     onClick={() => {

@@ -288,7 +288,7 @@ export default function VouchersPage() {
 
   const kpis = (
     <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-      <div className="p-4 rounded-2xl bg-surface border border-default shadow-xs flex items-center justify-between">
+      <div className="p-4 rounded-xl bg-surface border border-subtle shadow-card flex items-center justify-between">
         <div>
           <span className="text-overline uppercase text-muted block">Total Vouchers</span>
           <span className="text-2xl font-black text-primary">{vouchers.length}</span>
@@ -296,7 +296,7 @@ export default function VouchersPage() {
         <FileText className="h-6 w-6 text-brand-text opacity-80" />
       </div>
 
-      <div className="p-4 rounded-2xl bg-surface border border-default shadow-xs flex items-center justify-between">
+      <div className="p-4 rounded-xl bg-surface border border-subtle shadow-card flex items-center justify-between">
         <div>
           <span className="text-overline uppercase text-muted block">Posted & Balanced</span>
           <span className="text-2xl font-black text-status-success-text">{activeCount}</span>
@@ -304,7 +304,7 @@ export default function VouchersPage() {
         <Badge variant="success" size="xs">Active</Badge>
       </div>
 
-      <div className="p-4 rounded-2xl bg-surface border border-default shadow-xs flex items-center justify-between">
+      <div className="p-4 rounded-xl bg-surface border border-subtle shadow-card flex items-center justify-between">
         <div>
           <span className="text-overline uppercase text-muted block">Reversals & Contras</span>
           <span className="text-2xl font-black text-status-danger-text">{reversedCount}</span>
@@ -312,7 +312,7 @@ export default function VouchersPage() {
         <Badge variant="danger" size="xs">Audit Log</Badge>
       </div>
 
-      <div className="p-4 rounded-2xl bg-surface border border-default shadow-xs flex items-center justify-between">
+      <div className="p-4 rounded-xl bg-surface border border-subtle shadow-card flex items-center justify-between">
         <div>
           <span className="text-overline uppercase text-muted block">Aggregate Debits</span>
           <span className="text-xl font-black text-primary font-mono">

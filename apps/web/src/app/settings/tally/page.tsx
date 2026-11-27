@@ -135,8 +135,8 @@ export default function TallySettingsPage() {
         <div
           className={`p-3 rounded-xl border text-xs font-medium ${
             message.type === 'success'
-              ? 'bg-status-success-subtle border-default text-status-success-text'
-              : 'bg-status-danger-subtle border-default text-status-danger-text'
+              ? 'bg-status-success-subtle border-subtle text-status-success-text'
+              : 'bg-status-danger-subtle border-subtle text-status-danger-text'
           }`}
         >
           {message.text}
@@ -242,7 +242,7 @@ export default function TallySettingsPage() {
           <pre
             tabIndex={0}
             aria-label="Tally XML Payload"
-            className="p-4 rounded-xl bg-surface-sunken text-primary border border-default font-mono text-[11px] overflow-x-auto max-h-72 focus:outline-none focus:ring-1 focus:ring-focus-ring"
+            className="p-4 rounded-xl bg-surface-sunken text-primary font-mono text-[11px] overflow-x-auto max-h-72 focus:outline-none focus:ring-1 focus:ring-focus-ring"
           >
             {xmlPreview || '<ENVELOPE>\n  <HEADER>\n    <TALLYREQUEST>Import Data</TALLYREQUEST>\n  </HEADER>\n</ENVELOPE>'}
           </pre>

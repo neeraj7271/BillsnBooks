@@ -50,7 +50,7 @@ export default function TrialBalancePage() {
   const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
   const summary = data && (
-    <div className="rounded-xl border border-default bg-surface p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="rounded-xl border border-subtle bg-surface p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <span
         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${
           isBalanced
@@ -99,7 +99,7 @@ export default function TrialBalancePage() {
       isEmpty={!loading && rows.length === 0}
       summary={summary}
     >
-      <div className="rounded-xl border border-default bg-surface shadow-xs overflow-hidden">
+      <div className="rounded-xl border border-subtle bg-surface shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-surface-sunken border-b border-default sticky top-0 z-10">

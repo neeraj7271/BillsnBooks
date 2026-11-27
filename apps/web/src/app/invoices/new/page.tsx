@@ -32,7 +32,7 @@ function NewInvoiceContent() {
 
   // Shared Form Component
   const renderForm = () => (
-    <Card className="shadow-xs overflow-hidden">
+    <Card className="overflow-hidden">
       <CardContent className="p-6 space-y-6 overflow-hidden">
         <InvoiceHeaderFields
           parties={form.parties}
@@ -64,7 +64,7 @@ function NewInvoiceContent() {
         />
 
         {/* 3. Line Items Card */}
-        <div className="p-5 rounded-2xl bg-surface border border-default space-y-4 shadow-2xs overflow-hidden">
+        <div className="p-5 rounded-xl bg-surface border border-subtle space-y-4 shadow-card overflow-hidden">
           <div className="flex items-center justify-between pb-1 border-b border-subtle">
             <h3 className="text-sm font-bold text-primary">Line Items</h3>
           </div>
@@ -137,7 +137,7 @@ function NewInvoiceContent() {
         badge: <Badge variant="brand" size="sm">Rule 46</Badge>,
         actions: (
           <div className="flex items-center gap-3">
-            <div className="inline-flex rounded-xl bg-surface-sunken p-1 border border-default shadow-2xs">
+            <div className="inline-flex rounded-xl bg-surface-sunken p-1">
               <button
                 type="button"
                 onClick={() => form.handleSetViewMode('edit')}

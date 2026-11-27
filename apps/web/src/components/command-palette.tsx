@@ -349,7 +349,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl rounded-2xl border border-default bg-surface shadow-2xl overflow-hidden flex flex-col max-h-[75vh]"
+        className="w-full max-w-xl rounded-xl border border-subtle bg-surface-raised shadow-popover overflow-hidden flex flex-col max-h-[75vh]"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >

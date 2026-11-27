@@ -288,7 +288,7 @@ export function DocumentVaultView({ clientId }: DocumentVaultViewProps) {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium flex items-center justify-between">
+        <div className="p-3 rounded-xl bg-status-danger-subtle border border-subtle shadow-card text-xs text-status-danger-text font-medium flex items-center justify-between">
           <span>{error}</span>
           <button type="button" onClick={() => setError(null)} className="p-1">
             <X className="h-3.5 w-3.5" />
@@ -298,7 +298,7 @@ export function DocumentVaultView({ clientId }: DocumentVaultViewProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Folder Tree */}
-        <aside className="lg:col-span-3 rounded-2xl border border-default bg-surface p-4 space-y-3 h-fit">
+        <aside className="lg:col-span-3 rounded-xl border border-subtle bg-surface p-4 shadow-card space-y-3 h-fit">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold uppercase tracking-wider text-muted">
               Folders {clientInfo ? `· ${clientInfo.clientCode}` : ''}
@@ -452,7 +452,7 @@ export function DocumentVaultView({ clientId }: DocumentVaultViewProps) {
           </div>
 
           {/* File Table */}
-          <div className="rounded-2xl border border-default bg-surface overflow-x-auto">
+          <div className="rounded-xl border border-subtle bg-surface shadow-card overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-default bg-surface-sunken/50 text-[11px] font-bold uppercase tracking-wider text-muted">
@@ -624,7 +624,7 @@ export function DocumentVaultView({ clientId }: DocumentVaultViewProps) {
             ) : previewUrl && previewFile.mimeType.startsWith('image/') ? (
               <img src={previewUrl} alt={previewFile.fileName} className="max-w-full max-h-[75vh] rounded-xl shadow-md object-contain" />
             ) : (
-              <div className="p-8 rounded-2xl border border-default bg-surface text-center space-y-3 max-w-sm">
+              <div className="p-8 rounded-xl border border-subtle bg-surface shadow-card text-center space-y-3 max-w-sm">
                 <FileText className="h-10 w-10 mx-auto text-muted" />
                 <p className="text-sm font-semibold text-primary">Preview unavailable for this file type</p>
                 <p className="text-xs text-muted">Download the file to open it in Excel, Word, or your local application.</p>
@@ -671,7 +671,7 @@ export function DocumentVaultView({ clientId }: DocumentVaultViewProps) {
           </DialogHeader>
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {versions.map((v) => (
-              <div key={v.id} className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface-sunken/40">
+              <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                 <div>
                   <div className="flex items-center gap-2">
                     <Badge variant="brand" size="xs">v{v.version}</Badge>
@@ -711,7 +711,7 @@ export function DocumentVaultView({ clientId }: DocumentVaultViewProps) {
               <p className="text-xs text-muted py-4 text-center">No audit events recorded.</p>
             ) : (
               auditLogs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface-sunken/40 text-xs">
+                <div key={log.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken text-xs">
                   <div>
                     <Badge variant="neutral" size="xs">{log.action}</Badge>
                     <span className="ml-2 font-semibold text-primary">{log.actorName}</span>

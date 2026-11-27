@@ -79,10 +79,10 @@ export function DeleteUnitDialog({
         <DialogHeader>
           <div className="flex items-center gap-2.5">
             <div
-              className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 border ${
+              className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
                 hasUsage
-                  ? 'bg-status-warning-subtle text-status-warning-text border-default'
-                  : 'bg-status-danger-subtle text-status-danger-text border-default'
+                  ? 'bg-status-warning-subtle text-status-warning-text'
+                  : 'bg-status-danger-subtle text-status-danger-text'
               }`}
             >
               {hasUsage ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
@@ -99,7 +99,7 @@ export function DeleteUnitDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-status-danger-subtle text-xs text-status-danger-text flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -107,7 +107,7 @@ export function DeleteUnitDialog({
 
         <div className="py-2 text-xs space-y-3">
           {hasUsage ? (
-            <div className="p-3 rounded-xl bg-status-warning-subtle border border-default text-status-warning-text space-y-2">
+            <div className="p-3 rounded-xl bg-status-warning-subtle text-status-warning-text space-y-2">
               <p className="font-medium">
                 This unit is currently assigned to{' '}
                 <strong>

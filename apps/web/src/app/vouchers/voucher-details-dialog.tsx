@@ -82,15 +82,15 @@ export function VoucherDetailsDialog({
 
         <div className="space-y-4 my-2">
           {voucher.narration && (
-            <div className="p-3 rounded-xl bg-surface-sunken border border-default text-xs text-secondary">
+            <div className="p-3 rounded-xl bg-surface-sunken text-xs text-secondary">
               <span className="font-bold text-primary">Narration: </span>
               {voucher.narration}
             </div>
           )}
 
-          <div className="border border-default rounded-xl overflow-hidden">
+          <div className="border border-subtle rounded-xl overflow-hidden">
             <table className="w-full text-xs text-left">
-              <thead className="bg-surface-sunken border-b border-default text-[11px] font-bold text-secondary uppercase">
+              <thead className="bg-surface-sunken border-b border-subtle text-[11px] font-bold text-secondary uppercase">
                 <tr>
                   <th className="p-2.5">Account Code</th>
                   <th className="p-2.5">Ledger Name</th>
@@ -120,7 +120,7 @@ export function VoucherDetailsDialog({
                 ))}
               </tbody>
               <tfoot>
-                <tr className="bg-surface-sunken font-black border-t border-default">
+                <tr className="bg-surface-sunken font-black border-t border-subtle">
                   <td colSpan={2} className="p-2.5 uppercase text-right text-xs">
                     Total Balance:
                   </td>

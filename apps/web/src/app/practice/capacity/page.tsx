@@ -45,7 +45,7 @@ export default function CapacityPlanningPage() {
       </div>
 
       {banner && (
-        <div className="p-3 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text font-semibold">
+        <div className="p-3 rounded-xl bg-status-success-subtle border border-subtle shadow-card text-xs text-status-success-text font-semibold">
           {banner}
         </div>
       )}
@@ -116,7 +116,7 @@ export default function CapacityPlanningPage() {
             </h2>
             <div className="space-y-2">
               {data.unassignedJobs.slice(0, 12).map((j: any) => (
-                <div key={j.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-default bg-surface-muted">
+                <div key={j.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-surface-sunken">
                   <div>
                     <div className="text-xs font-semibold text-text-primary">{j.title}</div>
                     <div className="text-[11px] text-text-secondary">{j.clientName} · Due {j.dueDate}</div>

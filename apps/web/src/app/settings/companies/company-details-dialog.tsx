@@ -82,7 +82,7 @@ export function CompanyDetailsDialog({
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text font-bold shadow-xs">
+              <div className="h-11 w-11 rounded-xl bg-status-info-subtle flex items-center justify-center text-status-info-text font-bold">
                 <Building2 className="h-6 w-6" />
               </div>
               <div>
@@ -116,7 +116,7 @@ export function CompanyDetailsDialog({
 
         <div className="space-y-4 py-2 text-xs">
           {/* Statutory Credentials Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-surface-sunken border border-default">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-surface-sunken">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
                 Permanent Account No (PAN)
@@ -156,7 +156,7 @@ export function CompanyDetailsDialog({
             </div>
 
             {branches.length === 0 ? (
-              <div className="p-3 rounded-xl border border-dashed border-default text-center text-muted">
+              <div className="p-3 rounded-xl bg-surface-sunken text-center text-muted">
                 No branches configured.
               </div>
             ) : (
@@ -166,7 +166,7 @@ export function CompanyDetailsDialog({
                   return (
                     <div
                       key={b.id}
-                      className="p-3 rounded-xl border border-default bg-surface flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                      className="p-3 rounded-xl bg-surface-sunken flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -214,14 +214,14 @@ export function CompanyDetailsDialog({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {financialYears.length === 0 ? (
-                <div className="col-span-2 p-3 rounded-xl border border-dashed border-default text-center text-muted">
+                <div className="col-span-2 p-3 rounded-xl bg-surface-sunken text-center text-muted">
                   Standard Indian Financial Year (April 1 to March 31) auto-provisioned.
                 </div>
               ) : (
                 financialYears.map((fy) => (
                   <div
                     key={fy.id}
-                    className="p-3 rounded-xl border border-default bg-surface flex items-center justify-between"
+                    className="p-3 rounded-xl bg-surface-sunken flex items-center justify-between"
                   >
                     <div>
                       <div className="font-bold text-primary">{fy.name}</div>

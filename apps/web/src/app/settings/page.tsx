@@ -258,7 +258,7 @@ export default function GlobalSettingsPage() {
 
       {/* KPI Summary Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+        <div className="p-3.5 rounded-xl bg-surface border border-subtle shadow-card">
           <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             Active Operating Entity
           </div>
@@ -271,7 +271,7 @@ export default function GlobalSettingsPage() {
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+        <div className="p-3.5 rounded-xl bg-surface border border-subtle shadow-card">
           <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             Statutory Invoicing
           </div>
@@ -284,7 +284,7 @@ export default function GlobalSettingsPage() {
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+        <div className="p-3.5 rounded-xl bg-surface border border-subtle shadow-card">
           <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             Ledger & Accounting
           </div>
@@ -296,7 +296,7 @@ export default function GlobalSettingsPage() {
           </div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-surface border border-default shadow-2xs">
+        <div className="p-3.5 rounded-xl bg-surface border border-subtle shadow-card">
           <div className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">
             System Modules
           </div>
@@ -312,7 +312,7 @@ export default function GlobalSettingsPage() {
 
       {/* Dev-Tool Panel (Gated by NEXT_PUBLIC_DEV_TOOLS) */}
       {(process.env.NEXT_PUBLIC_DEV_TOOLS === 'true' || process.env.NODE_ENV !== 'production') && (
-        <Card className="border-status-warning/40 bg-surface shadow-2xs">
+        <Card className="border-status-warning/40 bg-surface shadow-card">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -387,7 +387,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-status-info-subtle border border-default text-status-info-text">
+                  <div className="p-2 rounded-xl bg-status-info-subtle text-status-info-text">
                     <ImageIcon className="h-4 w-4" />
                   </div>
                   <div>
@@ -471,7 +471,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-brand-subtle border border-default text-brand-text">
+                  <div className="p-2 rounded-xl bg-brand-subtle text-brand-text">
                     <Hash className="h-4 w-4" />
                   </div>
                   <div>
@@ -534,7 +534,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-status-success-subtle border border-default text-status-success-text">
+                  <div className="p-2 rounded-xl bg-status-success-subtle text-status-success-text">
                     <CalendarClock className="h-4 w-4" />
                   </div>
                   <div>
@@ -594,7 +594,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-status-warning-subtle border border-default text-status-warning-text">
+                  <div className="p-2 rounded-xl bg-status-warning-subtle text-status-warning-text">
                     <ShieldCheck className="h-4 w-4" />
                   </div>
                   <div>
@@ -651,7 +651,7 @@ export default function GlobalSettingsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-status-danger-subtle border border-default text-status-danger-text">
+                  <div className="p-2 rounded-xl bg-status-danger-subtle text-status-danger-text">
                     <BookOpen className="h-4 w-4" />
                   </div>
                   <div>
@@ -705,10 +705,10 @@ export default function GlobalSettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div
-                    className={`p-2 rounded-xl border ${
+                    className={`p-2 rounded-xl ${
                       Boolean(settingsMap['integration.tally_enabled'])
-                        ? 'bg-status-warning-subtle border-default text-status-warning-text'
-                        : 'bg-surface-sunken border-default text-secondary'
+                        ? 'bg-status-warning-subtle text-status-warning-text'
+                        : 'bg-surface-sunken text-secondary'
                     }`}
                   >
                     <Server className="h-4 w-4" />
@@ -729,7 +729,7 @@ export default function GlobalSettingsPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3.5 text-xs">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken border border-default">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                 <div>
                   <div className="font-bold text-primary">Tally Prime Synchronization</div>
                   <div className="text-[11px] text-secondary">
@@ -774,7 +774,7 @@ export default function GlobalSettingsPage() {
                   </div>
                 </>
               ) : (
-                <div className="p-3 rounded-xl bg-status-info-subtle border border-default text-status-info-text text-[11px] leading-relaxed">
+                <div className="p-3 rounded-xl bg-status-info-subtle text-status-info-text text-[11px] leading-relaxed">
                   ✨ Operating in <strong>Standalone Cloud Mode</strong>. All invoices, GST reports, and double-entry accounts run smoothly without any Tally dependencies or desktop agents.
                 </div>
               )}

@@ -49,7 +49,7 @@ export function PartyDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="lg" className="overflow-hidden p-0 gap-0">
         {/* Header Banner */}
-        <div className="p-6 bg-surface-sunken border-b border-default">
+        <div className="p-6 bg-surface-sunken border-b border-subtle">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -101,7 +101,7 @@ export function PartyDetailsDialog({
         {/* Content Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Statutory & Tax Profile */}
-          <div className="rounded-xl border border-default p-4 bg-surface space-y-3">
+          <div className="rounded-xl p-4 bg-surface-sunken space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
               <FileText className="w-4 h-4 text-status-info-text" />
               Statutory Tax & GST Profile
@@ -134,7 +134,7 @@ export function PartyDetailsDialog({
           </div>
 
           {/* Address & Jurisdiction */}
-          <div className="rounded-xl border border-default p-4 bg-surface space-y-3">
+          <div className="rounded-xl p-4 bg-surface-sunken space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
               <MapPin className="w-4 h-4 text-status-success-text" />
               Registered Billing Address & Jurisdiction
@@ -153,7 +153,7 @@ export function PartyDetailsDialog({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 bg-surface-sunken p-3 rounded-lg">
+              <div className="grid grid-cols-2 gap-2 bg-surface p-3 rounded-lg">
                 <div>
                   <span className="text-[10px] text-muted uppercase tracking-wider block">GST State Code</span>
                   <span className="font-mono text-xs font-bold text-primary">
@@ -172,7 +172,7 @@ export function PartyDetailsDialog({
 
           {/* Credit & Terms */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-default p-4 bg-surface space-y-2">
+            <div className="rounded-xl p-4 bg-surface-sunken space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
                 <CreditCard className="w-4 h-4 text-brand-text" />
                 Credit & Payment Terms
@@ -199,7 +199,7 @@ export function PartyDetailsDialog({
             </div>
 
             {/* Communication */}
-            <div className="rounded-xl border border-default p-4 bg-surface space-y-2">
+            <div className="rounded-xl p-4 bg-surface-sunken space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
                 <Mail className="w-4 h-4 text-status-warning-text" />
                 Contact Info
@@ -223,7 +223,7 @@ export function PartyDetailsDialog({
         </div>
 
         {/* Action Footer */}
-        <div className="p-4 bg-surface-sunken border-t border-default flex items-center justify-between">
+        <div className="p-4 bg-surface-sunken border-t border-subtle flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"

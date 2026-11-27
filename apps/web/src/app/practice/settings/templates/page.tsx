@@ -64,12 +64,12 @@ export default function ReminderRulesSettingsPage() {
       </div>
 
       {runResult && (
-        <div className="p-4 rounded-xl bg-status-success-subtle border border-default text-xs space-y-2">
+        <div className="p-4 rounded-xl bg-status-success-subtle border border-subtle shadow-card text-xs space-y-2">
           <div className="font-semibold text-status-success-text">
             Evaluated {runResult.rulesEvaluated} rule(s) · Dispatched {runResult.notificationsDispatched} in-app notification(s) · SMTP: {runResult.smtpConfigured ? 'Configured' : 'Not set (in-app + WhatsApp link mode)'}
           </div>
           {(runResult.whatsappLinks || []).slice(0, 3).map((w: any, i: number) => (
-            <div key={i} className="flex items-center justify-between bg-surface p-2 rounded-lg border border-default">
+            <div key={i} className="flex items-center justify-between bg-surface-sunken p-2 rounded-lg">
               <span className="truncate mr-3">{w.client}: {w.message}</span>
               <a href={w.link} target="_blank" rel="noreferrer" className="text-brand-text font-semibold underline shrink-0">
                 Open WhatsApp
@@ -103,7 +103,7 @@ export default function ReminderRulesSettingsPage() {
 
             <div className="space-y-2">
               {rules.map((r) => (
-                <div key={r.id} className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface-muted">
+                <div key={r.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                   <div>
                     <div className="text-xs font-semibold text-text-primary">{r.name}</div>
                     <div className="text-[11px] text-text-secondary">{r.eventType} · {r.daysBefore} day(s) before</div>
@@ -119,7 +119,7 @@ export default function ReminderRulesSettingsPage() {
           <CardContent className="p-5 space-y-3">
             <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Message Templates (Email / WhatsApp)</h2>
             {templates.map((t) => (
-              <div key={t.id} className="p-3 rounded-xl border border-default bg-surface-muted space-y-1">
+              <div key={t.id} className="p-3 rounded-xl bg-surface-sunken space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-text-primary">{t.name}</span>
                   <Badge variant="info" size="xs">{t.channel}</Badge>

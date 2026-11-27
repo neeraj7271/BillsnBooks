@@ -42,7 +42,7 @@ export function InvoiceLineItems({
         </Button>
       </div>
 
-      <div className="rounded-xl border border-default overflow-x-auto max-h-[460px] shadow-2xs">
+      <div className="rounded-xl border border-subtle bg-surface overflow-x-auto max-h-[460px] shadow-card">
         <table className="min-w-[1016px] w-full text-left text-xs border-collapse">
           <thead className="bg-surface-sunken border-b border-default sticky top-0 z-20 font-semibold text-secondary text-[11px]">
             <tr>

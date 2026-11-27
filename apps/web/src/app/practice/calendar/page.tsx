@@ -209,7 +209,7 @@ export default function StatutoryCalendarPage() {
 
         <div className="flex items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center rounded-xl border border-default bg-surface-sunken p-0.5">
+          <div className="flex items-center rounded-xl bg-surface-sunken p-0.5">
             <button
               type="button"
               onClick={() => setViewMode('grid')}
@@ -262,7 +262,7 @@ export default function StatutoryCalendarPage() {
         /* Month Grid View */
         <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className={selectedDate ? 'lg:col-span-8' : 'lg:col-span-12'}>
-            <Card className="overflow-hidden border border-default shadow-xs">
+            <Card className="overflow-hidden">
               {/* Month Grid Toolbar */}
               <div className="flex items-center justify-between p-4 border-b border-default bg-surface-subtle">
                 <div className="flex items-center gap-2">
@@ -405,7 +405,7 @@ export default function StatutoryCalendarPage() {
           {/* Side Drawer: Tasks for selected date */}
           {selectedDate && (
             <div className="lg:col-span-4 sticky top-6">
-              <Card className="border border-default shadow-md">
+              <Card>
                 <div className="flex items-center justify-between p-4 border-b border-default bg-surface-subtle">
                   <div>
                     <h4 className="text-sm font-bold text-primary">
@@ -436,7 +436,7 @@ export default function StatutoryCalendarPage() {
                       return (
                         <div
                           key={task.id}
-                          className="p-3 rounded-xl border border-default bg-surface-sunken space-y-2 shadow-2xs"
+                          className="p-3 rounded-xl bg-surface-sunken space-y-2"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-1.5">
@@ -507,7 +507,7 @@ export default function StatutoryCalendarPage() {
                 return (
                   <div
                     key={group.date}
-                    className="p-4 rounded-2xl border border-default bg-surface shadow-xs space-y-3"
+                    className="p-4 rounded-xl border border-subtle bg-surface shadow-card space-y-3"
                   >
                     <div className="flex items-center justify-between pb-2 border-b border-subtle">
                       <div className="flex items-center gap-2">
@@ -526,7 +526,7 @@ export default function StatutoryCalendarPage() {
                       {group.tasks?.map((t: any) => (
                         <div
                           key={t.id}
-                          className="p-3 rounded-xl border border-default bg-surface-sunken flex items-center justify-between shadow-xs"
+                          className="p-3 rounded-xl bg-surface-sunken flex items-center justify-between"
                         >
                           <div>
                             <div className="flex items-center gap-1.5">

@@ -116,7 +116,7 @@ export default function EngagementESignPage() {
       </div>
 
       {provisionResult && (
-        <div className="p-4 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text font-semibold flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-status-success-subtle border border-subtle shadow-card text-xs text-status-success-text font-semibold flex items-center justify-between">
           <span className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4" />
             Engagement Activated! Auto-created {provisionResult.servicesCreated} client service subscription(s) and spawned {provisionResult.jobsSpawned} job(s).

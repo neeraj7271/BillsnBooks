@@ -46,7 +46,7 @@ export function ItemDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="md" className="overflow-hidden p-0 gap-0">
         {/* Header Banner */}
-        <div className="p-6 bg-surface-sunken border-b border-default">
+        <div className="p-6 bg-surface-sunken border-b border-subtle">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -88,7 +88,7 @@ export function ItemDetailsDialog({
         {/* Content Body */}
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Statutory Tax Classification */}
-          <div className="rounded-xl border border-default p-4 bg-surface space-y-3">
+          <div className="rounded-xl p-4 bg-surface-sunken space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
               <FileText className="w-4 h-4 text-status-info-text" />
               Statutory GST Classification & Tariff Codes
@@ -122,7 +122,7 @@ export function ItemDetailsDialog({
           </div>
 
           {/* Commercial & Measurement Parameters */}
-          <div className="rounded-xl border border-default p-4 bg-surface space-y-3">
+          <div className="rounded-xl p-4 bg-surface-sunken space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
               <Scale className="w-4 h-4 text-status-success-text" />
               Measurement & Commercial Parameters
@@ -150,7 +150,7 @@ export function ItemDetailsDialog({
 
           {/* Description */}
           {item.description && (
-            <div className="rounded-xl border border-default p-4 bg-surface space-y-1">
+            <div className="rounded-xl p-4 bg-surface-sunken space-y-1">
               <span className="text-[11px] text-muted uppercase tracking-wider font-semibold block">
                 Billing Item Specification / Memo
               </span>
@@ -162,7 +162,7 @@ export function ItemDetailsDialog({
         </div>
 
         {/* Action Footer */}
-        <div className="p-4 bg-surface-sunken border-t border-default flex items-center justify-between">
+        <div className="p-4 bg-surface-sunken border-t border-subtle flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"

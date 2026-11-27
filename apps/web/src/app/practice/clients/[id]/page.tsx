@@ -231,7 +231,7 @@ export default function Client360Page() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl border border-default bg-surface p-5 shadow-xs space-y-4">
+      <div className="rounded-xl border border-subtle bg-surface p-5 shadow-card space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
@@ -322,7 +322,7 @@ export default function Client360Page() {
       </div>
 
       {notice && (
-        <div className="p-3 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text font-medium flex items-center justify-between">
+        <div className="p-3 rounded-xl bg-status-success-subtle border border-subtle shadow-card text-xs text-status-success-text font-medium flex items-center justify-between">
           <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" /> {notice}</span>
           <button type="button" onClick={() => setNotice(null)} className="text-xs underline">Dismiss</button>
         </div>
@@ -340,7 +340,7 @@ export default function Client360Page() {
                 <p className="text-xs text-muted py-4">No services mapped yet. Open the Services tab to subscribe.</p>
               ) : (
                 data.clientServices.map((cs: any) => (
-                  <div key={cs.id} className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface-sunken/40">
+                  <div key={cs.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                     <div>
                       <div className="text-xs font-bold text-primary">{cs.serviceType?.name}</div>
                       <div className="text-[11px] text-muted">{cs.serviceType?.category} · {cs.serviceType?.frequency}</div>
@@ -363,7 +363,7 @@ export default function Client360Page() {
                 <p className="text-xs text-muted py-4">No jobs created for this client yet.</p>
               ) : (
                 data.jobs.slice(0, 6).map((j: any) => (
-                  <div key={j.id} className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface-sunken/40">
+                  <div key={j.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                     <div>
                       <div className="text-xs font-bold text-primary">{j.title}</div>
                       <div className="text-[11px] text-muted">Due <DateText date={j.dueDate} /> · {j.assignedToName}</div>
@@ -389,7 +389,7 @@ export default function Client360Page() {
                 <p className="text-xs text-muted py-6 text-center">No services subscribed yet. Subscribe services on the right to automate recurring jobs.</p>
               ) : (
                 data.clientServices.map((cs: any) => (
-                  <div key={cs.id} className="flex items-center justify-between p-3 rounded-xl border border-default">
+                  <div key={cs.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-primary">{cs.serviceType?.name}</span>
@@ -491,7 +491,7 @@ export default function Client360Page() {
                 credentials.map((c) => {
                   const revealed = revealedMap[c.id];
                   return (
-                    <div key={c.id} className="p-3 rounded-xl border border-default bg-surface-sunken/30 space-y-2">
+                    <div key={c.id} className="p-3 rounded-xl bg-surface-sunken space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Badge variant="brand" size="xs">{c.portalType}</Badge>
@@ -703,7 +703,7 @@ export default function Client360Page() {
                   {(clientTeam.jobRoles || []).map((jr: any) => {
                     const current = (clientTeam.jobRoleAssignments || []).find((a: any) => a.jobRoleId === jr.id);
                     return (
-                      <div key={jr.id} className="p-3 rounded-xl border border-default bg-surface-sunken/30 space-y-1.5">
+                      <div key={jr.id} className="p-3 rounded-xl bg-surface-sunken space-y-1.5">
                         <div className="text-xs font-bold text-primary">{jr.name}</div>
                         <select
                           value={current?.userId || ''}
@@ -732,7 +732,7 @@ export default function Client360Page() {
                   <p className="text-xs text-muted">No team members assigned yet.</p>
                 ) : (
                   clientTeam.members.map((m: any) => (
-                    <div key={m.id} className="flex items-center justify-between p-2.5 rounded-xl border border-default text-xs">
+                    <div key={m.id} className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken text-xs">
                       <div>
                         <span className="font-bold text-primary">{m.user?.name || m.userId}</span>
                         {m.jobRole && <Badge className="ml-2" variant="brand" size="xs">{m.jobRole.name}</Badge>}
@@ -801,7 +801,7 @@ export default function Client360Page() {
               <p className="text-xs text-muted py-6 text-center">No jobs yet. Create one from the Jobs Pipeline.</p>
             ) : (
               data.jobs.map((j: any) => (
-                <div key={j.id} className="flex items-center justify-between p-3 rounded-xl border border-default">
+                <div key={j.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                   <div>
                     <div className="text-xs font-bold text-primary">{j.title}</div>
                     <div className="text-[11px] text-secondary">Period: {j.period} · Assigned: {j.assignedToName}</div>
@@ -826,7 +826,7 @@ export default function Client360Page() {
           </CardHeader>
           <CardContent className="space-y-2">
             {(data.complianceCalendar || []).map((t: any) => (
-              <div key={t.id} className="flex items-center justify-between p-3 rounded-xl border border-default">
+              <div key={t.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                 <div>
                   <div className="text-xs font-bold text-primary">{t.title}</div>
                   <div className="text-[11px] text-muted">{t.category} · Due {t.dueDate}</div>
@@ -845,7 +845,7 @@ export default function Client360Page() {
               <CardTitle className="text-base">Client Contacts &amp; Signatories</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="p-3 rounded-xl border border-default bg-brand-subtle/20">
+              <div className="p-3 rounded-xl bg-brand-subtle/20">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-primary">{client.primaryContactName}</span>
                   <Badge variant="brand" size="xs">Primary Contact</Badge>
@@ -854,7 +854,7 @@ export default function Client360Page() {
               </div>
 
               {data.contacts.map((c: any) => (
-                <div key={c.id} className="flex items-center justify-between p-3 rounded-xl border border-default">
+                <div key={c.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                   <div>
                     <div className="text-xs font-bold text-primary">{c.name} <span className="text-muted font-normal">({c.role})</span></div>
                     <div className="text-[11px] text-secondary">{c.email || '—'} · {c.phone || '—'}</div>
@@ -910,7 +910,7 @@ export default function Client360Page() {
           </CardHeader>
           <CardContent className="space-y-2">
             {(data.activity || []).map((a: any) => (
-              <div key={a.id} className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface-sunken/30 text-xs">
+              <div key={a.id} className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken text-xs">
                 <div>
                   <Badge variant="neutral" size="xs">{a.type}</Badge>
                   <span className="ml-2 font-semibold text-primary">{a.title}</span>

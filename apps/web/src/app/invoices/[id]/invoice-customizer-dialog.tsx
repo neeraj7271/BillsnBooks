@@ -216,7 +216,7 @@ export function InvoiceCustomizerDialog({
       <DialogContent size="md" className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-brand-subtle border border-default text-brand-text">
+            <div className="p-2 rounded-xl bg-brand-subtle text-brand-text">
               <Sliders className="h-5 w-5" />
             </div>
             <div>
@@ -363,7 +363,7 @@ export function InvoiceCustomizerDialog({
         {/* Tab 2: Signature & DSC */}
         {activeTab === 'signature' && (
           <div className="space-y-4 py-2">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken border border-default">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
               <div>
                 <div className="text-xs font-bold text-primary">
                   Print Signature Block
@@ -421,7 +421,7 @@ export function InvoiceCustomizerDialog({
                 </div>
 
                 {signatureType === 'IMAGE' && (
-                  <div className="p-4 rounded-xl border border-default space-y-3">
+                  <div className="p-4 rounded-xl bg-surface-sunken space-y-3">
                     <div className="flex items-center gap-4">
                       <div className="h-20 w-36 rounded-lg border-2 border-dashed border-strong bg-surface flex items-center justify-center p-2 shrink-0">
                         {signatureUrl ? (
@@ -474,7 +474,7 @@ export function InvoiceCustomizerDialog({
                 )}
 
                 {signatureType === 'DSC' && (
-                  <div className="p-4 rounded-xl border border-default space-y-3">
+                  <div className="p-4 rounded-xl bg-surface-sunken space-y-3">
                     <div className="text-xs font-bold text-primary flex items-center gap-2">
                       <span>DSC Certificate Credentials</span>
                       <Badge variant="success" size="xs">
@@ -547,7 +547,7 @@ export function InvoiceCustomizerDialog({
         {/* Tab 3: Payment QR Code */}
         {activeTab === 'payment_qr' && (
           <div className="space-y-4 py-2">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken border border-default">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
               <div>
                 <div className="text-xs font-bold text-primary">
                   Dynamic UPI Payment QR Code
@@ -565,7 +565,7 @@ export function InvoiceCustomizerDialog({
             </div>
 
             {showQrCode && (
-              <div className="p-4 rounded-xl border border-default space-y-4">
+              <div className="p-4 rounded-xl bg-surface border border-subtle shadow-card space-y-4">
                 <FormField label="Merchant UPI ID / VPA">
                   <Input
                     value={upiId}
@@ -575,7 +575,7 @@ export function InvoiceCustomizerDialog({
                   />
                 </FormField>
 
-                <div className="flex items-center gap-4 p-3 rounded-xl bg-surface-sunken border border-default">
+                <div className="flex items-center gap-4 p-3 rounded-xl bg-surface-sunken">
                   <div className="p-2 bg-white rounded-lg shadow-2xs border border-default shrink-0">
                     <QrCode value={demoUpiUri} size={80} />
                   </div>

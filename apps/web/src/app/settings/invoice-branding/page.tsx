@@ -282,7 +282,7 @@ export default function InvoiceBrandingSettingsPage() {
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium">
+        <div className="p-3 rounded-xl bg-status-danger-subtle border border-subtle text-xs text-status-danger-text font-medium">
           {error}
         </div>
       )}
@@ -291,7 +291,7 @@ export default function InvoiceBrandingSettingsPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-status-info-subtle border border-default text-status-info-text">
+            <div className="p-2 rounded-xl bg-status-info-subtle text-status-info-text">
               <ImageIcon className="h-4 w-4" />
             </div>
             <div>
@@ -369,7 +369,7 @@ export default function InvoiceBrandingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-brand-subtle border border-default text-brand-text">
+              <div className="p-2 rounded-xl bg-brand-subtle text-brand-text">
                 <FileSignature className="h-4 w-4" />
               </div>
               <div>
@@ -432,7 +432,7 @@ export default function InvoiceBrandingSettingsPage() {
             </div>
 
             {signatureType === 'IMAGE' && (
-              <div className="flex items-center gap-4 p-3 rounded-xl border border-default bg-surface-sunken">
+              <div className="flex items-center gap-4 p-3 rounded-xl bg-surface-sunken">
                 <div className="h-16 w-32 rounded border border-strong bg-surface flex items-center justify-center p-1.5 shrink-0">
                   {signatureUrl ? (
                     <img
@@ -479,7 +479,7 @@ export default function InvoiceBrandingSettingsPage() {
             )}
 
             {signatureType === 'DSC' && (
-              <div className="space-y-3 p-3 rounded-xl border border-default bg-surface-sunken">
+              <div className="space-y-3 p-3 rounded-xl bg-surface-sunken">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <FormField label="Certificate Signer Full Name">
                     <Input
@@ -544,7 +544,7 @@ export default function InvoiceBrandingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-status-success-subtle border border-default text-status-success-text">
+              <div className="p-2 rounded-xl bg-status-success-subtle text-status-success-text">
                 <QrIcon className="h-4 w-4" />
               </div>
               <div>
@@ -577,8 +577,8 @@ export default function InvoiceBrandingSettingsPage() {
               />
             </FormField>
 
-            <div className="flex items-center gap-4 p-3 rounded-xl bg-surface-sunken border border-default">
-              <div className="p-2 bg-white rounded-lg shadow-2xs border border-default shrink-0">
+            <div className="flex items-center gap-4 p-3 rounded-xl bg-surface-sunken">
+              <div className="p-2 bg-white rounded-lg border border-subtle shrink-0">
                 <QrCode value={demoUpiUri} size={84} />
               </div>
               <div className="space-y-1">
@@ -600,7 +600,7 @@ export default function InvoiceBrandingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-status-warning-subtle border border-default text-status-warning-text">
+              <div className="p-2 rounded-xl bg-status-warning-subtle text-status-warning-text">
                 <FileText className="h-4 w-4" />
               </div>
               <div>

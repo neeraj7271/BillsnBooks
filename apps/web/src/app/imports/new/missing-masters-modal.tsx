@@ -91,7 +91,7 @@ export function MissingMastersModal({
 
         <div className="space-y-4 py-2">
           {/* Summary Badges */}
-          <div className="flex items-center gap-2 p-3 bg-surface-sunken rounded-xl border border-default text-xs">
+          <div className="flex items-center gap-2 p-3 bg-surface-sunken rounded-xl text-xs">
             <span className="font-semibold text-secondary">To be created:</span>
             <Badge variant="warning">{scanData.missingParties.length} New Parties</Badge>
             <Badge variant="brand">{scanData.missingItems.length} New Products/Services</Badge>
@@ -130,7 +130,7 @@ export function MissingMastersModal({
 
           {/* Tab 1: Parties */}
           {activeTab === 'PARTIES' && (
-            <div className="max-h-60 overflow-y-auto rounded-xl border border-default divide-y divide-subtle text-xs">
+            <div className="max-h-60 overflow-y-auto rounded-xl bg-surface border border-subtle shadow-card divide-y divide-subtle text-xs">
               {scanData.missingParties.map((p, idx) => (
                 <div key={idx} className="p-3 flex items-center justify-between hover:bg-row-hover">
                   <div>
@@ -147,7 +147,7 @@ export function MissingMastersModal({
 
           {/* Tab 2: Items */}
           {activeTab === 'ITEMS' && (
-            <div className="max-h-60 overflow-y-auto rounded-xl border border-default divide-y divide-subtle text-xs">
+            <div className="max-h-60 overflow-y-auto rounded-xl bg-surface border border-subtle shadow-card divide-y divide-subtle text-xs">
               {scanData.missingItems.map((item, idx) => (
                 <div key={idx} className="p-3 flex items-center justify-between hover:bg-row-hover">
                   <div>

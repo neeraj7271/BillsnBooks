@@ -55,7 +55,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       {cards.map((c, i) => (
         <Card
           key={i}
-          className={`p-4 bg-surface border border-default rounded-xl shadow-xs ${c.border}`}
+          className={`p-4 border-l-[3px] ${c.border.replace('border-l-4 ', '')}`}
         >
           <div className="flex items-center justify-between text-xs font-semibold text-muted">
             <span>{c.title}</span>

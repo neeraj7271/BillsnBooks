@@ -114,7 +114,7 @@ export default function CompaniesPage() {
 
       {/* Stats Summary Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl border border-default bg-surface shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-subtle bg-surface shadow-card flex items-center justify-between">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Registered Companies
@@ -128,7 +128,7 @@ export default function CompaniesPage() {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-default bg-surface shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-subtle bg-surface shadow-card flex items-center justify-between">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Operating Branches & GSTINs
@@ -142,7 +142,7 @@ export default function CompaniesPage() {
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl border border-default bg-surface shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-subtle bg-surface shadow-card flex items-center justify-between">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Working Workspace Entity
@@ -158,7 +158,7 @@ export default function CompaniesPage() {
       </div>
 
       {success && (
-        <div className="p-3.5 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text font-medium flex items-center justify-between gap-2">
+        <div className="p-3.5 rounded-xl bg-status-success-subtle border border-subtle text-xs text-status-success-text font-medium flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-status-success-text shrink-0" />
             <span>{success}</span>
@@ -174,7 +174,7 @@ export default function CompaniesPage() {
       )}
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium flex items-center justify-between gap-2">
+        <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-subtle text-xs text-status-danger-text font-medium flex items-center justify-between gap-2">
           <span>{error}</span>
           <button
             type="button"
@@ -191,7 +191,7 @@ export default function CompaniesPage() {
         {loading ? (
           <LoadingState variant="cards" rows={4} />
         ) : companies.length === 0 ? (
-          <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-default bg-surface p-8 shadow-xs">
+          <div className="text-center py-12 px-4 rounded-xl border border-dashed border-subtle bg-surface p-8 shadow-card">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-status-info-subtle text-status-info-text">
               <Building2 className="h-6 w-6" />
             </div>
@@ -220,15 +220,15 @@ export default function CompaniesPage() {
           return (
             <Card
               key={company.id}
-              className={`overflow-hidden border transition shadow-xs ${
+              className={`overflow-hidden border transition shadow-card ${
                 isWorking
                   ? 'border-focus ring-2 ring-focus-ring/20'
-                  : 'border-default'
+                  : 'border-subtle'
               } bg-surface`}
             >
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 px-6 border-b border-subtle bg-surface-sunken gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-status-info-subtle text-status-info-text border border-default flex items-center justify-center font-bold shadow-xs shrink-0">
+                  <div className="h-10 w-10 rounded-xl bg-status-info-subtle text-status-info-text flex items-center justify-center font-bold shrink-0">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div>
@@ -317,7 +317,7 @@ export default function CompaniesPage() {
                     {branches.map((branch: any) => (
                       <div
                         key={branch.id}
-                        className="p-4 rounded-xl border border-default bg-surface-sunken text-xs space-y-2 hover:border-strong transition-colors shadow-xs"
+                        className="p-4 rounded-xl bg-surface-sunken text-xs space-y-2 transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-primary text-sm">

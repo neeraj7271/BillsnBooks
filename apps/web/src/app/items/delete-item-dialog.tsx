@@ -42,7 +42,7 @@ export function DeleteItemDialog({
         </DialogHeader>
 
         {deleteError ? (
-          <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text space-y-1">
+          <div className="p-3.5 rounded-xl bg-status-danger-subtle text-xs text-status-danger-text space-y-1">
             <div className="font-semibold flex items-center gap-1.5">
               <AlertCircle className="w-4 h-4 text-status-danger-text" />
               Accounting Protection Alert
@@ -50,7 +50,7 @@ export function DeleteItemDialog({
             <p>{deleteError}</p>
           </div>
         ) : (
-          <div className="p-3.5 rounded-xl bg-surface-sunken border border-default text-xs text-secondary">
+          <div className="p-3.5 rounded-xl bg-surface-sunken text-xs text-secondary">
             <span className="font-semibold text-primary block mb-1">
               Double-Entry Accounting & Statutory Safeguard:
             </span>

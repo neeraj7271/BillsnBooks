@@ -483,7 +483,7 @@ export function RecurringScheduleDialog({
               </div>
 
               {/* Line Items Section */}
-              <div className="p-4 bg-surface-sunken rounded-2xl border border-default space-y-3">
+              <div className="p-4 bg-surface-sunken rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-primary">What's on each invoice</span>
                   <Button
@@ -500,7 +500,7 @@ export function RecurringScheduleDialog({
                 {items.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="p-3 bg-surface rounded-xl border border-subtle space-y-2 relative group"
+                    className="p-3 bg-surface rounded-xl border border-subtle shadow-card space-y-2 relative group"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-muted uppercase">
@@ -626,7 +626,7 @@ export function RecurringScheduleDialog({
               {/* Live "Next run" Summary Chip Row */}
               <div
                 data-testid="recurring-next-run-preview"
-                className="p-4 bg-surface rounded-2xl border border-default space-y-2 shadow-2xs"
+                className="p-4 bg-surface rounded-2xl border border-subtle shadow-card space-y-2"
               >
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-secondary">Next invoice:</span>
@@ -662,7 +662,7 @@ export function RecurringScheduleDialog({
           ) : (
             /* STEP 2: Two-Step Confirmation Summary */
             <div className="mt-4 space-y-4" data-testid="recurring-confirm-step">
-              <div className="p-4 bg-surface-sunken rounded-2xl border border-default space-y-3">
+              <div className="p-4 bg-surface-sunken rounded-2xl space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-subtle">
                   <div>
                     <span className="text-[11px] font-bold text-muted uppercase">Customer</span>
@@ -709,8 +709,8 @@ export function RecurringScheduleDialog({
               </div>
 
               {/* Items Summary Table */}
-              <div className="border border-default rounded-xl overflow-hidden text-xs">
-                <div className="bg-surface-sunken px-3 py-2 font-bold text-secondary text-[11px] border-b border-default">
+              <div className="bg-surface border border-subtle rounded-xl shadow-card overflow-hidden text-xs">
+                <div className="bg-surface-sunken px-3 py-2 font-bold text-secondary text-[11px] border-b border-subtle">
                   Invoice Line Items Summary
                 </div>
                 <div className="divide-y divide-border-subtle bg-surface">

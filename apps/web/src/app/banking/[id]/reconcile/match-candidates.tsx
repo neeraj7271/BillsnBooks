@@ -68,7 +68,7 @@ export function MatchCandidates({
             {suggestions.map((s) => (
               <div
                 key={s.voucherId}
-                className="p-4 rounded-xl border border-default bg-surface flex justify-between items-center gap-4"
+                className="p-4 rounded-xl bg-surface-sunken flex justify-between items-center gap-4"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">

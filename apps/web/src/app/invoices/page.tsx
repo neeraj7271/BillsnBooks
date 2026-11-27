@@ -455,7 +455,7 @@ export default function InvoicesPage() {
       />
 
       {/* Table Actions Legend */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-surface-sunken border border-subtle rounded-2xl text-xs text-secondary">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-surface-sunken rounded-xl text-xs text-secondary">
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-border-strong" />
           <span className="text-[11px] font-medium text-secondary">

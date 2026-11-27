@@ -150,7 +150,7 @@ export default function TeamManagementPage() {
           <CardContent className="p-4 space-y-2">
             <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Invitations</h2>
             {data.invitations.map((inv: any) => (
-              <div key={inv.id} className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl border border-default bg-surface-muted text-xs">
+              <div key={inv.id} className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-surface-sunken text-xs">
                 <div>
                   <span className="font-semibold text-text-primary">{inv.email}</span>
                   <span className="ml-2 text-text-muted">({inv.invitedRole})</span>
@@ -200,7 +200,7 @@ export default function TeamManagementPage() {
               </select>
             </FormField>
             {inviteLink && (
-              <div className="p-3 rounded-xl bg-status-success-subtle border border-default text-xs space-y-1">
+              <div className="p-3 rounded-xl bg-status-success-subtle text-xs space-y-1">
                 <div className="font-semibold text-status-success-text">Invite Link Ready (joins this firm):</div>
                 <div className="flex items-center gap-2">
                   <input readOnly value={inviteLink} data-testid="invite-magic-link" className="w-full bg-surface px-2 py-1 rounded border border-default font-mono text-[11px]" />

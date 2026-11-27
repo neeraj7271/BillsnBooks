@@ -68,7 +68,7 @@ function AcceptInviteContent() {
           )}
 
           {info && (
-            <div className="p-3 rounded-xl bg-surface-muted border border-default text-xs space-y-1">
+            <div className="p-3 rounded-xl bg-surface-sunken text-xs space-y-1">
               <div>Firm: <strong>{info.firmName}</strong></div>
               <div>Email: <strong className="font-mono">{info.email}</strong></div>
               <div>Assigned Role: <Badge variant="brand" size="xs">{info.invitedRole}</Badge></div>

@@ -73,7 +73,7 @@ export default function SharedReportPage() {
   if (error || !shareData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-canvas p-4">
-        <div className="max-w-md w-full bg-surface border border-default rounded-2xl shadow-xl p-8 text-center space-y-4">
+        <div className="max-w-md w-full bg-surface border border-subtle rounded-xl shadow-card p-8 text-center space-y-4">
           <div className="h-14 w-14 rounded-2xl bg-status-warning-subtle border border-status-warning/30 flex items-center justify-center text-status-warning-text mx-auto">
             <AlertTriangle className="h-7 w-7" />
           </div>
@@ -94,7 +94,7 @@ export default function SharedReportPage() {
     <div className="min-h-screen bg-canvas flex flex-col justify-between p-4 sm:p-8">
       <div className="max-w-3xl w-full mx-auto space-y-6">
         {/* Verification banner */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-status-success-subtle border border-status-success/30 text-xs text-status-success-text shadow-sm">
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-status-success-subtle border border-status-success/30 text-xs text-status-success-text shadow-card">
           <div className="flex items-center gap-2 font-medium">
             <ShieldCheck className="h-4 w-4 text-status-success-text shrink-0" />
             <span>Verified Secure Document · End-to-End Encrypted Access</span>
@@ -106,7 +106,7 @@ export default function SharedReportPage() {
         </div>
 
         {/* Main Document Card */}
-        <div className="bg-surface border border-default rounded-3xl shadow-xl p-6 sm:p-10 space-y-8">
+        <div className="bg-surface border border-subtle rounded-xl shadow-card p-6 sm:p-10 space-y-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-subtle pb-6">
             <div className="flex items-center gap-3.5">
@@ -131,7 +131,7 @@ export default function SharedReportPage() {
           </div>
 
           {/* Report Metadata */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-surface-sunken border border-default text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-surface-sunken text-xs">
             <div>
               <span className="text-muted font-medium">Period Filter</span>
               <p className="mt-0.5 font-semibold text-primary font-mono">

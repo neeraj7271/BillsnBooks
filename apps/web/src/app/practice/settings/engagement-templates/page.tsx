@@ -46,7 +46,7 @@ export default function EngagementTemplatesPage() {
           <CardContent className="p-5 space-y-3">
             <h2 className="text-sm font-semibold text-text-primary">Existing Templates</h2>
             {templates.map((t) => (
-              <div key={t.id} className="p-3 rounded-xl border border-default bg-surface-muted">
+              <div key={t.id} className="p-3 rounded-xl bg-surface-sunken">
                 <div className="text-sm font-semibold text-text-primary">{t.name}</div>
                 <div className="text-xs text-text-muted mt-1">{t.description || 'Custom template'}</div>
               </div>

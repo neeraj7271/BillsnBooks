@@ -132,7 +132,7 @@ export default function CustomerSalesPage() {
       isEmpty={!loading && rows.length === 0}
       summary={
         data && (
-          <div className="rounded-xl border border-default bg-surface p-5 shadow-xs flex items-center justify-between">
+          <div className="rounded-xl border border-subtle bg-surface p-5 shadow-card flex items-center justify-between">
             <span className="text-xs font-semibold uppercase text-muted">Total Customer Revenue</span>
             <MoneyText amount={totalSales} className="text-xl font-bold text-primary" />
           </div>

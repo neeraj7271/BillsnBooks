@@ -12,7 +12,7 @@ export function LoadingState({ rows = 6, variant = 'table', className }: Loading
     return (
       <div className={cn('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4', className)} aria-busy="true">
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-default bg-surface p-5 space-y-3 shadow-2xs">
+          <div key={i} className="rounded-xl border border-subtle bg-surface p-5 space-y-3 shadow-card">
             <div className="flex items-center justify-between">
               <Skeleton className="h-5 w-1/3" />
               <Skeleton className="h-4 w-12 rounded-full" />
@@ -30,7 +30,7 @@ export function LoadingState({ rows = 6, variant = 'table', className }: Loading
 
   if (variant === 'form') {
     return (
-      <div className={cn('rounded-2xl border border-default bg-surface p-6 space-y-5 max-w-3xl shadow-2xs', className)} aria-busy="true">
+      <div className={cn('rounded-xl border border-subtle bg-surface p-6 space-y-5 max-w-3xl shadow-card', className)} aria-busy="true">
         <div className="space-y-2">
           <Skeleton className="h-6 w-1/3" />
           <Skeleton className="h-4 w-2/3" />
@@ -53,7 +53,7 @@ export function LoadingState({ rows = 6, variant = 'table', className }: Loading
 
   // Default: table rows skeleton
   return (
-    <div className={cn('rounded-2xl border border-default bg-surface p-5 space-y-3 shadow-2xs', className)} aria-busy="true">
+    <div className={cn('rounded-xl border border-subtle bg-surface p-5 space-y-3 shadow-card', className)} aria-busy="true">
       <div className="flex items-center gap-4 pb-3 border-b border-default/60">
         <Skeleton className="h-4 w-1/6" />
         <Skeleton className="h-4 w-2/6" />

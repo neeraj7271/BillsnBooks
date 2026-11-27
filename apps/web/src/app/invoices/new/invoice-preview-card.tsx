@@ -45,7 +45,7 @@ export function InvoicePreviewCard({
   return (
     <div className="space-y-4" data-testid="invoice-live-preview">
       {/* Top Bar with Template Switcher & Actions - Hidden in Print */}
-      <div className="no-print flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-2xl border border-default shadow-xs print:hidden">
+      <div className="no-print flex flex-wrap items-center justify-between gap-3 bg-surface p-3 rounded-xl border border-subtle shadow-card print:hidden">
         <div className="flex items-center gap-2">
           {showBackToEdit && onBackToEdit && (
             <Button
@@ -65,7 +65,7 @@ export function InvoicePreviewCard({
 
         <div className="flex items-center gap-2">
           {/* Template Style Selector */}
-          <div className="inline-flex rounded-xl bg-surface-sunken p-0.5 border border-default">
+          <div className="inline-flex rounded-xl bg-surface-sunken p-0.5">
             {(['Minimal', 'Modern', 'Tally'] as TemplateStyle[]).map((tpl) => (
               <button
                 key={tpl}

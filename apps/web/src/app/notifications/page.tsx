@@ -279,7 +279,7 @@ export default function NotificationsFullPage() {
       {/* Main Grid: Left Filter Rail + Right Table */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         {/* Left Rail: Filters */}
-        <div className="rounded-2xl border border-default bg-surface p-4 space-y-4">
+        <div className="rounded-xl border border-subtle bg-surface shadow-card p-4 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-secondary">
             <Filter className="h-4 w-4" />
             <span>Filters</span>

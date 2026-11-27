@@ -48,28 +48,28 @@ export default function ProfitAndLossPage() {
 
   const summary = data && (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="rounded-xl border border-default bg-surface p-4 shadow-xs">
+      <div className="rounded-xl border border-subtle bg-surface p-4 shadow-card">
         <span className="text-overline uppercase text-muted">Operating Revenue</span>
         <div className="text-h2 text-primary mt-1">
           <MoneyText amount={Number(data.totalRevenue || 0)} />
         </div>
         <span className="text-caption text-status-success-text">Income accounts</span>
       </div>
-      <div className="rounded-xl border border-default bg-surface p-4 shadow-xs">
+      <div className="rounded-xl border border-subtle bg-surface p-4 shadow-card">
         <span className="text-overline uppercase text-muted">Direct Expenses</span>
         <div className="text-h2 text-primary mt-1">
           <MoneyText amount={Number(data.totalDirectExpenses || 0)} />
         </div>
         <span className="text-caption text-muted">Cost of goods &amp; services</span>
       </div>
-      <div className="rounded-xl border border-default bg-surface p-4 shadow-xs">
+      <div className="rounded-xl border border-subtle bg-surface p-4 shadow-card">
         <span className="text-overline uppercase text-muted">Gross Profit</span>
         <div className="text-h2 text-brand-text mt-1">
           <MoneyText amount={Number(data.grossProfit || 0)} />
         </div>
         <span className="text-caption text-muted">Revenue - Direct Costs</span>
       </div>
-      <div className="rounded-xl border border-default bg-surface p-4 shadow-xs">
+      <div className="rounded-xl border border-subtle bg-surface p-4 shadow-card">
         <span className="text-overline uppercase text-muted">Net Profit</span>
         <div
           className={`text-h2 mt-1 ${
@@ -99,7 +99,7 @@ export default function ProfitAndLossPage() {
       summary={summary}
     >
       {data && (
-        <div className="rounded-xl border border-default bg-surface shadow-xs overflow-hidden">
+        <div className="rounded-xl border border-subtle bg-surface shadow-card overflow-hidden">
           <div className="px-5 py-3.5 border-b border-default bg-surface-raised flex items-center justify-between">
             <h2 className="text-sm font-semibold text-primary">Revenue and Expense Breakdown</h2>
             <span className="text-caption text-muted">Click any ledger to inspect General Ledger</span>

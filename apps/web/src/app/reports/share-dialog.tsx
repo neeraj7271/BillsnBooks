@@ -90,9 +90,9 @@ export function ShareDialog({
       role="dialog"
       aria-modal="true"
       aria-label="Share Report"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-surface-overlay backdrop-blur-sm p-4"
     >
-      <div className="relative w-full max-w-lg rounded-2xl bg-surface border border-default shadow-2xl p-6 overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-xl bg-surface-raised border border-subtle shadow-popover p-6 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-subtle">
           <div className="flex items-center gap-2.5">
@@ -260,7 +260,7 @@ export function ShareDialog({
 
           {/* Generated Result */}
           {shareResult && (
-            <div className="p-3.5 rounded-xl bg-surface-sunken border border-default space-y-3">
+            <div className="p-3.5 rounded-xl bg-surface-sunken space-y-3">
               <div className="flex items-center justify-between text-xs font-semibold text-status-success-text">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4" />

@@ -155,7 +155,7 @@ export function ReconcileSettlementDialog({
             </div>
           </div>
 
-          <div className="p-3 bg-surface-sunken rounded-xl space-y-2 border border-subtle">
+          <div className="p-3 bg-surface-sunken rounded-xl space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[11px] font-semibold text-muted">

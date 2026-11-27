@@ -306,7 +306,7 @@ function JobsPipelineContent() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex rounded-xl border border-default bg-surface p-0.5">
+          <div className="inline-flex rounded-xl bg-surface-sunken p-0.5">
             <button
               type="button"
               onClick={() => setView('KANBAN')}
@@ -355,7 +355,7 @@ function JobsPipelineContent() {
       </div>
 
       {/* Filters Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 rounded-2xl border border-default bg-surface p-3">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 rounded-xl border border-subtle bg-surface p-3 shadow-card">
         <Input
           value={searchFilter}
           onChange={(e) => setSearchFilter(e.target.value)}
@@ -491,7 +491,7 @@ function JobsPipelineContent() {
 
       {/* LIST VIEW */}
       {view === 'LIST' && (
-        <div className="rounded-2xl border border-default bg-surface overflow-x-auto">
+        <div className="rounded-xl border border-subtle bg-surface shadow-card overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-default bg-surface-sunken/50 text-[11px] font-bold uppercase text-muted">
@@ -528,7 +528,7 @@ function JobsPipelineContent() {
             <div
               key={job.id}
               onClick={() => openJobDetail(job.id)}
-              className="cursor-pointer rounded-xl border border-default bg-surface p-4 flex items-center justify-between hover:border-brand"
+              className="cursor-pointer rounded-xl border border-subtle bg-surface p-4 shadow-card hover:shadow-card-hover transition-shadow flex items-center justify-between"
             >
               <div>
                 <div className="text-xs font-bold text-primary">{job.title}</div>
@@ -590,7 +590,7 @@ function JobsPipelineContent() {
               </div>
 
               {showInlineSvc && (
-                <div className="p-2.5 rounded-xl border border-default bg-surface-sunken space-y-2">
+                <div className="p-2.5 rounded-xl bg-surface-sunken space-y-2">
                   <div className="text-[11px] font-bold text-primary">New Custom Service</div>
                   <Input
                     value={inlineSvcName}
@@ -721,7 +721,7 @@ function JobsPipelineContent() {
             </div>
 
             {/* Maker-Checker Review & Sign-off Engine */}
-            <div className="p-3 rounded-xl border border-default bg-surface-sunken/40 space-y-2.5">
+            <div className="p-3 rounded-xl bg-surface-sunken space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase text-muted">Review &amp; Sign-off ({reviewMode})</span>
                 {selectedJob.reviewStatus !== 'IN_REVIEW' && selectedJob.reviewStatus !== 'SIGNED_OFF' && (
@@ -896,7 +896,7 @@ function JobsPipelineContent() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleChecklist(selectedJob.id, item.id)}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl border border-default bg-surface-sunken/40 hover:bg-surface-sunken text-left"
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken/60 hover:bg-surface-sunken text-left"
                   >
                     <span className="flex items-center gap-2 text-xs">
                       {item.completed ? (

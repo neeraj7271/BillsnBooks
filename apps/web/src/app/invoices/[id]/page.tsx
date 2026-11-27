@@ -205,7 +205,7 @@ export default function InvoiceDetailsPage() {
       </div>
 
       {invoice.status === 'DRAFT' && (
-        <div className="no-print print:hidden p-4 rounded-2xl bg-brand-subtle border border-default flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
+        <div className="no-print print:hidden p-4 rounded-xl bg-brand-subtle border border-subtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-card">
           <div className="flex items-start sm:items-center gap-3">
             <div className="p-2 rounded-xl bg-surface text-brand-text shrink-0">
               <FileText className="h-5 w-5" />
@@ -246,7 +246,7 @@ export default function InvoiceDetailsPage() {
       )}
 
       {invoice.status === 'PENDING_APPROVAL' && (
-        <div className="no-print print:hidden p-4 rounded-2xl bg-status-warning-subtle border border-status-warning flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
+        <div className="no-print print:hidden p-4 rounded-xl bg-status-warning-subtle border border-status-warning flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-card">
           <div className="flex items-start sm:items-center gap-3">
             <div className="p-2 rounded-xl bg-surface text-status-warning-text shrink-0">
               <Clock className="h-5 w-5" />
@@ -287,7 +287,7 @@ export default function InvoiceDetailsPage() {
       )}
 
       {/* Real A4 Print Preview Canvas / Desk Mat */}
-      <div className="preview-stage-mat relative rounded-3xl border border-default bg-surface-sunken p-3 sm:p-6 md:p-10 shadow-inner flex flex-col items-center overflow-x-auto print:p-0 print:m-0 print:border-none print:bg-transparent print:shadow-none print:block">
+      <div className="preview-stage-mat relative rounded-2xl bg-surface-sunken p-3 sm:p-6 md:p-10 shadow-inner flex flex-col items-center overflow-x-auto print:p-0 print:m-0 print:border-none print:bg-transparent print:shadow-none print:block">
         {/* Document Preview Inspector / Header Strip */}
         <div className="no-print w-full max-w-[210mm] mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-secondary print:hidden select-none px-1">
           <div className="flex items-center gap-2.5 flex-wrap">

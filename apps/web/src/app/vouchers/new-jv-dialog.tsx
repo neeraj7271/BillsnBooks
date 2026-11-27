@@ -185,7 +185,7 @@ export function NewJvDialog({
               </Button>
             </div>
 
-            <div className="border border-default rounded-xl overflow-hidden divide-y divide-subtle">
+            <div className="border border-subtle rounded-xl overflow-hidden divide-y divide-subtle">
               {jvEntries.map((row, idx) => (
                 <div key={idx} className="p-2.5 flex items-center gap-2 text-xs">
                   <div className="w-28 shrink-0">
@@ -247,7 +247,7 @@ export function NewJvDialog({
             </div>
 
             {/* Zero-Variance Mathematical Bar */}
-            <div className="p-3 rounded-xl bg-surface-sunken border border-default flex items-center justify-between text-xs font-mono">
+            <div className="p-3 rounded-xl bg-surface-sunken flex items-center justify-between text-xs font-mono">
               <div>
                 <span className="text-secondary">Total Debit: </span>
                 <span className="font-bold text-primary"><MoneyText amount={totalJvDebit} /></span>

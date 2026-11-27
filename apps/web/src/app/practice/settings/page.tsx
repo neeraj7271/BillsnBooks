@@ -102,12 +102,12 @@ export default function PracticeSettingsHubPage() {
       </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-        <Link href="/practice/team" className="p-4 rounded-xl border border-default bg-surface hover:border-brand font-semibold text-text-primary">Team &amp; Colleagues →</Link>
-        <Link href="/practice/settings/roles" className="p-4 rounded-xl border border-default bg-surface hover:border-brand font-semibold text-text-primary">Permission &amp; Job Roles →</Link>
-        <Link href="/practice/settings/services" className="p-4 rounded-xl border border-default bg-surface hover:border-brand font-semibold text-text-primary">Service Master →</Link>
-        <Link href="/practice/settings/workflows" className="p-4 rounded-xl border border-default bg-surface hover:border-brand font-semibold text-text-primary">Workflow Templates →</Link>
-        <Link href="/practice/settings/engagement-templates" className="p-4 rounded-xl border border-default bg-surface hover:border-brand font-semibold text-text-primary">Engagement Templates →</Link>
-        <Link href="/practice/settings/templates" className="p-4 rounded-xl border border-default bg-surface hover:border-brand font-semibold text-text-primary">Reminder Rules →</Link>
+        <Link href="/practice/team" className="p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand transition-shadow font-semibold text-text-primary">Team &amp; Colleagues →</Link>
+        <Link href="/practice/settings/roles" className="p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand transition-shadow font-semibold text-text-primary">Permission &amp; Job Roles →</Link>
+        <Link href="/practice/settings/services" className="p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand transition-shadow font-semibold text-text-primary">Service Master →</Link>
+        <Link href="/practice/settings/workflows" className="p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand transition-shadow font-semibold text-text-primary">Workflow Templates →</Link>
+        <Link href="/practice/settings/engagement-templates" className="p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand transition-shadow font-semibold text-text-primary">Engagement Templates →</Link>
+        <Link href="/practice/settings/templates" className="p-4 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand transition-shadow font-semibold text-text-primary">Reminder Rules →</Link>
       </div>
     </div>
   );

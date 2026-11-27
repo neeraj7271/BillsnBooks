@@ -80,7 +80,7 @@ export function InvoiceHeaderFields({
   return (
     <div className="space-y-6">
       {/* 1. Document Card */}
-      <div className="p-5 rounded-2xl bg-surface-sunken border border-default space-y-4 shadow-2xs">
+      <div className="p-5 rounded-xl bg-surface-sunken space-y-4">
         <div className="flex items-center justify-between pb-1 border-b border-subtle">
           <h3 className="text-sm font-bold text-primary">Document</h3>
         </div>
@@ -202,7 +202,7 @@ export function InvoiceHeaderFields({
       </div>
 
       {/* 2. Party & Dates Card */}
-      <div className="p-5 rounded-2xl bg-surface border border-default space-y-4 shadow-2xs">
+      <div className="p-5 rounded-xl bg-surface border border-subtle space-y-4 shadow-card">
         <div className="flex items-center justify-between pb-1 border-b border-subtle">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-primary">Party</h3>
@@ -229,7 +229,7 @@ export function InvoiceHeaderFields({
 
           {/* Clean 2-Line Party Summary Chip Row */}
           {selectedParty && identity && (
-            <div className="p-3.5 rounded-xl bg-surface-sunken border border-subtle text-xs space-y-2">
+            <div className="p-3.5 rounded-xl bg-surface-sunken text-xs space-y-2">
               {/* Line 1: Party Name + Registration Badge */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-bold text-primary text-xs">

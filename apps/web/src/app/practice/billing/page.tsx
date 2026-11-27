@@ -72,7 +72,7 @@ export default function PracticeBillingAndProfitabilityPage() {
             Convert unbilled WIP and retainer fee schedules into GST invoices, apply write-offs, and track client margin.
           </p>
         </div>
-        <div className="flex gap-1.5 rounded-xl border border-default bg-surface p-1">
+        <div className="flex gap-1.5 rounded-xl bg-surface-sunken p-1">
           {(['WIP', 'BILLS', 'PROFITABILITY'] as const).map((t) => (
             <button
               key={t}
@@ -89,7 +89,7 @@ export default function PracticeBillingAndProfitabilityPage() {
       </div>
 
       {banner && (
-        <div className="p-3 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text font-semibold flex items-center justify-between">
+        <div className="p-3 rounded-xl bg-status-success-subtle border border-subtle shadow-card text-xs text-status-success-text font-semibold flex items-center justify-between">
           <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" /> {banner}</span>
           <button type="button" onClick={() => setBanner(null)} className="underline">Dismiss</button>
         </div>
@@ -113,7 +113,7 @@ export default function PracticeBillingAndProfitabilityPage() {
             ) : (
               <div className="space-y-2">
                 {wip.map((row) => (
-                  <div key={row.clientId} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-default bg-surface-muted">
+                  <div key={row.clientId} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-surface-sunken">
                     <div>
                       <div className="text-sm font-semibold text-text-primary">{row.clientName}</div>
                       <div className="text-xs text-text-secondary">
@@ -143,7 +143,7 @@ export default function PracticeBillingAndProfitabilityPage() {
               <div className="text-xs text-text-muted py-6 text-center">No practice bills generated yet.</div>
             ) : (
               bills.map((b) => (
-                <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-default">
+                <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-surface-sunken">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-text-primary font-mono">{b.billNumber}</span>

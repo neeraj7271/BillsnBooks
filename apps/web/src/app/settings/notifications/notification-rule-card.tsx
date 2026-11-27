@@ -41,7 +41,7 @@ export function NotificationRuleCard({
   const inputId = `rule-${rule.eventType}-enabled`;
 
   return (
-    <div className="p-4 rounded-xl border border-default bg-surface-sunken space-y-3">
+    <div className="p-4 rounded-xl bg-surface-sunken space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <input

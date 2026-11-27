@@ -559,14 +559,14 @@ export default function ChartOfAccountsPage() {
       </div>
 
       {error && (
-        <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-default text-xs font-medium text-status-danger-text flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-status-danger-subtle border border-subtle text-xs font-medium text-status-danger-text flex items-center justify-between">
           <span>{error}</span>
           <button type="button" onClick={() => setError(null)} className="text-status-danger-text font-bold ml-2">✕</button>
         </div>
       )}
 
       {success && (
-        <div className="p-3.5 rounded-xl bg-status-success-subtle border border-default text-xs font-medium text-status-success-text flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-status-success-subtle border border-subtle text-xs font-medium text-status-success-text flex items-center justify-between">
           <span>{success}</span>
           <button type="button" onClick={() => setSuccess(null)} className="text-status-success-text font-bold ml-2">✕</button>
         </div>
@@ -574,19 +574,19 @@ export default function ChartOfAccountsPage() {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-surface border border-default rounded-xl">
+        <Card className="p-4 bg-surface border border-subtle rounded-xl shadow-card">
           <p className="text-xs font-medium text-secondary">Total Ledger Groups</p>
           <p className="text-xl font-black text-primary mt-1">{groups.length}</p>
           <span className="text-[10px] text-status-info-text font-medium">Standard 28 Tally Groups</span>
         </Card>
 
-        <Card className="p-4 bg-surface border border-default rounded-xl">
+        <Card className="p-4 bg-surface border border-subtle rounded-xl shadow-card">
           <p className="text-xs font-medium text-secondary">Standard Active Ledgers</p>
           <p className="text-xl font-black text-primary mt-1">{flatLedgers.length}</p>
           <span className="text-[10px] text-status-success-text font-medium">Auto-Numbered (1000–4999)</span>
         </Card>
 
-        <Card className="p-4 bg-surface border border-default rounded-xl">
+        <Card className="p-4 bg-surface border border-subtle rounded-xl shadow-card">
           <p className="text-xs font-medium text-secondary">Bank & Cash Ledgers</p>
           <p className="text-xl font-black text-primary mt-1">
             {flatLedgers.filter((l) => l.isBankOrCash).length}
@@ -594,7 +594,7 @@ export default function ChartOfAccountsPage() {
           <span className="text-[10px] text-muted">BRS & Cash Rules Active</span>
         </Card>
 
-        <Card className="p-4 bg-surface border border-default rounded-xl">
+        <Card className="p-4 bg-surface border border-subtle rounded-xl shadow-card">
           <p className="text-xs font-medium text-secondary">System Locked Ledgers</p>
           <p className="text-xl font-black text-primary mt-1">
             {flatLedgers.filter((l) => l.isLocked).length}
@@ -604,7 +604,7 @@ export default function ChartOfAccountsPage() {
       </div>
 
       {/* Toolbar: Search, Nature Filters, View Mode Toggle */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface p-3 rounded-xl border border-default">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface p-3 rounded-xl border border-subtle shadow-card">
         <div className="flex items-center gap-2 w-full sm:w-80">
           <div className="relative w-full">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
@@ -690,7 +690,7 @@ export default function ChartOfAccountsPage() {
               return (
                 <Card
                   key={natureKey}
-                  className="p-4 bg-surface border border-default rounded-xl"
+                  className="p-4 bg-surface border border-subtle rounded-xl shadow-card"
                 >
                   <div className="flex items-center justify-between border-b border-subtle pb-2 mb-3">
                     <div className="flex items-center gap-2">

@@ -174,7 +174,7 @@ export function InvoiceSettingsDialog({
       <DialogContent size="md">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-brand-subtle border border-default flex items-center justify-center text-brand-text">
+            <div className="h-9 w-9 rounded-xl bg-brand-subtle flex items-center justify-center text-brand-text">
               <Settings className="h-4 w-4" />
             </div>
             <div>
@@ -187,7 +187,7 @@ export function InvoiceSettingsDialog({
         </DialogHeader>
 
         {/* Document Type Scope Banner */}
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken border border-default text-xs">
+        <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken text-xs">
           <div className="flex items-center gap-2 text-secondary">
             <Layers className="h-3.5 w-3.5 text-brand-text" />
             <span>Configuring Series for: <strong className="text-primary">{docTypeLabel}</strong></span>
@@ -256,7 +256,7 @@ export function InvoiceSettingsDialog({
 
           {/* Configuration Inputs */}
           {mode === 'CUSTOM' ? (
-            <div className="p-3.5 rounded-xl bg-surface-sunken border border-default space-y-2">
+            <div className="p-3.5 rounded-xl bg-surface-sunken space-y-2">
               <FormField label="Custom Invoice Number" required id="custom-inv-num">
                 <Input
                   id="custom-inv-num"
@@ -272,7 +272,7 @@ export function InvoiceSettingsDialog({
               </p>
             </div>
           ) : (
-            <div className="p-3.5 rounded-xl bg-surface-sunken border border-default space-y-3">
+            <div className="p-3.5 rounded-xl bg-surface-sunken space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField label="Prefix" id="seq-prefix">
                   <Input
@@ -385,7 +385,7 @@ export function InvoiceSettingsDialog({
             />
           </FormField>
 
-          <div className="p-3 rounded-xl bg-surface-sunken border border-default flex items-center justify-between text-xs">
+          <div className="p-3 rounded-xl bg-surface-sunken flex items-center justify-between text-xs">
             <div className="text-secondary">
               Company Logo, Signature/DSC & Payment QR
             </div>

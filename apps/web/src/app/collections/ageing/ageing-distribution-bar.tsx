@@ -23,7 +23,7 @@ export function AgeingDistributionBar({ summary }: AgeingDistributionBarProps) {
   const formatInr = (n: number) => formatMoney(n);
 
   return (
-    <Card className="p-4 bg-surface border border-default rounded-xl shadow-xs">
+    <Card className="p-4">
       <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="text-sm font-bold text-primary">

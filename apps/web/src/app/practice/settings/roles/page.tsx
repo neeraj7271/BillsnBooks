@@ -97,7 +97,7 @@ export default function RolesAndJobRolesPage() {
 
             <div className="space-y-2">
               {permRoles.map((r) => (
-                <div key={r.id} className="p-3 rounded-xl border border-default bg-surface-muted space-y-1.5">
+                <div key={r.id} className="p-3 rounded-xl bg-surface-sunken space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-text-primary">{r.name}</span>
                     <Badge variant={r.isSystem ? 'neutral' : 'brand'} size="xs">{r.isSystem ? 'System' : 'Custom'}</Badge>
@@ -125,7 +125,7 @@ export default function RolesAndJobRolesPage() {
             </form>
             <div className="space-y-2">
               {jobRoles.map((jr) => (
-                <div key={jr.id} className="p-3 rounded-xl border border-default bg-surface-muted flex items-center justify-between">
+                <div key={jr.id} className="p-3 rounded-xl bg-surface-sunken flex items-center justify-between">
                   <div>
                     <div className="text-xs font-semibold text-text-primary">{jr.name}</div>
                     <div className="text-[11px] text-text-muted">{jr.description || jr.code}</div>

@@ -336,7 +336,7 @@ function ClientDocumentsPortalContent() {
           {selectedVaultClientId ? (
             <DocumentVaultView clientId={selectedVaultClientId} />
           ) : (
-            <div className="p-8 rounded-2xl border border-default bg-surface text-center text-xs text-muted">
+            <div className="p-8 rounded-xl border border-subtle bg-surface shadow-card text-center text-xs text-muted">
               Create a practice client first to open their document vault.
             </div>
           )}

@@ -62,7 +62,7 @@ export function Step1Upload({
             </Button>
 
             {templateMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-xl border border-default bg-surface-overlay shadow-xl z-50 py-1.5 text-xs">
+              <div className="absolute right-0 mt-2 w-56 rounded-xl border border-subtle bg-surface-raised shadow-popover z-50 py-1.5 text-xs">
                 <div className="px-3 py-1 font-semibold text-muted uppercase tracking-wider text-[10px]">
                   Standard Templates (.xlsx)
                 </div>

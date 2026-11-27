@@ -164,21 +164,21 @@ export function UnitManagerDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-status-danger-subtle text-xs text-status-danger-text flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-3 rounded-xl bg-status-success-subtle border border-default text-xs text-status-success-text flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-status-success-subtle text-xs text-status-success-text flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
 
         {/* Create / Edit Unit Form */}
-        <div className="rounded-xl border border-default p-4 bg-surface-sunken space-y-3">
+        <div className="rounded-xl p-4 bg-surface-sunken space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
               {editingCode ? (
@@ -273,11 +273,11 @@ export function UnitManagerDialog({
           </div>
 
           {customUnits.length === 0 ? (
-            <div className="p-4 rounded-xl border border-dashed border-default text-center text-xs text-muted">
+            <div className="p-4 rounded-xl border border-dashed border-subtle text-center text-xs text-muted">
               No custom units registered yet. Create your first unit above, or use statutory standard GST units below.
             </div>
           ) : (
-            <div className="divide-y divide-border-subtle border border-default rounded-xl overflow-hidden bg-surface">
+            <div className="divide-y divide-border-subtle border border-subtle rounded-xl overflow-hidden bg-surface">
               {customUnits.map((u) => (
                 <div key={u.code} className="p-3 flex items-center justify-between gap-4 text-xs">
                   <div>
@@ -323,7 +323,7 @@ export function UnitManagerDialog({
             Statutory GST Standard Units Reference ({GST_STATUTORY_UOM_LIST.length} units pre-loaded)
           </span>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-2 bg-surface-sunken rounded-xl border border-default text-[11px]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-2 bg-surface-sunken rounded-xl text-[11px]">
             {GST_STATUTORY_UOM_LIST.map((su) => (
               <div key={su.code} className="flex items-center gap-1.5 truncate">
                 <span className="font-mono font-semibold text-secondary">

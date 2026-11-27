@@ -73,7 +73,7 @@ export default function PracticeCommandCenterPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex rounded-xl border border-default bg-surface p-0.5">
+          <div className="inline-flex rounded-xl bg-surface-sunken p-0.5">
             <button
               type="button"
               disabled={switchingMode}
@@ -233,9 +233,9 @@ export default function PracticeCommandCenterPage() {
           <Card>
             <CardHeader><CardTitle className="text-base">Entity Quick Links</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-xs">
-              <Link href="/practice/jobs" className="block p-3 rounded-xl border border-default hover:border-brand font-semibold text-primary">My Compliance Deliverables →</Link>
-              <Link href="/practice/documents" className="block p-3 rounded-xl border border-default hover:border-brand font-semibold text-primary">Document Vault →</Link>
-              <Link href="/practice/notices" className="block p-3 rounded-xl border border-default hover:border-brand font-semibold text-primary">Statutory Notices →</Link>
+              <Link href="/practice/jobs" className="block p-3 rounded-xl bg-surface-sunken hover:bg-surface-sunken/80 font-semibold text-primary transition">My Compliance Deliverables →</Link>
+              <Link href="/practice/documents" className="block p-3 rounded-xl bg-surface-sunken hover:bg-surface-sunken/80 font-semibold text-primary transition">Document Vault →</Link>
+              <Link href="/practice/notices" className="block p-3 rounded-xl bg-surface-sunken hover:bg-surface-sunken/80 font-semibold text-primary transition">Statutory Notices →</Link>
             </CardContent>
           </Card>
         )}

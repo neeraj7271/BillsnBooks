@@ -45,7 +45,7 @@ export default function BalanceSheetPage() {
   );
 
   const summary = data && (
-    <div className="rounded-xl border border-default bg-surface p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="rounded-xl border border-subtle bg-surface p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <span
         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border ${
           data.isBalanced
@@ -100,7 +100,7 @@ export default function BalanceSheetPage() {
     >
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-xl border border-default bg-surface shadow-xs overflow-hidden flex flex-col justify-between">
+          <div className="rounded-xl border border-subtle bg-surface shadow-card overflow-hidden flex flex-col justify-between">
             <div>
               <div className="px-5 py-3.5 border-b border-default bg-brand-subtle flex items-center justify-between">
                 <span className="text-xs font-bold text-brand-text uppercase tracking-wide">
@@ -144,7 +144,7 @@ export default function BalanceSheetPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-default bg-surface shadow-xs overflow-hidden flex flex-col justify-between">
+          <div className="rounded-xl border border-subtle bg-surface shadow-card overflow-hidden flex flex-col justify-between">
             <div>
               <div className="px-5 py-3.5 border-b border-default bg-brand-subtle flex items-center justify-between">
                 <span className="text-xs font-bold text-brand-text uppercase tracking-wide">

@@ -52,7 +52,7 @@ export function UnitDetailsDialog({
       <DialogContent size="sm">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text">
+            <div className="h-10 w-10 rounded-xl bg-status-info-subtle flex items-center justify-center text-status-info-text">
               <Scale className="h-5 w-5" />
             </div>
             <div>
@@ -75,7 +75,7 @@ export function UnitDetailsDialog({
 
         <div className="space-y-4 py-2 text-xs">
           {/* Metadata Grid */}
-          <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-surface-sunken border border-default">
+          <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-surface-sunken">
             <div>
               <span className="text-[11px] font-semibold text-muted uppercase">Unit Code (UOM / UQC)</span>
               <div className="mt-0.5 font-mono font-bold text-primary text-sm">
@@ -108,7 +108,7 @@ export function UnitDetailsDialog({
           </div>
 
           {/* Statutory Status */}
-          <div className="p-3 rounded-xl border border-default bg-surface flex items-start gap-2.5">
+          <div className="p-3 rounded-xl bg-surface-sunken flex items-start gap-2.5">
             {unit.isCustom ? (
               <Box className="w-4 h-4 text-status-info-text shrink-0 mt-0.5" />
             ) : (
@@ -138,11 +138,11 @@ export function UnitDetailsDialog({
             </div>
 
             {assignedItems.length === 0 ? (
-              <div className="p-3 rounded-xl border border-dashed border-default text-center text-muted text-xs">
+              <div className="p-3 rounded-xl border border-dashed border-subtle text-center text-muted text-xs">
                 No catalog goods or services are currently assigned to this measurement unit.
               </div>
             ) : (
-              <div className="max-h-40 overflow-y-auto rounded-xl border border-default divide-y divide-border-subtle">
+              <div className="max-h-40 overflow-y-auto rounded-xl border border-subtle divide-y divide-border-subtle">
                 {assignedItems.map((it) => (
                   <div key={it.id} className="p-2.5 flex items-center justify-between gap-3 bg-surface">
                     <div>

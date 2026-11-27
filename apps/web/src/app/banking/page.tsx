@@ -184,7 +184,7 @@ export default function BankingOverviewPage() {
             <Card
               key={acc.id}
               onClick={() => setSelectedAccountId(acc.id)}
-              className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-focus-ring border-focus' : 'hover:border-strong'}`}
+              className={`cursor-pointer hover:shadow-card-hover transition-all ${isSelected ? 'ring-2 ring-focus-ring border-focus' : 'hover:border-strong'}`}
             >
               <CardContent className="p-4 space-y-2">
                 <div className="flex justify-between items-start">

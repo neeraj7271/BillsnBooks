@@ -82,12 +82,12 @@ export function Toaster() {
             }}
             data-testid={`toast-${t.type}`}
             className={cn(
-              'group pointer-events-auto relative flex w-full items-start justify-between gap-3 overflow-hidden rounded-xl border p-3.5 shadow-md transition-all',
+              'group pointer-events-auto relative flex w-full items-start justify-between gap-3 overflow-hidden rounded-xl border border-subtle bg-surface-raised text-primary p-3.5 shadow-popover transition-all',
               'data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full',
-              t.type === 'success' && 'border-status-success/30 bg-surface text-primary shadow-xs',
-              t.type === 'error' && 'border-status-danger/30 bg-surface text-primary shadow-xs',
-              t.type === 'warning' && 'border-status-warning/30 bg-surface text-primary shadow-xs',
-              t.type === 'info' && 'border-default bg-surface text-primary shadow-xs'
+              t.type === 'success' && 'border-l-[3px] border-l-status-success',
+              t.type === 'error' && 'border-l-[3px] border-l-status-danger',
+              t.type === 'warning' && 'border-l-[3px] border-l-status-warning',
+              t.type === 'info' && 'border-l-[3px] border-l-brand'
             )}
           >
             <div className="flex items-start gap-2.5 min-w-0 flex-1">

@@ -187,7 +187,7 @@ export function ItemDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}

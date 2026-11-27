@@ -133,7 +133,7 @@ export function UploadClientDocDialog({
             </div>
 
             {selectedFile && (
-              <div className="flex items-center justify-between p-3 rounded-xl border border-default bg-surface">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-surface-sunken">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <FileText className="h-4 w-4 text-brand-text shrink-0" />
                   <div className="min-w-0">

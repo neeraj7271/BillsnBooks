@@ -146,21 +146,21 @@ export default function PeriodsPage() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-default bg-status-danger-subtle p-4 text-xs font-semibold text-status-danger-text flex items-center gap-2">
+        <div className="rounded-xl border border-subtle bg-status-danger-subtle p-4 text-xs font-semibold text-status-danger-text flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0 text-status-danger-text" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="rounded-xl border border-default bg-status-success-subtle p-4 text-xs font-semibold text-status-success-text flex items-center gap-2">
+        <div className="rounded-xl border border-subtle bg-status-success-subtle p-4 text-xs font-semibold text-status-success-text flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success-text" />
           <span>{success}</span>
         </div>
       )}
 
       {/* Info Notice */}
-      <div className="rounded-2xl border border-default bg-status-info-subtle p-5 flex items-start gap-3">
+      <div className="rounded-xl border border-subtle bg-status-info-subtle shadow-card p-5 flex items-start gap-3">
         <ShieldCheck className="h-5 w-5 text-status-info-text shrink-0 mt-0.5" />
         <div className="text-xs text-primary space-y-1">
           <p className="font-bold">Automated Statutory Safeguard:</p>

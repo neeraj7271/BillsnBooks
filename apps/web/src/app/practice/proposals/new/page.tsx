@@ -149,7 +149,7 @@ export default function NewProposalPage() {
 
             <div className="space-y-3">
               {lines.map((line, idx) => (
-                <div key={idx} className="grid grid-cols-12 gap-2 items-end p-3 rounded-xl border border-default bg-surface-muted">
+                <div key={idx} className="grid grid-cols-12 gap-2 items-end p-3 rounded-xl bg-surface-sunken">
                   <div className="col-span-4">
                     <label className="block text-[11px] font-medium text-text-secondary mb-1">Service</label>
                     <select

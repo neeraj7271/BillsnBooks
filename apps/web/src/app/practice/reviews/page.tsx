@@ -56,7 +56,7 @@ export default function ReviewInboxPage() {
       </div>
 
       {banner && (
-        <div className="p-3 rounded-xl bg-status-info-subtle border border-default text-xs text-text-primary font-semibold">
+        <div className="p-3 rounded-xl bg-status-info-subtle border border-subtle shadow-card text-xs text-text-primary font-semibold">
           {banner}
         </div>
       )}
@@ -69,7 +69,7 @@ export default function ReviewInboxPage() {
             <div className="text-xs text-text-muted py-6 text-center">No jobs awaiting review right now.</div>
           ) : (
             jobs.map((j) => (
-              <div key={j.id} className="p-4 rounded-xl border border-default bg-surface-muted space-y-3">
+              <div key={j.id} className="p-4 rounded-xl bg-surface-sunken space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">

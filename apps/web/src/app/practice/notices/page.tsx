@@ -83,7 +83,7 @@ export default function NoticesInboxPage() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-3 rounded-2xl border border-default bg-surface p-3">
+      <div className="flex flex-wrap gap-3 rounded-xl border border-subtle bg-surface p-3 shadow-card">
         <select value={authFilter} onChange={(e) => setAuthFilter(e.target.value)} className="rounded-xl border border-default bg-surface px-3 py-1.5 text-xs text-text-primary">
           <option value="">All Authorities</option>
           <option value="GST">GST</option>
@@ -115,8 +115,8 @@ export default function NoticesInboxPage() {
                   setSelected(n);
                   setResponseNotes(n.responseNotes || '');
                 }}
-                className={`cursor-pointer flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border ${
-                  n.isOverdue ? 'border-status-danger bg-status-danger-subtle/20' : 'border-default bg-surface-muted'
+                className={`cursor-pointer flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl transition ${
+                  n.isOverdue ? 'border border-status-danger bg-status-danger-subtle/20' : 'bg-surface-sunken hover:bg-surface-sunken/80'
                 }`}
               >
                 <div>

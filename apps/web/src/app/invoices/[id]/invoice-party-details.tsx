@@ -135,7 +135,7 @@ export function InvoicePartyDetails({ invoice, company }: InvoicePartyDetailsPro
           <div className="font-bold uppercase tracking-wider text-muted print:text-black text-[10px] mb-1">
             Remittance Bank Details:
           </div>
-          <div className="p-3 rounded-xl bg-surface-sunken print:bg-white border border-subtle text-xs space-y-1">
+          <div className="p-3 rounded-xl bg-surface-sunken print:bg-white print:border print:border-subtle text-xs space-y-1">
             <div className="font-bold text-primary print:text-black">HDFC Bank Limited</div>
             <div className="text-primary print:text-black">
               <span className="text-secondary print:text-black">Current A/c:</span>{' '}

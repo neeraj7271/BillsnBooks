@@ -89,7 +89,7 @@ export function EditUnitDialog({
       <DialogContent size="xs">
         <DialogHeader>
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-status-info-subtle border border-default flex items-center justify-center text-status-info-text">
+            <div className="h-9 w-9 rounded-xl bg-status-info-subtle flex items-center justify-center text-status-info-text">
               <Edit3 className="h-4 w-4" />
             </div>
             <div>
@@ -106,7 +106,7 @@ export function EditUnitDialog({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text flex items-start gap-2">
+          <div className="p-3 rounded-xl bg-status-danger-subtle text-xs text-status-danger-text flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -118,7 +118,7 @@ export function EditUnitDialog({
               Unit Code (UOM / UQC)
             </label>
             <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-xs px-3 py-1.5 rounded-lg bg-surface-sunken text-secondary border border-default">
+              <span className="font-mono font-bold text-xs px-3 py-1.5 rounded-lg bg-surface-sunken text-secondary">
                 {unit.code}
               </span>
               <span className="text-[11px] text-muted">

@@ -56,7 +56,7 @@ export function Step4Post({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="p-4 rounded-xl bg-brand-subtle border border-default flex items-start gap-3">
+        <div className="p-4 rounded-xl bg-brand-subtle flex items-start gap-3">
           <ShieldCheck className="h-5 w-5 text-brand-text shrink-0 mt-0.5" />
           <div className="text-xs space-y-1">
             <div className="font-bold text-primary">
@@ -68,7 +68,7 @@ export function Step4Post({
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-default">
+        <div className="p-4 rounded-xl bg-surface-sunken">
           <Switch
             id="maker-checker-confirm"
             checked={approved}

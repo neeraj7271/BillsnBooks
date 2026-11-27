@@ -127,7 +127,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
 
       {/* 2-Column Clean Cards: Client Details vs Bank Remittance */}
       <div className="grid grid-cols-2 gap-5 py-5 border-b border-default">
-        <div className="p-4 rounded-xl bg-surface-sunken print:bg-white border border-default flex flex-col justify-between space-y-2">
+        <div className="p-4 rounded-xl bg-surface-sunken print:bg-white print:border print:border-default flex flex-col justify-between space-y-2">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-wider text-secondary print:text-black mb-1.5">
               Billed To (Customer):
@@ -159,7 +159,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-surface-sunken print:bg-white border border-default flex flex-col justify-between space-y-2">
+        <div className="p-4 rounded-xl bg-surface-sunken print:bg-white print:border print:border-default flex flex-col justify-between space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-secondary print:text-black mb-1.5">
@@ -257,7 +257,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
       {/* Tax Breakdown, In Words & Financial Summary Block */}
       <div className="py-5 flex justify-between items-start gap-8 page-break-avoid">
         <div className="flex-1 space-y-3 max-w-lg">
-          <div className="p-3.5 rounded-xl bg-surface-sunken print:bg-white border border-default">
+          <div className="p-3.5 rounded-xl bg-surface-sunken print:bg-white print:border print:border-default">
             <div className="text-[10px] font-bold uppercase tracking-wider text-secondary print:text-black">
               Amount Chargeable (in words):
             </div>
@@ -266,7 +266,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-surface-sunken print:bg-white border border-default space-y-1">
+          <div className="p-3.5 rounded-xl bg-surface-sunken print:bg-white print:border print:border-default space-y-1">
             <div className="text-[10px] font-bold uppercase tracking-wider text-secondary print:text-black">
               Terms & Conditions:
             </div>
@@ -275,7 +275,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
             </p>
           </div>
 
-          <div className="p-3 rounded-xl bg-surface-sunken print:bg-white border border-default text-[11px] text-secondary print:text-black space-y-0.5">
+          <div className="p-3 rounded-xl bg-surface-sunken print:bg-white print:border print:border-default text-[11px] text-secondary print:text-black space-y-0.5">
             <span className="font-bold block text-primary print:text-black">Statutory Tax Schedule:</span>
             {isIntraState ? (
               <div>Intra-State Supply: Central GST (CGST) @ 9% and State GST (SGST) @ 9% applied equally.</div>
@@ -286,7 +286,7 @@ export function ModernBrandTemplate({ invoice, company, settings }: InvoiceTempl
         </div>
 
         <div className="w-80 shrink-0 space-y-4">
-          <div className="p-4 rounded-xl bg-surface-sunken print:bg-white border border-default space-y-2.5 text-xs">
+          <div className="p-4 rounded-xl bg-surface-sunken print:bg-white print:border print:border-default space-y-2.5 text-xs">
             <div className="flex justify-between text-secondary print:text-black font-medium">
               <span>Taxable Subtotal:</span>
               <MoneyText amount={invoice.subtotalAmount} />

@@ -153,7 +153,7 @@ export default function ReportsHubPage() {
   return (
     <div className="flex flex-col h-full space-y-4 animate-in fade-in duration-200">
       {/* 1. Sleek Compact Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-surface p-3.5 px-4 rounded-xl border border-default shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-surface p-3.5 px-4 rounded-xl border border-subtle shadow-card">
         <div>
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-brand-subtle border border-brand/20 text-brand-text">
@@ -248,7 +248,7 @@ export default function ReportsHubPage() {
       )}
 
       {/* 3. Catalog Control Toolbar: Category Chips + Search */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2.5 px-3.5 rounded-xl bg-surface border border-default shadow-sm text-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2.5 px-3.5 rounded-xl bg-surface border border-subtle shadow-card text-xs">
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           {categories.map((c) => (
@@ -288,7 +288,7 @@ export default function ReportsHubPage() {
           {filteredCatalog.map((report) => (
             <div
               key={report.reportKey}
-              className="flex flex-col justify-between p-3.5 rounded-xl border border-default bg-surface shadow-xs hover:shadow-sm hover:border-brand/50 transition"
+              className="flex flex-col justify-between p-3.5 rounded-xl border border-subtle bg-surface shadow-card hover:shadow-card-hover hover:border-brand/50 transition"
             >
               <div>
                 <div className="flex items-start justify-between">
@@ -343,7 +343,7 @@ export default function ReportsHubPage() {
         </div>
       ) : (
         /* Dense List View */
-        <div className="overflow-hidden rounded-xl border border-default bg-surface shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-subtle bg-surface shadow-card">
           <table className="w-full text-left text-xs">
             <thead className="border-b border-default bg-surface-sunken font-semibold text-secondary">
               <tr>
@@ -406,7 +406,7 @@ export default function ReportsHubPage() {
       )}
 
       {filteredCatalog.length === 0 && !loading && (
-        <div className="text-center py-12 border border-dashed border-default rounded-xl bg-surface">
+        <div className="text-center py-12 border border-dashed border-subtle rounded-xl bg-surface shadow-card">
           <FileSpreadsheet className="h-8 w-8 text-muted mx-auto" />
           <h4 className="mt-2 text-sm font-semibold text-secondary">
             No matching reports found

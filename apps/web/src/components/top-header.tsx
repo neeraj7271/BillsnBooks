@@ -178,7 +178,7 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
             </button>
 
             {showCompanyMenu && (
-              <div className="absolute left-0 mt-1.5 w-72 rounded-xl border border-default bg-surface-raised p-1.5 shadow-lg z-50">
+              <div className="absolute left-0 mt-1.5 w-72 rounded-xl border border-subtle bg-surface-raised p-1.5 shadow-popover z-50">
                 <div className="px-2.5 py-1 text-overline uppercase text-muted">
                   Active Entity (⌘⇧C)
                 </div>
@@ -300,7 +300,7 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
             </button>
 
             {showProfileMenu && (
-              <div className="absolute right-0 mt-1.5 w-56 rounded-xl border border-default bg-surface-raised p-1.5 shadow-lg z-50 space-y-1">
+              <div className="absolute right-0 mt-1.5 w-56 rounded-xl border border-subtle bg-surface-raised p-1.5 shadow-popover z-50 space-y-1">
                 <div className="px-2.5 py-2 border-b border-subtle">
                   <div className="text-xs font-semibold text-primary truncate">{userName}</div>
                   <div className="text-[11px] text-muted truncate">{userEmail}</div>

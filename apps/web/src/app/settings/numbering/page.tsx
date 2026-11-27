@@ -317,7 +317,7 @@ export default function NumberingSettingsPage() {
       </div>
 
       {/* Info Card */}
-      <div className="p-4 rounded-2xl bg-status-info-subtle border border-default flex items-start gap-3">
+      <div className="p-4 rounded-xl bg-status-info-subtle border border-subtle shadow-card flex items-start gap-3">
         <ShieldCheck className="w-5 h-5 text-status-info-text shrink-0 mt-0.5" />
         <div className="text-xs text-secondary leading-relaxed">
           <span className="font-bold text-primary block mb-0.5">
@@ -391,7 +391,7 @@ export default function NumberingSettingsPage() {
               />
             </FormField>
 
-            <div className="p-3 rounded-xl bg-surface-sunken border border-default text-xs">
+            <div className="p-3 rounded-xl bg-surface-sunken text-xs">
               <span className="text-[11px] text-secondary font-bold uppercase block mb-1">
                 Supported Tokens:
               </span>
@@ -429,7 +429,7 @@ export default function NumberingSettingsPage() {
               </FormField>
             </div>
 
-            <div className="p-3 rounded-xl bg-status-info-subtle border border-default flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-status-info-subtle border border-subtle flex items-center justify-between">
               <span className="text-xs font-bold text-primary">Live Sample Output:</span>
               <span className="font-mono font-black text-sm text-status-info-text">
                 {previewFormatted}

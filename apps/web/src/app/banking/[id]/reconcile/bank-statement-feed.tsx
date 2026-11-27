@@ -51,10 +51,10 @@ export function BankStatementFeed({
               <div
                 key={tx.id}
                 onClick={() => onSelectTxn(tx)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
+                className={`p-3.5 rounded-xl border shadow-card hover:shadow-card-hover transition-all cursor-pointer ${
                   isSelected
                     ? 'border-focus bg-brand-subtle ring-1 ring-focus-ring'
-                    : 'border-default bg-surface hover:border-strong'
+                    : 'border-subtle bg-surface hover:border-strong'
                 }`}
               >
                 <div className="flex justify-between items-start gap-2">

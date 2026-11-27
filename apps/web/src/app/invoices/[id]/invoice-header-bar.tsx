@@ -192,9 +192,9 @@ export function InvoiceHeaderBar({
       </div>
 
       {/* Invoice Template Selector Banner */}
-      <div className="p-3 rounded-2xl bg-surface border border-default shadow-2xs flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="p-3 rounded-xl bg-surface border border-subtle shadow-card flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="h-8 w-8 rounded-lg bg-brand-subtle border border-default flex items-center justify-center text-brand-text shrink-0">
+          <div className="h-8 w-8 rounded-lg bg-brand-subtle flex items-center justify-center text-brand-text shrink-0">
             <LayoutTemplate className="w-4 h-4" />
           </div>
           <div className="min-w-0">
@@ -211,7 +211,7 @@ export function InvoiceHeaderBar({
         </div>
 
         {/* Template Segmented Toggle Buttons */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface-sunken border border-default shrink-0 overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface-sunken shrink-0 overflow-x-auto">
           {INVOICE_TEMPLATES.map((tmpl) => {
             const isSelected = selectedTemplate === tmpl.id;
             return (

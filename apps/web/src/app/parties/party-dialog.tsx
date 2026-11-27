@@ -206,7 +206,7 @@ export function PartyDialog({ open, onOpenChange, onSuccess, companyId, initialD
         </DialogHeader>
 
         {error && (
-          <div className="p-3 rounded-xl bg-status-danger-subtle border border-default text-xs text-status-danger-text font-medium">
+          <div className="p-3 rounded-xl bg-status-danger-subtle text-xs text-status-danger-text font-medium">
             {error}
           </div>
         )}
@@ -257,7 +257,7 @@ export function PartyDialog({ open, onOpenChange, onSuccess, companyId, initialD
 
           {/* Conditional GSTIN Section Based on Statutory Policy */}
           {isGstinForbidden ? (
-            <div className="p-3.5 rounded-xl bg-status-info-subtle border border-default text-xs flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-status-info-subtle text-xs flex items-center justify-between">
               <div className="space-y-0.5">
                 <span className="font-semibold text-status-info-text">
                   {isOverseas ? 'Cross-Border / Foreign Client' : 'Unregistered Retail Consumer / Client'}
