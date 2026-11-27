@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -58,7 +59,7 @@ function ComplianceTasksContent() {
       });
       setTasks(data || []);
     } catch (err: unknown) {
-      console.error('Failed to load compliance tasks', err);
+      logger.error('Failed to load compliance tasks', err);
     } finally {
       setLoading(false);
     }

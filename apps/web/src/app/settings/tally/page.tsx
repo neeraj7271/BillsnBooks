@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -46,7 +47,7 @@ export default function TallySettingsPage() {
       setMasters(m || []);
       setXmlPreview(xmlRes?.xml || '');
     } catch (err: unknown) {
-      console.error('Tally fetch error:', err);
+      logger.error('Tally fetch error:', err);
     } finally {
       setLoading(false);
     }

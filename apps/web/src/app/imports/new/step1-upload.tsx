@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button } from '@platform/ui';
 import { UploadCloud, FileSpreadsheet, Download, ChevronDown } from 'lucide-react';
@@ -31,7 +32,7 @@ export function Step1Upload({
       setTemplateMenuOpen(false);
       await apiClient.downloadImportTemplate(type);
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setDownloading(false);
     }

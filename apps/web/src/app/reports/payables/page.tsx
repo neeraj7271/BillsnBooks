@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
@@ -101,7 +102,7 @@ export default function PayablesSuitePage() {
     try {
       await apiClient.toggleFavoriteReport(activeCompanyId, key);
     } catch (err) {
-      console.error('Failed to toggle favorite', err);
+      logger.error('Failed to toggle favorite', err);
     }
   };
 
@@ -119,7 +120,7 @@ export default function PayablesSuitePage() {
         setData(res);
       }
     } catch (err) {
-      console.error('Failed to load payables report', err);
+      logger.error('Failed to load payables report', err);
     } finally {
       setLoading(false);
     }

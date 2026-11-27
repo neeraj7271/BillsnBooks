@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import * as React from 'react';
 import {
@@ -57,7 +58,7 @@ export function PromiseToPayDialog({
       onSuccess();
       onOpenChange(false);
     } catch (err) {
-      console.error('Failed to update promise to pay', err);
+      logger.error('Failed to update promise to pay', err);
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ export function PromiseToPayDialog({
       onSuccess();
       onOpenChange(false);
     } catch (err) {
-      console.error('Failed to clear promise to pay', err);
+      logger.error('Failed to clear promise to pay', err);
     } finally {
       setLoading(false);
     }

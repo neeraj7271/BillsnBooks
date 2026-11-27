@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -55,7 +56,7 @@ export default function ReportsHubPage() {
       const items = await apiClient.getReportsCatalog(activeCompanyId);
       setCatalog(items || []);
     } catch (err) {
-      console.error('Failed to load reports catalog', err);
+      logger.error('Failed to load reports catalog', err);
     } finally {
       setLoading(false);
     }
@@ -79,7 +80,7 @@ export default function ReportsHubPage() {
     try {
       await apiClient.toggleFavoriteReport(activeCompanyId, reportKey);
     } catch (err) {
-      console.error('Failed to toggle favorite', err);
+      logger.error('Failed to toggle favorite', err);
       loadCatalog();
     }
   };

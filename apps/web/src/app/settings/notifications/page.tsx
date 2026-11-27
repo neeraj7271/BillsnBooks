@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -78,7 +79,7 @@ export default function NotificationSettingsPage() {
         setRules(data.rules || []);
       }
     } catch (err: unknown) {
-      console.error('Failed to load notification settings', err);
+      logger.error('Failed to load notification settings', err);
       showToast('error', 'Failed to load company notification settings');
     } finally {
       setLoading(false);

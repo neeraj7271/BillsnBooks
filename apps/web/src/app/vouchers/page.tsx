@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -107,7 +108,7 @@ export default function VouchersPage() {
         setFinancialYears(comp.financialYears || []);
       }
     } catch (err: unknown) {
-      console.error('Failed to load vouchers:', err);
+      logger.error('Failed to load vouchers:', err);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -54,7 +55,7 @@ export default function ItemSalesPage() {
     try {
       await apiClient.toggleFavoriteReport(activeCompanyId, 'ITEM_SALES');
     } catch (err) {
-      console.error('Failed to toggle favorite', err);
+      logger.error('Failed to toggle favorite', err);
     }
   };
 
@@ -64,7 +65,7 @@ export default function ItemSalesPage() {
       const res = await apiClient.getItemSales(activeCompanyId, fromDate, toDate);
       setData(res);
     } catch (err) {
-      console.error('Failed to load item sales report', err);
+      logger.error('Failed to load item sales report', err);
     } finally {
       setLoading(false);
     }

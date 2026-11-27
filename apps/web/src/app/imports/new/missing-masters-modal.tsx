@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -65,7 +66,7 @@ export function MissingMastersModal({
       onResolved(result);
       onOpenChange(false);
     } catch (err) {
-      console.error('Failed to resolve missing masters', err);
+      logger.error('Failed to resolve missing masters', err);
     } finally {
       setResolving(false);
     }

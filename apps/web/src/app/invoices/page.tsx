@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -79,7 +80,7 @@ export default function InvoicesPage() {
       const data = await apiClient.listInvoices(activeCompanyId, params);
       setInvoices(data || []);
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setLoading(false);
     }
@@ -91,7 +92,7 @@ export default function InvoicesPage() {
       await apiClient.convertToTaxInvoice(activeCompanyId, invoiceId);
       await loadInvoices();
     } catch (err: unknown) {
-      console.error('Failed to convert to tax invoice', err);
+      logger.error('Failed to convert to tax invoice', err);
     } finally {
       setConvertingId(null);
     }
@@ -109,7 +110,7 @@ export default function InvoicesPage() {
       setCancellingInvoice(null);
       await loadInvoices();
     } catch (err: unknown) {
-      console.error('Failed to cancel invoice', err);
+      logger.error('Failed to cancel invoice', err);
     }
   };
 

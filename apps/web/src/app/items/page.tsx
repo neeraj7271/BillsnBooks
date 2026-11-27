@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
@@ -99,7 +100,7 @@ export default function ItemsPage() {
       const data = await apiClient.listItems(activeCompanyId);
       setItems(data || []);
     } catch (err: unknown) {
-      console.error('Failed to list items:', err);
+      logger.error('Failed to list items:', err);
     } finally {
       setLoading(false);
     }
@@ -132,7 +133,7 @@ export default function ItemsPage() {
       ];
       setUnits(combined);
     } catch (err: unknown) {
-      console.error('Failed to list units:', err);
+      logger.error('Failed to list units:', err);
     } finally {
       setUnitsLoading(false);
     }
@@ -487,7 +488,6 @@ export default function ItemsPage() {
         deleteError={deleteError}
         onConfirm={handleConfirmDelete}
       />
-
       {/* Unit Details Dialog (View) */}
       <UnitDetailsDialog
         open={!!selectedUnitForView}

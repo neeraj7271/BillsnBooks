@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -59,7 +60,7 @@ export default function PaymentLinksPage() {
       setLinks(lData || []);
       setSettlements(sData || []);
     } catch (err: unknown) {
-      console.error('Failed to load payment links & settlements', err);
+      logger.error('Failed to load payment links & settlements', err);
     } finally {
       setLoading(false);
     }
@@ -81,7 +82,7 @@ export default function PaymentLinksPage() {
       await apiClient.simulatePaymentCallback(undefined, link.linkId);
       await loadData();
     } catch (err: unknown) {
-      console.error('Payment callback failed', err);
+      logger.error('Payment callback failed', err);
     } finally {
       setActionLoadingId(null);
     }

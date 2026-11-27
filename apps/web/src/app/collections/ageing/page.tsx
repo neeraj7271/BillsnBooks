@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -49,7 +50,7 @@ export default function ArAgeingPage() {
       setParties(list || []);
       setInvoices(invs || []);
     } catch (err: unknown) {
-      console.error('Failed to load AR Ageing data', err);
+      logger.error('Failed to load AR Ageing data', err);
     } finally {
       setLoading(false);
     }

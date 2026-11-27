@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -46,7 +47,7 @@ export default function ClientsDirectoryPage() {
       const data = await apiClient.listPracticeClients();
       setClients(data || []);
     } catch (err: unknown) {
-      console.error('Failed to load practice clients', err);
+      logger.error('Failed to load practice clients', err);
     } finally {
       setLoading(false);
     }

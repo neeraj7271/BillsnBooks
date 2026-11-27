@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -57,7 +58,7 @@ export default function BatchReviewPage() {
         // Ignore
       }
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -85,7 +86,7 @@ export default function PartiesPage() {
       const data = await apiClient.listParties(activeCompanyId, typeParam);
       setParties(data || []);
     } catch (err: unknown) {
-      console.error('Failed to list parties:', err);
+      logger.error('Failed to list parties:', err);
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -53,7 +54,7 @@ function ClientDocumentsPortalContent() {
       const data = await apiClient.listPracticeDocuments(initialClientId || undefined);
       setDocs(data || []);
     } catch (err: unknown) {
-      console.error('Failed to load document requests', err);
+      logger.error('Failed to load document requests', err);
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ function ClientDocumentsPortalContent() {
       await apiClient.reviewClientDocument(id, status);
       await loadDocuments();
     } catch (err: unknown) {
-      console.error('Failed to review document', err);
+      logger.error('Failed to review document', err);
     }
   };
 

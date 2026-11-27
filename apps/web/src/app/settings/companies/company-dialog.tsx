@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -173,7 +174,7 @@ export function CompanyDialog({ open, onOpenChange, onSuccess, initialData }: Co
           );
           await refreshSettings();
         } catch (settingsErr) {
-          console.error('Failed to save integration mode settings', settingsErr);
+          logger.error('Failed to save integration mode settings', settingsErr);
         }
       }
 

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -125,7 +126,7 @@ export default function GlobalSettingsPage() {
       await refreshSettings();
       await loadGlobalSettings();
     } catch (err) {
-      console.error('Failed to toggle Tally integration', err);
+      logger.error('Failed to toggle Tally integration', err);
     } finally {
       setUpdatingMode(false);
     }

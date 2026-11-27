@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -98,7 +99,7 @@ export function ItemDialog({
       const data = await apiClient.listUnits(targetCompanyId);
       setCustomUnits(data?.custom || []);
     } catch (err: unknown) {
-      console.error('Failed to load custom units in dialog:', err);
+      logger.error('Failed to load custom units in dialog:', err);
     }
   };
 

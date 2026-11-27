@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -92,7 +93,7 @@ export default function NumberingSettingsPage() {
         setBranches(comp.branches);
       }
     } catch (err: unknown) {
-      console.error('Failed to load numbering series:', err);
+      logger.error('Failed to load numbering series:', err);
     } finally {
       setLoading(false);
     }
@@ -175,7 +176,7 @@ export default function NumberingSettingsPage() {
       setModalOpen(false);
       await loadData();
     } catch (err: unknown) {
-      console.error('Failed to save numbering series:', err);
+      logger.error('Failed to save numbering series:', err);
     } finally {
       setSubmitting(false);
     }

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -80,7 +81,7 @@ export default function NotificationsFullPage() {
       }));
       setNotifications(rows);
     } catch (err) {
-      console.error('Failed to load notifications', err);
+      logger.error('Failed to load notifications', err);
     } finally {
       setLoading(false);
     }

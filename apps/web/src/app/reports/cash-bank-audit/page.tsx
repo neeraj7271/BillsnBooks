@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
@@ -106,7 +107,7 @@ export default function CashBankAuditSuitePage() {
     try {
       await apiClient.toggleFavoriteReport(activeCompanyId, key);
     } catch (err) {
-      console.error('Failed to toggle favorite', err);
+      logger.error('Failed to toggle favorite', err);
     }
   };
 
@@ -116,7 +117,7 @@ export default function CashBankAuditSuitePage() {
       const res = await apiClient.getCashBankAudit(activeCompanyId, activeTab, fromDate, toDate);
       setData(res);
     } catch (err) {
-      console.error('Failed to load cash bank audit report', err);
+      logger.error('Failed to load cash bank audit report', err);
     } finally {
       setLoading(false);
     }

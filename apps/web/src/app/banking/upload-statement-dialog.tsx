@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -36,7 +37,7 @@ export function UploadStatementDialog({
       setDownloading(true);
       await apiClient.downloadImportTemplate('bank-statement');
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
     } finally {
       setDownloading(false);
     }

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -47,7 +48,7 @@ export default function RecurringSchedulesPage() {
       const data = await apiClient.listRecurringSchedules(activeCompanyId);
       setSchedules(data || []);
     } catch (err: unknown) {
-      console.error('Failed to load recurring schedules', err);
+      logger.error('Failed to load recurring schedules', err);
     } finally {
       setLoading(false);
     }
@@ -67,7 +68,7 @@ export default function RecurringSchedulesPage() {
       await apiClient.updateRecurringScheduleStatus(undefined, schedule.id, newStatus);
       await loadSchedules();
     } catch (err: unknown) {
-      console.error('Failed to update status', err);
+      logger.error('Failed to update status', err);
     } finally {
       setActionLoadingId(null);
     }
@@ -83,7 +84,7 @@ export default function RecurringSchedulesPage() {
       );
       await loadSchedules();
     } catch (err: unknown) {
-      console.error('Failed to trigger recurring run', err);
+      logger.error('Failed to trigger recurring run', err);
     } finally {
       setActionLoadingId(null);
     }

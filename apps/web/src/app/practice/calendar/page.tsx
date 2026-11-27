@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
@@ -57,7 +58,7 @@ export default function StatutoryCalendarPage() {
       const res = await apiClient.getPracticeCalendar(selectedMonth);
       setData(res);
     } catch (err: unknown) {
-      console.error('Failed to load compliance calendar', err);
+      logger.error('Failed to load compliance calendar', err);
     } finally {
       setLoading(false);
     }
@@ -181,11 +182,11 @@ export default function StatutoryCalendarPage() {
   // Helper for dot colors by compliance category
   const getCategoryDotColor = (category: string) => {
     const c = (category || '').toUpperCase();
-    if (c.includes('GST')) return 'bg-red-500';
-    if (c.includes('TDS') || c.includes('TAX_PAYMENT')) return 'bg-amber-500';
-    if (c.includes('ROC') || c.includes('MCA')) return 'bg-blue-500';
-    if (c.includes('INCOME') || c.includes('ITR') || c.includes('AUDIT')) return 'bg-purple-500';
-    return 'bg-emerald-500';
+    if (c.includes('GST')) return 'bg-status-danger';
+    if (c.includes('TDS') || c.includes('TAX_PAYMENT')) return 'bg-status-warning';
+    if (c.includes('ROC') || c.includes('MCA')) return 'bg-status-info';
+    if (c.includes('INCOME') || c.includes('ITR') || c.includes('AUDIT')) return 'bg-brand';
+    return 'bg-status-success';
   };
 
   const selectedDayTasks = selectedDate ? deadlinesByDate.get(selectedDate) || [] : [];
@@ -298,19 +299,19 @@ export default function StatutoryCalendarPage() {
               {/* Compliance Category Legend */}
               <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 bg-surface border-b border-subtle text-xs text-secondary">
                 <div className="flex items-center gap-1.5 font-medium">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500 shrink-0" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-status-danger shrink-0" />
                   GST Filings (GSTR-1, 3B)
                 </div>
                 <div className="flex items-center gap-1.5 font-medium">
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-status-warning shrink-0" />
                   TDS Payments & Returns
                 </div>
                 <div className="flex items-center gap-1.5 font-medium">
-                  <span className="h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-status-info shrink-0" />
                   ROC Compliance (AOC-4, MGT-7)
                 </div>
                 <div className="flex items-center gap-1.5 font-medium">
-                  <span className="h-2.5 w-2.5 rounded-full bg-purple-500 shrink-0" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-brand shrink-0" />
                   Advance Tax & ITR
                 </div>
               </div>

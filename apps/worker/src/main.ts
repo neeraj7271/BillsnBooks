@@ -1,3 +1,5 @@
+import './load-env';
+
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { WorkerModule } from './worker.module';

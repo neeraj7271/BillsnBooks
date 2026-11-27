@@ -47,6 +47,27 @@ async function bootstrap() {
   app.use(json({ limit: '25mb' }));
   app.use(urlencoded({ extended: true, limit: '25mb' }));
 
+  // Request logger for QA audit trail
+  const fs = await import('fs');
+  const path = await import('path');
+  const logDir = fs.existsSync(path.resolve(process.cwd(), 'docs'))
+    ? path.resolve(process.cwd(), 'docs/production-test')
+    : path.resolve(process.cwd(), '../../docs/production-test');
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  const logFile = path.join(logDir, 'api-requests.log');
+
+  app.use((req: any, res: any, next: any) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      const logLine = `[${new Date().toISOString()}] ${req.method} ${req.originalUrl || req.url} ${res.statusCode} ${duration}ms\n`;
+      fs.appendFile(logFile, logLine, () => {});
+    });
+    next();
+  });
+
   const cookieMiddleware = typeof cookieParser === 'function' ? cookieParser : (cookieParser as any).default;
   if (typeof cookieMiddleware === 'function') {
     app.use(cookieMiddleware());

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -65,7 +66,7 @@ export function UnitManagerDialog({
       const data = await apiClient.listUnits(activeCompanyId);
       setCustomUnits(data?.custom || []);
     } catch (err: unknown) {
-      console.error('Failed to load units:', err);
+      logger.error('Failed to load units:', err);
     } finally {
       setFetching(false);
     }
