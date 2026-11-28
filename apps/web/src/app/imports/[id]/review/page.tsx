@@ -46,9 +46,26 @@ export default function BatchReviewPage() {
   const loadBatchDetails = async () => {
     setLoading(true);
     try {
-      const data = await apiClient.getImportBatch(activeCompanyId, batchId);
-      setBatch(data);
-      setRows(data?.rows || []);
+      const fetchAllRows = async () => {
+        const first = await apiClient.getImportRows(activeCompanyId, batchId, undefined, 1, 200);
+        const collected = [...(first?.rows || [])];
+        const total = first?.total ?? collected.length;
+        let nextPage = 2;
+        while (collected.length < total && nextPage <= 25) {
+          const res = await apiClient.getImportRows(activeCompanyId, batchId, undefined, nextPage, 200);
+          if (!res?.rows?.length) break;
+          collected.push(...res.rows);
+          nextPage += 1;
+        }
+        return collected;
+      };
+
+      const [batchRes, allRows] = await Promise.all([
+        apiClient.getImportBatch(activeCompanyId, batchId),
+        fetchAllRows(),
+      ]);
+      setBatch(batchRes);
+      setRows(allRows);
 
       // Check missing masters in background
       try {
@@ -87,7 +104,7 @@ export default function BatchReviewPage() {
     setProcessing(true);
     setMessage(null);
     try {
-      await apiClient.bulkFixRows(undefined, batchId, {
+      await apiClient.bulkFixRows(activeCompanyId, batchId, {
         targetField: 'matchedLedgerId',
         fixValue: ledgerId,
       });
@@ -105,8 +122,8 @@ export default function BatchReviewPage() {
     setProcessing(true);
     setMessage(null);
     try {
-      await apiClient.approveBatch(undefined, batchId);
-      await apiClient.postBatchToLedger(undefined, batchId);
+      await apiClient.approveBatch(activeCompanyId, batchId);
+      await apiClient.postBatchToLedger(activeCompanyId, batchId);
       await loadBatchDetails();
       setMessage({ type: 'success', text: 'Batch successfully posted to canonical general ledger!' });
     } catch (err: unknown) {
@@ -231,19 +248,22 @@ export default function BatchReviewPage() {
         <CardHeader className="py-3 px-4 flex flex-row items-center justify-between border-b border-subtle">
           <CardTitle className="text-sm">Line Exception Resolver</CardTitle>
           <div className="flex items-center gap-1 bg-surface-sunken p-1 rounded-xl text-xs">
-            {(['ALL', 'GREEN', 'YELLOW', 'RED'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                  activeTab === tab
-                    ? 'bg-surface text-primary shadow-xs'
-                    : 'text-muted hover:text-primary'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+            {(['ALL', 'GREEN', 'YELLOW', 'RED'] as const).map((tab) => {
+              const count = tab === 'ALL' ? rows.length : rows.filter((r) => r.validationState === tab).length;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                    activeTab === tab
+                      ? 'bg-surface text-primary shadow-xs'
+                      : 'text-muted hover:text-primary'
+                  }`}
+                >
+                  {tab} ({count})
+                </button>
+              );
+            })}
           </div>
         </CardHeader>
 
@@ -290,23 +310,23 @@ export default function BatchReviewPage() {
                       <td className="py-2.5 px-3 font-mono text-muted">{row.rowIndex}</td>
                       <td className="py-2.5 px-3">
                         <span className="font-bold text-primary">
-                          {row.parsedData.voucherNumber || 'Missing Inv No'}
+                          {row.parsedData?.voucherNumber || 'Missing Inv No'}
                         </span>
-                        <span className="block text-[11px] text-muted">{row.parsedData.date || 'N/A'}</span>
+                        <span className="block text-[11px] text-muted">{row.parsedData?.date || 'N/A'}</span>
                       </td>
                       <td className="py-2.5 px-3">
                         <span className="font-semibold text-primary">
-                          {row.parsedData.partyName || 'Unknown Party'}
+                          {row.parsedData?.partyName || 'Unknown Party'}
                         </span>
                         <span className="block font-mono text-[10px] text-muted">
-                          {row.parsedData.partyGstin || 'No GSTIN'}
+                          {row.parsedData?.partyGstin || 'No GSTIN'}
                         </span>
                       </td>
                       <td className="py-2.5 px-3 text-right">
-                        <MoneyText amount={row.parsedData.taxableAmount || 0} />
+                        <MoneyText amount={row.parsedData?.taxableAmount || 0} />
                       </td>
                       <td className="py-2.5 px-3 text-right font-bold">
-                        <MoneyText amount={row.parsedData.totalAmount || 0} />
+                        <MoneyText amount={row.parsedData?.totalAmount || 0} />
                       </td>
                       <td className="py-2.5 px-3 text-center">
                         <Badge
