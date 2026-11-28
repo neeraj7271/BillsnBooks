@@ -16,6 +16,24 @@ module.exports = {
         'card-hover': 'var(--shadow-card-hover)',
         popover: 'var(--shadow-popover)',
       },
+      borderColor: {
+        subtle: 'var(--color-border-subtle)',
+        default: 'var(--color-border)',
+        DEFAULT: 'var(--color-border)',
+        strong: 'var(--color-border-strong)',
+        focus: 'var(--color-border-focus)',
+      },
+      divideColor: {
+        subtle: 'var(--color-border-subtle)',
+        default: 'var(--color-border)',
+        DEFAULT: 'var(--color-border)',
+        strong: 'var(--color-border-strong)',
+      },
+      ringColor: {
+        'border-focus': 'var(--color-border-focus)',
+        'focus-ring': 'var(--color-focus-ring)',
+        DEFAULT: 'var(--color-border-focus)',
+      },
       fontSize: {
         display: ['1.75rem', { lineHeight: '2.125rem', letterSpacing: '-0.02em', fontWeight: '700' }],
         h1: ['1.375rem', { lineHeight: '1.75rem', letterSpacing: '-0.015em', fontWeight: '700' }],
