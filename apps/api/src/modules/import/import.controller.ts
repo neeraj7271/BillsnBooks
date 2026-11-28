@@ -152,6 +152,22 @@ export class ImportController {
     };
   }
 
+  @Patch(':batchId/rows/:rowId')
+  async updateRow(
+    @Param('companyId') companyId: string,
+    @Param('batchId') batchId: string,
+    @Param('rowId') rowId: string,
+    @Body() body: Record<string, any>,
+    @Request() req?: any,
+  ) {
+    const { tenantId } = this.getContext(req, companyId);
+    const row = await this.importService.updateRowAndRevalidate(tenantId, companyId, batchId, rowId, body);
+    return {
+      success: true,
+      data: row,
+    };
+  }
+
   @Post(':batchId/approve')
   async approveBatch(
     @Param('companyId') companyId: string,

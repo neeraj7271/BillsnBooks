@@ -30,6 +30,7 @@ export class ImportValidationService {
     mapping: ColumnMappingConfig,
     companyGstin?: string | null,
     knownLedgers: PartyLedgerLookup[] = [],
+    importType?: string,
   ): ValidatedRowResult {
     const errorReasons: string[] = [];
     const parsedData: ParsedRowData = {};
@@ -53,7 +54,10 @@ export class ImportValidationService {
     };
 
     // 1. Voucher Number
-    const voucherNumber = getVal('voucherNumber');
+    const isBankStatement = importType === 'BANK_STATEMENT';
+    const voucherNumber =
+      getVal('voucherNumber') ||
+      (isBankStatement ? String(rawRow['Cheque / Ref No'] || rawRow['Ref No'] || `TXN-${rowIndex}`).trim() : '');
     if (!voucherNumber) {
       errorReasons.push('Invoice / Voucher Number is missing');
     } else {
@@ -74,53 +78,62 @@ export class ImportValidationService {
     }
 
     // 3. Party Name
-    const partyName = getVal('partyName');
+    const narrationVal =
+      getVal('narration') ||
+      String(rawRow['Narration / Description*'] || rawRow['Narration'] || rawRow['Description'] || '').trim();
+    if (narrationVal) parsedData.narration = narrationVal;
+
+    const partyName =
+      getVal('partyName') ||
+      (isBankStatement && narrationVal ? narrationVal.slice(0, 60) : '');
     if (!partyName) {
       errorReasons.push('Party / Customer / Vendor name is missing');
     } else {
       parsedData.partyName = partyName;
     }
 
-    // 4. GSTIN
-    const partyGstin = getVal('partyGstin');
-    if (partyGstin) {
-      const gstinResult = validateGstin(partyGstin);
-      if (!gstinResult.isValid) {
-        errorReasons.push(`Invalid Party GSTIN: ${gstinResult.error}`);
-      } else {
-        parsedData.partyGstin = partyGstin.toUpperCase();
+    // 4. GSTIN, 5. Place of Supply, 6. HSN/SAC (not applicable to Bank Statements)
+    if (!isBankStatement) {
+      const partyGstin = getVal('partyGstin');
+      if (partyGstin) {
+        const gstinResult = validateGstin(partyGstin);
+        if (!gstinResult.isValid) {
+          errorReasons.push(`Invalid Party GSTIN: ${gstinResult.error}`);
+        } else {
+          parsedData.partyGstin = partyGstin.toUpperCase();
+        }
       }
-    }
 
-    // 5. Place of Supply
-    let pos = getVal('placeOfSupply');
-    if (!pos && parsedData.partyGstin) {
-      // Derive POS from first 2 digits of GSTIN if not explicitly provided
-      pos = parsedData.partyGstin.substring(0, 2);
-    }
-    if (pos) {
-      // Normalize state code: if "7" -> "07", if "Delhi" -> "07"
-      const normalizedPos = pos.length === 1 ? `0${pos}` : pos;
-      if (!isValidStateCode(normalizedPos)) {
-        errorReasons.push(`Invalid Place of Supply state code '${pos}'`);
-      } else {
-        parsedData.placeOfSupply = normalizedPos;
+      // 5. Place of Supply
+      let pos = getVal('placeOfSupply');
+      if (!pos && parsedData.partyGstin) {
+        // Derive POS from first 2 digits of GSTIN if not explicitly provided
+        pos = parsedData.partyGstin.substring(0, 2);
       }
-    }
-
-    // 6. HSN / SAC Code Validation
-    const hsnCode = getVal('hsnCode');
-    if (hsnCode) {
-      const cleanHsn = hsnCode.replace(/[^0-9]/g, '');
-      const isService = cleanHsn.startsWith('99') && cleanHsn.length === 6;
-      const isGoods = [4, 6, 8].includes(cleanHsn.length);
-
-      if (!isService && !isGoods) {
-        errorReasons.push(
-          `Invalid HSN/SAC code '${hsnCode}'. HSN must be 4, 6, or 8 digits; Services (SAC) must be 6 digits starting with 99.`,
-        );
+      if (pos) {
+        // Normalize state code: if "7" -> "07", if "Delhi" -> "07"
+        const normalizedPos = pos.length === 1 ? `0${pos}` : pos;
+        if (!isValidStateCode(normalizedPos)) {
+          errorReasons.push(`Invalid Place of Supply state code '${pos}'`);
+        } else {
+          parsedData.placeOfSupply = normalizedPos;
+        }
       }
-      parsedData.hsnCode = cleanHsn;
+
+      // 6. HSN / SAC Code Validation
+      const hsnCode = getVal('hsnCode');
+      if (hsnCode) {
+        const cleanHsn = hsnCode.replace(/[^0-9]/g, '');
+        const isService = cleanHsn.startsWith('99') && cleanHsn.length === 6;
+        const isGoods = [4, 6, 8].includes(cleanHsn.length);
+
+        if (!isService && !isGoods) {
+          errorReasons.push(
+            `Invalid HSN/SAC code '${hsnCode}'. HSN must be 4, 6, or 8 digits; Services (SAC) must be 6 digits starting with 99.`,
+          );
+        }
+        parsedData.hsnCode = cleanHsn;
+      }
     }
 
     // 7. Amounts & Tax Math
@@ -139,11 +152,22 @@ export class ImportValidationService {
 
     // Check if quantity and unit rate exist in raw row if taxableAmount was not explicitly mapped
     if (taxableDec.isZero()) {
-      const rawQty = parseAmount(String(rawRow['Quantity'] || rawRow['Quantity*'] || rawRow['quantity'] || rawRow['Qty'] || ''));
-      const rawRate = parseAmount(String(rawRow['Rate'] || rawRow['Unit Price / Rate*'] || rawRow['Rate / Price*'] || rawRow['Unit Price'] || rawRow['rate'] || rawRow['Price'] || ''));
-      const rawDisc = parseAmount(String(rawRow['Discount'] || rawRow['Discount Amount'] || rawRow['discount'] || '0'));
-      if (rawQty.gt(0) && rawRate.gt(0)) {
-        taxableDec = rawQty.times(rawRate).minus(rawDisc);
+      if (isBankStatement) {
+        const creditAmt = parseAmount(String(rawRow['Deposit (Credit)'] || rawRow['Credit'] || '0'));
+        const debitAmt = parseAmount(String(rawRow['Withdrawal (Debit)'] || rawRow['Debit'] || '0'));
+        const bankAmt = creditAmt.gt(0) ? creditAmt : debitAmt;
+        if (bankAmt.gt(0)) {
+          taxableDec = bankAmt;
+          totalDec = bankAmt;
+          parsedData.bankDirection = creditAmt.gt(0) ? 'CREDIT' : 'DEBIT';
+        }
+      } else {
+        const rawQty = parseAmount(String(rawRow['Quantity'] || rawRow['Quantity*'] || rawRow['quantity'] || rawRow['Qty'] || ''));
+        const rawRate = parseAmount(String(rawRow['Rate'] || rawRow['Unit Price / Rate*'] || rawRow['Rate / Price*'] || rawRow['Unit Price'] || rawRow['rate'] || rawRow['Price'] || ''));
+        const rawDisc = parseAmount(String(rawRow['Discount'] || rawRow['Discount Amount'] || rawRow['discount'] || '0'));
+        if (rawQty.gt(0) && rawRate.gt(0)) {
+          taxableDec = rawQty.times(rawRate).minus(rawDisc);
+        }
       }
     }
 
@@ -237,7 +261,7 @@ export class ImportValidationService {
     let matchedLedgerName: string | null = null;
     let missingLedger = false;
 
-    if (partyName) {
+    if (!isBankStatement && partyName) {
       const cleanPartyName = partyName.toLowerCase().replace(/[^a-z0-9]/g, '');
       const matched = knownLedgers.find((l) => {
         const cleanLedger = l.name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -258,8 +282,10 @@ export class ImportValidationService {
       validationState = RiskApprovalState.RED; // Critical statutory / math errors
     } else if (missingLedger) {
       validationState = RiskApprovalState.YELLOW; // Missing ledger requires mapping
+      errorReasons.push(`Party '${partyName}' not matched to a ledger — resolve missing masters or map ledger.`);
     } else if (totalDec.gt(500000)) {
       validationState = RiskApprovalState.BLUE; // Maker-checker required for amounts > ₹5,00,000
+      errorReasons.push('Amount exceeds ₹5,00,000 — requires maker-checker approval.');
     } else {
       validationState = RiskApprovalState.GREEN; // Clean, ready to post
     }

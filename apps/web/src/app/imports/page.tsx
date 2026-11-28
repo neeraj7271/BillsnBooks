@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardHeader,
@@ -29,6 +30,7 @@ import { useCompany } from '@/lib/company-context';
 import { useTablePagination } from '@/hooks/use-table-pagination';
 
 export default function ImportsDashboardPage() {
+  const router = useRouter();
   const { activeCompanyId } = useCompany();
   const [batches, setBatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,10 +68,14 @@ export default function ImportsDashboardPage() {
     switch (status) {
       case 'PENDING':
         return <Badge variant="warning" size="xs">Processing</Badge>;
+      case 'UPLOADED':
       case 'PARSED':
+      case 'READY_FOR_APPROVAL':
+      case 'APPROVED':
         return <Badge variant="info" size="xs">Ready for Review</Badge>;
+      case 'MAPPING':
       case 'CLARIFICATION_NEEDED':
-        return <Badge variant="danger" size="xs">Clarifications</Badge>;
+        return <Badge variant="warning" size="xs">Clarifications</Badge>;
       case 'POSTED':
       case 'COMPLETED':
         return <Badge variant="success" size="xs">Posted</Badge>;
@@ -195,7 +201,7 @@ export default function ImportsDashboardPage() {
 
       {/* Summary KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border border-default bg-surface shadow-2xs">
+        <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Total Batches</span>
@@ -210,7 +216,7 @@ export default function ImportsDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-default bg-surface shadow-2xs">
+        <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Rows Ingested</span>
@@ -225,7 +231,7 @@ export default function ImportsDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-default bg-surface shadow-2xs">
+        <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Completed Sessions</span>
@@ -252,9 +258,10 @@ export default function ImportsDashboardPage() {
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
         storageKey="imports"
-        emptyTitle="No import batches"
-        emptyDescription="Upload a Tally XML or CSV register to stage transactions."
-        emptyAction={{ label: 'New Import', onClick: () => { window.location.href = '/imports/new'; } }}
+        onRowClick={(batch) => router.push(`/imports/${batch.id}/review`)}
+        emptyTitle="No import batches yet"
+        emptyDescription="Import your sales, purchases, or bank statement from Excel/CSV — download a template to start."
+        emptyAction={{ label: 'New Import', onClick: () => router.push('/imports/new') }}
       />
     </div>
   );

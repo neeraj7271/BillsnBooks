@@ -3,16 +3,12 @@ import { logger } from '@/lib/logger';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Button, Badge } from '@platform/ui';
+import { Badge } from '@platform/ui';
 import { BackButton } from '@/components/back-button';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { Step1Upload } from './step1-upload';
 import { Step2Mapping } from './step2-mapping';
-import { Step3Validation } from './step3-validation';
-import { Step4Post } from './step4-post';
-import { MissingMastersModal } from './missing-masters-modal';
 
 export default function NewImportWizardPage() {
   const router = useRouter();
@@ -25,28 +21,12 @@ export default function NewImportWizardPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Batch data
+  // Batch data & Step 2: Mapping
   const [batchData, setBatchData] = useState<any | null>(null);
   const [detectedHeaders, setDetectedHeaders] = useState<string[]>([]);
-
-  // Step 2: Mapping
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [mappingSaving, setMappingSaving] = useState(false);
-
-  // Missing Masters Detection & Modal
-  const [scanData, setScanData] = useState<any | null>(null);
-  const [missingMastersOpen, setMissingMastersOpen] = useState(false);
-
-  // Step 3: Staged Rows & Resolution
-  const [validatedBatch, setValidatedBatch] = useState<any | null>(null);
-  const [stagedRows, setStagedRows] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'ALL' | 'GREEN' | 'YELLOW' | 'RED'>('ALL');
-  const [fixing, setFixing] = useState(false);
-
-  // Step 4: Post
-  const [approved, setApproved] = useState(false);
-  const [posting, setPosting] = useState(false);
-  const [postResult, setPostResult] = useState<any | null>(null);
+  const [mappingError, setMappingError] = useState<string | null>(null);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -80,95 +60,21 @@ export default function NewImportWizardPage() {
   const handleSaveMapping = async () => {
     if (!batchData?.id) return;
     setMappingSaving(true);
+    setMappingError(null);
     try {
       const apiMapping: Record<string, string> = {};
       for (const [k, v] of Object.entries(mapping)) {
         if (v) apiMapping[v] = k;
       }
       await apiClient.applyMapping(activeCompanyId, batchData.id, apiMapping);
-      const rowsRes = await apiClient.getImportRows(activeCompanyId, batchData.id);
-      setValidatedBatch(batchData);
-      setStagedRows(rowsRes?.rows || []);
-
-      // Pre-flight scan for missing masters
-      try {
-        const scan = await apiClient.scanImportMasters(activeCompanyId, batchData.id);
-        setScanData(scan);
-        if (scan?.hasMissingMasters) {
-          setMissingMastersOpen(true);
-        }
-      } catch (scanErr) {
-        logger.warn('Pre-flight master scan error:', scanErr);
-      }
-
-      setCurrentStep(3);
+      router.push(`/imports/${batchData.id}/review`);
     } catch (err: unknown) {
-      logger.error(err);
+      logger.error('Failed to apply column mapping:', err);
+      setMappingError(err instanceof Error ? err.message : 'Failed to apply column mapping');
     } finally {
       setMappingSaving(false);
     }
   };
-
-  const handleAutoFix = async () => {
-    if (!batchData?.id) return;
-    setFixing(true);
-    try {
-      await apiClient.bulkFixRows(activeCompanyId, batchData.id, {
-        targetField: 'matchedLedgerId',
-        fixValue: '10000000-0000-4000-8000-000000000005',
-      });
-      const rowsRes = await apiClient.getImportRows(activeCompanyId, batchData.id);
-      setStagedRows(rowsRes?.rows || []);
-    } catch (err: unknown) {
-      logger.error(err);
-    } finally {
-      setFixing(false);
-    }
-  };
-
-  const handleAutoFixGst = async () => {
-    if (!batchData?.id) return;
-    setFixing(true);
-    try {
-      await apiClient.autoFixImportGst(activeCompanyId, batchData.id);
-      const rowsRes = await apiClient.getImportRows(activeCompanyId, batchData.id);
-      setStagedRows(rowsRes?.rows || []);
-    } catch (err: unknown) {
-      logger.error('Failed to auto-fix GST tax splits:', err);
-    } finally {
-      setFixing(false);
-    }
-  };
-
-  const handleMastersResolved = async () => {
-    if (!batchData?.id) return;
-    try {
-      const rowsRes = await apiClient.getImportRows(activeCompanyId, batchData.id);
-      setStagedRows(rowsRes?.rows || []);
-      const scan = await apiClient.scanImportMasters(activeCompanyId, batchData.id);
-      setScanData(scan);
-    } catch (err) {
-      logger.error(err);
-    }
-  };
-
-  const handlePost = async () => {
-    if (!batchData?.id) return;
-    setPosting(true);
-    try {
-      await apiClient.approveBatch(activeCompanyId, batchData.id);
-      const res = await apiClient.postBatchToLedger(activeCompanyId, batchData.id);
-      setPostResult(res);
-    } catch (err: unknown) {
-      logger.error(err);
-    } finally {
-      setPosting(false);
-    }
-  };
-
-  const greenCount = stagedRows.filter((r) => (r.validationState || r.validationStatus) === 'GREEN').length;
-  const missingMastersCount =
-    (scanData?.missingParties?.length || 0) + (scanData?.missingItems?.length || 0);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
@@ -181,14 +87,20 @@ export default function NewImportWizardPage() {
               <h1 className="text-xl font-black text-primary">
                 Bulk Ingestion Engine
               </h1>
-              <Badge variant="brand" size="sm">Step {currentStep} of 4</Badge>
+              <Badge variant="brand" size="sm">Step {currentStep} of 2</Badge>
             </div>
             <p className="text-xs text-muted">
-              CSV/Excel bank and invoice import with statutory GST checks and missing master resolution.
+              Upload your spreadsheet and map columns, then review exceptions and post in the Batch Resolution screen.
             </p>
           </div>
         </div>
       </div>
+
+      {mappingError && currentStep === 2 && (
+        <div role="alert" className="p-3 rounded-xl bg-status-danger-subtle border border-status-danger text-xs text-status-danger-text font-medium">
+          {mappingError}
+        </div>
+      )}
 
       {currentStep === 1 && (
         <Step1Upload
@@ -213,45 +125,6 @@ export default function NewImportWizardPage() {
           onMappingChange={(h, f) => setMapping((prev) => ({ ...prev, [h]: f }))}
           onBack={() => setCurrentStep(1)}
           onSaveMapping={handleSaveMapping}
-        />
-      )}
-
-      {currentStep === 3 && (
-        <>
-          <Step3Validation
-            validatedBatch={validatedBatch}
-            stagedRows={stagedRows}
-            activeTab={activeTab}
-            fixing={fixing}
-            missingMastersCount={missingMastersCount}
-            onTabChange={setActiveTab}
-            onAutoFix={handleAutoFix}
-            onAutoFixGst={handleAutoFixGst}
-            onOpenMissingMasters={() => setMissingMastersOpen(true)}
-            onBack={() => setCurrentStep(2)}
-            onProceed={() => setCurrentStep(4)}
-          />
-
-          <MissingMastersModal
-            open={missingMastersOpen}
-            companyId={activeCompanyId}
-            batchId={batchData?.id || ''}
-            scanData={scanData}
-            onOpenChange={setMissingMastersOpen}
-            onResolved={handleMastersResolved}
-          />
-        </>
-      )}
-
-      {currentStep === 4 && (
-        <Step4Post
-          greenCount={greenCount}
-          approved={approved}
-          posting={posting}
-          postResult={postResult}
-          onApprovedChange={setApproved}
-          onPost={handlePost}
-          onBack={() => setCurrentStep(3)}
         />
       )}
     </div>

@@ -262,6 +262,18 @@ export const apiClient = {
     });
   },
 
+  async updateImportRow(
+    companyId: string = getActiveCompanyId(),
+    batchId: string,
+    rowId: string,
+    payload: Record<string, any>,
+  ) {
+    return request<any>(`/v1/companies/${companyId}/imports/${batchId}/rows/${rowId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
   async approveBatch(companyId: string = getActiveCompanyId(), batchId: string) {
     return request<any>(`/v1/companies/${companyId}/imports/${batchId}/approve`, {
       method: 'POST',
@@ -313,7 +325,7 @@ export const apiClient = {
   },
 
   async postBatchToLedger(companyId: string = getActiveCompanyId(), batchId: string) {
-    return request<{ batch: any; postedCount: number }>(`/v1/companies/${companyId}/imports/${batchId}/post`, {
+    return request<{ batch: any; postedCount: number; failedCount?: number }>(`/v1/companies/${companyId}/imports/${batchId}/post`, {
       method: 'POST',
     });
   },

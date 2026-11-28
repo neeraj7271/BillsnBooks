@@ -132,6 +132,7 @@ export class FileParserService {
           }
           return canonical.aliases.some((alias) => {
             const cleanAlias = alias.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (cleanAlias.length <= 3) return false;
             return nh.clean.includes(cleanAlias);
           });
         });

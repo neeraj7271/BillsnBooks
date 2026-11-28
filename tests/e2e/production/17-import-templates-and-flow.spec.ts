@@ -8,12 +8,30 @@ const CO1_ID = '89bdaa09-4934-47ea-902e-b821d211bd1c';
 const API_URL = 'http://localhost:4000';
 const SHOTS_DIR = path.resolve(process.cwd(), 'docs/ui-review-import');
 
-const TEMPLATE_CASES = [
-  { type: 'sales-invoices', importType: 'SALES_REGISTER', minRows: 20 },
-  { type: 'purchase-bills', importType: 'PURCHASE_REGISTER', minRows: 20 },
-  { type: 'bank-statement', importType: 'BANK_STATEMENT', minRows: 25 },
-  { type: 'parties-master', importType: 'SALES_REGISTER', minRows: 20 },
-  { type: 'items-master', importType: 'SALES_REGISTER', minRows: 20 },
+const GOLDEN_REGISTER_CASES = [
+  {
+    label: 'Sales Invoices',
+    templateType: 'sales-invoices',
+    radioValue: 'SALES_REGISTER',
+    expectedRows: 24,
+  },
+  {
+    label: 'Purchase Bills',
+    templateType: 'purchase-bills',
+    radioValue: 'PURCHASE_REGISTER',
+    expectedRows: 22,
+  },
+  {
+    label: 'Bank Statement',
+    templateType: 'bank-statement',
+    radioValue: 'BANK_STATEMENT',
+    expectedRows: 30,
+  },
+];
+
+const MASTER_TEMPLATES = [
+  { type: 'parties-master', minRows: 20 },
+  { type: 'items-master', minRows: 20 },
 ];
 
 async function captureThemePair(page: any, name: string) {
@@ -25,11 +43,16 @@ async function captureThemePair(page: any, name: string) {
   await page.screenshot({ path: path.join(SHOTS_DIR, `${name}-light.png`), fullPage: false });
 }
 
-test.describe('Bulk Ingestion — All 5 Templates & 4-Step Flow', () => {
-  test.setTimeout(180_000);
+test.describe('Bulk Ingestion — Unified Golden Path (Sales, Purchase, Bank + Masters)', () => {
+  test.setTimeout(240_000);
 
-  test('Download & upload all 5 templates (rows > 0) and complete 4-step UI flow with screenshots', async ({ page }) => {
+  test('Golden path end-to-end for Sales, Purchase, and Bank + template downloads', async ({ page }) => {
     fs.mkdirSync(SHOTS_DIR, { recursive: true });
+
+    const consoleErrors: string[] = [];
+    page.on('console', (m) => {
+      if (m.type() === 'error') consoleErrors.push(m.text());
+    });
 
     await page.goto('/auth/login', { waitUntil: 'networkidle' });
     await page.locator('input[type="email"]').fill(PARTNER_EMAIL);
@@ -45,79 +68,105 @@ test.describe('Bulk Ingestion — All 5 Templates & 4-Step Flow', () => {
       tenantId: localStorage.getItem('antigravity_tenant_id') || 'a0000000-0000-4000-8000-000000000001',
     }));
 
-    // 1. Regression test: download -> upload -> assert detectedHeaders > 0 and rows >= minRows for all 5 templates
-    for (const tc of TEMPLATE_CASES) {
-      const tplRes = await fetch(`${API_URL}/v1/companies/${CO1_ID}/imports/templates/${tc.type}`, {
+    // Verify Parties & Items master templates download & upload with >= 20 rows
+    for (const mt of MASTER_TEMPLATES) {
+      const tplRes = await fetch(`${API_URL}/v1/companies/${CO1_ID}/imports/templates/${mt.type}`, {
         headers: { Authorization: `Bearer ${token}`, 'x-tenant-id': tenantId },
       });
-      expect(tplRes.status, `Download ${tc.type}`).toBe(200);
+      expect(tplRes.status).toBe(200);
       const buf = Buffer.from(await tplRes.arrayBuffer());
-      expect(buf.length).toBeGreaterThan(1000);
-
       const form = new FormData();
-      form.append('file', new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${tc.type}-${Date.now()}.xlsx`);
-      form.append('importType', tc.importType);
-
+      form.append('file', new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${mt.type}-${Date.now()}.xlsx`);
+      form.append('importType', 'SALES_REGISTER');
       const upRes = await fetch(`${API_URL}/v1/companies/${CO1_ID}/imports/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'x-tenant-id': tenantId },
         body: form,
       });
-      expect(upRes.status, `Upload ${tc.type}`).toBeLessThan(300);
+      expect(upRes.status).toBeLessThan(300);
       const upJson: any = await upRes.json();
-      const data = upJson?.data ?? upJson;
-      expect(data.detectedHeaders?.length, `${tc.type} headers`).toBeGreaterThan(0);
-      expect(data.batch?.totalRows, `${tc.type} totalRows`).toBeGreaterThanOrEqual(tc.minRows);
+      const d = upJson?.data ?? upJson;
+      expect(d.detectedHeaders?.length).toBeGreaterThan(0);
+      expect(d.batch?.totalRows).toBeGreaterThanOrEqual(mt.minRows);
     }
 
-    // 2. Full 4-step UI flow on /imports/new with Sales Invoices template
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/imports/new', { waitUntil: 'networkidle' });
 
-    await page.click('button:has-text("Download Excel Template")');
-    const [download] = await Promise.all([
-      page.waitForEvent('download', { timeout: 10000 }),
-      page.click('button:has-text("Sales Invoices")'),
-    ]);
-    const tmpPath = `/tmp/e2e-sales-invoices-${Date.now()}.xlsx`;
-    await download.saveAs(tmpPath);
+    // Run full UI golden path for Sales, Purchase, and Bank
+    for (const gc of GOLDEN_REGISTER_CASES) {
+      await page.goto('/imports', { waitUntil: 'networkidle' });
+      await page.click('button:has-text("Upload Register")');
+      await page.waitForURL('**/imports/new', { timeout: 10000 });
 
-    await page.setInputFiles('input[type="file"]', tmpPath);
-    await page.waitForTimeout(250);
-    await captureThemePair(page, 'step1');
+      await page.click(`input[name="importType"][value="${gc.radioValue}"]`);
+      await page.click('button:has-text("Download Excel Template")');
+      const [download] = await Promise.all([
+        page.waitForEvent('download', { timeout: 10000 }),
+        page.click(`button:has-text("${gc.label}")`),
+      ]);
+      const tmpPath = `/tmp/golden-${gc.templateType}-${Date.now()}.xlsx`;
+      await download.saveAs(tmpPath);
 
-    await page.click('button:has-text("Proceed to Header Mapping")');
-    await page.waitForSelector('text=Step 2: Map Columns to Canonical Schema', { timeout: 15000 });
-    await captureThemePair(page, 'step2');
+      await page.setInputFiles('input[type="file"]', tmpPath);
+      await page.waitForTimeout(200);
+      if (gc.templateType === 'sales-invoices') {
+        await captureThemePair(page, 'step1');
+      }
 
-    await page.click('button:has-text("Validate")');
-    await page.waitForSelector('text=Step 3: Traffic Light Rule & GST Validation', { timeout: 15000 });
+      await page.click('button:has-text("Proceed to Header Mapping")');
+      await page.waitForSelector('text=Step 2: Map Columns to Canonical Schema', { timeout: 15000 });
+      if (gc.templateType === 'sales-invoices') {
+        await captureThemePair(page, 'step2');
+      }
 
-    // Resolve missing masters via 1-Click Create All with Defaults, then auto-fix tax/ledgers if needed
-    const resolveBtn = page.locator('button:has-text("1-Click Create All with Defaults")').first();
-    if (await resolveBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await resolveBtn.click();
-      await page.waitForTimeout(2000);
+      // Click Apply Mapping -> routes directly to /imports/[id]/review
+      await page.click('button:has-text("Validate")');
+      await page.waitForURL('**/imports/*/review', { timeout: 15000 });
+      await page.waitForSelector('tbody tr', { timeout: 15000 });
+
+      const renderedCount = await page.locator('tbody tr').count();
+      expect(renderedCount, `${gc.label} rendered rows`).toBe(gc.expectedRows);
+
+      // Resolve Missing Masters if present
+      const resolveBtn = page.locator('button:has-text("Resolve Missing Masters")').first();
+      if (await resolveBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await resolveBtn.click();
+        const createAllBtn = page.locator('button:has-text("1-Click Create All with Defaults")').first();
+        if (await createAllBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await createAllBtn.click();
+          await page.waitForTimeout(2000);
+        }
+      }
+
+      // Auto-Fix Tax Splits if any RED rows remain
+      const autoFixBtn = page.locator('button:has-text("Auto-Fix Tax Splits")').first();
+      if (await autoFixBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+        await autoFixBtn.click();
+        await page.waitForTimeout(1500);
+      }
+
+      if (gc.templateType === 'sales-invoices') {
+        await captureThemePair(page, 'review');
+      }
+
+      // Approve & Post
+      const approveBtn = page.locator('button:has-text("Approve & Post")').first();
+      await expect(approveBtn).toBeEnabled({ timeout: 10000 });
+      await approveBtn.click();
+      await page.waitForSelector('text=Batch Posted to General Ledger', { timeout: 20000 });
+
+      if (gc.templateType === 'sales-invoices') {
+        await captureThemePair(page, 'posted');
+      }
+
+      // Verify /imports list shows Posted for this batch
+      await page.click('a[href="/imports"] button:has-text("Back to Imports")');
+      await page.waitForURL('**/imports', { timeout: 10000 });
+      await page.waitForSelector('text=Posted', { timeout: 10000 });
+
+      fs.unlinkSync(tmpPath);
     }
-    const autoFixGstBtn = page.locator('button:has-text("Auto-Fix Tax")').first();
-    if (await autoFixGstBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await autoFixGstBtn.click();
-      await page.waitForTimeout(1200);
-    }
-    const autoFixBtn = page.locator('button:has-text("Auto-Assign") , button:has-text("Bulk Map")').first();
-    if (await autoFixBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await autoFixBtn.click();
-      await page.waitForTimeout(1200);
-    }
-    await captureThemePair(page, 'step3');
 
-    // Proceed to Step 4
-    const step4Btn = page.locator('button:has-text("Proceed to Post")').first();
-    await expect(step4Btn).toBeEnabled({ timeout: 10000 });
-    await step4Btn.click();
-    await page.waitForSelector('text=Step 4', { timeout: 10000 });
-    await captureThemePair(page, 'step4');
-
-    fs.unlinkSync(tmpPath);
+    expect(consoleErrors, 'Uncaught console errors').toEqual([]);
   });
 });

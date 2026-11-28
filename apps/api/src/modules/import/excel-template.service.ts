@@ -41,7 +41,7 @@ export class ExcelTemplateService {
   constructor(@Optional() private readonly dataSource?: DataSource) {}
 
   private async resolveCompanyState(companyId?: string): Promise<string> {
-    if (!companyId || !this.dataSource) return '27';
+    if (!companyId || !this.dataSource) return '07';
     try {
       const branch = await this.dataSource.getRepository(BranchOrmEntity).findOne({
         where: { companyId },
@@ -53,7 +53,7 @@ export class ExcelTemplateService {
     } catch {
       // fallback
     }
-    return '27';
+    return '07';
   }
 
   /**

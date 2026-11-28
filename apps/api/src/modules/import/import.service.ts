@@ -188,6 +188,7 @@ export class ImportService {
           mapping,
           company?.panEncrypted ? '07AAAAA0000A1Z5' : undefined, // fallback company gstin
           knownLedgers,
+          batch.importType,
         );
 
         if (validation.validationState === RiskApprovalState.GREEN) {
@@ -372,6 +373,96 @@ export class ImportService {
   }
 
   /**
+   * Inline-edit a single staged row and re-validate against statutory rules
+   */
+  async updateRowAndRevalidate(
+    tenantId: string,
+    companyId: string,
+    batchId: string,
+    rowId: string,
+    patch: Record<string, any>,
+  ): Promise<ImportRowOrmEntity> {
+    return this.uow.executeInTransaction(async (qr: QueryRunner) => {
+      const batch = await qr.manager.findOne(ImportBatchOrmEntity, {
+        where: { id: batchId, tenantId, companyId },
+      });
+      if (!batch) {
+        throw new NotFoundException(`Import batch ${batchId} not found`);
+      }
+
+      const row = await qr.manager.findOne(ImportRowOrmEntity, {
+        where: { id: rowId, batchId, tenantId },
+      });
+      if (!row) {
+        throw new NotFoundException(`Import row ${rowId} not found`);
+      }
+
+      const mapping = (batch.columnMapping || {}) as ColumnMappingConfig;
+      const updatedRaw = { ...(row.rawData || {}) };
+      const fieldMap: Array<[string, string]> = [
+        ['voucherNumber', 'voucherNumber'],
+        ['date', 'date'],
+        ['partyName', 'partyName'],
+        ['partyGstin', 'partyGstin'],
+        ['placeOfSupply', 'placeOfSupply'],
+        ['taxableAmount', 'taxableAmount'],
+        ['cgstAmount', 'cgstAmount'],
+        ['sgstAmount', 'sgstAmount'],
+        ['igstAmount', 'igstAmount'],
+        ['totalAmount', 'totalAmount'],
+      ];
+      for (const [patchKey, canonKey] of fieldMap) {
+        if (patch[patchKey] !== undefined) {
+          const header = mapping[canonKey] || patchKey;
+          updatedRaw[header] = patch[patchKey];
+          // Ensure canonical mapping points to a header if it wasn't mapped
+          if (!mapping[canonKey]) {
+            mapping[canonKey] = header;
+          }
+        }
+      }
+
+      const [company, ledgers] = await Promise.all([
+        qr.manager.findOne(CompanyOrmEntity, { where: { id: companyId } }),
+        qr.manager.find(LedgerOrmEntity, { where: { tenantId, companyId } }),
+      ]);
+      const knownLedgers = ledgers.map((l) => ({ id: l.id, name: l.name }));
+
+      const validation = this.validator.validateRow(
+        row.rowIndex,
+        updatedRaw,
+        mapping,
+        company?.panEncrypted ? '07AAAAA0000A1Z5' : undefined,
+        knownLedgers,
+        batch.importType,
+      );
+
+      row.rawData = updatedRaw;
+      row.parsedData = validation.parsedData;
+      row.validationState = validation.validationState;
+      row.errorReasons = validation.errorReasons;
+      if (validation.matchedLedgerId) {
+        row.matchedLedgerId = validation.matchedLedgerId;
+      }
+
+      const savedRow = await qr.manager.save(ImportRowOrmEntity, row);
+
+      const allRows = await qr.manager.find(ImportRowOrmEntity, { where: { batchId, tenantId } });
+      batch.validRows = allRows.filter((r) => r.validationState === RiskApprovalState.GREEN).length;
+      batch.blockedRows = allRows.filter((r) => r.validationState === RiskApprovalState.RED).length;
+      batch.clarificationRows = allRows.filter(
+        (r) => r.validationState === RiskApprovalState.YELLOW || r.validationState === RiskApprovalState.BLUE,
+      ).length;
+      if (batch.blockedRows === 0 && batch.clarificationRows === 0) {
+        batch.status = ImportBatchStatus.READY_FOR_APPROVAL;
+      }
+      await qr.manager.save(ImportBatchOrmEntity, batch);
+
+      return savedRow;
+    });
+  }
+
+  /**
    * Maker-Checker sign-off
    */
   async approveBatch(
@@ -433,15 +524,15 @@ export class ImportService {
     // Resolve posting ledgers by stable systemKey / OUTPUT tax type - never by a
     // loose name match (which previously matched Input CGST before Output CGST)
     // and never with a "ledgers[0]" fallback that could post to a random account.
-    const { salesLedger, cgstLedger, sgstLedger, igstLedger } = await this.uow.executeInTransaction(
+    const { salesLedger, purchaseLedger, bankLedger, cashLedger, cgstLedger, sgstLedger, igstLedger, cgstInputLedger, sgstInputLedger, igstInputLedger } = await this.uow.executeInTransaction(
       async (qr) => {
         const ledgers = await qr.manager.find(LedgerOrmEntity, { where: { tenantId, companyId } });
         const bySys = (k: string) => ledgers.find((l) => l.systemKey === k);
-        const output = (t: string) =>
+        const byTax = (dir: 'OUTPUT' | 'INPUT', t: string) =>
           ledgers.find((l) => {
             const n = l.name.toUpperCase();
-            const isOut = (l.systemKey || '').toUpperCase().includes('OUTPUT') || n.includes('OUTPUT');
-            if (!isOut) return false;
+            const isDir = (l.systemKey || '').toUpperCase().includes(dir) || n.includes(dir);
+            if (!isDir) return false;
             if (l.gstTaxType && String(l.gstTaxType).toUpperCase() === t) return true;
             return n.includes(t);
           });
@@ -452,11 +543,26 @@ export class ImportService {
               l.name.toLowerCase().includes('sales') &&
               !l.name.toLowerCase().includes('purchase'),
           );
+        const purchase =
+          bySys('LED_PURCHASE_GST_DOMESTIC') ||
+          ledgers.find((l) => l.name.toLowerCase().includes('purchase'));
+        const bank =
+          bySys('LED_BANK_PRIMARY') ||
+          ledgers.find((l) => l.name.toLowerCase().includes('bank'));
+        const cash =
+          bySys('LED_CASH_IN_HAND') ||
+          ledgers.find((l) => l.name.toLowerCase().includes('cash'));
         return {
           salesLedger: sales || null,
-          cgstLedger: bySys('LED_CGST_OUTPUT') || output('CGST') || null,
-          sgstLedger: bySys('LED_SGST_OUTPUT') || output('SGST') || null,
-          igstLedger: bySys('LED_IGST_OUTPUT') || output('IGST') || null,
+          purchaseLedger: purchase || sales || null,
+          bankLedger: bank || cash || null,
+          cashLedger: cash || bank || sales || null,
+          cgstLedger: bySys('LED_CGST_OUTPUT') || byTax('OUTPUT', 'CGST') || null,
+          sgstLedger: bySys('LED_SGST_OUTPUT') || byTax('OUTPUT', 'SGST') || null,
+          igstLedger: bySys('LED_IGST_OUTPUT') || byTax('OUTPUT', 'IGST') || null,
+          cgstInputLedger: bySys('LED_CGST_INPUT') || byTax('INPUT', 'CGST') || bySys('LED_CGST_OUTPUT') || null,
+          sgstInputLedger: bySys('LED_SGST_INPUT') || byTax('INPUT', 'SGST') || bySys('LED_SGST_OUTPUT') || null,
+          igstInputLedger: bySys('LED_IGST_INPUT') || byTax('INPUT', 'IGST') || bySys('LED_IGST_OUTPUT') || null,
         };
       },
     );
@@ -480,56 +586,104 @@ export class ImportService {
     for (const row of validRows) {
       try {
       const data = row.parsedData;
-      if (!row.matchedLedgerId) {
+      const partyLedgerId = row.matchedLedgerId || cashLedger?.id;
+      if (!partyLedgerId) {
         throw new Error('Row has no matched party ledger; resolve masters before posting.');
       }
-      const partyLedgerId = row.matchedLedgerId;
       const totalAmount = data.totalAmount || 0;
       const taxable = data.taxableAmount || totalAmount;
       const cgst = data.cgstAmount || 0;
       const sgst = data.sgstAmount || 0;
       const igst = data.igstAmount || 0;
 
-      // Construct balanced double-entry voucher
-      // Sales Voucher: Debit Party (total), Credit Sales (taxable), Credit GST accounts
-      const entries: { ledgerId: string; entryType: EntryType; amount: string; narration?: string }[] = [
-        {
-          ledgerId: partyLedgerId,
-          entryType: EntryType.DEBIT,
-          amount: totalAmount.toFixed(4),
-          narration: `Party: ${data.partyName || 'Customer'}`,
-        },
-        {
-          ledgerId: salesLedger.id,
-          entryType: EntryType.CREDIT,
-          amount: taxable.toFixed(4),
-          narration: `Sales Revenue (HSN: ${data.hsnCode || 'N/A'})`,
-        },
-      ];
+      let voucherType = VoucherType.SALES;
+      const entries: { ledgerId: string; entryType: EntryType; amount: string; narration?: string }[] = [];
 
-      if (cgst > 0 && cgstLedger) {
-        entries.push({
-          ledgerId: cgstLedger.id,
-          entryType: EntryType.CREDIT,
-          amount: cgst.toFixed(4),
-          narration: 'Output CGST',
-        });
-      }
-      if (sgst > 0 && sgstLedger) {
-        entries.push({
-          ledgerId: sgstLedger.id,
-          entryType: EntryType.CREDIT,
-          amount: sgst.toFixed(4),
-          narration: 'Output SGST',
-        });
-      }
-      if (igst > 0 && igstLedger) {
-        entries.push({
-          ledgerId: igstLedger.id,
-          entryType: EntryType.CREDIT,
-          amount: igst.toFixed(4),
-          narration: 'Output IGST',
-        });
+      if (batch.importType === ImportType.BANK_STATEMENT) {
+        const isCredit = data.bankDirection === 'CREDIT';
+        voucherType = isCredit ? VoucherType.RECEIPT : VoucherType.PAYMENT;
+        const primaryBankId = bankLedger?.id || partyLedgerId;
+        const counterLedgerId = row.matchedLedgerId || salesLedger.id;
+        entries.push(
+          {
+            ledgerId: primaryBankId,
+            entryType: isCredit ? EntryType.DEBIT : EntryType.CREDIT,
+            amount: totalAmount.toFixed(4),
+            narration: data.narration || data.partyName || 'Bank Statement Entry',
+          },
+          {
+            ledgerId: counterLedgerId,
+            entryType: isCredit ? EntryType.CREDIT : EntryType.DEBIT,
+            amount: totalAmount.toFixed(4),
+            narration: data.narration || data.partyName || 'Bank Counterparty',
+          },
+        );
+      } else if (batch.importType === ImportType.PURCHASE_REGISTER) {
+        voucherType = VoucherType.PURCHASE;
+        entries.push(
+          {
+            ledgerId: purchaseLedger?.id || salesLedger.id,
+            entryType: EntryType.DEBIT,
+            amount: taxable.toFixed(4),
+            narration: `Purchase Expense (HSN: ${data.hsnCode || 'N/A'})`,
+          },
+          {
+            ledgerId: partyLedgerId,
+            entryType: EntryType.CREDIT,
+            amount: totalAmount.toFixed(4),
+            narration: `Vendor: ${data.partyName || 'Supplier'}`,
+          },
+        );
+        if (cgst > 0 && cgstInputLedger) {
+          entries.push({ ledgerId: cgstInputLedger.id, entryType: EntryType.DEBIT, amount: cgst.toFixed(4), narration: 'Input CGST' });
+        }
+        if (sgst > 0 && sgstInputLedger) {
+          entries.push({ ledgerId: sgstInputLedger.id, entryType: EntryType.DEBIT, amount: sgst.toFixed(4), narration: 'Input SGST' });
+        }
+        if (igst > 0 && igstInputLedger) {
+          entries.push({ ledgerId: igstInputLedger.id, entryType: EntryType.DEBIT, amount: igst.toFixed(4), narration: 'Input IGST' });
+        }
+      } else {
+        // Sales Voucher: Debit Party (total), Credit Sales (taxable), Credit GST accounts
+        entries.push(
+          {
+            ledgerId: partyLedgerId,
+            entryType: EntryType.DEBIT,
+            amount: totalAmount.toFixed(4),
+            narration: `Party: ${data.partyName || 'Customer'}`,
+          },
+          {
+            ledgerId: salesLedger.id,
+            entryType: EntryType.CREDIT,
+            amount: taxable.toFixed(4),
+            narration: `Sales Revenue (HSN: ${data.hsnCode || 'N/A'})`,
+          },
+        );
+
+        if (cgst > 0 && cgstLedger) {
+          entries.push({
+            ledgerId: cgstLedger.id,
+            entryType: EntryType.CREDIT,
+            amount: cgst.toFixed(4),
+            narration: 'Output CGST',
+          });
+        }
+        if (sgst > 0 && sgstLedger) {
+          entries.push({
+            ledgerId: sgstLedger.id,
+            entryType: EntryType.CREDIT,
+            amount: sgst.toFixed(4),
+            narration: 'Output SGST',
+          });
+        }
+        if (igst > 0 && igstLedger) {
+          entries.push({
+            ledgerId: igstLedger.id,
+            entryType: EntryType.CREDIT,
+            amount: igst.toFixed(4),
+            narration: 'Output IGST',
+          });
+        }
       }
 
       const voucher = await this.voucherService.createAndPostVoucher(
@@ -539,7 +693,7 @@ export class ImportService {
         {
           branchId: batch.branchId || fy.id,
           financialYearId: fy.id,
-          voucherType: VoucherType.SALES,
+          voucherType,
           voucherDate: data.date || new Date().toISOString().split('T')[0],
           narration: `Bulk Import Batch #${batch.id.substring(0, 8)} - Inv #${data.voucherNumber}`,
           series: 'IMPORT',
