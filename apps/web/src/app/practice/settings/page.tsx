@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, Button, Badge } from '@platform/ui';
 import { Settings, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 export default function PracticeSettingsHubPage() {
   const [settings, setSettings] = useState<any>({ reviewMode: 'ENFORCED', colleagueCount: 1, suggestedMode: 'ENFORCED' });
@@ -33,7 +34,8 @@ export default function PracticeSettingsHubPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div>
+      <div className="space-y-2">
+        <BackButton variant="link" fallbackUrl="/practice" label="Back to Practice" />
         <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
           <Settings className="h-6 w-6 text-brand-primary" />
           Practice Settings &amp; Controls

@@ -3,8 +3,9 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { Button, Badge, LoadingState } from '@platform/ui';
+import { BackButton } from '@/components/back-button';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { BankStatementFeed } from './bank-statement-feed';
@@ -100,12 +101,8 @@ function ReconciliationWorkbenchContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon-sm" asChild aria-label="Back to banking">
-            <Link href="/banking">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl="/banking" label="Back to banking" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-primary">

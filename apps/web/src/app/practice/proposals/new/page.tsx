@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, Button, Input, FormField } from '@platform/ui';
-import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 interface ProposalLineDraft {
   serviceTypeId: string;
@@ -102,10 +103,8 @@ export default function NewProposalPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/practice/proposals">
-          <Button variant="outline" size="sm"><ArrowLeft className="h-4 w-4" /></Button>
-        </Link>
+      <div className="space-y-2">
+        <BackButton variant="link" fallbackUrl="/practice/proposals" label="Back to proposals" />
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Proposal Builder</h1>
           <p className="text-xs text-text-secondary">Assemble a multi-service proposal from the Service Master with mixed pricing and GST.</p>

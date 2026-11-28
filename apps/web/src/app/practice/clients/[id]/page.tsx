@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
-  ArrowLeft,
   Building2,
   Briefcase,
   FolderOpen,
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent, DateText, Input, FormField } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 import { DocumentVaultView } from '../../documents/document-vault-view';
 
 type TabKey =
@@ -233,14 +233,8 @@ export default function Client360Page() {
       {/* Header */}
       <div className="rounded-xl border border-subtle bg-surface p-5 shadow-card space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/practice/clients"
-              aria-label="Back to Clients"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-default bg-surface-sunken text-secondary hover:text-primary"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
+          <div className="space-y-2">
+            <BackButton variant="link" fallbackUrl="/practice/clients" label="Back to clients" />
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl font-black text-primary">

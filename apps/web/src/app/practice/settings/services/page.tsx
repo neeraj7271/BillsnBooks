@@ -29,6 +29,7 @@ import {
   X,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 interface StageDraft {
   key: string;
@@ -246,7 +247,8 @@ export default function ServiceMasterPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl="/practice/settings" label="Back to settings" />
           <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
             <Boxes className="h-6 w-6 text-brand-primary" />
             Service Master (Work Types)

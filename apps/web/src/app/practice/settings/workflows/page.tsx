@@ -18,6 +18,7 @@ import {
 } from '@platform/ui';
 import { Plus, Edit3, Trash2, Sliders, X, ShieldCheck } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 interface StageConfig {
   key: string;
@@ -147,7 +148,8 @@ export default function WorkflowsSettingsPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl="/practice/settings" label="Back to settings" />
           <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
             <Sliders className="h-6 w-6 text-brand-primary" />
             Workflow Templates &amp; Custom Statuses

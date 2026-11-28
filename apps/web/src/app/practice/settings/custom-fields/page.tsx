@@ -12,6 +12,7 @@ import {
 } from '@platform/ui';
 import { Plus, Trash2, Hash, Tag } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 export default function CustomFieldsAndLabelsPage() {
   const [fields, setFields] = useState<any[]>([]);
@@ -80,7 +81,8 @@ export default function CustomFieldsAndLabelsPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div>
+      <div className="space-y-2">
+        <BackButton variant="link" fallbackUrl="/practice/settings" label="Back to settings" />
         <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
           <Hash className="h-6 w-6 text-brand-primary" />
           Custom Fields &amp; Labels

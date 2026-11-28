@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, Button, Input, FormField } from '@platform/ui';
 import { Plus, FileText } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 export default function EngagementTemplatesPage() {
   const [templates, setTemplates] = useState<any[]>([]);
@@ -31,7 +32,8 @@ export default function EngagementTemplatesPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div>
+      <div className="space-y-2">
+        <BackButton variant="link" fallbackUrl="/practice/settings" label="Back to settings" />
         <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
           <FileText className="h-6 w-6 text-brand-primary" />
           Engagement Letter Templates

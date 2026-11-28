@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, Button, Badge, Input, FormField } from '@platform/ui';
 import { ShieldCheck, Plus, Briefcase } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 const PERM_KEYS = [
   { key: 'manageTeam', label: 'Manage Team' },
@@ -62,7 +63,8 @@ export default function RolesAndJobRolesPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div>
+      <div className="space-y-2">
+        <BackButton variant="link" fallbackUrl="/practice/settings" label="Back to settings" />
         <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-brand-primary" />
           Permission Roles &amp; Job Roles

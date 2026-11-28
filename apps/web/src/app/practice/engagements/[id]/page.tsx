@@ -4,8 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, Button, Badge, Input, FormField } from '@platform/ui';
-import { PenTool, CheckCircle2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { PenTool, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { BackButton } from '@/components/back-button';
 
 export default function EngagementESignPage() {
   const params = useParams();
@@ -92,10 +93,8 @@ export default function EngagementESignPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Link href="/practice/proposals">
-            <Button variant="outline" size="sm"><ArrowLeft className="h-4 w-4" /></Button>
-          </Link>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl="/practice/proposals" label="Back to proposals" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-text-primary">{engagement.title}</h1>

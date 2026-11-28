@@ -4,8 +4,8 @@ import { logger } from '@/lib/logger';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { Button, Badge } from '@platform/ui';
+import { BackButton } from '@/components/back-button';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { Step1Upload } from './step1-upload';
@@ -169,12 +169,8 @@ export default function NewImportWizardPage() {
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon-sm" asChild aria-label="Back to imports">
-            <Link href="/imports">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl="/imports" label="Back to imports" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-primary">

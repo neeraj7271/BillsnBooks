@@ -129,14 +129,34 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
     return (userName.slice(0, 2) || 'AD').toUpperCase();
   })();
 
-  const breadcrumbLabel = (() => {
-    if (pathname === '/') return 'Dashboard';
-    return pathname
-      .split('/')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((s) => s.replace(/-/g, ' '))
-      .join(' / ');
+  const breadcrumbSegments = (() => {
+    if (pathname === '/') return [{ label: 'Dashboard', href: '/' }];
+    const parts = pathname.split('/').filter(Boolean).slice(0, 2);
+    const parentRoutes: Record<string, string> = {
+      practice: '/practice',
+      settings: '/settings',
+      reports: '/reports',
+      invoices: '/invoices',
+      banking: '/banking',
+      imports: '/imports',
+      collections: '/collections/ageing',
+      parties: '/parties',
+      items: '/items',
+      vouchers: '/vouchers',
+      approvals: '/approvals',
+      notifications: '/notifications',
+    };
+    return parts.map((seg, idx) => {
+      const label = seg.replace(/-/g, ' ');
+      if (idx === 0) {
+        return { label, href: parentRoutes[seg] || null };
+      }
+      const isDynamic = /^[0-9a-f-]{8,}$/i.test(seg);
+      return {
+        label,
+        href: isDynamic ? null : `/${parts[0]}/${seg}`,
+      };
+    });
   })();
 
   return (
@@ -256,9 +276,20 @@ export function TopHeader({ onOpenMobile }: TopHeaderProps) {
             )}
           </div>
 
-          <span className="hidden md:inline text-xs text-muted capitalize truncate">
-            {breadcrumbLabel}
-          </span>
+          <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-1.5 text-xs text-muted capitalize truncate">
+            {breadcrumbSegments.map((seg, idx) => (
+              <React.Fragment key={`${seg.label}-${idx}`}>
+                {idx > 0 && <span className="text-muted/60">/</span>}
+                {seg.href ? (
+                  <Link href={seg.href} className="hover:text-primary transition-colors">
+                    {seg.label}
+                  </Link>
+                ) : (
+                  <span>{seg.label}</span>
+                )}
+              </React.Fragment>
+            ))}
+          </nav>
         </div>
 
         {/* Right: Command Search + Notifications + Theme + Profile */}

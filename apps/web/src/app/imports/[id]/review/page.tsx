@@ -20,11 +20,11 @@ import {
   AlertTriangle,
   XCircle,
   ArrowRight,
-  ArrowLeft,
   RotateCw,
   Sparkles,
   Users,
 } from 'lucide-react';
+import { BackButton } from '@/components/back-button';
 import { apiClient } from '@/lib/api-client';
 import { useCompany } from '@/lib/company-context';
 import { MissingMastersModal } from '@/app/imports/new/missing-masters-modal';
@@ -137,13 +137,9 @@ export default function BatchReviewPage() {
     <div className="space-y-6 pb-12">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl="/imports" label="Back to imports" />
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon-sm" asChild aria-label="Back to imports">
-              <Link href="/imports">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
             <h1 className="text-xl font-black text-primary">
               Batch Resolution: {batch.fileName}
             </h1>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
+import { BackButton } from '@/components/back-button';
 import {
-  ArrowLeft,
   Printer,
   Download,
   CheckCircle2,
@@ -75,13 +75,7 @@ export function InvoiceHeaderBar({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         {/* Left: Back button & Document Identity */}
         <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href="/invoices"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-default bg-surface text-secondary hover:text-primary transition shadow-2xs shrink-0"
-            title="Back to Invoices"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
+          <BackButton variant="link" fallbackUrl="/invoices" label="Back to invoices" className="shrink-0" />
           <div className="min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl font-black text-primary font-mono tracking-tight whitespace-nowrap">

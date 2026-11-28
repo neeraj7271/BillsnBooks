@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { Badge } from '@platform/ui';
+import { BackButton } from '@/components/back-button';
 import { DocumentVaultView } from '../../../documents/document-vault-view';
 
 export default function ClientVaultPage() {
@@ -14,14 +14,8 @@ export default function ClientVaultPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/practice/clients"
-            aria-label="Back to Clients"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-default bg-surface text-secondary hover:text-primary transition"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
+        <div className="space-y-2">
+          <BackButton variant="link" fallbackUrl={`/practice/clients/${clientId}`} label="Back to client" />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold tracking-tight text-primary">Client Document Vault</h1>

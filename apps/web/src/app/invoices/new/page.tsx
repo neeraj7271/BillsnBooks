@@ -1,15 +1,14 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import Link from 'next/link';
 import {
-  ArrowLeft,
   Settings,
   Eye,
   Edit3,
   Columns,
   GripVertical,
 } from 'lucide-react';
+import { BackButton } from '@/components/back-button';
 import {
   Button,
   Badge,
@@ -127,6 +126,7 @@ function NewInvoiceContent() {
   return (
     <FormPage
       header={{
+        breadcrumbs: <BackButton variant="link" fallbackUrl="/invoices" label="Back to invoices" />,
         title:
           form.mode === 'edit'
             ? 'Revise Tax Invoice'
@@ -188,9 +188,6 @@ function NewInvoiceContent() {
               </button>
             </div>
 
-            <Button variant="outline" size="sm" asChild leftIcon={<ArrowLeft className="h-3.5 w-3.5" />}>
-              <Link href="/invoices">Back</Link>
-            </Button>
             <Button
               variant="outline"
               size="sm"
