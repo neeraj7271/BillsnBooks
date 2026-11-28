@@ -50,6 +50,10 @@ export default function NewImportWizardPage() {
 
   const handleUpload = async () => {
     if (!file) return;
+    if (!activeCompanyId) {
+      setUploadError('No active company selected — pick a company first.');
+      return;
+    }
     setUploading(true);
     setUploadError(null);
     try {
@@ -65,6 +69,7 @@ export default function NewImportWizardPage() {
       setMapping(initialUiMapping);
       setCurrentStep(2);
     } catch (err: unknown) {
+      logger.error('Import upload failed:', err);
       const msg = err instanceof Error ? err.message : 'File upload failed';
       setUploadError(msg);
     } finally {
@@ -187,6 +192,7 @@ export default function NewImportWizardPage() {
 
       {currentStep === 1 && (
         <Step1Upload
+          activeCompanyId={activeCompanyId}
           file={file}
           uploading={uploading}
           uploadError={uploadError}

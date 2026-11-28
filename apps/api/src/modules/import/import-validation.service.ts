@@ -139,9 +139,9 @@ export class ImportValidationService {
 
     // Check if quantity and unit rate exist in raw row if taxableAmount was not explicitly mapped
     if (taxableDec.isZero()) {
-      const rawQty = parseAmount(String(rawRow['Quantity'] || rawRow['quantity'] || rawRow['Qty'] || ''));
-      const rawRate = parseAmount(String(rawRow['Rate'] || rawRow['Unit Price'] || rawRow['rate'] || rawRow['Price'] || ''));
-      const rawDisc = parseAmount(String(rawRow['Discount'] || rawRow['discount'] || '0'));
+      const rawQty = parseAmount(String(rawRow['Quantity'] || rawRow['Quantity*'] || rawRow['quantity'] || rawRow['Qty'] || ''));
+      const rawRate = parseAmount(String(rawRow['Rate'] || rawRow['Unit Price / Rate*'] || rawRow['Rate / Price*'] || rawRow['Unit Price'] || rawRow['rate'] || rawRow['Price'] || ''));
+      const rawDisc = parseAmount(String(rawRow['Discount'] || rawRow['Discount Amount'] || rawRow['discount'] || '0'));
       if (rawQty.gt(0) && rawRate.gt(0)) {
         taxableDec = rawQty.times(rawRate).minus(rawDisc);
       }
@@ -153,7 +153,7 @@ export class ImportValidationService {
     parsedData.igstAmount = igstDec.toNumber();
 
     // Tax rate validation (if explicit taxRate column exists or rawRow has Tax Rate)
-    const rawTaxRate = getVal('taxRate') || String(rawRow['Tax Rate'] || rawRow['taxRate'] || rawRow['Tax Rate %'] || '');
+    const rawTaxRate = getVal('taxRate') || String(rawRow['Tax Rate'] || rawRow['Tax Rate %*'] || rawRow['taxRate'] || rawRow['Tax Rate %'] || '');
     if (rawTaxRate) {
       const rateNum = parseFloat(rawTaxRate.replace(/%/g, '').trim());
       const STATUTORY_GST_SLABS = [0, 0.1, 0.25, 1.5, 3, 5, 12, 18, 28];

@@ -1,10 +1,11 @@
 import { logger } from '@/lib/logger';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button } from '@platform/ui';
 import { UploadCloud, FileSpreadsheet, Download, ChevronDown } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
 interface Step1UploadProps {
+  activeCompanyId?: string;
   file: File | null;
   uploading: boolean;
   uploadError: string | null;
@@ -15,6 +16,7 @@ interface Step1UploadProps {
 }
 
 export function Step1Upload({
+  activeCompanyId,
   file,
   uploading,
   uploadError,
@@ -25,6 +27,13 @@ export function Step1Upload({
 }: Step1UploadProps) {
   const [downloading, setDownloading] = useState(false);
   const [templateMenuOpen, setTemplateMenuOpen] = useState(false);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (uploadError) {
+      errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [uploadError]);
 
   const handleDownloadTemplate = async (type: string) => {
     try {
@@ -115,8 +124,18 @@ export function Step1Upload({
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {!activeCompanyId && (
+          <div className="p-3 rounded-xl bg-status-warning-subtle border border-subtle text-xs text-status-warning-text font-medium">
+            No active company selected — pick a company in the top bar before uploading.
+          </div>
+        )}
+
         {uploadError && (
-          <div className="p-3 rounded-xl bg-status-danger-subtle border border-status-danger text-xs text-status-danger-text font-medium">
+          <div
+            ref={errorRef}
+            role="alert"
+            className="p-3 rounded-xl bg-status-danger-subtle border border-status-danger text-xs text-status-danger-text font-medium"
+          >
             {uploadError}
           </div>
         )}
@@ -186,11 +205,14 @@ export function Step1Upload({
         </div>
       </CardContent>
 
-      <CardFooter className="justify-end">
+      <CardFooter className="justify-end gap-3">
+        {!activeCompanyId && (
+          <span className="text-xs text-muted">Select an active company to continue</span>
+        )}
         <Button
           variant="primary"
           size="md"
-          disabled={!file}
+          disabled={!file || !activeCompanyId}
           loading={uploading}
           onClick={onUpload}
         >

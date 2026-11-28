@@ -168,10 +168,11 @@ export class ImportController {
 
   @Get('templates/:type')
   async downloadTemplate(
+    @Param('companyId') companyId: string,
     @Param('type') type: TemplateType,
     @Res() res: Response,
   ) {
-    const buffer = await this.templateService.generateTemplate(type);
+    const buffer = await this.templateService.generateTemplate(type, companyId);
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
