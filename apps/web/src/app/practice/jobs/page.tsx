@@ -17,6 +17,7 @@ import {
   Play,
   Tag,
   ShieldCheck,
+  Layers,
 } from 'lucide-react';
 import {
   Button,
@@ -28,6 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  EmptyState,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
 import { ReviewInboxView } from '../reviews/review-inbox-view';
@@ -430,8 +432,29 @@ function JobsPipelineContent() {
         </div>
       )}
 
+      {/* EMPTY STATE */}
+      {!loading && filteredJobs.length === 0 && (
+        <div className="rounded-xl border border-subtle bg-surface p-6 shadow-card">
+          <EmptyState
+            icon={<Layers className="h-6 w-6 text-muted" />}
+            title="No jobs yet"
+            description="Jobs are created when a client signs an engagement — or add one now."
+            action={
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
+                  New Job
+                </Button>
+                <Link href="/practice/proposals/new">
+                  <Button variant="outline" size="sm">New Proposal</Button>
+                </Link>
+              </div>
+            }
+          />
+        </div>
+      )}
+
       {/* KANBAN BOARD */}
-      {view === 'KANBAN' && (
+      {(loading || filteredJobs.length > 0) && view === 'KANBAN' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 items-start">
           {activeColumns.map((stage: any) => {
             const stageJobs = filteredJobs.filter((j) => j.stage === stage.key);

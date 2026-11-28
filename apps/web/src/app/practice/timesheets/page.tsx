@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, Button, Badge, Input, FormField } from '@platform/ui';
+import { Card, CardContent, Button, Badge, Input, FormField, EmptyState } from '@platform/ui';
 import { Clock, CheckCircle2, Plus } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
@@ -131,7 +131,15 @@ export default function PracticeTimesheetsPage() {
           {loading ? (
             <div className="text-xs text-text-muted py-6 text-center">Loading timesheet...</div>
           ) : entries.length === 0 ? (
-            <div className="text-xs text-text-muted py-6 text-center">No time entries logged yet.</div>
+            <EmptyState
+              icon={<Clock className="h-6 w-6 text-muted" />}
+              title="No time entries logged yet"
+              description="Log time against a client/job to build billable WIP."
+              action={{
+                label: 'Log Time',
+                onClick: () => document.querySelector<HTMLSelectElement>('select')?.focus(),
+              }}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">

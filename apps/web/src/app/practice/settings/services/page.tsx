@@ -314,6 +314,10 @@ export default function ServiceMasterPage() {
                       <Badge variant={svc.isActive ? 'success' : 'neutral'}>
                         {svc.isActive ? svc.frequency : 'DISABLED'}
                       </Badge>
+                      <Badge variant="info">
+                        {svc.billingType || (svc.frequency === 'ONE_TIME' ? 'Fixed' : 'Retainer')}
+                        {svc.defaultFee ? ` · ₹${Number(svc.defaultFee).toLocaleString('en-IN')}` : ''}
+                      </Badge>
                     </div>
                     <h3 className="text-base font-semibold text-text-primary mt-2">{svc.name}</h3>
                     <div className="text-xs text-text-muted font-mono">{svc.code}</div>

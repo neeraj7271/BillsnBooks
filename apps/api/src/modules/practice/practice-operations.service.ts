@@ -399,7 +399,7 @@ export class PracticeOperationsService {
 
   async getCommandCenterDashboard(tenantId: string) {
     return this.uow.executeInTransaction(async (qr) => {
-      const [tenant, clients, jobs, notices, bills, timeEntries, users] = await Promise.all([
+      const [tenant, clients, jobs, notices, bills, timeEntries, users, serviceCount] = await Promise.all([
         qr.manager.findOne(TenantOrmEntity, { where: { id: tenantId } }),
         qr.manager.find(FirmClientOrmEntity, { where: { tenantId }, relations: ['company'] }),
         qr.manager.find(PracticeJobOrmEntity, { where: { tenantId }, relations: ['client', 'client.company'] }),
@@ -407,6 +407,7 @@ export class PracticeOperationsService {
         qr.manager.find(PracticeBillOrmEntity, { where: { tenantId } }),
         qr.manager.find(PracticeTimeEntryOrmEntity, { where: { tenantId } }),
         qr.manager.find(UserOrmEntity, { where: { tenantId, isActive: true } }),
+        qr.manager.count(ServiceTypeOrmEntity, { where: { tenantId } }),
       ]);
 
       const today = new Date().toISOString().slice(0, 10);
@@ -477,8 +478,18 @@ export class PracticeOperationsService {
           };
         });
 
+      const activeTeamCount = users.filter((u) => u.role !== 'CLIENT_VIEWER').length;
+
       return {
         practiceMode: (tenant?.practiceMode as 'FIRM' | 'BUSINESS') || 'FIRM',
+        setupStatus: {
+          hasClients: clients.length > 0,
+          hasServices: serviceCount > 0,
+          hasTeam: activeTeamCount > 1,
+          hasJobs: jobs.length > 0,
+          hasTimeEntries: timeEntries.length > 0,
+          hasBills: bills.length > 0,
+        },
         summary: {
           totalClients: clients.length,
           openJobs: openJobs.length,

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, Button, Badge } from '@platform/ui';
+import { Card, CardContent, Button, Badge, EmptyState } from '@platform/ui';
 import { Users, AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
@@ -53,6 +53,21 @@ export default function CapacityPlanningPage() {
 
       {loading ? (
         <div className="p-8 text-center text-sm text-text-muted">Loading capacity heatmap...</div>
+      ) : (data.staff || []).length === 0 ? (
+        <Card>
+          <CardContent className="p-5">
+            <EmptyState
+              icon={<Users className="h-6 w-6 text-muted" />}
+              title="No team members in capacity plan"
+              description="Add colleagues and set weekly capacity hours to balance compliance workloads."
+              action={
+                <Link href="/practice/team">
+                  <Button size="sm" variant="primary">Manage Team</Button>
+                </Link>
+              }
+            />
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardContent className="p-5 overflow-x-auto">

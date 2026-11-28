@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, Button, Badge, Input, FormField, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@platform/ui';
+import { Card, CardContent, Button, Badge, Input, FormField, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, EmptyState } from '@platform/ui';
 import { ShieldAlert, Plus, X, AlertTriangle } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
@@ -106,7 +106,12 @@ export default function NoticesInboxPage() {
           {loading ? (
             <div className="text-xs text-text-muted py-6 text-center">Loading notices...</div>
           ) : notices.length === 0 ? (
-            <div className="text-xs text-text-muted py-6 text-center">No notices logged yet.</div>
+            <EmptyState
+              icon={<ShieldAlert className="h-6 w-6 text-muted" />}
+              title="No statutory notices logged yet"
+              description="Track GST, Income Tax, TDS, and ROC notices with response deadlines and reply notes."
+              action={{ label: 'Log Notice', onClick: () => setCreateOpen(true) }}
+            />
           ) : (
             notices.map((n) => (
               <div
