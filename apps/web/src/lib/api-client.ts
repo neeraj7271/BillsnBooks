@@ -96,7 +96,7 @@ function buildHeaders(options: RequestInit, accessTokenOverride?: string): Heade
   return headers;
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function fetchWithAuth(path: string, options: RequestInit = {}): Promise<Response> {
   const url = `${API_BASE_URL}${path}`;
   const isAuthEndpoint = path.startsWith('/v1/auth/');
 
@@ -115,6 +115,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       clearSessionAndRedirect();
     }
   }
+
+  return response;
+}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const response = await fetchWithAuth(path, options);
 
   const json = await response.json().catch(() => null);
 
@@ -293,9 +299,8 @@ export const apiClient = {
   },
 
   async downloadImportTemplate(type: string, companyId: string = getActiveCompanyId()) {
-    const url = `${API_BASE_URL}/v1/companies/${companyId}/imports/templates/${type}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to download template: ${res.statusText}`);
+    const res = await fetchWithAuth(`/v1/companies/${companyId}/imports/templates/${type}`);
+    if (!res.ok) throw new Error(`Failed to download template: ${res.status} ${res.statusText}`);
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
