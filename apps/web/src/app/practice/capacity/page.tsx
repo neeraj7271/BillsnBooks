@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, Button, Badge } from '@platform/ui';
 import { Users, AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
@@ -73,7 +74,9 @@ export default function CapacityPlanningPage() {
                   <tr key={s.userId} className={s.isOverloaded ? 'bg-status-danger-subtle/30' : ''}>
                     <td className="py-3 px-3">
                       <div className="font-semibold text-text-primary flex items-center gap-1.5">
-                        {s.name}
+                        <Link href={`/practice/jobs?assignedToUserId=${s.userId}`} className="hover:text-brand-text hover:underline">
+                          {s.name}
+                        </Link>
                         {s.isOverloaded && (
                           <Badge variant="danger" size="xs">
                             <AlertTriangle className="h-3 w-3 mr-0.5" /> Overloaded

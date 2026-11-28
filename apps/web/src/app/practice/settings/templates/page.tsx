@@ -52,7 +52,7 @@ export default function ReminderRulesSettingsPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary flex items-center gap-2">
             <Bell className="h-6 w-6 text-brand-primary" />
-            Reminder Templates &amp; Notification Rules
+            Reminder Rules
           </h1>
           <p className="text-sm text-text-secondary mt-1">
             Configure automated due-date nudges, WhatsApp click-to-send templates, and in-app/email notification rules.

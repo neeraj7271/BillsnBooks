@@ -238,12 +238,12 @@ function ClientDocumentsPortalContent() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-black tracking-tight text-primary">
-              Client Document Vault & Requests
+              Document Requests
             </h1>
             <Badge variant="brand" size="sm">Client Portal</Badge>
           </div>
           <p className="mt-1 text-sm text-secondary">
-            Real encrypted document vault with folder hierarchy, versioning, inline preview, and client requests.
+            Request bank statements, purchase bills, and statutory records from clients, or switch to the Client Vault tab.
           </p>
         </div>
 

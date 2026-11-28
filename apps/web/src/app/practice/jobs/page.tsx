@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Plus,
   RefreshCw,
@@ -16,6 +16,7 @@ import {
   X,
   Play,
   Tag,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   Button,
@@ -29,6 +30,8 @@ import {
   DialogFooter,
 } from '@platform/ui';
 import { apiClient } from '@/lib/api-client';
+import { ReviewInboxView } from '../reviews/review-inbox-view';
+import { ComplianceTasksView } from '../tasks/tasks-view';
 
 const DEFAULT_STAGES = [
   { key: 'BACKLOG', label: 'Backlog' },
@@ -1039,10 +1042,80 @@ function JobsPipelineContent() {
   );
 }
 
+function PracticeJobsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawTab = searchParams.get('tab');
+  const activeTab: 'pipeline' | 'review' | 'tasks' =
+    rawTab === 'review' ? 'review' : rawTab === 'tasks' ? 'tasks' : 'pipeline';
+
+  const switchTab = (nextTab: 'pipeline' | 'review' | 'tasks') => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextTab === 'pipeline') {
+      params.delete('tab');
+    } else {
+      params.set('tab', nextTab);
+    }
+    const qs = params.toString();
+    router.replace(qs ? `/practice/jobs?${qs}` : '/practice/jobs');
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Top Workspace Tabs */}
+      <div className="flex items-center justify-between gap-4 border-b border-subtle pb-3">
+        <div className="inline-flex rounded-xl bg-surface-sunken p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => switchTab('pipeline')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+              activeTab === 'pipeline'
+                ? 'bg-surface text-primary shadow-xs'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            <Columns3 className="h-3.5 w-3.5" /> Pipeline
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTab('review')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+              activeTab === 'review'
+                ? 'bg-surface text-primary shadow-xs'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            <ShieldCheck className="h-3.5 w-3.5" /> Review queue
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTab('tasks')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+              activeTab === 'tasks'
+                ? 'bg-surface text-primary shadow-xs'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            <CheckSquare className="h-3.5 w-3.5" /> Tasks
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'review' ? (
+        <ReviewInboxView />
+      ) : activeTab === 'tasks' ? (
+        <ComplianceTasksView />
+      ) : (
+        <JobsPipelineContent />
+      )}
+    </div>
+  );
+}
+
 export default function PracticeJobsPage() {
   return (
     <Suspense fallback={<div className="p-8 text-center text-xs text-muted">Loading jobs pipeline...</div>}>
-      <JobsPipelineContent />
+      <PracticeJobsContent />
     </Suspense>
   );
 }

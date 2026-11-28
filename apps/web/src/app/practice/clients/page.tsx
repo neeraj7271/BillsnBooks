@@ -131,7 +131,7 @@ export default function ClientsDirectoryPage() {
       key: 'openTaskCount',
       cell: (row) => (
         <Link
-          href={`/practice/tasks?clientId=${row.id}`}
+          href={`/practice/jobs?tab=tasks&clientId=${row.id}`}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-text hover:underline"
         >
           <CheckSquare className="h-3.5 w-3.5" />
