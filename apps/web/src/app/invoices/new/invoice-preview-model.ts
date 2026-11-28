@@ -18,7 +18,12 @@ export function buildInvoicePreviewModel(
   lineItems: LineItem[],
   computedTotals: any,
 ) {
-  const isIntraState = !computedTotals?.isInterState;
+  const isIntraState =
+    computedTotals?.isIntraState !== undefined
+      ? Boolean(computedTotals.isIntraState)
+      : activeBranch?.stateCode && formState?.posStateCode
+        ? activeBranch.stateCode === formState.posStateCode
+        : !computedTotals?.isInterState;
 
   // Format line items for templates
   const rawItems = lineItems && lineItems.length > 0 && lineItems.some(it => Boolean((it as any).itemName || it.description || it.unitPrice))
@@ -75,23 +80,33 @@ export function buildInvoicePreviewModel(
     };
   });
 
-  const subtotal = computedTotals?.taxableAmount !== undefined && !isNaN(Number(computedTotals.taxableAmount))
+  const subtotal = computedTotals?.subtotal !== undefined && !isNaN(Number(computedTotals.subtotal))
+    ? Number(computedTotals.subtotal)
+    : computedTotals?.taxableAmount !== undefined && !isNaN(Number(computedTotals.taxableAmount))
     ? Number(computedTotals.taxableAmount)
     : items.reduce((sum, it) => sum + it.taxableAmount, 0);
 
-  const totalCgst = computedTotals?.cgstAmount !== undefined && !isNaN(Number(computedTotals.cgstAmount))
+  const totalCgst = computedTotals?.totalCgst !== undefined && !isNaN(Number(computedTotals.totalCgst))
+    ? Number(computedTotals.totalCgst)
+    : computedTotals?.cgstAmount !== undefined && !isNaN(Number(computedTotals.cgstAmount))
     ? Number(computedTotals.cgstAmount)
     : (isIntraState ? items.reduce((sum, it) => sum + it.cgstAmount, 0) : 0);
 
-  const totalSgst = computedTotals?.sgstAmount !== undefined && !isNaN(Number(computedTotals.sgstAmount))
+  const totalSgst = computedTotals?.totalSgst !== undefined && !isNaN(Number(computedTotals.totalSgst))
+    ? Number(computedTotals.totalSgst)
+    : computedTotals?.sgstAmount !== undefined && !isNaN(Number(computedTotals.sgstAmount))
     ? Number(computedTotals.sgstAmount)
     : (isIntraState ? items.reduce((sum, it) => sum + it.sgstAmount, 0) : 0);
 
-  const totalIgst = computedTotals?.igstAmount !== undefined && !isNaN(Number(computedTotals.igstAmount))
+  const totalIgst = computedTotals?.totalIgst !== undefined && !isNaN(Number(computedTotals.totalIgst))
+    ? Number(computedTotals.totalIgst)
+    : computedTotals?.igstAmount !== undefined && !isNaN(Number(computedTotals.igstAmount))
     ? Number(computedTotals.igstAmount)
     : (!isIntraState ? items.reduce((sum, it) => sum + it.igstAmount, 0) : 0);
 
-  const grandTotal = computedTotals?.totalAmount !== undefined && !isNaN(Number(computedTotals.totalAmount))
+  const grandTotal = computedTotals?.grandTotal !== undefined && !isNaN(Number(computedTotals.grandTotal))
+    ? Number(computedTotals.grandTotal)
+    : computedTotals?.totalAmount !== undefined && !isNaN(Number(computedTotals.totalAmount))
     ? Number(computedTotals.totalAmount)
     : (subtotal + totalCgst + totalSgst + totalIgst);
 

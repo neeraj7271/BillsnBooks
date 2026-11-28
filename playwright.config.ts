@@ -7,12 +7,13 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3005',
-    trace: 'on-first-retry',
-    screenshot: 'on',
-    video: 'off',
-    headless: process.env.HEADED === 'true' ? false : true,
+    actionTimeout: 15000,
+    trace: 'on',
+    screenshot: 'only-on-failure',
+    video: 'on',
+    headless: process.env.HEADLESS === 'true' ? true : false,
     launchOptions: {
-      slowMo: process.env.HEADED === 'true' ? 150 : 0,
+      slowMo: process.env.SLOW_MO ? Number(process.env.SLOW_MO) : (process.env.HEADLESS === 'true' ? 0 : 250),
     },
   },
   projects: [

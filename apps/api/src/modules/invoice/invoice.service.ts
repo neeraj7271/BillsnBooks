@@ -723,6 +723,7 @@ export class InvoiceService {
         invoice.voucherId = voucher.id;
       }
 
+      invoice.items = computedLineEntities;
       const updated = await qr.manager.save(invoice);
       updated.items = computedLineEntities;
       return this.toDto(updated);

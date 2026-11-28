@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { UnitOfWorkService } from '../../infrastructure/persistence/unit-of-work/unit-of-work.service';
 import { FirmClientOrmEntity } from '../../infrastructure/persistence/entities/firm-client.orm-entity';
@@ -96,6 +97,13 @@ export class PracticeService {
       });
       if (!company) {
         throw new NotFoundException(`Company '${dto.companyId}' not found.`);
+      }
+
+      const existingForCompany = await qr.manager.findOne(FirmClientOrmEntity, {
+        where: { companyId: dto.companyId, tenantId },
+      });
+      if (existingForCompany) {
+        throw new ConflictException(`Company '${company.legalName}' is already onboarded as a practice client.`);
       }
 
       const client = qr.manager.create(FirmClientOrmEntity, {

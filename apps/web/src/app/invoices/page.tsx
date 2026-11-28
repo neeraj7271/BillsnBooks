@@ -248,7 +248,7 @@ export default function InvoicesPage() {
               title="Edit Invoice"
             >
               <Link
-                href={`/invoices/new?edit=${inv.id}`}
+                href={`/invoices/new?cloneFrom=${inv.id}&mode=edit`}
                 aria-label="Edit Invoice"
                 className="flex items-center justify-center w-full h-full"
               >

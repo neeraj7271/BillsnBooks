@@ -1,0 +1,4 @@
+name,partyType,registrationType,gstin,stateCode,email
+Kirloskar Pneumatic Co,VENDOR,REGULAR,27AAACK7733Q1ZO,27,sales@kirloskar.com
+Bharat Forge Components,CUSTOMER,REGULAR,27AAACB5577U1Z2,27,ar@bharatforge.com
+Local Retail Cash Counter,CUSTOMER,UNREGISTERED,,27,retail@local.in

@@ -154,6 +154,14 @@ export async function runSeed() {
       [bankLedgerId, tenantId, companyId, groupBankId],
     );
 
+    const capitalLedgerId = '10000000-0000-4000-8000-000000000008';
+    await queryRunner.query(
+      `INSERT INTO ledgers (id, tenant_id, company_id, group_id, code, name, opening_balance, current_balance, is_bank_or_cash)
+       VALUES ($1, $2, $3, $4, 'LED-CAP', 'Opening Balance Equity', 1250000.00, 1250000.00, false)
+       ON CONFLICT (id) DO NOTHING;`,
+      [capitalLedgerId, tenantId, companyId, groupLiabilitiesId],
+    );
+
     await queryRunner.query(
       `INSERT INTO bank_accounts (id, tenant_id, company_id, branch_id, bank_name, account_number_encrypted, ifsc_code, account_type, ledger_id, opening_balance, current_balance, currency)
        VALUES ($1, $2, $3, $4, 'HDFC Bank', '50200012345678', 'HDFC0000060', 'CURRENT', $5, 1250000.00, 1250000.00, 'INR')

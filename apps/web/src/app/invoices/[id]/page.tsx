@@ -139,12 +139,13 @@ export default function InvoiceDetailsPage() {
         items: (invoice.items || []).map((item: any) => ({
           itemId: item.itemId,
           description: item.description,
-          hsnSac: item.hsnSac,
+          hsnSacCode: item.hsnSacCode,
+          uom: item.uom,
           quantity: Number(item.quantity),
           unitPrice: Number(item.unitPrice),
-          discountAmount: Number(item.discountAmount || 0),
-          taxRate: Number(item.taxRate || 0),
-          cessRate: Number(item.cessRate || 0),
+          discountPercent: Number(item.discountPercent || 0),
+          gstRatePercent: Number(item.gstRatePercent ?? 18),
+          cessRatePercent: Number(item.cessRatePercent || 0),
         })),
         isDraft: false,
       });

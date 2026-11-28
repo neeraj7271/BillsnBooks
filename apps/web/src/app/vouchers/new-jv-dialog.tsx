@@ -115,7 +115,7 @@ export function NewJvDialog({
         entries: jvEntries.map((e) => ({
           ledgerId: e.ledgerId,
           entryType: e.entryType,
-          amount: e.amount,
+          amount: String(e.amount),
           narration: e.narration,
         })),
       });

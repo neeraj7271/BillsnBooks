@@ -39,7 +39,7 @@ interface Item {
   id: string;
   itemCode: string;
   name: string;
-  itemType: 'GOODS' | 'SERVICE';
+  itemType: 'GOODS' | 'SERVICES';
   hsnSacCode: string;
   uom: string;
   unitPrice: number;
@@ -410,7 +410,7 @@ export default function ItemsPage() {
                 options={[
                   { label: 'All Items', value: 'ALL' },
                   { label: 'Goods Only', value: 'GOODS' },
-                  { label: 'Services Only', value: 'SERVICE' },
+                  { label: 'Services Only', value: 'SERVICES' },
                 ]}
               />
             ),

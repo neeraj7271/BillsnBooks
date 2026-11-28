@@ -206,7 +206,7 @@ export function InvoiceSummary({
             onClick={onSubmit}
             leftIcon={<CheckCircle2 className="h-4 w-4" />}
           >
-            Save & Submit for Approval
+            Save & Issue Invoice
           </Button>
         </div>
       </div>

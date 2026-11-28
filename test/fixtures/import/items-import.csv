@@ -1,0 +1,3 @@
+itemCode,name,itemType,hsnSacCode,uom,gstRatePercent,sellingPrice,purchasePrice
+ITM-CSV-01,Hydraulic Pump Assembly,GOODS,8413,NOS,18,18500,14000
+ITM-CSV-02,GST Advisory Retainer,SERVICE,998221,NOS,18,25000,0
