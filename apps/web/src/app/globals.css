@@ -67,25 +67,25 @@
   }
 
   .dark {
-    --background: 21 22 28;
+    --background: 15 16 20;
     --foreground: 232 232 236;
 
     /* Semantic Tokens (Dark Mode — Graphite + Navy) */
-    --color-bg: #15161c;
-    --color-surface: #1e2029;
-    --color-surface-raised: #272a35;
-    --color-surface-sunken: #0f1015;
+    --color-bg: #0f1014;
+    --color-surface: #1a1c24;
+    --color-surface-raised: #23262f;
+    --color-surface-sunken: #090a0d;
     --color-surface-overlay: rgba(0, 0, 0, 0.6);
 
-    --color-border: #2e313c;
-    --color-border-subtle: #24262f;
-    --color-border-strong: #3a3d4a;
+    --color-border: #282b34;
+    --color-border-subtle: #1f222a; /* ~= surface: near-invisible on cards */
+    --color-border-strong: #363a45;
     --color-border-focus: #4f8ff5;
 
     --color-text-primary: #e8e8ec;
     --color-text-secondary: #a6a8b2;
     --color-text-muted: #9699a3;
-    --color-text-inverse: #15161c;
+    --color-text-inverse: #0f1014;
 
     --color-brand: #4f8ff5;
     --color-brand-hover: #6ba1f7;
@@ -114,7 +114,7 @@
     --color-skeleton: #272a35;
 
     /* Elevation — dark cards lift via lighter fill + deep soft shadow + 1px lit top edge */
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.40), 0 6px 18px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.055);
     --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.45), 0 10px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     --shadow-popover: 0 2px 8px rgba(0, 0, 0, 0.40), 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, formatMoney } from '@platform/ui';
-import { Clock, Users, ArrowUpRight } from 'lucide-react';
+import { Clock, Users, ArrowUpRight, AlertTriangle } from 'lucide-react';
 import type { ArAgeingSummaryDto } from '@platform/shared-types';
 
 interface AgeingSummaryCardsProps {
@@ -10,16 +10,48 @@ interface AgeingSummaryCardsProps {
   loading: boolean;
 }
 
+type Tone = 'brand' | 'success' | 'warning' | 'danger';
+
+const TONES: Record<Tone, { chip: string; icon: string; badge: string }> = {
+  brand: {
+    chip: 'bg-brand-subtle',
+    icon: 'text-brand',
+    badge: 'bg-brand-subtle text-brand-text',
+  },
+  success: {
+    chip: 'bg-status-success-subtle',
+    icon: 'text-status-success',
+    badge: 'bg-status-success-subtle text-status-success-text',
+  },
+  warning: {
+    chip: 'bg-status-warning-subtle',
+    icon: 'text-status-warning',
+    badge: 'bg-status-warning-subtle text-status-warning-text',
+  },
+  danger: {
+    chip: 'bg-status-danger-subtle',
+    icon: 'text-status-danger',
+    badge: 'bg-status-danger-subtle text-status-danger-text',
+  },
+};
+
 export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps) {
   const formatInr = (val: string | number | undefined) => formatMoney(val);
 
-  const cards = [
+  const cards: {
+    title: string;
+    value: string;
+    sub: string;
+    badge: string;
+    tone: Tone;
+    icon: React.ElementType;
+  }[] = [
     {
       title: 'Total Outstanding',
       value: formatInr(summary?.totalOutstanding),
       sub: `${summary?.partiesCount || 0} active debtors`,
       badge: 'Total AR',
-      border: 'border-l-4 border-l-brand',
+      tone: 'brand',
       icon: Users,
     },
     {
@@ -27,7 +59,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       value: formatInr(summary?.current0To30),
       sub: 'Within regular payment terms',
       badge: 'Healthy',
-      border: 'border-l-4 border-l-status-success',
+      tone: 'success',
       icon: ArrowUpRight,
     },
     {
@@ -35,7 +67,7 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       value: formatInr(summary?.days31To60),
       sub: 'Follow-up recommended',
       badge: 'Moderate',
-      border: 'border-l-4 border-l-status-warning',
+      tone: 'warning',
       icon: Clock,
     },
     {
@@ -45,34 +77,42 @@ export function AgeingSummaryCards({ summary, loading }: AgeingSummaryCardsProps
       ),
       sub: `DSO: ${summary?.dsoDays || 0} days avg`,
       badge: 'Attention',
-      border: 'border-l-4 border-l-status-danger',
-      icon: Clock,
+      tone: 'danger',
+      icon: AlertTriangle,
     },
   ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map((c, i) => (
-        <Card
-          key={i}
-          className={`p-4 border-l-[3px] ${c.border.replace('border-l-4 ', '')}`}
-        >
-          <div className="flex items-center justify-between text-xs font-semibold text-muted">
-            <span>{c.title}</span>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-surface-sunken text-secondary">
-              {c.badge}
-            </span>
-          </div>
-          <div className="mt-2 text-2xl font-black tracking-tight text-primary tabular-nums">
-            {loading ? '...' : c.value}
-          </div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-muted">
-            <c.icon className="h-3.5 w-3.5 text-muted" />
-            <span>{c.sub}</span>
-          </div>
-        </Card>
-      ))}
+      {cards.map((c, i) => {
+        const tone = TONES[c.tone];
+        const Icon = c.icon;
+        return (
+          <Card key={i} className="p-5">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg ${tone.chip}`}
+                >
+                  <Icon className={`h-[18px] w-[18px] ${tone.icon}`} />
+                </div>
+                <span className="text-sm font-medium text-secondary">
+                  {c.title}
+                </span>
+              </div>
+              <span
+                className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${tone.badge}`}
+              >
+                {c.badge}
+              </span>
+            </div>
+            <div className="mt-4 text-[26px] leading-none font-bold tracking-tight text-primary tabular-nums">
+              {loading ? '—' : c.value}
+            </div>
+            <div className="mt-2 text-xs text-muted">{c.sub}</div>
+          </Card>
+        );
+      })}
     </div>
   );
 }
-
