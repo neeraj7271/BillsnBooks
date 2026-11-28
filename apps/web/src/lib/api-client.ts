@@ -828,20 +828,6 @@ export const apiClient = {
     });
   },
 
-  async approveInvoice(companyId: string = getActiveCompanyId(), invoiceId: string, comments?: string) {
-    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ comments }),
-    });
-  },
-
-  async rejectInvoice(companyId: string = getActiveCompanyId(), invoiceId: string, reason: string) {
-    return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/reject`, {
-      method: 'POST',
-      body: JSON.stringify({ reason }),
-    });
-  },
-
   async convertToTaxInvoice(companyId: string = getActiveCompanyId(), invoiceId: string) {
     return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/convert-to-tax-invoice`, {
       method: 'POST',
@@ -867,25 +853,6 @@ export const apiClient = {
     return request<any>(`/v1/companies/${companyId}/invoices/${invoiceId}/promise-to-pay`, {
       method: 'POST',
       body: JSON.stringify(data),
-    });
-  },
-
-  // Approvals Inbox
-  async listApprovals(companyId: string = getActiveCompanyId()) {
-    return request<any[]>(`/v1/companies/${companyId}/approvals`);
-  },
-
-  async approveRequest(companyId: string = getActiveCompanyId(), requestId: string, comments?: string) {
-    return request<any>(`/v1/companies/${companyId}/approvals/${requestId}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ comments }),
-    });
-  },
-
-  async rejectRequest(companyId: string = getActiveCompanyId(), requestId: string, reason: string) {
-    return request<any>(`/v1/companies/${companyId}/approvals/${requestId}/reject`, {
-      method: 'POST',
-      body: JSON.stringify({ reason }),
     });
   },
 

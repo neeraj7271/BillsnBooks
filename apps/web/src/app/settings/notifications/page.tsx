@@ -313,37 +313,6 @@ export default function NotificationSettingsPage() {
               </CardContent>
             </Card>
 
-            {/* SECTION 2: Maker-Checker Financial Approvals */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-lg bg-brand-subtle text-brand-text flex items-center justify-center font-bold">
-                      <CheckSquare className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">2. Maker-Checker Financial Approvals</CardTitle>
-                      <CardDescription>
-                        Internal segregation-of-duties notifications for dual-authorization vouchers and credit notes.
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <Badge variant="brand" size="sm">
-                    Dual Authorization
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <NotificationRuleCard
-                  rule={getRule(NotificationType.APPROVAL_REQUIRED)}
-                  title="Pending Authorization Queue Alert"
-                  offsetLabel="Delivery Cadence"
-                  fixedOffsetNote="Immediate on Submission"
-                  onUpdateField={updateRuleField}
-                />
-              </CardContent>
-            </Card>
-
             {/* SECTION 3: Banking Reconciliation & Settlement */}
             <Card>
               <CardHeader>

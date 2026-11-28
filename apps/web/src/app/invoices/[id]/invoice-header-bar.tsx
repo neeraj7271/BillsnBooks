@@ -23,8 +23,6 @@ interface InvoiceHeaderBarProps {
   selectedTemplate: InvoiceTemplateId;
   onSelectTemplate: (templateId: InvoiceTemplateId) => void;
   onPrint: () => void;
-  onApprove?: () => void;
-  onTriggerReject?: () => void;
   onTriggerCancel: () => void;
   onOpenCustomizer?: () => void;
 }
@@ -35,35 +33,27 @@ export function InvoiceHeaderBar({
   selectedTemplate,
   onSelectTemplate,
   onPrint,
-  onApprove,
-  onTriggerReject,
   onTriggerCancel,
   onOpenCustomizer,
 }: InvoiceHeaderBarProps) {
   const isCancelled = invoice.status === 'CANCELLED';
   const isIssued = invoice.status === 'ISSUED';
-  const isPending = invoice.status === 'PENDING_APPROVAL' || invoice.status === 'DRAFT';
+  const isDraft = invoice.status === 'DRAFT';
 
   const statusVariant = isIssued
     ? 'success'
-    : invoice.status === 'PENDING_APPROVAL'
-    ? 'warning'
     : isCancelled
     ? 'danger'
     : 'neutral';
 
   const formatStatus = (status: string) => {
     switch (status) {
-      case 'PENDING_APPROVAL':
-        return 'Pending Approval';
       case 'ISSUED':
         return 'Issued';
       case 'CANCELLED':
         return 'Cancelled';
       case 'DRAFT':
         return 'Draft';
-      case 'REJECTED':
-        return 'Rejected';
       default:
         return status;
     }
@@ -93,8 +83,8 @@ export function InvoiceHeaderBar({
 
         {/* Right: Clean Document Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap shrink-0">
-          {/* Edit / Revise for Pending Approval */}
-          {isPending && (
+          {/* Edit for Draft */}
+          {isDraft && (
             <Button
               variant="outline"
               size="sm"

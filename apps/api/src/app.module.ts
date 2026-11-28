@@ -20,7 +20,6 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { PartyModule } from './modules/party/party.module';
 import { ItemModule } from './modules/item/item.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
-import { ApprovalModule } from './modules/approval/approval.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PracticeModule } from './modules/practice/practice.module';
 import { TeamModule } from './modules/team/team.module';
@@ -49,7 +48,6 @@ import { HealthController } from './modules/health/health.controller';
     PartyModule,
     ItemModule,
     InvoiceModule,
-    ApprovalModule,
     NotificationModule,
     PracticeModule,
     TeamModule,

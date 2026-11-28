@@ -27,7 +27,6 @@ import { PartyOrmEntity } from './entities/party.orm-entity';
 import { ItemOrmEntity } from './entities/item.orm-entity';
 import { InvoiceOrmEntity } from './entities/invoice.orm-entity';
 import { InvoiceItemOrmEntity } from './entities/invoice-item.orm-entity';
-import { ApprovalRequestOrmEntity } from './entities/approval-request.orm-entity';
 import { NotificationOrmEntity } from './entities/notification.orm-entity';
 import { FirmClientOrmEntity } from './entities/firm-client.orm-entity';
 import { StaffAssignmentOrmEntity } from './entities/staff-assignment.orm-entity';
@@ -94,6 +93,7 @@ import { PracticeJobsWorkflowAndClient3601731800000 } from './migrations/1731800
 import { PracticePlatformV2Core1731900000000 } from './migrations/1731900000000-PracticePlatformV2Core';
 import { PracticePlatformV2Phase21732000000000 } from './migrations/1732000000000-PracticePlatformV2Phase2';
 import { TeamAndReviewEngine1732100000000 } from './migrations/1732100000000-TeamAndReviewEngine';
+import { DropApprovalRequestsTable1732200000000 } from './migrations/1732200000000-DropApprovalRequestsTable';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -132,7 +132,6 @@ export const AppDataSource = new DataSource({
     ItemOrmEntity,
     InvoiceOrmEntity,
     InvoiceItemOrmEntity,
-    ApprovalRequestOrmEntity,
     NotificationOrmEntity,
     NotificationSettingOrmEntity,
     NotificationDispatchLogOrmEntity,
@@ -203,6 +202,7 @@ export const AppDataSource = new DataSource({
     PracticePlatformV2Core1731900000000,
     PracticePlatformV2Phase21732000000000,
     TeamAndReviewEngine1732100000000,
+    DropApprovalRequestsTable1732200000000,
   ],
   migrationsRun: false,
 });

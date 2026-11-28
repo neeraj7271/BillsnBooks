@@ -49,7 +49,7 @@ interface Invoice {
   sgstAmount: number;
   igstAmount: number;
   totalAmount: number;
-  status: 'DRAFT' | 'PENDING_APPROVAL' | 'ISSUED' | 'CANCELLED';
+  status: 'DRAFT' | 'ISSUED' | 'CANCELLED';
 }
 
 export default function InvoicesPage() {
@@ -130,7 +130,7 @@ export default function InvoicesPage() {
 
   const totalBilled = invoices.reduce((sum, inv) => sum + (Number(inv.totalAmount) || 0), 0);
   const issuedCount = invoices.filter((inv) => inv.status === 'ISSUED').length;
-  const pendingCount = invoices.filter((inv) => inv.status === 'PENDING_APPROVAL').length;
+  const draftCount = invoices.filter((inv) => inv.status === 'DRAFT').length;
 
   const columns: ColumnDef<Invoice>[] = [
     {
@@ -210,7 +210,7 @@ export default function InvoicesPage() {
       align: 'center',
       cell: (inv) => (
         <Badge
-          variant={inv.status === 'ISSUED' ? 'success' : inv.status === 'PENDING_APPROVAL' ? 'warning' : 'neutral'}
+          variant={inv.status === 'ISSUED' ? 'success' : 'neutral'}
           size="xs"
           dot
         >
@@ -239,7 +239,7 @@ export default function InvoicesPage() {
             </Button>
           )}
 
-          {(inv.status === 'DRAFT' || inv.status === 'PENDING_APPROVAL') && (
+          {inv.status === 'DRAFT' && (
             <Button
               variant="ghost"
               size="icon"
@@ -368,13 +368,13 @@ export default function InvoicesPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between text-xs font-semibold text-secondary">
-              <span>Awaiting Approval</span>
+              <span>Drafts</span>
               <Clock className="h-4 w-4 text-status-warning-text" />
             </div>
             <div className="mt-2 text-xl font-black text-status-warning-text">
-              {pendingCount}
+              {draftCount}
             </div>
-            <p className="mt-1 text-[11px] text-muted">Maker-checker approval queue</p>
+            <p className="mt-1 text-[11px] text-muted">Saved drafts awaiting issue</p>
           </CardContent>
         </Card>
       </div>
@@ -416,7 +416,7 @@ export default function InvoicesPage() {
         </div>
 
         <div className="flex items-center gap-1.5 p-1 bg-surface-sunken rounded-xl overflow-x-auto">
-          {['ALL', 'ISSUED', 'PENDING_APPROVAL', 'CANCELLED', 'DRAFT'].map((st) => (
+          {['ALL', 'ISSUED', 'CANCELLED', 'DRAFT'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
@@ -426,7 +426,7 @@ export default function InvoicesPage() {
                   : 'text-secondary hover:text-primary'
               }`}
             >
-              {st === 'ALL' ? 'All Invoices' : st === 'PENDING_APPROVAL' ? 'Pending Approval' : st}
+              {st === 'ALL' ? 'All Invoices' : st}
             </button>
           ))}
         </div>

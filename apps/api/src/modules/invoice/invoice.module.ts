@@ -6,7 +6,6 @@ import { PartyOrmEntity } from '../../infrastructure/persistence/entities/party.
 import { ItemOrmEntity } from '../../infrastructure/persistence/entities/item.orm-entity';
 import { BranchOrmEntity } from '../../infrastructure/persistence/entities/branch.orm-entity';
 import { LedgerOrmEntity } from '../../infrastructure/persistence/entities/ledger.orm-entity';
-import { ApprovalRequestOrmEntity } from '../../infrastructure/persistence/entities/approval-request.orm-entity';
 import { NotificationOrmEntity } from '../../infrastructure/persistence/entities/notification.orm-entity';
 import { InvoiceService } from './invoice.service';
 import { InvoiceController } from './invoice.controller';
@@ -22,7 +21,6 @@ import { NumberingModule } from '../numbering/numbering.module';
       ItemOrmEntity,
       BranchOrmEntity,
       LedgerOrmEntity,
-      ApprovalRequestOrmEntity,
       NotificationOrmEntity,
     ]),
     VoucherModule,

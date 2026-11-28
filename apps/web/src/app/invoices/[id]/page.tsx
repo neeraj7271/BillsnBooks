@@ -31,8 +31,6 @@ export default function InvoiceDetailsPage() {
 
   // Customizer Dialog
   const [customizerOpen, setCustomizerOpen] = useState(false);
-  // Reject Dialog
-  const [rejectOpen, setRejectOpen] = useState(false);
   // Cancel Dialog
   const [cancelOpen, setCancelOpen] = useState(false);
 
@@ -124,29 +122,35 @@ export default function InvoiceDetailsPage() {
     }
   };
 
-  const handleApprove = async () => {
+  const handleIssueDraft = async () => {
+    if (!invoice) return;
     setActionLoading(true);
     try {
-      const targetCompanyId = invoice?.companyId || activeCompanyId;
-      await apiClient.approveInvoice(targetCompanyId, invoiceId, 'Approved by reviewer');
+      const targetCompanyId = invoice.companyId || activeCompanyId;
+      await apiClient.updateInvoice(targetCompanyId, invoiceId, {
+        branchId: invoice.branchId,
+        financialYearId: invoice.financialYearId,
+        partyId: invoice.partyId,
+        invoiceDate: invoice.invoiceDate,
+        dueDate: invoice.dueDate,
+        documentType: invoice.documentType,
+        notes: invoice.notes,
+        termsAndConditions: invoice.termsAndConditions,
+        items: (invoice.items || []).map((item: any) => ({
+          itemId: item.itemId,
+          description: item.description,
+          hsnSac: item.hsnSac,
+          quantity: Number(item.quantity),
+          unitPrice: Number(item.unitPrice),
+          discountAmount: Number(item.discountAmount || 0),
+          taxRate: Number(item.taxRate || 0),
+          cessRate: Number(item.cessRate || 0),
+        })),
+        isDraft: false,
+      });
       await loadInvoice();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to approve invoice';
-      setError(msg);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleConfirmReject = async (reason?: string) => {
-    setActionLoading(true);
-    try {
-      const targetCompanyId = invoice?.companyId || activeCompanyId;
-      await apiClient.rejectInvoice(targetCompanyId, invoiceId, reason || 'Rejected by reviewer');
-      setRejectOpen(false);
-      await loadInvoice();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to reject invoice';
+      const msg = err instanceof Error ? err.message : 'Failed to issue draft invoice';
       setError(msg);
     } finally {
       setActionLoading(false);
@@ -197,8 +201,6 @@ export default function InvoiceDetailsPage() {
           selectedTemplate={selectedTemplate}
           onSelectTemplate={handleSelectTemplate}
           onPrint={handlePrint}
-          onApprove={handleApprove}
-          onTriggerReject={() => setRejectOpen(true)}
           onTriggerCancel={() => setCancelOpen(true)}
           onOpenCustomizer={() => setCustomizerOpen(true)}
         />
@@ -234,53 +236,12 @@ export default function InvoiceDetailsPage() {
             <Button
               variant="primary"
               size="sm"
-              onClick={handleApprove}
+              onClick={handleIssueDraft}
               loading={actionLoading}
               leftIcon={<CheckCircle2 className="h-3.5 w-3.5" />}
               className="bg-brand hover:bg-brand-hover text-inverse font-semibold shadow-xs"
             >
               Issue & Post to Books
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {invoice.status === 'PENDING_APPROVAL' && (
-        <div className="no-print print:hidden p-4 rounded-xl bg-status-warning-subtle border border-status-warning flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-card">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="p-2 rounded-xl bg-surface text-status-warning-text shrink-0">
-              <Clock className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-primary flex items-center gap-2">
-                <span>Pending Maker-Checker Sign-off</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-surface text-status-warning-text">
-                  Dual-Control
-                </span>
-              </div>
-              <div className="text-[11px] text-secondary mt-0.5">
-                This high-value invoice (&gt; ₹50,000) is held in quarantine until approved. Approving will automatically post the canonical double-entry sales voucher to general ledger.
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={actionLoading}
-              onClick={() => setRejectOpen(true)}
-              className="border-status-warning text-status-warning-text hover:bg-surface"
-            >
-              Reject
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleApprove}
-              loading={actionLoading}
-              className="bg-status-success hover:opacity-90 text-inverse font-semibold shadow-xs"
-            >
-              Approve & Post to Books
             </Button>
           </div>
         </div>
@@ -360,18 +321,6 @@ export default function InvoiceDetailsPage() {
         companyId={invoice?.companyId || activeCompanyId}
         initialSettings={settings}
         onSaved={loadInvoice}
-      />
-
-      <ConfirmDialog
-        open={rejectOpen}
-        onOpenChange={setRejectOpen}
-        title="Reject Invoice"
-        description="Provide a reason for rejecting this invoice. The author will be notified to revise the transaction."
-        confirmLabel="Confirm Rejection"
-        tone="danger"
-        promptPlaceholder="Enter reason for rejection..."
-        loading={actionLoading}
-        onConfirm={handleConfirmReject}
       />
 
       <ConfirmDialog

@@ -60,7 +60,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [ageing, setAgeing] = useState<any>(null);
   const [invoices, setInvoices] = useState<any[]>([]);
-  const [approvals, setApprovals] = useState<any[]>([]);
   const [periods, setPeriods] = useState<any[]>([]);
   const [healthOpen, setHealthOpen] = useState(false);
 
@@ -68,15 +67,13 @@ export default function DashboardPage() {
     if (!activeCompanyId) return;
     setLoading(true);
     try {
-      const [ageingRes, invRes, appRes, perRes] = await Promise.all([
+      const [ageingRes, invRes, perRes] = await Promise.all([
         apiClient.getArAgeingSummary(activeCompanyId).catch(() => null),
         apiClient.listInvoices(activeCompanyId, { limit: 10 }).catch(() => []),
-        apiClient.listApprovals(activeCompanyId).catch(() => []),
         apiClient.listPeriods(activeCompanyId).catch(() => []),
       ]);
       setAgeing(ageingRes);
       setInvoices(Array.isArray(invRes) ? invRes.slice(0, 10) : ((invRes as any)?.items || []).slice(0, 10));
-      setApprovals(Array.isArray(appRes) ? appRes.slice(0, 5) : []);
       setPeriods(Array.isArray(perRes) ? perRes.slice(0, 6) : []);
     } finally {
       setLoading(false);
@@ -115,15 +112,6 @@ export default function DashboardPage() {
       positive: true,
       points: [10, 15, 21, 18, 26, 30, 35],
       strokeClass: 'text-status-success-text',
-    },
-    {
-      label: 'Pending Approvals',
-      value: approvals.length,
-      isCount: true,
-      delta: approvals.length === 0 ? 'Clear' : `${approvals.length} waiting`,
-      positive: approvals.length === 0,
-      points: [5, 4, 6, 3, 2, 3, approvals.length || 1],
-      strokeClass: 'text-status-info-text',
     },
   ];
 
@@ -212,7 +200,7 @@ export default function DashboardPage() {
                   <span className="text-overline uppercase text-muted">{kpi.label}</span>
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-display text-primary tabular-nums">
-                      {kpi.isCount ? kpi.value : <MoneyText amount={kpi.value} />}
+                      <MoneyText amount={kpi.value} />
                     </div>
                     <Sparkline points={kpi.points} strokeClass={kpi.strokeClass} />
                   </div>
@@ -290,75 +278,21 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Third Row: Recent Invoices & Pending Approvals */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-7 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-h2 text-primary">Recent Invoices</h2>
-                <Link href="/invoices" className="text-xs font-medium text-brand-text hover:underline">
-                  All invoices
-                </Link>
-              </div>
-              <DataTable
-                columns={invoiceColumns}
-                data={invoices}
-                density="compact"
-                emptyTitle="No invoices yet"
-                emptyDescription="Create your first GST invoice to see activity here."
-              />
+          {/* Third Row: Recent Invoices */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-h2 text-primary">Recent Invoices</h2>
+              <Link href="/invoices" className="text-xs font-medium text-brand-text hover:underline">
+                All invoices
+              </Link>
             </div>
-
-            <div className="lg:col-span-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-h2 text-primary">Pending Approvals</h2>
-                <Link href="/approvals" className="text-xs font-medium text-brand-text hover:underline">
-                  Approval queue
-                </Link>
-              </div>
-              <Card>
-                <CardContent className="p-4 space-y-3">
-                  {approvals.length === 0 ? (
-                    <div className="py-8 text-center text-xs text-muted">
-                      No invoices awaiting approval.
-                    </div>
-                  ) : (
-                    approvals.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between gap-3 p-3 rounded-xl border border-subtle bg-surface-sunken"
-                      >
-                        <div className="min-w-0">
-                          <div className="text-xs font-semibold text-primary truncate">
-                            {item.invoiceNumber || item.referenceNumber || 'Pending Item'}
-                          </div>
-                          <div className="text-caption text-muted">
-                            <MoneyText amount={Number(item.totalAmount || 0)} />
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Button
-                            size="xs"
-                            variant="outline"
-                            onClick={() => apiClient.approveInvoice?.(activeCompanyId, item.id).then(loadDashboard)}
-                            leftIcon={<CheckCircle2 className="h-3.5 w-3.5 text-status-success-text" />}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            onClick={() => apiClient.rejectInvoice?.(activeCompanyId, item.id, 'Rejected').then(loadDashboard)}
-                            leftIcon={<XCircle className="h-3.5 w-3.5 text-status-danger-text" />}
-                          >
-                            Reject
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <DataTable
+              columns={invoiceColumns}
+              data={invoices}
+              density="compact"
+              emptyTitle="No invoices yet"
+              emptyDescription="Create your first GST invoice to see activity here."
+            />
           </div>
 
           {/* Fourth Row: Period Status & System Health */}

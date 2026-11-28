@@ -29,7 +29,6 @@ export function InvoiceSummary({
   const [includeBankDetails, setIncludeBankDetails] = useState(true);
   const [showAdditionalTerms, setShowAdditionalTerms] = useState(false);
   const [additionalTerms, setAdditionalTerms] = useState('');
-  const isHighValue = computedTotals.grandTotal > 50000;
 
   return (
     <div className="space-y-6 pt-2" data-testid="invoice-summary-section">
@@ -101,15 +100,6 @@ export function InvoiceSummary({
               </div>
             )}
           </div>
-
-          {isHighValue && (
-            <div className="p-3 rounded-xl bg-status-warning-subtle border border-status-warning text-xs flex items-center gap-2.5">
-              <Clock className="h-4 w-4 text-status-warning-text shrink-0" />
-              <div className="text-status-warning-text">
-                <span className="font-bold">Maker-Checker Quarantine:</span> Invoices &gt; ₹50,000 will require partner approval before final General Ledger posting.
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right Side: Totals Card (max-w-sm on wide screens) */}

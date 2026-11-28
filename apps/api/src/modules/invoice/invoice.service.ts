@@ -16,7 +16,6 @@ import { ItemOrmEntity } from '../../infrastructure/persistence/entities/item.or
 import { BranchOrmEntity } from '../../infrastructure/persistence/entities/branch.orm-entity';
 import { LedgerOrmEntity } from '../../infrastructure/persistence/entities/ledger.orm-entity';
 import { LedgerGroupOrmEntity } from '../../infrastructure/persistence/entities/ledger-group.orm-entity';
-import { ApprovalRequestOrmEntity } from '../../infrastructure/persistence/entities/approval-request.orm-entity';
 import { NotificationOrmEntity } from '../../infrastructure/persistence/entities/notification.orm-entity';
 import {
   InvoiceDto,
@@ -25,7 +24,6 @@ import {
   DocumentType,
   TaxClassification,
   ApprovalStatus,
-  ApprovalRequestType,
   NotificationType,
   SupplyType,
   VoucherType,
@@ -382,19 +380,12 @@ export class InvoiceService {
         }
       }
 
-      // 7. Status determination: Draft, Pending Approval, or Issued
-      const isHighValue = finalTotal.greaterThanOrEqualTo(50000);
-      const requiresApproval =
-        documentType === DocumentType.TAX_INVOICE && (dto.requireApproval || isHighValue);
-
+      // 7. Status determination: Draft or Issued (all non-draft invoices post directly)
       let status = InvoiceStatus.ISSUED;
       let approvalStatus = ApprovalStatus.APPROVED;
 
       if (dto.isDraft) {
         status = InvoiceStatus.DRAFT;
-        approvalStatus = ApprovalStatus.PENDING;
-      } else if (requiresApproval) {
-        status = InvoiceStatus.PENDING_APPROVAL;
         approvalStatus = ApprovalStatus.PENDING;
       }
 
@@ -467,41 +458,7 @@ export class InvoiceService {
       invoice.party = party;
       const savedInvoice = await qr.manager.save(invoice);
 
-      // 9. If Pending Approval, create ApprovalRequest
-      if (status === InvoiceStatus.PENDING_APPROVAL) {
-        const approvalReq = qr.manager.create(ApprovalRequestOrmEntity, {
-          tenantId,
-          companyId,
-          entityType: 'INVOICE',
-          entityId: savedInvoice.id,
-          requestType: ApprovalRequestType.HIGH_VALUE_INVOICE,
-          requestedBy: userId,
-          status: ApprovalStatus.PENDING,
-          comments: `Invoice #${invoiceNumber} for ₹${finalTotal.toFixed(2)} requires partner approval.`,
-          metadata: {
-            invoiceNumber,
-            totalAmount: finalTotal.toFixed(2),
-            partyName: party.name,
-          },
-        });
-        await qr.manager.save(approvalReq);
-
-        // Create notification
-        const notification = qr.manager.create(NotificationOrmEntity, {
-          tenantId,
-          userId,
-          title: 'Invoice Submitted for Approval',
-          message: `Invoice #${invoiceNumber} to ${party.name} for ₹${finalTotal.toFixed(2)} has been submitted for approval.`,
-          type: NotificationType.APPROVAL_REQUIRED,
-          entityType: 'INVOICE',
-          entityId: savedInvoice.id,
-        });
-        await qr.manager.save(notification);
-
-        return this.toDto(savedInvoice);
-      }
-
-      // 9a. If Draft, save and return without GL entries or approval request
+      // 9a. If Draft, save and return without GL entries
       if (status === InvoiceStatus.DRAFT) {
         const notification = qr.manager.create(NotificationOrmEntity, {
           tenantId,
@@ -751,138 +708,23 @@ export class InvoiceService {
       invoice.notes = dto.notes;
       invoice.termsAndConditions = dto.termsAndConditions;
 
-      // Transition handling for Draft / Pending Invoices
-      if (invoice.status === InvoiceStatus.DRAFT) {
-        if (!dto.isDraft) {
-          const isHighValue = finalTotal.greaterThanOrEqualTo(50000);
-          if (dto.requireApproval || isHighValue) {
-            invoice.status = InvoiceStatus.PENDING_APPROVAL;
-          } else {
-            invoice.status = InvoiceStatus.ISSUED;
-            const voucher = await this.postSalesVoucherForInvoice(
-              qr,
-              tenantId,
-              companyId,
-              userId,
-              invoice,
-              party,
-            );
-            invoice.voucherId = voucher.id;
-          }
-        }
-      } else {
-        // Maker-Checker Threshold Check
-        const makerCheckerThreshold = new Decimal(50000);
-        if (finalTotal.greaterThanOrEqualTo(makerCheckerThreshold)) {
-          invoice.status = InvoiceStatus.PENDING_APPROVAL;
-        }
+      // Transition handling for Draft Invoices (all non-draft invoices post directly)
+      if (invoice.status === InvoiceStatus.DRAFT && !dto.isDraft) {
+        invoice.status = InvoiceStatus.ISSUED;
+        invoice.approvalStatus = ApprovalStatus.APPROVED;
+        const voucher = await this.postSalesVoucherForInvoice(
+          qr,
+          tenantId,
+          companyId,
+          userId,
+          invoice,
+          party,
+        );
+        invoice.voucherId = voucher.id;
       }
 
       const updated = await qr.manager.save(invoice);
       updated.items = computedLineEntities;
-      return this.toDto(updated);
-    });
-  }
-
-  async approveInvoice(
-    tenantId: string,
-    companyId: string,
-    approverId: string,
-    invoiceId: string,
-    comments?: string,
-  ): Promise<InvoiceDto> {
-    return this.uow.executeInTransaction(async (qr) => {
-      const invoice = await qr.manager.findOne(InvoiceOrmEntity, {
-        where: { id: invoiceId, tenantId, companyId },
-        relations: ['party', 'items'],
-      });
-
-      if (!invoice) {
-        throw new NotFoundException(`Invoice '${invoiceId}' not found.`);
-      }
-
-      if (invoice.approvalStatus === ApprovalStatus.APPROVED && invoice.status === InvoiceStatus.ISSUED) {
-        return this.toDto(invoice);
-      }
-
-      invoice.approvalStatus = ApprovalStatus.APPROVED;
-      invoice.approvedBy = approverId;
-      invoice.approvedAt = new Date();
-      invoice.status = InvoiceStatus.ISSUED;
-
-      // Update approval request
-      const approvalReq = await qr.manager.findOne(ApprovalRequestOrmEntity, {
-        where: { entityId: invoiceId, tenantId, status: ApprovalStatus.PENDING },
-      });
-      if (approvalReq) {
-        approvalReq.status = ApprovalStatus.APPROVED;
-        approvalReq.approverId = approverId;
-        approvalReq.actionTimestamp = new Date();
-        approvalReq.comments = comments || 'Approved';
-        await qr.manager.save(approvalReq);
-      }
-
-      // Post Canonical Double-Entry Voucher
-      const voucher = await this.postSalesVoucherForInvoice(
-        qr,
-        tenantId,
-        companyId,
-        approverId,
-        invoice,
-        invoice.party,
-      );
-
-      invoice.voucherId = voucher.id;
-      const updatedInvoice = await qr.manager.save(invoice);
-
-      // Notification
-      const notification = qr.manager.create(NotificationOrmEntity, {
-        tenantId,
-        userId: approvalReq?.requestedBy || approverId,
-        title: 'Invoice Approved & Posted',
-        message: `Invoice #${invoice.invoiceNumber} has been approved and posted to canonical books.`,
-        type: NotificationType.APPROVAL_RESOLVED,
-        entityType: 'INVOICE',
-        entityId: invoice.id,
-      });
-      await qr.manager.save(notification);
-
-      return this.toDto(updatedInvoice);
-    });
-  }
-
-  async rejectInvoice(
-    tenantId: string,
-    companyId: string,
-    approverId: string,
-    invoiceId: string,
-    reason: string,
-  ): Promise<InvoiceDto> {
-    return this.uow.executeInTransaction(async (qr) => {
-      const invoice = await qr.manager.findOne(InvoiceOrmEntity, {
-        where: { id: invoiceId, tenantId, companyId },
-      });
-
-      if (!invoice) {
-        throw new NotFoundException(`Invoice '${invoiceId}' not found.`);
-      }
-
-      invoice.approvalStatus = ApprovalStatus.REJECTED;
-      invoice.rejectionReason = reason;
-      invoice.status = InvoiceStatus.CANCELLED;
-
-      const approvalReq = await qr.manager.findOne(ApprovalRequestOrmEntity, {
-        where: { entityId: invoiceId, tenantId, status: ApprovalStatus.PENDING },
-      });
-      if (approvalReq) {
-        approvalReq.status = ApprovalStatus.REJECTED;
-        approvalReq.approverId = approverId;
-        approvalReq.actionTimestamp = new Date();
-        approvalReq.comments = reason;
-        await qr.manager.save(approvalReq);
-      }
-
-      const updated = await qr.manager.save(invoice);
       return this.toDto(updated);
     });
   }

@@ -157,7 +157,6 @@ export function Sidebar({
           items: [
             { label: 'Home', href: '/', icon: Layers },
             { label: 'Invoices', href: '/invoices', icon: FileText },
-            { label: 'Approvals', href: '/approvals', icon: CheckSquare },
             { label: 'Parties', href: '/parties', icon: Users },
             { label: 'Items', href: '/items', icon: Boxes },
             { label: 'Imports', href: '/imports', icon: FileSpreadsheet },

@@ -87,30 +87,6 @@ export class InvoiceController {
     return await this.invoiceService.updateInvoice(tenantId, companyId, userId, id, dto);
   }
 
-  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
-  @Post(':id/approve')
-  async approveInvoice(
-    @Param('companyId') companyId: string,
-    @Param('id') id: string,
-    @Body() body: { comments?: string },
-    @Request() req: any,
-  ) {
-    const { tenantId, userId } = this.getContext(req);
-    return await this.invoiceService.approveInvoice(tenantId, companyId, userId, id, body?.comments);
-  }
-
-  @Roles(UserRole.SUPER_ADMIN, UserRole.FIRM_PARTNER, UserRole.CLIENT_APPROVER)
-  @Post(':id/reject')
-  async rejectInvoice(
-    @Param('companyId') companyId: string,
-    @Param('id') id: string,
-    @Body() body: { reason: string },
-    @Request() req: any,
-  ) {
-    const { tenantId, userId } = this.getContext(req);
-    return await this.invoiceService.rejectInvoice(tenantId, companyId, userId, id, body?.reason || 'Rejected by approver');
-  }
-
   @Post(':id/convert-to-tax-invoice')
   async convertToTaxInvoice(
     @Param('companyId') companyId: string,
